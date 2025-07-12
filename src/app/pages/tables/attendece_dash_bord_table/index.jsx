@@ -5,8 +5,8 @@ import { Budget } from "./Budget";
 import { Income } from "./Income";
 import { Expense } from "./Expense";
 import { TopSellers } from "./TopSellers";
-import { SocialTraffic } from "./SocialTraffic";
-import { TopCountries } from "./TopCountries";
+// import { SocialTraffic } from "./SocialTraffic";
+// import { TopCountries } from "./TopCountries";
 import AttendanceStatusDisplayTable from "./attendecedisplaytable";
 
 export default function Orders() {
@@ -25,13 +25,14 @@ export default function Orders() {
           </div>
 
           {/* Top Sellers */}
-          <TopSellers />
-
+      
+  <TopSellers />
+         
           {/* Social Traffic & Top Countries */}
-          <div className="col-span-12 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:col-span-7 lg:gap-6 xl:col-span-6">
+          {/* <div className="col-span-12 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:col-span-7 lg:gap-6 xl:col-span-6">
             <SocialTraffic />
             <TopCountries />
-          </div>
+          </div> */}
 
           {/* Attendance Table */}
           <AttendanceStatusDisplayTable />
