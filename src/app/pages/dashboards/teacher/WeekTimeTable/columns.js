@@ -4,10 +4,10 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import clsx from "clsx";
 import { RowActions } from "./RowActions";
-import {
-  SelectCell,
-  SelectHeader,
-} from "components/shared/table/SelectCheckbox";
+// import {
+//   SelectCell,
+//   SelectHeader,
+// } from "components/shared/table/SelectCheckbox";
 import React from "react";
 
 // ----------------------------------------------------------------------
@@ -74,11 +74,11 @@ export function ActionsCell(cell) {
 // ----- Columns -----
 
 export const columns = [
-  columnHelper.display({
-    id: "select",
-    header: SelectHeader,
-    cell: SelectCell,
-  }),
+  // columnHelper.display({
+  //   id: "select",
+  //   header: SelectHeader,
+  //   cell: SelectCell,
+  // }),
 
   columnHelper.accessor((row) => row.column1, {
     id: "days",

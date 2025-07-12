@@ -74,7 +74,7 @@ export function WeekTimeTable() {
   return (
     <div className="mt-4 sm:mt-5 lg:mt-6">
       <div className="table-toolbar flex items-center justify-between">
-        <h2 className="truncate text-base font-medium tracking-wide text-gray-800 dark:text-dark-100">
+        <h2 className="dark:text-dark-100 truncate text-base font-medium tracking-wide text-gray-800">
           Weekly Timetable
         </h2>
         <div className="flex">
@@ -87,14 +87,14 @@ export function WeekTimeTable() {
         </div>
       </div>
 
-      <Card className="relative mt-3 min-h-[200px] flex items-center justify-center">
+      <Card className="relative mt-3 flex min-h-[200px] items-center justify-center">
         {loading ? (
-          <div className="flex flex-col items-center gap-2 text-sm text-gray-600 dark:text-dark-300">
-            <div className="w-6 h-6 border-4 border-dashed border-primary-500 rounded-full animate-spin" />
+          <div className="dark:text-dark-300 flex flex-col items-center gap-2 text-sm text-gray-600">
+            <div className="border-primary-500 h-6 w-6 animate-spin rounded-full border-4 border-dashed" />
             Loading timetable...
           </div>
         ) : (
-          <div className="table-wrapper min-w-full overflow-x-auto w-full">
+          <div className="table-wrapper w-full min-w-full overflow-x-auto">
             <Table hoverable className="w-full text-left rtl:text-right">
               <THead ref={theadRef}>
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -102,27 +102,51 @@ export function WeekTimeTable() {
                     {headerGroup.headers.map((header) => (
                       <Th
                         key={header.id}
-                        className="bg-gray-200 font-semibold uppercase text-gray-800 dark:bg-dark-800 dark:text-dark-100 first:ltr:rounded-tl-lg last:ltr:rounded-tr-lg first:rtl:rounded-tr-lg last:rtl:rounded-tl-lg"
+                        className={clsx(
+                          "text-center text-xs font-semibold uppercase",
+                          header.column.id === "week"
+                            ? "text-primary-950"
+                            : "text-white",
+                        )}
+                        style={{
+                          backgroundColor:
+                            header.column.id === "week" ? "#93E6E6" : "#33CDCD",
+                          borderBottom: "none",
+                          borderRight: "1px solid #2BBBAD",
+                          transform:
+                            header.column.id === "week"
+                              ? "translateY(-1px)"
+                              : undefined,
+                          boxShadow:
+                            header.column.id === "week"
+                              ? "0px 4px 10px rgba(0,0,0,0.35), inset -2px 0 4px rgba(255,255,255,0.2), 1px 0 0 #2BBBAD"
+                              : undefined,
+                          zIndex: 2,
+                          position:
+                            header.column.id === "week" ? "sticky" : "relative",
+                          left: header.column.id === "week" ? 0 : undefined,
+                          backgroundClip: "padding-box",
+                        }}
                       >
                         {header.column.getCanSort() ? (
                           <div
-                            className="flex cursor-pointer select-none items-center space-x-3"
+                            className="flex cursor-pointer items-center space-x-3 select-none"
                             onClick={header.column.getToggleSortingHandler()}
                           >
                             <span className="flex-1">
-                              {header.isPlaceholder
-                                ? null
-                                : flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                  )}
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
                             </span>
-                            <TableSortIcon sorted={header.column.getIsSorted()} />
+                            <TableSortIcon
+                              sorted={header.column.getIsSorted()}
+                            />
                           </div>
-                        ) : header.isPlaceholder ? null : (
+                        ) : (
                           flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )
                         )}
                       </Th>
@@ -135,15 +159,38 @@ export function WeekTimeTable() {
                   <Tr
                     key={row.id}
                     className={clsx(
-                      "relative border-y border-transparent border-b-gray-200 dark:border-b-dark-500",
+                      "dark:border-b-dark-500 relative border-y border-transparent border-b-gray-200",
                       row.getIsSelected() &&
                         !isSafari &&
-                        "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:h-full after:w-full after:border-3 after:border-transparent after:bg-primary-500/10 ltr:after:border-l-primary-500 rtl:after:border-r-primary-500"
+                        "row-selected after:bg-primary-500/10 ltr:after:border-l-primary-500 rtl:after:border-r-primary-500 after:pointer-events-none after:absolute after:inset-0 after:z-2 after:h-full after:w-full after:border-3 after:border-transparent",
                     )}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <Td key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      <Td
+                        key={cell.id}
+                        className={clsx(
+                          "border-r px-2 py-2 text-center text-sm",
+                          cell.column.id === "week"
+                            ? "bg-[#93E6E6] text-gray-900"
+                            : "bg-white text-gray-900",
+                        )}
+                        style={{
+                          borderRight: "1px solid #2BBBAD",
+                          position:
+                            cell.column.id === "week" ? "sticky" : "relative",
+                          left: cell.column.id === "week" ? 0 : undefined,
+                          transform:
+                            cell.column.id === "week"
+                              ? "translateY(-1px)"
+                              : undefined,
+                          zIndex: cell.column.id === "week" ? 1 : "auto",
+                          backgroundClip: "padding-box",
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
                       </Td>
                     ))}
                   </Tr>
