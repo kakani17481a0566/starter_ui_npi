@@ -1,93 +1,102 @@
-// Import Dependencies
 import { createColumnHelper } from "@tanstack/react-table";
-
-// Local Imports
 import { RowActions } from "./RowActions";
 import {
-    SelectCell,
-    SelectHeader,
+  SelectCell,
+  SelectHeader,
 } from "components/shared/table/SelectCheckbox";
 import {
-    AddressCell,
-    CustomerCell,
-    DateCell,
-    OrderIdCell,
-    OrderStatusCell,
-    ProfitCell,
-    TotalCell,
+  StudentNameCell,
+  DateCell,
+  TimeCell,
+  StatusCell,
+  UserCell,
 } from "./rows";
-import { orderStatusOptions } from "./data";
-
-// ----------------------------------------------------------------------
 
 const columnHelper = createColumnHelper();
 
-export const columns = [
+function formatHeader(header) {
+  if (header === "id" || header.toLowerCase().endsWith("id"))
+    return header.toUpperCase();
+  return header
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase());
+}
+
+const skipHeaders = [
+  "studentId",
+  "parentId",
+  "courseId",
+  "attendanceId",
+  "fromTime",
+  "toTime",
+  "markedBy",
+  "markedOn",
+  "updatedBy",
+  "updatedOn",
+]; // Optional: add/remove here
+
+export function generateAttendanceColumns(headers) {
+  const columns = [
     columnHelper.display({
-        id: "select",
-        label: "Row Selection",
-        header: SelectHeader,
-        cell: SelectCell,
+      id: "select",
+      label: "Row Selection",
+      header: SelectHeader,
+      cell: SelectCell,
     }),
-    columnHelper.accessor((row) => row.order_id, {
-        id: "order_id",
-        label: "Order ID",
-        header: "Order",
-        cell: OrderIdCell,
-    }),
-    columnHelper.accessor((row) => Number(row.created_at), {
-        id: "created_at",
-        label: "Order Date",
-        header: "Date",
-        cell: DateCell,
-        filter: "dateRange",
-        filterFn: "inNumberRange",
-    }),
-    columnHelper.accessor((row) => row.customer.name, {
-        id: "customer",
-        label: "Customer",
-        header: "Customer",
-        cell: CustomerCell,
-    }),
-    columnHelper.accessor((row) => row.total, {
-        id: "total",
-        label: "Total",
-        header: "Total",
-        filterFn: "inNumberRange",
-        filter: "numberRange",
-        cell: TotalCell,
-    }),
-    columnHelper.accessor((row) => row.profit, {
-        id: "profit",
-        label: "Profit",
-        header: "Profit",
-        filterFn: "inNumberRange",
-        filter: "numberRange",
-        cell: ProfitCell,
-    }),
-    columnHelper.accessor((row) => row.order_status, {
-        id: "order_status",
-        label: "Order Status",
-        header: "Status",
-        filter: "select",
-        filterFn: "arrIncludesSome",
-        cell: OrderStatusCell,
-        options: orderStatusOptions,
-    }),
-    columnHelper.accessor(
-        (row) =>
-            `${row.shipping_address?.street}, ${row.shipping_address?.line}`,
-        {
-            id: "address",
-            label: "Address",
-            header: "Address",
-            cell: AddressCell,
-        }
-    ),
+  ];
+
+  headers
+    .filter((header) => !skipHeaders.includes(header)) // remove unwanted fields
+    .forEach((header) => {
+      let cell = (info) => info.getValue();
+      let filter = "text";
+      let filterFn = "includesString";
+
+      switch (header) {
+        case "studentName":
+          cell = (info) => StudentNameCell({ ...info, row: info.row }); // pass row
+          break;
+
+        case "attendanceDate":
+        case "markedOn":
+        case "updatedOn":
+          cell = DateCell;
+          filter = "dateRange";
+          filterFn = "inNumberRange";
+          break;
+        case "fromTime":
+        case "toTime":
+          cell = TimeCell;
+          break;
+        case "attendanceStatus":
+          cell = StatusCell;
+          break;
+        case "markedBy":
+        case "updatedBy":
+          cell = UserCell;
+          break;
+      }
+
+      columns.push(
+        columnHelper.accessor(header, {
+          id: header,
+          header: formatHeader(header),
+          cell,
+          filter,
+          filterFn,
+          enableSorting: true,
+          enableColumnFilter: true,
+        }),
+      );
+    });
+
+  columns.push(
     columnHelper.display({
-        id: "actions",
-        label: "Row Actions",
-        header: "Actions",
-        cell: RowActions
+      id: "actions",
+      header: "Actions",
+      cell: RowActions,
     }),
-]
+  );
+
+  return columns;
+}

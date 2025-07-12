@@ -1,136 +1,138 @@
-// Import Dependencies
 import dayjs from "dayjs";
 import PropTypes from "prop-types";
 
+// Heroicons for status indicators
+import {
+  CheckCircleIcon,
+  ArrowRightOnRectangleIcon,
+  XCircleIcon,
+} from "@heroicons/react/24/outline";
+
 // Local Imports
 import { Highlight } from "components/shared/Highlight";
-import { Avatar, Badge } from "components/ui";
+import { Badge } from "components/ui";
 import { useLocaleContext } from "app/contexts/locale/context";
 import { ensureString } from "utils/ensureString";
-import { orderStatusOptions } from "./data";
 
-// ----------------------------------------------------------------------
+// ✅ Student Name Cell
+export function StudentNameCell({ getValue, column, table, row }) {
+  const globalQuery = ensureString(table.getState()?.globalFilter);
+  const columnQuery = ensureString(column.getFilterValue());
+  const name = getValue() ?? "—";
+  const status = row?.original?.attendanceStatus;
 
-export function OrderIdCell({ getValue }) {
+  let textColor = "text-gray-800 dark:text-dark-100";
+  let Icon = null;
+
+  switch (status) {
+    case "Checked-In":
+    case "Checked In":
+      textColor = "text-[#52AA97]";
+      Icon = CheckCircleIcon;
+      break;
+    case "Checked-Out":
+    case "Checked Out":
+      textColor = "text-violet-500";
+      Icon = ArrowRightOnRectangleIcon;
+      break;
+    case "Not Marked":
+      textColor = "text-red-600";
+      Icon = XCircleIcon;
+      break;
+  }
+
   return (
-    <span className="font-medium text-primary-600 dark:text-primary-400">
-      {getValue()}
+    <span className={`font-medium truncate max-w-[160px] block uppercase ${textColor}`}>
+      <span className="flex items-center gap-1">
+        {Icon && <Icon className="w-4 h-4" />}
+        <Highlight query={[globalQuery, columnQuery]}>{name}</Highlight>
+      </span>
     </span>
   );
 }
 
+// ✅ Date Cell
 export function DateCell({ getValue }) {
+  const value = getValue();
   const { locale } = useLocaleContext();
-  const timestapms = getValue();
-  const date = dayjs(timestapms).locale(locale).format("DD MMM YYYY");
-  const time = dayjs(timestapms).locale(locale).format("hh:mm A");
+  const isValidDate = value && value !== "Attendance not given" && dayjs(value).isValid();
+
+  if (!isValidDate) {
+    return <span className="text-sm text-gray-500 italic">Not given</span>;
+  }
+
+  const formatted = dayjs(value).locale(locale).format("DD MMM YYYY");
+  return <span className="text-sm text-gray-700 dark:text-dark-100">{formatted}</span>;
+}
+
+// ✅ Time Cell
+export function TimeCell({ getValue }) {
+  const value = getValue();
   return (
-    <>
-      <p className="font-medium">{date}</p>
-      <p className="mt-0.5 text-xs text-gray-400 dark:text-dark-300">{time}</p>
-    </>
+    <span className="text-sm text-gray-600 dark:text-dark-300 truncate max-w-[120px]">
+      {value && value !== "Not marked" ? value : "—"}
+    </span>
   );
 }
 
-export function CustomerCell({ row, getValue, column, table }) {
-  const globalQuery = ensureString(table.getState().globalFilter);
-  const columnQuery = ensureString(column.getFilterValue());
+// ✅ Attendance Status Cell
+export function StatusCell({ getValue }) {
+  const status = getValue() ?? "Not Marked";
+  let color = "gray";
 
-  const name = getValue();
-
-  return (
-    <div className="flex items-center space-x-4 ">
-      <Avatar
-        size={9}
-        name={name}
-        src={row.original.customer.avatar_img}
-        classNames={{
-          display: "mask is-squircle rounded-none text-sm",
-        }}
-      />
-      <span className="font-medium text-gray-800 dark:text-dark-100">
-        <Highlight query={[globalQuery, columnQuery]}>{name}</Highlight>
-      </span>
-    </div>
-  );
-}
-
-export function TotalCell({ getValue }) {
-  return (
-    <p className="text-sm-plus font-medium text-gray-800 dark:text-dark-100">
-      ${getValue().toFixed(1)}
-    </p>
-  );
-}
-
-export function ProfitCell({ getValue, row }) {
-  return (
-    <div className="flex items-center space-x-2 ">
-      <p className="text-gray-800 dark:text-dark-100">
-        ${getValue().toFixed(1)}
-      </p>
-      <Badge className="rounded-full" color="success" variant="soft">
-        {((row.original.profit / row.original.total) * 100).toFixed(0)}%
-      </Badge>
-    </div>
-  );
-}
-
-export function OrderStatusCell({ getValue }) {
-  const val = getValue();
-  const option = orderStatusOptions.find((item) => item.value === val);
+  switch (status) {
+    case "Checked-In":
+    case "Checked In":
+      color = "info";
+      break;
+    case "Checked-Out":
+    case "Checked Out":
+      color = "success";
+      break;
+    case "Not Marked":
+      color = "warning";
+      break;
+  }
 
   return (
-    <Badge color={option.color} className="gap-1.5">
-      {option.icon && <option.icon className="h-4 w-4" />}
-
-      <span>{option.label}</span>
+    <Badge color={color} variant="soft" className="capitalize max-w-[140px] truncate">
+      {status}
     </Badge>
   );
 }
 
-export function AddressCell({ getValue, column, table }) {
-  const globalQuery = ensureString(table.getState().globalFilter);
-  const columnQuery = ensureString(column.getFilterValue());
-  const val = getValue();
-
+// ✅ MarkedBy / UpdatedBy Cell
+export function UserCell({ getValue }) {
+  const value = getValue();
   return (
-    <p className="w-48 truncate text-xs-plus xl:w-56 2xl:w-64">
-      <Highlight query={[globalQuery, columnQuery]}>{val}</Highlight>
-    </p>
+    <span className="text-xs text-gray-500 dark:text-dark-300 max-w-[140px] truncate">
+      {value?.trim() || "—"}
+    </span>
   );
 }
 
-OrderIdCell.propTypes = {
-  getValue: PropTypes.func,
+// ----------------------------------------------------------------------
+// PropTypes
+
+StudentNameCell.propTypes = {
+  getValue: PropTypes.func.isRequired,
+  column: PropTypes.object,
+  table: PropTypes.object,
+  row: PropTypes.object,
 };
 
 DateCell.propTypes = {
-  getValue: PropTypes.func,
+  getValue: PropTypes.func.isRequired,
 };
 
-TotalCell.propTypes = {
-  getValue: PropTypes.func,
+TimeCell.propTypes = {
+  getValue: PropTypes.func.isRequired,
 };
 
-ProfitCell.propTypes = {
-  getValue: PropTypes.func,
-  row: PropTypes.object,
+StatusCell.propTypes = {
+  getValue: PropTypes.func.isRequired,
 };
 
-OrderStatusCell.propTypes = {
-  getValue: PropTypes.func,
-};
-
-AddressCell.propTypes = {
-  getValue: PropTypes.func,
-  column: PropTypes.object,
-  table: PropTypes.object,
-};
-
-CustomerCell.propTypes = {
-  row: PropTypes.object,
-  column: PropTypes.object,
-  table: PropTypes.object,
-  getValue: PropTypes.func,
+UserCell.propTypes = {
+  getValue: PropTypes.func.isRequired,
 };

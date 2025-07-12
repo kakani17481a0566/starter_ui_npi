@@ -27,7 +27,7 @@ export default function Orders() {
             <SocialTraffic />
             <TopCountries />
           </div>
-          <AttendanceStatusDisplayTable />
+          <AttendanceStatusDisplayTable  />
         </div>
       </div>
     </Page>
