@@ -5,8 +5,9 @@ import { Welcome } from "./Welcome";
 import { WorkingHours } from "./WorkingHours";
 import { Students } from "./Students";
 import { Calendar } from "./Calendar";
-import { MediaTable } from "./MediaTable";
+import { WeekTimeTable } from "./WeekTimeTable";
 import { Classes } from "./Classes";
+import { TermTimeTable } from "./TermTimeTable";
 
 // ----------------------------------------------------------------------
 
@@ -17,7 +18,10 @@ export default function Teacher() {
         <div className="col-span-12 lg:col-span-8 xl:col-span-9">
           <Welcome />
           <Classes />
-          <MediaTable />
+          <WeekTimeTable />
+          <TermTimeTable />
+
+
         </div>
         <div className="col-span-12 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:sticky lg:top-20 lg:col-span-4 lg:grid-cols-1 lg:gap-6 lg:self-start xl:col-span-3">
           <WorkingHours />

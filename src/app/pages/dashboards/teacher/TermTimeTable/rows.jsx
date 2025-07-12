@@ -1,4 +1,4 @@
-// src/app/pages/dashboards/teacher/MediaTable/rows.jsx
+// src/app/pages/dashboards/teacher/WeekTimeTable/rows.jsx
 
 import clsx from "clsx";
 import PropTypes from "prop-types";

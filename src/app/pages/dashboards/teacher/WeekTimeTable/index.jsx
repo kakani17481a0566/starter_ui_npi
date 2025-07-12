@@ -1,4 +1,4 @@
-// src/app/pages/dashboards/teacher/MediaTable/index.jsx
+// src/app/pages/dashboards/teacher/WeekTimeTable/index.jsx
 
 import {
   flexRender,
@@ -26,7 +26,7 @@ import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
-export function MediaTable() {
+export function WeekTimeTable() {
   const [autoResetPageIndex] = useSkipper();
   const theadRef = useRef();
   const { height: theadHeight } = useBoxSize({ ref: theadRef });
@@ -34,7 +34,7 @@ export function MediaTable() {
   const [media, setMedia] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
-  const [loading, setLoading] = useState(true); // 🔹 Spinner control
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
@@ -75,7 +75,7 @@ export function MediaTable() {
     <div className="mt-4 sm:mt-5 lg:mt-6">
       <div className="table-toolbar flex items-center justify-between">
         <h2 className="truncate text-base font-medium tracking-wide text-gray-800 dark:text-dark-100">
-          Media Table
+          Weekly Timetable
         </h2>
         <div className="flex">
           <CollapsibleSearch

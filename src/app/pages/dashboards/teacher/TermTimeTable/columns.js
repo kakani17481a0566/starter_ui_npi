@@ -1,4 +1,4 @@
-// src/app/pages/dashboards/teacher/MediaTable/columns.js
+// src/app/pages/dashboards/teacher/WeekTimeTable/columns.js
 
 // Import Dependencies
 import { createColumnHelper } from "@tanstack/react-table";
