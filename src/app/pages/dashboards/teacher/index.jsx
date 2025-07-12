@@ -7,7 +7,7 @@ import { Students } from "./Students";
 import { Calendar } from "./Calendar";
 import { WeekTimeTable } from "./WeekTimeTable";
 import { Classes } from "./Classes";
-import { TermTimeTable } from "./TermTimeTable";
+// import { TermTimeTable } from "./TermTimeTable";
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ export default function Teacher() {
           <Welcome />
           <Classes />
           <WeekTimeTable />
-          <TermTimeTable />
+          {/* <TermTimeTable /> */}
 
 
         </div>
