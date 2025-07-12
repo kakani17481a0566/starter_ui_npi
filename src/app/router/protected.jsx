@@ -34,12 +34,20 @@ const protectedRoutes = {
               }),
             },
             {
-  path: "attendence",
-  lazy: async () => ({
-    Component: (await import("app/pages/dashboards/Attendence")).default,
-  }),
-},
-
+              path: "attendence",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/Attendence"))
+                  .default,
+              }),
+            },
+            {
+              path: "mark-attendance",
+              lazy: async () => ({
+                Component: (
+                  await import("app/pages/dashboards/mark-attendance")
+                ).default,
+              }),
+            },
           ],
         },
       ],
