@@ -4,11 +4,15 @@ import axiosInstance from "utils/axios";
 
 // Fetch attendance summary with full response
 export async function fetchAttendanceSummary({
-  date = "2025-07-12",
+  date,
   tenantId = 1,
   branchId = 1,
   courseId = -1,
 }) {
+  if (!date) {
+    throw new Error("❌ 'date' is required in fetchAttendanceSummary.");
+  }
+
   try {
     const response = await axiosInstance.get(
       "https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/StudentAttendance/summary-structured",

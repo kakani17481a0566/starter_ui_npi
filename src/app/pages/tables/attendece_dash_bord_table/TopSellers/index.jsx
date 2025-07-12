@@ -10,16 +10,20 @@ import clsx from "clsx";
 import { Fragment, useEffect, useState } from "react";
 
 // Local Imports
-import { Button, Card } from "components/ui";
+import { Button, Card, Spinner } from "components/ui";
 import { SellerCard } from "./SellerCard";
 import { fetchAttendanceSummary } from "../attendecedisplaytable/data";
 
-export function TopSellers() {
+export function TopSellers({ date }) {
   const [sellers, setSellers] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAttendanceSummary({ date: "2025-07-12" }).then((data) => {
+    if (!date) return;
+
+    setLoading(true);
+    fetchAttendanceSummary({ date }).then((data) => {
       const mapped = (data?.records ?? [])
         .filter((r) => r.attendanceStatus === "Not Marked")
         .map((r) => ({
@@ -33,8 +37,9 @@ export function TopSellers() {
         }));
 
       setSellers(mapped);
+      setLoading(false);
     });
-  }, []);
+  }, [date]);
 
   const filteredSellers = sellers
     .sort((a, b) => a.className.localeCompare(b.className))
@@ -65,7 +70,11 @@ export function TopSellers() {
         className="custom-scrollbar flex space-x-3 overflow-x-auto px-4 pb-3 sm:px-5"
         style={{ "--margin-scroll": "1.25rem" }}
       >
-        {filteredSellers.length > 0 ? (
+        {loading ? (
+          <div className="w-full flex justify-center items-center py-6">
+            <Spinner color="primary" className="size-6 border-2" />
+          </div>
+        ) : filteredSellers.length > 0 ? (
           filteredSellers.map((seller) => (
             <SellerCard key={seller.uid} {...seller} />
           ))

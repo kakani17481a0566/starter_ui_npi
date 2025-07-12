@@ -1,5 +1,3 @@
-// src/app/pages/tables/attendece_dash_bord_table/attendecedisplaytable/index.jsx
-
 import {
   flexRender,
   getCoreRowModel,
@@ -17,7 +15,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
 import { ColumnFilter } from "components/shared/table/ColumnFilter";
 import { PaginationSection } from "components/shared/table/PaginationSection";
-import { Card, Table, THead, TBody, Th, Tr, Td } from "components/ui";
+import { Card, Table, THead, TBody, Th, Tr, Td, Spinner } from "components/ui";
 import {
   useBoxSize,
   useLockScrollbar,
@@ -36,7 +34,7 @@ import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
-export default function AttendanceStatusDisplayTable() {
+export default function AttendanceStatusDisplayTable({ date }) {
   const { cardSkin } = useThemeContext();
   const [autoResetPageIndex] = useSkipper();
   const [records, setRecords] = useState([]);
@@ -100,8 +98,11 @@ export default function AttendanceStatusDisplayTable() {
 
   useEffect(() => {
     const loadData = async () => {
+      if (!date) return;
+
+      setLoading(true);
       try {
-        const { records, headers } = await fetchAttendanceSummary({ date: "2025-07-12" });
+        const { records, headers } = await fetchAttendanceSummary({ date });
         setRecords(records || []);
         setColumns(generateAttendanceColumns(headers || []));
       } catch (error) {
@@ -110,13 +111,14 @@ export default function AttendanceStatusDisplayTable() {
         setLoading(false);
       }
     };
+
     loadData();
-  }, []);
+  }, [date]);
 
   if (loading || !columns.length) {
     return (
-      <div className="text-center py-10 text-gray-500 dark:text-dark-300">
-        Loading attendance summary...
+      <div className="col-span-12 flex justify-center items-center py-12">
+        <Spinner color="primary" className="size-10 border-4" />
       </div>
     );
   }
@@ -131,6 +133,7 @@ export default function AttendanceStatusDisplayTable() {
         )}
       >
         <Toolbar table={table} />
+
         <Card
           className={clsx(
             "relative mt-3 flex grow flex-col",
@@ -190,6 +193,7 @@ export default function AttendanceStatusDisplayTable() {
                   </Tr>
                 ))}
               </THead>
+
               <TBody>
                 {table.getRowModel().rows.map((row) => (
                   <Fragment key={row.id}>
@@ -247,7 +251,9 @@ export default function AttendanceStatusDisplayTable() {
               </TBody>
             </Table>
           </div>
+
           <SelectedRowsActions table={table} />
+
           {table.getCoreRowModel().rows.length > 0 && (
             <div
               className={clsx(
