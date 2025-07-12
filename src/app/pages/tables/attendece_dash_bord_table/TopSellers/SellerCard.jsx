@@ -4,27 +4,27 @@ import {
   PhoneIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import Chart from "react-apexcharts";
+// import Chart from "react-apexcharts";
 import PropTypes from "prop-types";
 
 // Local Imports
 import { Avatar, Box, Button } from "components/ui";
 
 // Chart Config
-const chartConfig = {
-  colors: ["#4467EF"],
-  chart: {
-    parentHeightOffset: 0,
-    toolbar: { show: false },
-  },
-  dataLabels: { enabled: false },
-  stroke: { curve: "smooth", width: 3 },
-  grid: {
-    padding: { left: 0, right: 0, top: -10, bottom: 0 },
-  },
-  xaxis: { show: false },
-  yaxis: { show: false },
-};
+// const chartConfig = {
+//   colors: ["#4467EF"],
+//   chart: {
+//     parentHeightOffset: 0,
+//     toolbar: { show: false },
+//   },
+//   dataLabels: { enabled: false },
+//   stroke: { curve: "smooth", width: 3 },
+//   grid: {
+//     padding: { left: 0, right: 0, top: -10, bottom: 0 },
+//   },
+//   xaxis: { show: false },
+//   yaxis: { show: false },
+// };
 
 const statusColorMap = {
   "Checked-In": "text-green-600",
@@ -32,8 +32,9 @@ const statusColorMap = {
   "Not Marked": "text-yellow-600",
   "Unknown": "text-gray-500",
 };
+// export function SellerCard({ avatar, name, attendanceStatus, chartData, mobileNumber, className }) {
 
-export function SellerCard({ avatar, name, attendanceStatus, chartData, mobileNumber, className }) {
+export function SellerCard({ avatar, name, attendanceStatus, mobileNumber, className }) {
 
   const statusColor = statusColorMap[attendanceStatus] || "text-gray-500";
 
@@ -66,7 +67,7 @@ export function SellerCard({ avatar, name, attendanceStatus, chartData, mobileNu
           {attendanceStatus || "Unknown"}
         </p>
 
-        <div className="mt-2 ax-transparent-gridline">
+        {/* <div className="mt-2 ax-transparent-gridline">
           <Chart
             type="line"
             height={100}
@@ -78,7 +79,7 @@ export function SellerCard({ avatar, name, attendanceStatus, chartData, mobileNu
               },
             ]}
           />
-        </div>
+        </div> */}
       </div>
 
       <div className="mt-5 flex justify-center gap-2">

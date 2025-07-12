@@ -24,14 +24,13 @@ export default function Orders() {
           {/* Attendance Summary */}
           <Overview />
 
-          {/* Full-width Calendar */}
-          <div className="col-span-12">
+          {/* Responsive Calendar (full-width on mobile, 2-col grid on large screens) */}
+          <div className="col-span-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-5 lg:col-span-4 lg:gap-6">
             <Calendar onChange={setSelectedDate} />
+            {/* <Budget />
+            <Income />
+            <Expense /> */}
           </div>
-
-          {/* <Budget />
-              <Income />
-              <Expense /> */}
 
           {/* Not Marked Students */}
           <TopSellers date={selectedDate} />
