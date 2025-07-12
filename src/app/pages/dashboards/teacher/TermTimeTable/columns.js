@@ -1,13 +1,6 @@
-// src/app/pages/dashboards/teacher/WeekTimeTable/columns.js
-
 // Import Dependencies
 import { createColumnHelper } from "@tanstack/react-table";
 import clsx from "clsx";
-import { RowActions } from "./RowActions";
-import {
-  SelectCell,
-  SelectHeader,
-} from "components/shared/table/SelectCheckbox";
 import React from "react";
 
 // ----------------------------------------------------------------------
@@ -17,13 +10,13 @@ const columnHelper = createColumnHelper();
 // ----- Cell Renderers -----
 
 export function DayCell(cell) {
-  const day = cell.getValue?.();
+  const day = cell.getValue?.() ?? "";
   return React.createElement(
     "span",
     {
-      className: "font-semibold text-sm text-gray-800 dark:text-dark-100",
+      className: "whitespace-pre-line font-semibold text-sm text-gray-800 dark:text-dark-100",
     },
-    day,
+    day
   );
 }
 
@@ -31,100 +24,78 @@ export function FileCell(cell) {
   const value = cell.getValue?.() ?? "";
   const trimmed = value.trim();
 
-  let textClass = "";
-
-  if (trimmed.startsWith("AS:") || trimmed.startsWith("Action Song")) {
-    textClass = "text-[#713427] font-bold";
-  } else if (trimmed.startsWith("FT:") || trimmed.startsWith("Fairytale")) {
-    textClass = "text-[#E27257] font-bold";
-  } else if (trimmed.startsWith("NR:") || trimmed.startsWith("Nursery Rhyme")) {
-    textClass = "text-[#B14434] font-bold";
-  } else if (trimmed.startsWith("ET:") || trimmed.startsWith("Event")) {
-    textClass = "text-[#52AA97] font-bold";
-  } else if (trimmed.startsWith("PL:") || trimmed.startsWith("PHONICS LAB")) {
-    textClass = "text-[#83CAE6] font-bold";
-  } else if (trimmed.startsWith("SL:") || trimmed.startsWith("SCIENCE LAB")) {
-    textClass = "text-[#8FD1E6] font-bold";
-  } else if (trimmed.startsWith("AL:") || trimmed.startsWith("ART LAB")) {
-    textClass = "text-[#437EB4] font-bold";
-  } else if (trimmed.startsWith("ML:") || trimmed.startsWith("MATH LAB")) {
-    textClass = "text-[#2F469A] font-bold";
-  } else if (trimmed.startsWith("ST:") || trimmed.startsWith("Story Time")) {
-    textClass = "text-[#465C8A] font-bold";
-  } else if (trimmed.startsWith("LAB:") || trimmed.startsWith("LAB")) {
-    textClass = "text-[#3366] font-bold";
-  }
+  // Split by comma, trim each part, and render each on a new line
+  const parts = trimmed.split(",").map((part) => part.trim());
 
   return React.createElement(
-    "span",
-    {
-      className: clsx("text-sm", textClass),
-    },
-    trimmed || "-",
+    "div",
+    { className: "space-y-1" },
+    parts.map((line, index) => {
+      let textClass = "text-gray-800"; // default fallback
+
+      if (line.startsWith("AS:") || line.startsWith("Action Song")) {
+        textClass = "text-[#713427] font-bold";
+      } else if (line.startsWith("FT:") || line.startsWith("Fairytale")) {
+        textClass = "text-[#E27257] font-bold";
+      } else if (line.startsWith("NR:") || line.startsWith("Nursery Rhyme")) {
+        textClass = "text-[#B14434] font-bold";
+      } else if (line.startsWith("ET:") || line.startsWith("Event")) {
+        textClass = "text-[#52AA97] font-bold";
+      }
+
+      return React.createElement(
+        "div",
+        { key: index, className: clsx("text-sm", textClass) },
+        line || "-"
+      );
+    })
   );
 }
 
-export function ActionsCell(cell) {
-  return React.createElement(RowActions, {
-    row: cell.row,
-    table: cell.table,
-  });
-}
+
 
 // ----- Columns -----
 
 export const columns = [
-  columnHelper.display({
-    id: "select",
-    header: SelectHeader,
-    cell: SelectCell,
-  }),
-
   columnHelper.accessor((row) => row.column1, {
-    id: "days",
-    header: "Days",
+    id: "week",
+    header: "Week",
     cell: DayCell,
   }),
 
   columnHelper.accessor((row) => row.column2, {
-    id: "psed",
-    header: "PSED",
+    id: "summary",
+    header: "Fairytale / Action Song / Nursery Rhyme / Event",
     cell: FileCell,
   }),
 
   columnHelper.accessor((row) => row.column3, {
-    id: "cll",
-    header: "CLL",
+    id: "monday",
+    header: "Monday",
     cell: FileCell,
   }),
 
   columnHelper.accessor((row) => row.column4, {
-    id: "psrn",
-    header: "PSRN",
+    id: "tuesday",
+    header: "Tuesday",
     cell: FileCell,
   }),
 
   columnHelper.accessor((row) => row.column5, {
-    id: "kuw",
-    header: "KUW",
+    id: "wednesday",
+    header: "Wednesday",
     cell: FileCell,
   }),
 
   columnHelper.accessor((row) => row.column6, {
-    id: "pd",
-    header: "PD",
+    id: "thursday",
+    header: "Thursday",
     cell: FileCell,
   }),
 
   columnHelper.accessor((row) => row.column7, {
-    id: "ead",
-    header: "EAD",
+    id: "friday",
+    header: "Friday",
     cell: FileCell,
-  }),
-
-  columnHelper.display({
-    id: "actions",
-    header: "Actions",
-    cell: ActionsCell,
   }),
 ];

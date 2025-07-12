@@ -1,5 +1,3 @@
-// src/app/pages/dashboards/teacher/WeekTimeTable/index.jsx
-
 import {
   flexRender,
   getCoreRowModel,
@@ -13,7 +11,6 @@ import { useEffect, useRef, useState } from "react";
 
 import { CollapsibleSearch } from "components/shared/CollapsibleSearch";
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
-import { SelectedRowsActions } from "components/shared/table/SelectedRowsActions";
 import { Card, Table, THead, TBody, Th, Tr, Td } from "components/ui";
 import { useBoxSize, useDidUpdate } from "hooks";
 import { fuzzyFilter } from "utils/react-table/fuzzyFilter";
@@ -21,7 +18,7 @@ import { useSkipper } from "utils/react-table/useSkipper";
 import { PaginationSection } from "./PaginationSection";
 import { MenuAction } from "./MenuActions";
 import { columns } from "./columns";
-import { fetchWeekTimeTableData } from "./weektimetabledata";
+import { fetchTermTimeTableData } from "./termtimetabledata";
 import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 
 const isSafari = getUserAgentBrowser() === "Safari";
@@ -29,18 +26,19 @@ const isSafari = getUserAgentBrowser() === "Safari";
 export function TermTimeTable() {
   const [autoResetPageIndex] = useSkipper();
   const theadRef = useRef();
-  const { height: theadHeight } = useBoxSize({ ref: theadRef });
+  useBoxSize({ ref: theadRef });
 
   const [media, setMedia] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
-  const [loading, setLoading] = useState(true); // 🔹 Spinner control
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    fetchWeekTimeTableData()
-      .then((data) => {
-        const trimmed = data.map((row) => ({
+    fetchTermTimeTableData()
+      .then((res) => {
+        const { timeTableData } = res || {};
+        const trimmed = timeTableData.map((row) => ({
           column1: row.column1,
           column2: row.column2,
           column3: row.column3,
@@ -75,7 +73,7 @@ export function TermTimeTable() {
     <div className="mt-4 sm:mt-5 lg:mt-6">
       <div className="table-toolbar flex items-center justify-between">
         <h2 className="truncate text-base font-medium tracking-wide text-gray-800 dark:text-dark-100">
-          Media Table
+          Term Timetable
         </h2>
         <div className="flex">
           <CollapsibleSearch
@@ -95,14 +93,30 @@ export function TermTimeTable() {
           </div>
         ) : (
           <div className="table-wrapper min-w-full overflow-x-auto w-full">
-            <Table hoverable className="w-full text-left rtl:text-right">
+            <Table hoverable className="w-full text-left rtl:text-right text-sm">
               <THead ref={theadRef}>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <Tr key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
+                    {headerGroup.headers.map((header, i) => (
                       <Th
                         key={header.id}
-                        className="bg-gray-200 font-semibold uppercase text-gray-800 dark:bg-dark-800 dark:text-dark-100 first:ltr:rounded-tl-lg last:ltr:rounded-tr-lg first:rtl:rounded-tr-lg last:rtl:rounded-tl-lg"
+                        className={clsx(
+                          "text-center font-semibold uppercase text-sm",
+                          "first:ltr:rounded-tl-lg last:ltr:rounded-tr-lg first:rtl:rounded-tr-lg last:rtl:rounded-tl-lg",
+                          i === 0 ? "text-primary-950" : "text-white"
+                        )}
+                        style={{
+                          backgroundColor: i === 0 ? "#D2A5C2" : "#D27D9E",
+                          borderBottom: "none",
+                          borderRight: "none",
+                          transform: i === 0 ? "translateY(-1px)" : undefined,
+                          boxShadow:
+                            i === 0
+                              ? "0px 4px 10px rgba(0,0,0,0.35), inset -2px 0 4px rgba(255,255,255,0.2), 1px 0 0 #D2486E"
+                              : undefined,
+                          zIndex: 2,
+                          position: "relative",
+                        }}
                       >
                         {header.column.getCanSort() ? (
                           <div
@@ -141,9 +155,29 @@ export function TermTimeTable() {
                         "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:h-full after:w-full after:border-3 after:border-transparent after:bg-primary-500/10 ltr:after:border-l-primary-500 rtl:after:border-r-primary-500"
                     )}
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <Td key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    {row.getVisibleCells().map((cell, index) => (
+                      <Td
+                        key={cell.id}
+                        className={clsx(
+                          "border-r px-2 py-2 text-center text-sm",
+                          index === 0
+                            ? "text-primary-950 text-wrap break-words whitespace-pre-line"
+                            : "whitespace-nowrap"
+                        )}
+                        style={{
+                          backgroundColor: index === 0 ? "#D2A5C2" : "#FFFFFF",
+                          borderRight: "1px solid #D2486E",
+                          transform: index === 0 ? "translateY(-1px)" : "none",
+                          zIndex: index === 0 ? 1 : "auto",
+                          position: index === 0 ? "relative" : "static",
+                        }}
+                      >
+                        <div className="break-words whitespace-pre-line">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </div>
                       </Td>
                     ))}
                   </Tr>
@@ -156,8 +190,6 @@ export function TermTimeTable() {
                 <PaginationSection table={table} />
               </div>
             )}
-
-            <SelectedRowsActions table={table} height={theadHeight} />
           </div>
         )}
       </Card>
