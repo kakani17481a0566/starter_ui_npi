@@ -1,5 +1,5 @@
 // Local Imports
-import OrdersTable from "./OrdersTable";
+import AttendanceStatusDisplayTable from "./attendecedisplaytable";
 import { Page } from "components/shared/Page";
 import { Overview } from "./Overview";
 import { Budget } from "./Budget";
@@ -27,7 +27,7 @@ export default function Orders() {
             <SocialTraffic />
             <TopCountries />
           </div>
-          <OrdersTable />
+          <AttendanceStatusDisplayTable />
         </div>
       </div>
     </Page>

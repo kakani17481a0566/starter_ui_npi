@@ -38,7 +38,7 @@ import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
-export default function OrdersTable() {
+export default function AttendanceStatusDisplayTable() {
   const { cardSkin } = useThemeContext();
 
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
