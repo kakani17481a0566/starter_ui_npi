@@ -1,24 +1,48 @@
-// src/app/pages/tables/attendece_dash_bord_table/OrdersTable/data.js
+// src/app/pages/tables/attendece_dash_bord_table/attendecedisplaytable/data.js
+
 import axiosInstance from "utils/axios";
 
-// Fetch attendance summary from the structured summary API
-export async function fetchAttendanceSummary({ date = "2025-07-12" }) {
+// Fetch attendance summary with full response
+export async function fetchAttendanceSummary({
+  date = "2025-07-12",
+  tenantId = 1,
+  branchId = 1,
+  courseId = -1,
+}) {
   try {
     const response = await axiosInstance.get(
       "https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/StudentAttendance/summary-structured",
       {
         params: {
           date,
-          tenantId: 1,
-          branchId: 1,
-          courseId: -1,
+          tenantId,
+          branchId,
+          courseId,
         },
       }
     );
 
-    return response.data?.data ?? { records: [], courses: [], headers: [] };
+    return response.data?.data ?? {
+      records: [],
+      headers: [],
+      courses: [],
+      totalStudents: 0,
+      checkedInCount: 0,
+      checkedOutCount: 0,
+      notMarkedCount: 0,
+      unknownCount: 0,
+    };
   } catch (error) {
     console.error("❌ Failed to fetch attendance summary", error);
-    return { records: [], courses: [], headers: [] };
+    return {
+      records: [],
+      headers: [],
+      courses: [],
+      totalStudents: 0,
+      checkedInCount: 0,
+      checkedOutCount: 0,
+      notMarkedCount: 0,
+      unknownCount: 0,
+    };
   }
 }
