@@ -88,6 +88,7 @@ export function Profile() {
 
                   <p className="dark:text-dark-300 mt-0.5 text-xs text-gray-400">
                     Product Designer
+                    Product Designer
                   </p>
                 </div>
               </div>

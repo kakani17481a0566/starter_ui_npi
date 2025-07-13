@@ -22,7 +22,7 @@ import {
 
 // ----------------------------------------------------------------------
 
-export function Menu({ nav, pathname }) {
+export function Menu({ nav, pathname, onItemClick }) {
   const initialActivePath = useMemo(() => {
     return nav.find((item) => isRouteActive(item.path, pathname))?.path;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -38,7 +38,7 @@ export function Menu({ nav, pathname }) {
       isRouteActive(item.path, pathname),
     )?.path;
 
-    if (activePath && expanded !== activePath) {     
+    if (activePath && expanded !== activePath) {
       setExpanded(activePath);
     }
   }, [nav, pathname]);
@@ -63,9 +63,21 @@ export function Menu({ nav, pathname }) {
           {nav.map((item) => {
             switch (item.type) {
               case NAV_TYPE_COLLAPSE:
-                return <CollapsibleItem key={item.path} data={item} />;
+                return (
+                  <CollapsibleItem
+                    key={item.path}
+                    data={item}
+                    onClick={onItemClick} // ✅ pass click handler
+                  />
+                );
               case NAV_TYPE_ITEM:
-                return <MenuItem key={item.path} data={item} />;
+                return (
+                  <MenuItem
+                    key={item.path}
+                    data={item}
+                    onClick={onItemClick} // ✅ pass click handler
+                  />
+                );
               case NAV_TYPE_DIVIDER:
                 return <Divider key={item.id} />;
               default:
@@ -80,4 +92,6 @@ export function Menu({ nav, pathname }) {
 
 Menu.propTypes = {
   nav: PropTypes.array,
+  pathname: PropTypes.string,
+  onItemClick: PropTypes.func, // ✅ added prop type
 };

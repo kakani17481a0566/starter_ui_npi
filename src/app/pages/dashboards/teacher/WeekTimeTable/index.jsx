@@ -36,23 +36,32 @@ export function WeekTimeTable() {
   const [sorting, setSorting] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setLoading(true);
-    fetchWeekTimeTableData()
-      .then((data) => {
-        const trimmed = data.map((row) => ({
-          column1: row.column1,
-          column2: row.column2,
-          column3: row.column3,
-          column4: row.column4,
-          column5: row.column5,
-          column6: row.column6,
-          column7: row.column7,
-        }));
-        setMedia(trimmed);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+useEffect(() => {
+  setLoading(true);
+  fetchWeekTimeTableData()
+    .then((data) => {
+      const trimmed = data.timeTableData.map((row) => ({
+        column1: row.column1,
+        column2: row.column2,
+        column3: row.column3,
+        column4: row.column4,
+        column5: row.column5,
+        column6: row.column6,
+        column7: row.column7,
+      }));
+      setMedia(trimmed);
+
+      // Optional: if you want to show metadata later (weekName, course, etc.)
+      // setMeta({
+      //   weekName: data.weekName,
+      //   course: data.course,
+      //   currentDate: data.currentDate,
+      //   month: data.month,
+      // });
+    })
+    .finally(() => setLoading(false));
+}, []);
+
 
   const table = useReactTable({
     data: media,

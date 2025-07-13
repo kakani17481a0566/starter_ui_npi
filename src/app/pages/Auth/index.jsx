@@ -1,20 +1,19 @@
-// Import Dependencies
-import { Link } from "react-router";
+import { useState } from "react";
 import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 
-// Local Imports
 import Logo from "assets/appLogo.svg?react";
 import { Button, Card, Checkbox, Input, InputErrorMsg } from "components/ui";
 import { useAuthContext } from "app/contexts/auth/context";
 import { schema } from "./schema";
 import { Page } from "components/shared/Page";
-
-// ----------------------------------------------------------------------
+import CloudinaryBg from "./cloudinaryBg";
 
 export default function SignIn() {
   const { login, errorMessage } = useAuthContext();
+  const [isLoading, setIsLoading] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -27,40 +26,48 @@ export default function SignIn() {
     },
   });
 
-  const onSubmit = (data) => {
-    login({
-      username: data.username,
-      password: data.password,
-    });
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    try {
+      await login({
+        username: data.username,
+        password: data.password,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Page title="Login">
-      <main className="min-h-100vh grid w-full grow grid-cols-1 place-items-center">
-        <div className="w-full max-w-[26rem] p-4 sm:px-5">
+      <main className="relative grid min-h-screen w-full grow grid-cols-1 place-items-center overflow-hidden">
+        <CloudinaryBg
+          publicId="nx7slzy4lrunswsudfet_psange"
+          width={1920}
+          height={1080}
+          className="absolute inset-0 z-0 w-full h-screen object-cover brightness-75"
+        />
+
+        <div className="z-10 w-full max-w-[26rem] p-4 sm:px-5">
           <div className="text-center">
             <Logo className="mx-auto size-16" />
             <div className="mt-4">
-              <h2 className="text-2xl font-semibold text-gray-600 dark:text-dark-100">
+              <h2 className="text-2xl font-semibold text-white drop-shadow-md">
                 Welcome Back
               </h2>
-              <p className="text-gray-400 dark:text-dark-300">
+              <p className="text-white/80 drop-shadow-sm">
                 Please sign in to continue
               </p>
             </div>
           </div>
-          <Card className="mt-5 rounded-lg p-5 lg:p-7">
+
+          <Card className="mt-5 rounded-lg bg-white/90 p-5 backdrop-blur-md lg:p-7">
             <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
               <div className="space-y-4">
                 <Input
                   label="Username"
                   placeholder="Enter Username"
-                  prefix={
-                    <EnvelopeIcon
-                      className="size-5 transition-colors duration-200"
-                      strokeWidth="1"
-                    />
-                  }
+                  prefix={<EnvelopeIcon className="size-5" strokeWidth="1" />}
                   {...register("username")}
                   error={errors?.username?.message}
                 />
@@ -68,21 +75,14 @@ export default function SignIn() {
                   label="Password"
                   placeholder="Enter Password"
                   type="password"
-                  prefix={
-                    <LockClosedIcon
-                      className="size-5 transition-colors duration-200"
-                      strokeWidth="1"
-                    />
-                  }
+                  prefix={<LockClosedIcon className="size-5" strokeWidth="1" />}
                   {...register("password")}
                   error={errors?.password?.message}
                 />
               </div>
 
               <div className="mt-2">
-                <InputErrorMsg
-                  when={errorMessage && errorMessage?.message !== ""}
-                >
+                <InputErrorMsg when={errorMessage?.message}>
                   {errorMessage?.message}
                 </InputErrorMsg>
               </div>
@@ -90,56 +90,50 @@ export default function SignIn() {
               <div className="mt-4 flex items-center justify-between space-x-2">
                 <Checkbox label="Remember me" />
                 <a
-                  href="##"
-                  className="text-xs text-gray-400 transition-colors hover:text-gray-800 focus:text-gray-800 dark:text-dark-300 dark:hover:text-dark-100 dark:focus:text-dark-100"
+                  href="#"
+                  className="text-xs text-gray-600 hover:text-gray-900"
                 >
                   Forgot Password?
                 </a>
               </div>
 
-              <Button type="submit" className="mt-5 w-full" color="primary">
-                Sign In
+              <Button
+                type="submit"
+                className="mt-5 w-full flex items-center justify-center gap-2"
+                color="primary"
+                disabled={isLoading}
+              >
+                {isLoading && (
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                )}
+                <span>{isLoading ? "Signing In..." : "Sign In"}</span>
               </Button>
             </form>
-            <div className="mt-4 text-center text-xs-plus">
-              <p className="line-clamp-1">
-                <span>Dont have Account?</span>{" "}
-                <Link
-                  className="text-primary-600 transition-colors hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-600"
-                  to="/pages/sign-up-v1"
-                >
-                  Create account
-                </Link>
-              </p>
-            </div>
-            <div className="my-7 flex items-center space-x-3 text-xs ">
-              <div className="h-px flex-1 bg-gray-200 dark:bg-dark-500"></div>
-              <p>OR</p>
-              <div className="h-px flex-1 bg-gray-200 dark:bg-dark-500"></div>
-            </div>
-            <div className="flex gap-4">
-              <Button className="h-10 flex-1 gap-3" variant="outlined">
-                <img
-                  className="size-5.5"
-                  src="/images/logos/google.svg"
-                  alt="logo"
-                />
-                <span>Google</span>
-              </Button>
-              <Button className="h-10 flex-1 gap-3" variant="outlined">
-                <img
-                  className="size-5.5"
-                  src="/images/logos/github.svg"
-                  alt="logo"
-                />
-                <span>Github</span>
-              </Button>
-            </div>
           </Card>
-          <div className="mt-8 flex justify-center text-xs text-gray-400 dark:text-dark-300">
-            <a href="##">Privacy Notice</a>
-            <div className="mx-2.5 my-0.5 w-px bg-gray-200 dark:bg-dark-500"></div>
-            <a href="##">Term of service</a>
+
+          <div className="mt-8 flex justify-center text-xs text-white/90">
+            <a href="#">Privacy Notice</a>
+            <div className="mx-2.5 my-0.5 w-px bg-white/50"></div>
+            <a href="#">Terms of Service</a>
           </div>
         </div>
       </main>

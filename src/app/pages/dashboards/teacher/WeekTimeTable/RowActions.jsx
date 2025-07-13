@@ -1,4 +1,5 @@
-// Import Dependencies
+// src/app/pages/dashboards/teacher/MediaTable/RowActions.jsx
+
 import {
   Menu,
   MenuButton,
@@ -7,141 +8,476 @@ import {
   Transition,
 } from "@headlessui/react";
 import {
-  EllipsisHorizontalIcon,
   EyeIcon,
-  PencilIcon,
-  TrashIcon,
+  LinkIcon,
+  DocumentIcon,
+  UserGroupIcon,
+  ClipboardDocumentListIcon,
+  ChevronUpIcon,
+  EllipsisHorizontalIcon,
 } from "@heroicons/react/24/outline";
+
 import clsx from "clsx";
-import { Fragment, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import PropTypes from "prop-types";
+import Vimeo from "@u-wave/react-vimeo";
 
-// Local Imports
-import { ConfirmModal } from "components/shared/ConfirmModal";
 import { Button } from "components/ui";
+import { fetchWeekTimeTableData as fetchWeeklyTimeTableData } from "./weektimetabledata";
 
-// ----------------------------------------------------------------------
+import Grades from "app/pages/tables/Grades";
+import Att from "app/pages/tables/Att";
+// import { getSessionData } from "utils/sessionStorage";
 
-const confirmMessages = {
-  pending: {
-    description:
-      "Are you sure you want to delete this media? Once deleted, it cannot be restored.",
-  },
-  success: {
-    title: "Media Deleted",
-  },
-};
+export function RowActions({ row }) {
+  const [showPdfViewerModal, setShowPdfViewerModal] = useState(false);
+  const [showResourcePopup, setShowResourcePopup] = useState(false);
+  const [resources, setResources] = useState([]);
+  const [loadingResources, setLoadingResources] = useState(false);
+  const [pdfPath, setPdfPath] = useState("");
+  const [showVideoPlayer, setShowVideoPlayer] = useState(false);
+  const [linkId, setlinkId] = useState("");
+  const [openedFromResources, setOpenedFromResources] = useState(false);
+  const [openedFromAssignments, setOpenedFromAssignments] = useState(false);
+  const [studentAttendancePopUp, setStudentAttendancePopUp] = useState(false);
+  const [showWorkShopPopup, setShowWorkShopPopup] = useState(false);
+  const [assignments, setAssignments] = useState([]);
+  const [showAssignmentsPopUp, setShowAssignmentsPopUp] = useState(false);
+  // const { course } = getSessionData();
+  
+  // const defaultCourse = course && course.length > 0 ? course[0].id : null;
 
-export function RowActions({ row, table }) {
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [confirmDeleteLoading, setConfirmDeleteLoading] = useState(false);
-  const [deleteSuccess, setDeleteSuccess] = useState(false);
-  const [deleteError, setDeleteError] = useState(false);
+  const defaultCourse = 4;
 
-  const closeModal = () => {
-    setDeleteModalOpen(false);
+  const normalizeUrl = (url) =>
+    url && !/^https?:\/\//i.test(url) ? `https://${url}` : url || "";
+
+  const handleViewPdfPopup = useCallback(() => {
+    setShowPdfViewerModal(true);
+    setOpenedFromResources(false);
+    setOpenedFromAssignments(false);
+    setPdfPath(normalizeUrl(row.original.column8));
+  }, [row.original.column8]);
+
+  const handlepdfResource = (pdf) => {
+    setShowPdfViewerModal(true);
+    setShowResourcePopup(false);
+    setPdfPath(normalizeUrl(pdf.link));
   };
 
-  const openModal = () => {
-    setDeleteModalOpen(true);
-    setDeleteError(false);
-    setDeleteSuccess(false);
+  const handleClosePopup = () => setShowResourcePopup(false);
+
+  const handleViewResourcePopup = async () => {
+    setOpenedFromResources(true);
+    setShowResourcePopup(true);
+    setLoadingResources(true);
+    setOpenedFromAssignments(false);
+
+    try {
+      const { resources } = await fetchWeeklyTimeTableData({ courseId: defaultCourse });
+      setResources(resources);
+    } catch (err) {
+      console.error("Failed to fetch resources:", err);
+      setResources([]);
+    } finally {
+      setLoadingResources(false);
+    }
   };
 
-  const handleDeleteRows = useCallback(() => {
-    setConfirmDeleteLoading(true);
-    setTimeout(() => {
-      table.options.meta?.deleteRow(row);
-      setDeleteSuccess(true);
-      setConfirmDeleteLoading(false);
-    }, 1000);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [row]);
+  const handleResourceClick = (res) => {
+    setlinkId(res.link);
+    setShowVideoPlayer(true);
+  };
 
-  const state = deleteError ? "error" : deleteSuccess ? "success" : "pending";
+  const handleViewAttendancePopup = () => setStudentAttendancePopUp(true);
+
+  const handleAssignMarks = () => {
+    setShowAssignmentsPopUp(true);
+  };
+
+  const handlePdfPopUpClose = () => {
+    setShowPdfViewerModal(false);
+    if (openedFromResources) setShowResourcePopup(true);
+    if (openedFromAssignments) setShowWorkShopPopup(true);
+  };
+
+  const handleAssignmentView = (link) => {
+    setPdfPath(normalizeUrl(link));
+    setShowWorkShopPopup(false);
+    setShowPdfViewerModal(true);
+  };
+
+  const handleViewWorkSheetPopUp = () => {
+    if (!row.original.column9) {
+      setAssignments([]);
+      setShowWorkShopPopup(true);
+      setOpenedFromAssignments(true);
+      setShowResourcePopup(false);
+      return;
+    }
+
+    const parsedAssignments = row.original.column9
+      .split("\n")
+      .map((link, index) => {
+        const cleanLink = link.trim();
+        return cleanLink && /^https?:\/\//i.test(cleanLink)
+          ? { name: `Worksheet ${index + 1}`, link: cleanLink, rawText: cleanLink }
+          : null;
+      })
+      .filter(Boolean);
+
+    setAssignments(parsedAssignments);
+    setShowWorkShopPopup(true);
+    setOpenedFromAssignments(true);
+  };
 
   return (
     <>
       <div className="flex justify-center">
-        <Menu as="div" className="relative inline-block text-left">
+        {row.getCanExpand() && (
+          <Button
+            isIcon
+            className="size-7 rounded-full"
+            variant="flat"
+            onClick={row.getToggleExpandedHandler()}
+          >
+            <ChevronUpIcon
+              className={clsx(
+                "size-4.5 transition-transform",
+                row.getIsExpanded() && "rotate-180",
+              )}
+            />
+          </Button>
+        )}
+
+        <Menu
+          as="div"
+          className="text-col relative z-20 inline-block text-left"
+        >
           <MenuButton
             as={Button}
             variant="flat"
             isIcon
-            className="size-7 rounded-full"
+            className="size-7 touch-manipulation rounded-full"
+            onMouseDown={(e) => e.preventDefault()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
           >
             <EllipsisHorizontalIcon className="size-4.5" />
           </MenuButton>
+
           <Transition
-            as={Fragment}
+            as={MenuItems}
             enter="transition ease-out"
             enterFrom="opacity-0 translate-y-2"
             enterTo="opacity-100 translate-y-0"
             leave="transition ease-in"
             leaveFrom="opacity-100 translate-y-0"
             leaveTo="opacity-0 translate-y-2"
+            className="dark:border-dark-500 dark:bg-dark-100 absolute z-100 mt-1.5 min-w-[10rem] rounded-lg border border-gray-300 bg-white py-1 shadow-lg ltr:right-0 rtl:left-0"
           >
-            <MenuItems className="absolute z-100 mt-1.5 min-w-[10rem] rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-hidden focus-visible:outline-hidden dark:border-dark-500 dark:bg-dark-750 dark:shadow-none ltr:right-0 rtl:left-0">
-              <MenuItem>
-                {({ focus }) => (
-                  <button
-                    className={clsx(
-                      "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors ",
-                      focus &&
-                        "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
-                    )}
-                  >
-                    <EyeIcon className="size-4.5 stroke-1" />
-                    <span>View</span>
-                  </button>
-                )}
-              </MenuItem>
-              <MenuItem>
-                {({ focus }) => (
-                  <button
-                    className={clsx(
-                      "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors ",
-                      focus &&
-                        "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
-                    )}
-                  >
-                    <PencilIcon className="size-4.5 stroke-1" />
-                    <span>Edit</span>
-                  </button>
-                )}
-              </MenuItem>
-              <MenuItem>
-                {({ focus }) => (
-                  <button
-                    onClick={openModal}
-                    className={clsx(
-                      "this:error flex h-9 w-full items-center space-x-3 px-3 tracking-wide text-this outline-hidden transition-colors dark:text-this-light ",
-                      focus && "bg-this/10 dark:bg-this-light/10",
-                    )}
-                  >
-                    <TrashIcon className="size-4.5 stroke-1" />
-                    <span>Delete</span>
-                  </button>
-                )}
-              </MenuItem>
-            </MenuItems>
+            <MenuItem>
+              {({ active }) => (
+                <button
+                  onClick={handleViewPdfPopup}
+                  className={clsx(
+                    "flex h-9 w-full items-center space-x-3 px-3",
+                    active && "bg-gray-100 dark:bg-purple-50",
+                  )}
+                >
+                  <EyeIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+
+                  <span className="text-primary-950">Lesson Plan</span>
+                </button>
+              )}
+            </MenuItem>
+            <MenuItem>
+              {({ active }) => (
+                <button
+                  onClick={handleViewResourcePopup}
+                  className={clsx(
+                    "flex h-9 w-full items-center space-x-3 px-3",
+                    active && "bg-gray-100 dark:bg-purple-50",
+                  )}
+                >
+                  <LinkIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+
+                  <span className="text-primary-950">Resources</span>
+                </button>
+              )}
+            </MenuItem>
+            <MenuItem>
+              {({ active }) => (
+                <button
+                  onClick={handleViewWorkSheetPopUp}
+                  className={clsx(
+                    "flex h-9 w-full items-center space-x-3 px-3",
+                    active && "bg-gray-100 dark:bg-purple-50",
+                  )}
+                >
+                  <DocumentIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+
+                  <span className="text-primary-950">WorkSheets</span>
+                </button>
+              )}
+            </MenuItem>
+            <MenuItem>
+              {({ active }) => (
+                <button
+                  onClick={handleViewAttendancePopup}
+                  className={clsx(
+                    "flex h-9 w-full items-center space-x-3 px-3",
+                    active && "bg-gray-100 dark:bg-purple-50",
+                  )}
+                >
+                  <UserGroupIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+                  <span className="text-primary-950">Attendance</span>
+                </button>
+              )}
+            </MenuItem>
+            <MenuItem>
+              {({ active }) => (
+                <button
+                  onClick={handleAssignMarks}
+                  className={clsx(
+                    "flex h-9 w-full items-center space-x-3 px-3",
+                    active && "bg-gray-100 dark:bg-purple-50",
+                  )}
+                >
+                  <ClipboardDocumentListIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+
+                  <span className="text-primary-950">Assignment</span>
+                </button>
+              )}
+            </MenuItem>
           </Transition>
         </Menu>
       </div>
 
-      <ConfirmModal
-        show={deleteModalOpen}
-        onClose={closeModal}
-        messages={confirmMessages}
-        onOk={handleDeleteRows}
-        confirmLoading={confirmDeleteLoading}
-        state={state}
-      />
+      {/* Modals: PDF Viewer, Resources, Assignments, Video, Attendance */}
+      {showPdfViewerModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-3xl rounded-lg bg-white p-4 shadow-lg">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-primary-950 text-lg font-semibold">
+                PDF View
+              </h2>
+              <button
+                onClick={handlePdfPopUpClose}
+                className="text-primary-600 text-xl font-bold"
+                aria-label="Close"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="max-h-[70vh] overflow-auto rounded border">
+              <iframe
+                src={pdfPath}
+                className="h-[70vh] w-full"
+                title="PDF Viewer"
+                sandbox="allow-scripts allow-same-origin"
+                frameBorder="0"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showResourcePopup && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div className="relative w-full max-w-4xl overflow-auto rounded-lg bg-white p-6 shadow-lg">
+      <h2 className="text-primary-950 mb-4 text-lg font-semibold">
+        Resources
+      </h2>
+      {loadingResources ? (
+        <p>Loading...</p>
+      ) : (
+        <table className="w-full table-fixed border">
+          <thead className="background-primary-600">
+            <tr className="bg-gray-100">
+              <th className="text-primary-950 w-1/3 border-b p-2">PDF</th>
+              <th className="text-primary-950 w-1/3 border-b p-2">Video</th>
+              <th className="text-primary-950 w-1/3 border-b p-2">Template</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(() => {
+              const pdf = resources.anx || [];
+              const mp4 = resources.mp4 || [];
+              const template = resources.template || [];
+              const len = Math.max(pdf.length, mp4.length, template.length);
+              return Array.from({ length: len }).map((_, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="border-b p-2 text-center">
+                    {pdf[i] ? (
+                      <button
+                        onClick={() => handlepdfResource(pdf[i])}
+                        className="text-primary-950 underline"
+                      >
+                        {pdf[i].name}
+                      </button>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                  <td className="border-b p-2 text-center">
+                    {mp4[i] ? (
+                      <button
+                        onClick={() => handleResourceClick(mp4[i])}
+                        className="text-primary-950 underline"
+                      >
+                        {mp4[i].name}
+                      </button>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                  <td className="border-b p-2 text-center">
+                    {template[i] ? (
+                      <button
+                        onClick={() => handlepdfResource(template[i])}
+                        className="text-primary-950 underline"
+                      >
+                        {template[i].name}
+                      </button>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                </tr>
+              ));
+            })()}
+          </tbody>
+        </table>
+      )}
+      <button
+        className="bg-primary-600 mt-4 rounded px-4 py-2 text-white"
+        onClick={handleClosePopup}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
+      {showWorkShopPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="relative max-h-[80vh] w-full max-w-4xl overflow-auto rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-lg font-semibold">Assignments</h2>
+            {assignments.length === 0 ? (
+              <p>No assignments found.</p>
+            ) : (
+              <table className="w-full table-fixed border">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border p-2">Name</th>
+                    <th className="border p-2 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {assignments.map(({ name, link, rawText }, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="border p-2">{name}</td>
+                      <td className="border p-2 text-center">
+                        {link ? (
+                          <button onClick={() => handleAssignmentView(link)}>
+                            View
+                          </button>
+                        ) : (
+                          rawText
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            <button
+              className="bg-primary-600 text-primary-950 mt-4 rounded px-4 py-2"
+              onClick={() => setShowWorkShopPopup(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showVideoPlayer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-3xl rounded-lg bg-white p-4 shadow-lg">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-purple-950">Video</h2>
+              <button
+                onClick={() => setShowVideoPlayer(false)}
+                className="text-primary-600 text-xl font-bold"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="aspect-video w-full overflow-hidden rounded border">
+              <Vimeo
+                video={linkId}
+                width="100%"
+                height="100%"
+                responsive
+                autoplay
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {studentAttendancePopUp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-4 shadow-lg">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-primary-950 dark:text-primary-950 text-lg font-semibold">
+                Attendance
+              </h2>
+              <button
+                onClick={() => setStudentAttendancePopUp(false)}
+                className="text-primary-600 text-xl font-bold hover:text-red-600"
+                aria-label="Close Attendance Modal"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="max-h-[70vh] overflow-y-auto rounded border">
+              <Att />
+            </div>
+          </div>
+        </div>
+      )}
+      {showAssignmentsPopUp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-4 shadow-lg">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-primary-950 text-lg font-semibold">
+                Assignments
+              </h2>
+              <button
+                onClick={() => setShowAssignmentsPopUp(false)}
+                className="text-primary-600 text-xl font-bold hover:text-red-600"
+                aria-label="Close Assignments Modal"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="max-h-[70vh] overflow-y-auto rounded border">
+              <Grades
+                timeTableId={row.original.timeTableId}
+                assessmentStatusCode={row.original.assessmentStausCodeId}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
 
 RowActions.propTypes = {
-  row: PropTypes.object,
-  table: PropTypes.object,
+  row: PropTypes.object.isRequired,
+  table: PropTypes.object.isRequired,
 };

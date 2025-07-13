@@ -17,6 +17,8 @@
     "@babel/plugin-syntax-jsx": "^7.25.9",
     "@canvasjs/charts": "^3.13.0",
     "@canvasjs/react-charts": "^1.0.2",
+    "@cloudinary/react": "^1.14.3",
+    "@cloudinary/url-gen": "^1.21.0",
     "@formkit/auto-animate": "^0.8.2",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
@@ -47,6 +49,7 @@
     "jspdf-autotable": "^5.0.2",
     "jwt-decode": "^4.0.0",
     "lint-staged": "^15.5.0",
+    "lucide-react": "^0.525.0",
     "quill": "^2.0.3",
     "quill-magic-url": "^4.2.0",
     "react": "^19.0.0",
@@ -72,6 +75,7 @@
     "react-timer-hook": "^4.0.5",
     "react-to-print": "^3.0.5",
     "react-tooltip": "^5.28.0",
+    "react-tsparticles": "^2.12.2",
     "react-vimeo": "^2.0.0",
     "recharts": "^3.1.0",
     "simplebar-react": "^3.3.0",
@@ -79,6 +83,7 @@
     "swiper": "^11.2.6",
     "tailwind-scrollbar": "^4.0.2",
     "tiny-invariant": "^1.3.3",
+    "tsparticles": "^3.8.1",
     "yup": "^1.6.1"
   },
   "devDependencies": {

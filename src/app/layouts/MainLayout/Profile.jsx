@@ -89,7 +89,7 @@ export function Profile() {
                   </Link>
 
                   <p className="dark:text-dark-300 mt-0.5 text-xs text-gray-400">
-                    Product Designer
+                    akaka
                   </p>
                 </div>
               </div>
