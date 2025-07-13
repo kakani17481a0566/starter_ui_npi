@@ -30,7 +30,7 @@ export const dashboards = {
       path: "dashboards/attendence",
       type: NAV_TYPE_ITEM,
       title: "Attendance",
-      transKey: "nav.dashboards.attendence",
+      transKey: "attendence",
       Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
     },
     {
@@ -38,8 +38,9 @@ export const dashboards = {
       path: "dashboards/mark-attendance",
       type: NAV_TYPE_ITEM,
       title: "Mark Attendance",
-      transKey: "nav.dashboards.markAttendance",
+      transKey: "markAttendance",
       Icon: ClipboardDocumentCheckIcon,
     },
+    
   ],
 };
