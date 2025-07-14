@@ -21,8 +21,8 @@ export function PrimePanel({ currentSegment, pathname, close }) {
     <div
       className={clsx(
         "prime-panel flex h-full flex-col",
-        "rounded-tr-xl rounded-br-xl", // ✅ curved top-right & bottom-right
-        "border-r-4 border-[#33CDCD]", // ✅ right-side neon border
+        "rounded-tr-sm rounded-br-sm", // ✅ curved top-right & bottom-right
+        "border-r-1 border-[#33CDCD]", // ✅ right-side neon border
         "shadow-[0_0_15px_#33CDCD]", // ✅ optional neon glow
         "dark:border-[#33CDCD]", // ✅ ensures neon in dark mode
         cardSkin === "shadow-sm" ? "shadow-soft dark:shadow-dark-900/60" : "",
@@ -31,7 +31,7 @@ export function PrimePanel({ currentSegment, pathname, close }) {
       <div
         className={clsx(
           "flex h-full grow flex-col overflow-hidden bg-white", // ✅ added overflow-hidden
-          "rounded-tr-xl rounded-br-xl", // ✅ also apply curves here
+          "rounded-tr-sm rounded-br-sm", // ✅ also apply curves here
           "ltr:pl-(--main-panel-width) rtl:pr-(--main-panel-width)",
           cardSkin === "shadow-sm" ? "dark:bg-dark-750" : "dark:bg-dark-900",
         )}

@@ -2,12 +2,14 @@ import PropTypes from "prop-types";
 import { Box } from "components/ui";
 import {
   CalendarDaysIcon,
-  AcademicCapIcon,
+  // AcademicCapIcon,
   ArrowDownCircleIcon,
   ArrowUpCircleIcon,
 } from "@heroicons/react/24/outline";
 
-const AttendanceHeaderBox = ({ date, className, checkedIn, checkedOut }) => {
+// const AttendanceHeaderBox = ({ date, className, checkedIn, checkedOut }) => {
+const AttendanceHeaderBox = ({ date,  checkedIn, checkedOut }) => {
+
   return (
     <Box className="flex h-20 w-full items-center justify-between gap-4 rounded-lg bg-gray-200 px-6 dark:bg-dark-100">
       {/* Left: Date */}
@@ -17,10 +19,10 @@ const AttendanceHeaderBox = ({ date, className, checkedIn, checkedOut }) => {
       </div>
 
       {/* Center: Class Name */}
-      <div className="flex items-center gap-2 text-xl font-semibold text-primary-950">
+      {/* <div className="flex items-center gap-2 text-xl font-semibold text-primary-950">
         <AcademicCapIcon className="size-6 shrink-0 text-primary-600" />
         <span>{className}</span>
-      </div>
+      </div> */}
 
       {/* Right: Checked-In / Checked-Out */}
       <div className="text-right text-sm text-primary-950 space-y-1">
