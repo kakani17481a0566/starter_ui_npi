@@ -2,7 +2,9 @@
   "nav": {
     "dashboards": {
       "dashboards": "Dashboards",
-      "home": "Home"
+      "home": "Home",
+      "attendance":"Attendance",
+      "mark":"Attendance"
     },
     "settings": {
       "settings": "Settings",

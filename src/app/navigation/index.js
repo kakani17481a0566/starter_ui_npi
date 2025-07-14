@@ -1,7 +1,16 @@
+import { getSessionData } from "utils/sessionStorage";
 import { dashboards } from "./dashboards";
+const TEACHER='teacher';
+const NANNY='nanny';
 
-export const navigation = [
-    dashboards,
-]
+const {role}=getSessionData();
+let navigation=[];
+if(role.toLowerCase()===NANNY){
+navigation=[dashboards];
+}
+else if(role.toLowerCase() ===TEACHER){
+    navigation=[dashboards]
+}
 
+export {navigation} 
 export { baseNavigation } from './baseNavigation'
