@@ -1,11 +1,14 @@
 // src/app/pages/dashboards/teacher/MediaTable/weektimetabledata.js
 import axiosInstance from "utils/axios";
 import { handleAxiosError } from "utils/handleAxiosError";
+import { getSessionData } from "utils/sessionStorage";
 
 export async function fetchWeekTimeTableData() {
+  const {course,tenantId,week}=getSessionData();
+  const  courseId=course?course[0].id:1;
   try {
     const res = await axiosInstance.get(
-      "https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/TimeTable/weekId/5/tenantId/1/courseId/4"
+      `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/TimeTable/weekId/${week}/tenantId/${tenantId}/courseId/${courseId}`
     );
 
     const data = res.data?.data ?? {};
