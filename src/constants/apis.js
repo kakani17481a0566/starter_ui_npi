@@ -1,10 +1,6 @@
-// import { getSessionData } from "utils/sessionStorage";
-// const {tenantId,branch,course,week}=getSessionData();
+import { getSessionData } from "utils/sessionStorage";
+const {tenantId,branch,course,week}=getSessionData();
 
-const tenantId = 1;
-const branch = 1;
-const course = 4;
-const week = 5;
 
 
 // export const USER_LIST=`https://localhost:7171/api/user/by-tenant?tenantId=${tenantId}`;

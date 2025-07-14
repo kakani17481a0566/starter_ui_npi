@@ -13,13 +13,22 @@ import { Item } from "./Item";
 
 export function Menu({ nav, setActiveSegment, activeSegment }) {
   const { t } = useTranslation();
-  const { isExpanded, open } = useSidebarContext();
+  const { isExpanded, open,close } = useSidebarContext();
 
   const handleSegmentSelect = (path) => {
-    setActiveSegment(path);
-    if (!isExpanded) {
-      open();
+   if (activeSegment === path) {
+      if (isExpanded) {
+        close();
+      } else {
+        open();
+      }
+    } else {
+      setActiveSegment(path);
+      if (!isExpanded) {
+        open();
+      }
     }
+
   };
 
   const getProps = ({ path, type, title, transKey, linkProps }) => {
