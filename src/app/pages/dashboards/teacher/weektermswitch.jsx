@@ -20,7 +20,6 @@ export default function WeekTermSwitch() {
 
   return (
     <Page title="Timetable View">
-      <div className="transition-content w-full px-(--margin-x) pt-5 lg:pt-6 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="truncate text-xl font-medium tracking-wide text-gray-800 dark:text-dark-50">
             {activeTab === "week" ? "Weekly Timetable" : "Term Timetable"}

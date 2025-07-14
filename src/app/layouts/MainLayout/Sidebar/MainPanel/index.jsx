@@ -13,24 +13,21 @@ import { settings } from "app/navigation/settings";
 import { useNavigate } from "react-router-dom";
 import { getSessionData } from "utils/sessionStorage";
 
-
 // ----------------------------------------------------------------------
 
 export function MainPanel({ nav, setActiveSegment, activeSegment }) {
   const { cardSkin } = useThemeContext();
-  const {role} = getSessionData();
+  const { role } = getSessionData();
   const navigate = useNavigate();
   const handleLogoClick = () => {
-  if (role === "Teacher") {
-    navigate("/dashboards/home"); // ✅ absolute path
-  } else if (role === "Nanny") {
-    navigate("/dashboards/mark-attendance"); // ✅ fixed
-  } else {
-    navigate("/"); // ✅
-  }
-};
-
-    
+    if (role === "Teacher") {
+      navigate("/dashboards/home"); // ✅ absolute path
+    } else if (role === "Nanny") {
+      navigate("/dashboards/mark-attendance"); // ✅ fixed
+    } else {
+      navigate("/"); // ✅
+    }
+  };
 
   return (
     <div className="main-panel">
@@ -44,12 +41,11 @@ export function MainPanel({ nav, setActiveSegment, activeSegment }) {
         )}
       >
         {/* Application Logo */}
-      <div className="w-full rounded-r-xl">
+        <div className="w-full rounded-r-xl">
           <div onClick={handleLogoClick} className="cursor-pointer">
             <Logo className="text-primary-600 dark:text-primary-400 h-[80px] w-[65px]" />
           </div>
         </div>
-      
 
         <Menu
           nav={nav}
