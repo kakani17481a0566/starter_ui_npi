@@ -5,6 +5,7 @@ import { Navigate } from "react-router";
 import { AppLayout } from "app/layouts/AppLayout";
 import { DynamicLayout } from "app/layouts/DynamicLayout";
 import AuthGuard from "middleware/AuthGuard";
+import RoleBasedRedirect from "./RoleBasedRedirect";
 
 // ----------------------------------------------------------------------
 
@@ -18,14 +19,14 @@ const protectedRoutes = {
       children: [
         {
           index: true,
-          element: <Navigate to="/dashboards" />,
+      element: <Navigate to="/dashboards" />, // ✅ fixed
         },
         {
           path: "dashboards",
           children: [
             {
               index: true,
-              element: <Navigate to="/dashboards/home" />,
+              element: <RoleBasedRedirect/>,
             },
             {
               path: "home",
@@ -34,7 +35,7 @@ const protectedRoutes = {
               }),
             },
             {
-              path: "attendence",
+              path: "attendance",
               lazy: async () => ({
                 Component: (await import("app/pages/dashboards/Attendence"))
                   .default,

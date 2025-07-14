@@ -55,7 +55,7 @@ export function Profile() {
   const handleLogOut = async () => {
     console.log("Logging out...");
     await logout(); 
-    navigate("/login?redirectUrl=/");
+    navigate("/login?redirect=/");
   };
   return (
     <Popover className="relative">

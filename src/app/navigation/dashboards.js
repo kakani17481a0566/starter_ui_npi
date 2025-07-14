@@ -34,7 +34,9 @@ else if(role ==='Teacher'){
     },
     {
       id: "dashboards.attendence",
-      path: "dashboards/attendence",
+      path: path(ROOT_DASHBOARDS, "/attendance"),
+
+      // path: "dashboards/attendence",
       type: NAV_TYPE_ITEM,
       title: "Attendance",
       transKey: "nav.dashboards.attendance",
