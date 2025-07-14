@@ -11,6 +11,10 @@ import {
 } from "@heroicons/react/24/outline";
 import { TbCoins, TbUser } from "react-icons/tb";
 import { Link } from "react-router";
+import { getSessionData } from "utils/sessionStorage";
+import { useAuthContext } from "app/contexts/auth/context";
+import { useNavigate } from "react-router-dom";
+
 
 // Local Imports
 import { Avatar, AvatarDot, Button } from "components/ui";
@@ -45,6 +49,14 @@ const links = [
 ];
 
 export function Profile() {
+  const navigate = useNavigate();
+  const { logout } = useAuthContext();
+  const {user,  role}=getSessionData();
+  const handleLogOut = async () => {
+    console.log("Logging out...");
+    await logout(); 
+    navigate("/login?redirectUrl=/");
+  };
   return (
     <Popover className="relative">
       <PopoverButton
@@ -85,11 +97,11 @@ export function Profile() {
                     className="hover:text-primary-600 focus:text-primary-600 dark:text-dark-100 dark:hover:text-primary-400 dark:focus:text-primary-400 text-base font-medium text-gray-700"
                     to="/settings/general"
                   >
-                    Travis Fuller
+                    {user}
                   </Link>
 
                   <p className="dark:text-dark-300 mt-0.5 text-xs text-gray-400">
-                    akaka
+                   {role}
                   </p>
                 </div>
               </div>
@@ -119,8 +131,8 @@ export function Profile() {
                   </Link>
                 ))}
                 <div className="px-4 pt-4">
-                  <Button className="w-full gap-2">
-                    <ArrowLeftStartOnRectangleIcon className="size-4.5" />
+                  <Button className="w-full gap-2"  onClick={handleLogOut}>
+                    <ArrowLeftStartOnRectangleIcon className="size-4.5"/>
                     <span>Logout</span>
                   </Button>
                 </div>
