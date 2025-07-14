@@ -1,112 +1,79 @@
-// Local Imports
+// src/app/pages/dashboards/Teacher/Classes/index.jsx
+import { useEffect, useState } from "react";
 import { ClassCard } from "./ClassCard";
+import { fetchWeeklyClasses } from "./fetchWeeklyClasses";
+import { DocumentPlusIcon } from "@heroicons/react/24/outline";
+import { Spinner } from "components/ui"; // ⬅️ Make sure this is correctly imported
+import { getSessionData } from "utils/sessionStorage";
 
-// ----------------------------------------------------------------------
 
-const classes = [
-  {
-    uid: 1,
-    image: "/images/600x400.png",
-    name: "Basic English",
-    category: "Language",
-    time: "Mon. 08:00 - 09:00",
-    color: "primary",
-    students: [
-      {
-        uid: "5",
-        name: "Katrina West",
-        avatar: "/images/200x200.png",
-      },
-      {
-        uid: "6",
-        name: "Henry Curtis",
-        avatar: "/images/200x200.png",
-      },
-      {
-        uid: "7",
-        name: "Raul Bradley",
-        avatar: "/images/200x200.png",
-      },
-    ],
-  },
-  {
-    uid: 2,
-    image: "/images/600x400.png",
-    name: "Learn UI/UX Design",
-    category: "UI/UX Design",
-    time: "Tue. 10:00 - 11:30",
-    color: "info",
-    students: [
-      {
-        uid: "8",
-        name: "Samantha Shelton",
-        avatar: null,
-      },
-      {
-        uid: "9",
-        name: "Corey Evans",
-        avatar: "/images/200x200.png",
-      },
-      {
-        uid: "10",
-        name: "Lance Tucker",
-        avatar: null,
-      },
-    ],
-  },
-  {
-    uid: 3,
-    image: "/images/800x800.png",
-    name: "Basic of digital marketing",
-    category: "Marketing",
-    time: "Wed. 09:00 - 11:00",
-    color: "secondary",
-    students: [
-      {
-        uid: "6",
-        name: "Henry Curtis",
-        avatar: "/images/200x200.png",
-      },
-      {
-        uid: "7",
-        name: "Raul Bradley",
-        avatar: "/images/200x200.png",
-      },
-      {
-        uid: "8",
-        name: "Samantha Shelton",
-        avatar: null,
-      },
-    ],
-  },
-];
 
 export function Classes() {
+  const [classes, setClasses] = useState([]);
+  const [weekInfo, setWeekInfo] = useState({ weekName: "", currentDate: "" });
+  const [loading, setLoading] = useState(false);
+  const {course} = getSessionData();
+
+  const defaultCourse = course && course.length > 0 ? course[0].id : null;
+
+  useEffect(() => {
+    // if (!selectedCourseId) return;
+
+    setLoading(true);
+    fetchWeeklyClasses(defaultCourse)
+      .then(({ classes, weekName, currentDate }) => {
+        setClasses(classes);
+        setWeekInfo({ weekName, currentDate });
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div className="mt-4 sm:mt-5 lg:mt-6">
-      <div className="flex h-8 min-w-0 items-center justify-between">
-        <h2 className="truncate text-base font-medium tracking-wide text-gray-800 dark:text-dark-100">
-          Week 2 Classes
+      {/* Top Header Row */}
+      <div className="flex items-center gap-1">
+        <DocumentPlusIcon className="size-4.5 text-primary-600" />
+        <h2>
+          Today&#39;s Task — {weekInfo.weekName} ({weekInfo.currentDate})
         </h2>
+      </div>
+
+      {/* View All Link */}
+      <div className="mt-1 flex justify-end">
         <a
-          href="##"
-          className="border-b border-dotted border-current pb-0.5 text-xs-plus font-medium text-primary-600 outline-hidden transition-colors duration-300 hover:text-primary-600/70 focus:text-primary-600/70 dark:text-primary-400 dark:hover:text-primary-400/70 dark:focus:text-primary-400/70"
+          href="#"
+          className="text-xs-plus text-primary-950 hover:text-primary-950/70 focus:text-primary-950/70 dark:text-primary-400 dark:hover:text-primary-400/70 dark:focus:text-primary-400/70 border-b border-dotted border-current pb-0.5 font-medium transition-colors duration-300"
         >
           View All
         </a>
       </div>
-      <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
-        {classes.map((item) => (
-          <ClassCard
-            key={item.uid}
-            name={item.name}
-            image={item.image}
-            time={item.time}
-            category={item.category}
-            color={item.color}
-            students={item.students}
-          />
-        ))}
+
+      {/* Horizontal scroll container */}
+      <div className="mt-3 overflow-x-auto px-2 pb-2 whitespace-nowrap min-h-[100px]">
+        {loading ? (
+          <div className="flex justify-center items-center h-28">
+            <Spinner color="primary" className="size-8" />
+          </div>
+        ) : classes.length === 0 ? (
+          <p className="text-sm text-gray-500 dark:text-dark-300 px-2">
+            No tasks available for this course.
+          </p>
+        ) : (
+          <div className="flex gap-4">
+            {classes.map((item) => (
+              <div key={item.uid} className="inline-block min-w-[300px]">
+                <ClassCard
+                  name={item.category}
+                  image={item.image}
+                  time={item.time}
+                  category={item.name}
+                  color={item.color}
+                  students={item.students}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
