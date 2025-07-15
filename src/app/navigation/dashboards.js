@@ -26,20 +26,26 @@ else if(role ==='Teacher'){
   dynamicChilds=[
     {
       id: "dashboards.home",
-      path: path(ROOT_DASHBOARDS, "/home"),
+      path: path(ROOT_DASHBOARDS, "/week"),
       type: NAV_TYPE_ITEM,
-      title: "Home",
-      transKey: "nav.dashboards.home",
+      title: "Week Plan", 
+      transKey: "nav.dashboards.week",
       Icon: HomeIcon,
     },
     {
       id: "dashboards.attendence",
       path: path(ROOT_DASHBOARDS, "/attendance"),
-
-      // path: "dashboards/attendence",
       type: NAV_TYPE_ITEM,
       title: "Attendance",
       transKey: "nav.dashboards.attendance",
+      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
+    {
+      id: "dashboards.Term",
+      path: path(ROOT_DASHBOARDS, "/term"),
+      type: NAV_TYPE_ITEM,
+      title: "Term",
+      transKey: "nav.dashboards.term",
       Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
     }
   ]

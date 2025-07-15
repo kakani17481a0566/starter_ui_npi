@@ -4,7 +4,9 @@
       "dashboards": "Dashboards",
       "home": "Home",
       "attendance":"Attendance",
-      "mark":"Attendance"
+      "mark":"Attendance",
+      "week":"Week Plan",
+      "term":"Term Plan"
     },
     "settings": {
       "settings": "Settings",
