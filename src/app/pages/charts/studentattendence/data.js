@@ -2,7 +2,7 @@ import axios from "axios";
 
 export async function fetchAttendanceGraph({ studentId, tenantId, branchId, days = 7 }) {
   try {
-    const res = await axios.get("https://localhost:7202/api/StudentAttendance/graph", {
+    const res = await axios.get("https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/StudentAttendance/graph", {
       params: { studentId, tenantId, branchId, days }
     });
 
