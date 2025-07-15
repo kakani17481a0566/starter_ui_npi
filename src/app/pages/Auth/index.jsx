@@ -54,9 +54,9 @@ export default function SignIn() {
 
         <div className="z-10 w-full max-w-3xl px-4">
           <Card className="flex flex-col overflow-hidden rounded-2xl bg-white/90 shadow-2xl backdrop-blur-md sm:flex-row">
-            {/* Left Image Panel */}
+            {/* Left Image Panel - top on mobile, left on desktop */}
             <div
-              className="hidden items-center justify-center bg-cover bg-center sm:flex sm:w-1/2"
+              className="flex h-48 items-center justify-center bg-cover bg-center sm:h-auto sm:w-1/2"
               style={{
                 backgroundImage:
                   "url('https://res.cloudinary.com/kakani7/image/upload/v1750923624/MSI/LOGIN_PAGE/c5okkfelbao4zxbsoc11.jpg')",
@@ -65,21 +65,17 @@ export default function SignIn() {
 
             {/* Right Form Panel */}
             <div className="flex w-full flex-col justify-center bg-white px-6 py-8 sm:w-1/2">
-              {/* <div className="text-center mb-4">
-                <Logo className="mx-auto size-16" />
-                <div className="mt-2">
-                  <h2 className="text-2xl font-semibold text-gray-800">
-                    Welcome Back
-                  </h2>
-                  <p className="text-sm text-gray-500">
-                    Please sign in to continue
-                  </p>
-                </div>
-              </div> */}
-              <div className="rounded-xl border border-black p-4 text-white shadow-md text-primary-950">
+              <div
+                className="border-t-4 border-l-0 p-4 text-white sm:border-t-0 sm:border-l-4"
+                style={{
+                  borderTopColor: "#00C9EA",
+                  borderLeftColor: "#00C9EA",
+                }}
+              >
                 <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
-                  <div className="space-y-4 text-primary-950">
+                  <div className="text-primary-950 space-y-4">
                     <Input
+                      className="h-8 py-1 text-xs"
                       label="Username"
                       placeholder="Enter Username"
                       prefix={
@@ -89,6 +85,7 @@ export default function SignIn() {
                       error={errors?.username?.message}
                     />
                     <Input
+                      className="h-8 py-1 text-xs"
                       label="Password"
                       placeholder="Enter Password"
                       type="password"
@@ -110,21 +107,21 @@ export default function SignIn() {
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className={`border-primary-600 flex items-center gap-2 rounded-full border bg-white px-4 py-1.5 text-xs transition-all duration-200 ${
+                      className={`text-primary-950 border-primary-600 flex items-center gap-2 rounded-full border !bg-white px-4 py-1.5 text-xs font-bold transition-all duration-200 dark:!bg-white ${
                         isLoading
-                          ? "text-primary-600 cursor-not-allowed opacity-70"
-                          : "text-primary-600 hover:bg-primary-50"
+                          ? "cursor-not-allowed opacity-70"
+                          : "hover:bg-primary-50"
                       }`}
                     >
                       {isLoading ? (
                         <>
-                          <ArrowPathIcon className="text-primary-600 h-4 w-4 animate-spin" />
+                          <ArrowPathIcon className="text-primary-950 h-4 w-4 animate-spin" />
                           Signing In...
                         </>
                       ) : (
                         <>
                           Sign In
-                          <ArrowRightIcon className="text-primary-600 h-4 w-4" />
+                          <ArrowRightIcon className="text-primary-950 h-4 w-4" />
                         </>
                       )}
                     </Button>
