@@ -9,57 +9,64 @@ import {
 import {
   ChevronUpIcon,
   EllipsisHorizontalIcon,
-  EyeIcon,
-  PencilIcon,
-  TrashIcon,
+  PresentationChartLineIcon,
+  
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { useCallback, useState } from "react";
+import {  useState } from "react";
 import PropTypes from "prop-types";
 
 // Local Imports
-import { ConfirmModal } from "components/shared/ConfirmModal";
+// import { ConfirmModal } from "components/shared/ConfirmModal";
 import { Button } from "components/ui";
+import StudentAttendanceGraph from "app/pages/charts/studentattendence"
 
 // ----------------------------------------------------------------------
 
-const confirmMessages = {
-  pending: {
-    description:
-      "Are you sure you want to delete this order? Once deleted, it cannot be restored.",
-  },
-  success: {
-    title: "Order Deleted",
-  },
-};
+// const confirmMessages = {
+//   pending: {
+//     description:
+//       "Are you sure you want to delete this order? Once deleted, it cannot be restored.",
+//   },
+//   success: {
+//     title: "Order Deleted",
+//   },
+// };
 
-export function RowActions({ row, table }) {
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [confirmDeleteLoading, setConfirmDeleteLoading] = useState(false);
-  const [deleteSuccess, setDeleteSuccess] = useState(false);
-  const [deleteError, setDeleteError] = useState(false);
+export function RowActions({ row }) {
 
-  const closeModal = () => {
-    setDeleteModalOpen(false);
-  };
+    const [showAttendanceGraph,setShowAttendanceGraph]=useState(false);
+    const handleShowGraph=()=>{
+    setShowAttendanceGraph(true);
+  }
+  // const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  // const [confirmDeleteLoading, setConfirmDeleteLoading] = useState(false);
+  // const [deleteSuccess, setDeleteSuccess] = useState(false);
+  // const [deleteError, setDeleteError] = useState(false);
 
-  const openModal = () => {
-    setDeleteModalOpen(true);
-    setDeleteError(false);
-    setDeleteSuccess(false);
-  };
 
-  const handleDeleteRows = useCallback(() => {
-    setConfirmDeleteLoading(true);
-    setTimeout(() => {
-      table.options.meta?.deleteRow(row);
-      setDeleteSuccess(true);
-      setConfirmDeleteLoading(false);
-    }, 1000);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [row]);
+  // const closeModal = () => {
+  //   setDeleteModalOpen(false);
+  // };
 
-  const state = deleteError ? "error" : deleteSuccess ? "success" : "pending";
+  // const openModal = () => {
+  //   setDeleteModalOpen(true);
+  //   setDeleteError(false);
+  //   setDeleteSuccess(false);
+  // };
+
+  // const handleDeleteRows = useCallback(() => {
+  //   setConfirmDeleteLoading(true);
+  //   setTimeout(() => {
+  //     table.options.meta?.deleteRow(row);
+  //     setDeleteSuccess(true);
+  //     setConfirmDeleteLoading(false);
+  //   }, 1000);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [row]);
+
+
+  // const state = deleteError ? "error" : deleteSuccess ? "success" : "pending";
 
   return (
     <>
@@ -100,19 +107,19 @@ export function RowActions({ row, table }) {
           >
             <MenuItem>
               {({ focus }) => (
-                <button
+                <button onClick={handleShowGraph}
                   className={clsx(
                     "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors ",
                     focus &&
                       "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
                 >
-                  <EyeIcon className="size-4.5 stroke-1" />
-                  <span>View</span>
+                  <PresentationChartLineIcon className="size-4.5 stroke-1" />
+                  <span>Graph</span>
                 </button>
               )}
             </MenuItem>
-            <MenuItem>
+            {/* <MenuItem>
               {({ focus }) => (
                 <button
                   className={clsx(
@@ -139,19 +146,40 @@ export function RowActions({ row, table }) {
                   <span>Delete</span>
                 </button>
               )}
-            </MenuItem>
+            </MenuItem> */}
           </Transition>
         </Menu>
       </div>
 
-      <ConfirmModal
+      {/* <ConfirmModal
         show={deleteModalOpen}
         onClose={closeModal}
         messages={confirmMessages}
         onOk={handleDeleteRows}
         confirmLoading={confirmDeleteLoading}
         state={state}
-      />
+      /> */}
+      {showAttendanceGraph && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-3xl rounded-lg bg-white p-4 shadow-lg">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-primary-950 text-lg font-semibold">
+                PDF View
+              </h2>
+              <button
+                onClick={()=>setShowAttendanceGraph(false)}
+                className="text-primary-600 text-xl font-bold"
+                aria-label="Close"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="max-h-[70vh] overflow-auto rounded border">
+              <StudentAttendanceGraph studentId={row.original.studentId}/>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
