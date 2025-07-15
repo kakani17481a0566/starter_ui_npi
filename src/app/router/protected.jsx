@@ -19,7 +19,7 @@ const protectedRoutes = {
       children: [
         {
           index: true,
-      element: <Navigate to="/dashboards" />, // ✅ fixed
+          element: <Navigate to="/dashboards" />, // ✅ fixed
         },
         {
           path: "dashboards",
@@ -63,6 +63,27 @@ const protectedRoutes = {
             },
           ],
         },
+        {
+          path: "parent",
+          children: [
+            {
+              index: true,
+              element: <Navigate to="/parent" />,
+            },
+            {
+              path: "dashboard",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/Parent")).default,
+              }),
+            },
+             {
+              path: "week",
+              lazy: async () => ({
+                Component: (await import("app/pages/academics/weeklyplan")).default,
+              }),
+            },
+          ]
+        }
       ],
     },
     // The app layout supports only the main layout. Avoid using it for other layouts.

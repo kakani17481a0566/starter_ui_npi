@@ -10,4 +10,12 @@ export const baseNavigation = [
         transKey: 'nav.dashboards.dashboards',
         Icon: DashboardsIcon,
     },
+    {
+        id: 'parentDashboard',
+        type: NAV_TYPE_ITEM,
+        path: '/parent',
+        title: 'ParentDashboards',
+        transKey: 'nav.parent.parent',
+        Icon: DashboardsIcon,
+    },
 ]

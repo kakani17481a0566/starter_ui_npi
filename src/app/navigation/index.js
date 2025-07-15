@@ -1,5 +1,6 @@
 import { getSessionData } from "utils/sessionStorage";
 import { dashboards } from "./dashboards";
+import {ParentDashboards} from "./ParentDashboard";
 const TEACHER='teacher';
 const NANNY='nanny';
 const ADMIN='admin';
@@ -10,7 +11,7 @@ if(role.toLowerCase()===NANNY){
 navigation=[dashboards];
 }
 else if(role.toLowerCase() ===TEACHER  || role.toLowerCase() ===ADMIN){
-    navigation=[dashboards]
+    navigation=[dashboards,ParentDashboards]
 }
 
 export {navigation} 

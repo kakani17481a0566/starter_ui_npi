@@ -8,6 +8,10 @@
       "week":"Week Plan",
       "term":"Term Plan"
     },
+  "parent":{
+    "parent":"Parent Dashboard",
+    "dashboard":"Student Performance"
+  },
     "settings": {
       "settings": "Settings",
       "general": "General",
