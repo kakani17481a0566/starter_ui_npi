@@ -50,6 +50,42 @@ else if(role ==='Teacher'){
     }
   ]
 }
+else if(role.toLowerCase()==="admin"){
+  dynamicChilds=[
+    {
+      id: "dashboards.home",
+      path: path(ROOT_DASHBOARDS, "/week"),
+      type: NAV_TYPE_ITEM,
+      title: "Week Plan", 
+      transKey: "nav.dashboards.week",
+      Icon: HomeIcon,
+    },
+    {
+      id: "dashboards.attendence",
+      path: path(ROOT_DASHBOARDS, "/attendance"),
+      type: NAV_TYPE_ITEM,
+      title: "Attendance",
+      transKey: "nav.dashboards.attendance",
+      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
+    {
+      id: "dashboards.Term",
+      path: path(ROOT_DASHBOARDS, "/term"),
+      type: NAV_TYPE_ITEM,
+      title: "Term",
+      transKey: "nav.dashboards.term",
+      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
+    {
+      id: "dashboards.mark-attendance",
+      path: "dashboards/mark-attendance",
+      type: NAV_TYPE_ITEM,
+      title: "Mark Attendance",
+      transKey: "nav.dashboards.mark",
+      Icon: ClipboardDocumentCheckIcon,
+    }
+  ]
+}
 
 export const dashboards = {
   id: "dashboards",
