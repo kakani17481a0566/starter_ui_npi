@@ -107,10 +107,10 @@ export default function SignIn() {
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className={`border-primary-600 flex items-center gap-2 rounded-full border bg-white px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
+                      className={`border-primary-600 flex items-center gap-2 rounded-full border bg-white px-4 py-1.5 text-xs font-bold transition-all duration-200 dark:bg-white ${
                         isLoading
-                          ? "text-primary-600 cursor-not-allowed opacity-70"
-                          : "text-primary-600 hover:bg-primary-50"
+                          ? "text-primary-950 cursor-not-allowed opacity-70"
+                          : "text-primary-950 hover:bg-primary-50"
                       }`}
                     >
                       {isLoading ? (
