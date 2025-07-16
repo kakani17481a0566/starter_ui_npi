@@ -35,3 +35,4 @@ export const GET_TRANSACTION_TYPES=`https://neuropi-fhafe3gchabde0gb.canadacentr
 export const GET_ACCOUNT_HEADS=`https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/getByMasterTypeId/3/${tenantId}?isUtilites=false`;
 export const GET_ACCOUNT_BY_TENANT=`${BASE_URL}/Account/tenant/${tenantId}`;
 export const FETCH_ACTIVITIES=`${BASE_URL}/Transaction/table/tenant/${tenantId}`;
+export const FETCH_STUDENTS=`${BASE_URL}/Student/by-tenant-course-branch?tenantId=${tenantId}&courseId=${defaultCourse}&branchId=${branch}`
