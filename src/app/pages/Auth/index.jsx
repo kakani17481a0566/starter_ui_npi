@@ -107,21 +107,21 @@ export default function SignIn() {
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className={`text-primary-950 border-primary-600 flex items-center gap-2 rounded-full border !bg-white px-4 py-1.5 text-xs font-bold transition-all duration-200 dark:!bg-white ${
+                      className={`border-primary-600 flex items-center gap-2 rounded-full border bg-white px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
                         isLoading
-                          ? "cursor-not-allowed opacity-70"
-                          : "hover:bg-primary-50"
+                          ? "text-primary-600 cursor-not-allowed opacity-70"
+                          : "text-primary-600 hover:bg-primary-50"
                       }`}
                     >
                       {isLoading ? (
                         <>
-                          <ArrowPathIcon className="text-primary-950 h-4 w-4 animate-spin" />
-                          Signing In...
+                          <ArrowPathIcon className="text-primary-600 h-4 w-4 animate-spin" />
+                          Signing In
                         </>
                       ) : (
                         <>
                           Sign In
-                          <ArrowRightIcon className="text-primary-950 h-4 w-4" />
+                          <ArrowRightIcon className="text-primary-600 h-4 w-4" />
                         </>
                       )}
                     </Button>
