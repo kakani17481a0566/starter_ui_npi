@@ -22,8 +22,9 @@ import { Fragment, useEffect, useState } from "react";
 import { Button, Card } from "components/ui";
 import { fetchAttendanceSummary } from "./attendecedisplaytable/data";
 
-export function Overview() {
+export function Overview({ date }) {
   const [focusRange, setFocusRange] = useState("monthly");
+  const [data,setData]=useState([]);
   const [summary, setSummary] = useState({
     totalStudents: 0,
     checkedInCount: 0,
@@ -36,28 +37,26 @@ export function Overview() {
   useEffect(() => {
     async function loadSummary() {
       try {
-        const res = await fetchAttendanceSummary({
-          date: "2025-07-12",
-          tenantId: 1,
-          branchId: 1,
-          courseId: -1,
-        });
+      const res = await fetchAttendanceSummary({ date });
+      setData(res);
+        
 
         if (res?.data) {
           const {
-            totalStudents = 0,
-            checkedInCount = 0,
-            checkedOutCount = 0,
-            notMarkedCount = 0,
-            unknownCount = 0,
-            records = [],
+            totalStudents ,
+            checkedInCount ,
+            checkedOutCount ,
+            notMarkedCount,
+            unknownCount ,
+            // records = [],
           } = res.data;
+          
 
-          const cutterDayCount = Math.max(
-            records.filter((r) => r.attendanceStatus === "Checked-In").length -
-              records.filter((r) => r.attendanceStatus === "Checked-Out").length,
-            0
-          );
+          // const cutterDayCount = Math.max(
+          //   records.filter((r) => r.attendanceStatus === "Checked-In").length -
+          //     records.filter((r) => r.attendanceStatus === "Checked-Out").length,
+          //   0
+          // );
 
           setSummary({
             totalStudents,
@@ -65,7 +64,7 @@ export function Overview() {
             checkedOutCount,
             notMarkedCount,
             unknownCount,
-            cutterDayCount,
+            // cutterDayCount,
           });
         }
       } catch (err) {
@@ -109,12 +108,12 @@ export function Overview() {
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3 px-4 sm:mt-5 sm:grid-cols-4 sm:px-5 lg:mt-6">
-        <StatCard label="Total Students" value={summary.totalStudents} Icon={CurrencyDollarIcon} />
-        <StatCard label="Checked-In" value={summary.checkedInCount} Icon={CheckBadgeIcon} />
-        <StatCard label="Checked-Out" value={summary.checkedOutCount} Icon={ArrowPathIcon} />
-        <StatCard label="Not Marked" value={summary.notMarkedCount} Icon={ClockIcon} />
+        <StatCard label="Total Students" value={data.totalStudents} Icon={CurrencyDollarIcon} />
+        <StatCard label="Checked-In" value={data.checkedInCount} Icon={CheckBadgeIcon} />
+        <StatCard label="Checked-Out" value={data.checkedOutCount} Icon={ArrowPathIcon} />
+        <StatCard label="Not Marked" value={data.notMarkedCount} Icon={ClockIcon} />
         {summary.unknownCount > 0 && (
-          <StatCard label="Unknown" value={summary.unknownCount} Icon={QuestionMarkCircleIcon} />
+          <StatCard label="Unknown" value={data.unknownCount} Icon={QuestionMarkCircleIcon} />
         )}
         {summary.cutterDayCount > 0 && (
           <StatCard label="Cutter Day" value={summary.cutterDayCount} Icon={ScissorsIcon} />

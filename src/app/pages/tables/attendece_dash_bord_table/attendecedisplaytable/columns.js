@@ -33,6 +33,8 @@ const skipHeaders = [
   "markedOn",
   "updatedBy",
   "updatedOn",
+  "imageUrl",
+  "attendanceDate"
 ]; // Optional: add/remove here
 
 export function generateAttendanceColumns(headers) {

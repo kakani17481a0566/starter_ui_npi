@@ -22,7 +22,7 @@ export default function Orders() {
       <div className="transition-content mt-5 px-[--margin-x] pb-8 lg:mt-6">
         <div className="grid grid-cols-12 gap-4 sm:gap-5 lg:gap-6">
           {/* Attendance Summary */}
-          <Overview />
+          <Overview date={selectedDate}/>
 
           {/* Responsive Calendar (full-width on mobile, 2-col grid on large screens) */}
           <div className="col-span-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-5 lg:col-span-4 lg:gap-6">
