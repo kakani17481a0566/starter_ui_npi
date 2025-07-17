@@ -32,6 +32,8 @@ export default function StudentAttendanceGraph({ studentId }) {
 
   const tenantId = 1;
   const branchId = 1;
+  const getDayOnly = (dateStr) => new Date(dateStr).getDate();
+
 
   useEffect(() => {
     fetchAttendanceGraph({ studentId, tenantId, branchId }).then(setData);
@@ -57,11 +59,13 @@ export default function StudentAttendanceGraph({ studentId }) {
             margin={{ top: 30, right: 30, left: 0, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" />
-            <XAxis
-              dataKey="date"
-              stroke="#374151"
-              tick={{ fontSize: 12, fill: "#374151" }}
-            />
+          <XAxis
+  dataKey="date"
+  stroke="#374151"
+  tickFormatter={getDayOnly}
+  tick={{ fontSize: 12, fill: "#374151" }}
+/>
+
             <YAxis
               domain={[0, 24]}
               tickFormatter={timeFormatter}
