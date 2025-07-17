@@ -7,11 +7,15 @@ import { HiPencil } from "react-icons/hi";
 // Local Imports
 import { PreviewImg } from "components/shared/PreviewImg";
 import { Avatar, Button, Input, Upload } from "components/ui";
+import { getSessionData } from "utils/sessionStorage";
+
 
 // ----------------------------------------------------------------------
 
 export default function General() {
   const [avatar, setAvatar] = useState(null);
+    const { imageUrl } = getSessionData(); // ✅ add this line
+
 
   return (
     <div className="w-full max-w-3xl 2xl:max-w-5xl">
@@ -30,7 +34,8 @@ export default function General() {
           size={20}
           imgComponent={PreviewImg}
           imgProps={{ file: avatar }}
-          src="/images/100x100.png"
+          src={imageUrl}
+
           classNames={{
             root: "rounded-xl ring-primary-600 ring-offset-[3px] ring-offset-white transition-all hover:ring-3 dark:ring-primary-500 dark:ring-offset-dark-700",
             display: "rounded-xl",
