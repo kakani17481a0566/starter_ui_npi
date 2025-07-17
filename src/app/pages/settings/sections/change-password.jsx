@@ -102,8 +102,8 @@ export default function ChangePassword() {
           <div
             className={`flex items-center gap-2 mb-6 text-sm px-4 py-3 rounded-lg shadow-sm transition-all duration-300 ${
               responseMsg.toLowerCase().includes("success")
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
+                ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
+                : "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
             }`}
           >
             {responseMsg.toLowerCase().includes("success") ? (
@@ -111,16 +111,16 @@ export default function ChangePassword() {
             ) : (
               <ExclamationCircleIcon className="w-5 h-5" />
             )}
-            <span className="text-primary-950">{responseMsg}</span>
+            <span>{responseMsg}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 text-primary-950">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 text-primary-950 dark:text-white">
           <Input
             label="Current Password"
             type="password"
             placeholder="Enter your current password"
-            icon={<KeyIcon className="h-5 w-5 text-gray-400" />}
+            icon={<KeyIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />}
             className="h-9 text-sm px-3 py-2"
             {...register("currentPassword")}
             error={errors.currentPassword?.message}
@@ -129,7 +129,7 @@ export default function ChangePassword() {
             label="New Password"
             type="password"
             placeholder="Enter a new password"
-            icon={<LockOpenIcon className="h-5 w-5 text-gray-400" />}
+            icon={<LockOpenIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />}
             className="h-9 text-sm px-3 py-2"
             {...register("newPassword")}
             error={errors.newPassword?.message}
@@ -138,7 +138,7 @@ export default function ChangePassword() {
             label="Confirm New Password"
             type="password"
             placeholder="Re-enter the new password"
-            icon={<ShieldCheckIcon className="h-5 w-5 text-gray-400" />}
+            icon={<ShieldCheckIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />}
             className="h-9 text-sm px-3 py-2"
             {...register("confirmPassword")}
             error={errors.confirmPassword?.message}
