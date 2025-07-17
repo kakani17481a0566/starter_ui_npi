@@ -1,4 +1,3 @@
-// Import Dependencies
 import {
   Popover,
   PopoverButton,
@@ -14,6 +13,8 @@ import { Link } from "react-router";
 
 // Local Imports
 import { Avatar, AvatarDot, Button } from "components/ui";
+import { KeyRound } from "lucide-react";
+
 
 // ----------------------------------------------------------------------
 
@@ -42,7 +43,16 @@ const links = [
     Icon: Cog6ToothIcon,
     color: "success",
   },
+  {
+    id: "4",
+    title: "Change Password",
+    description: "Update your login credentials",
+    to: "/settings/change-password",
+    Icon: KeyRound, // ✅ import this icon from lucide-react
+    color: "info",
+  },
 ];
+
 
 export function Profile() {
   return (
@@ -85,14 +95,37 @@ export function Profile() {
                   >
                     Travis Fuller
                   </Link>
-
                   <p className="dark:text-dark-300 mt-0.5 text-xs text-gray-400">
-                    Product Designer
                     Product Designer
                   </p>
                 </div>
               </div>
+
               <div className="flex flex-col pt-2 pb-5">
+                {/* ✅ Hardcoded Change Password button */}
+                <Link
+                  to="/settings/change-password"
+                  onClick={close}
+                  className="group dark:hover:bg-dark-600 dark:focus:bg-dark-600 flex items-center gap-3 px-4 py-2 tracking-wide outline-hidden transition-all hover:bg-gray-100 focus:bg-gray-100"
+                >
+                  <Avatar
+                    size={8}
+                    initialColor="info"
+                    classNames={{ display: "rounded-lg" }}
+                  >
+                    <KeyRound className="size-4.5" />
+                  </Avatar>
+                  <div>
+                    <h2 className="group-hover:text-primary-600 group-focus:text-primary-600 dark:text-dark-100 dark:group-hover:text-primary-400 dark:group-focus:text-primary-400 font-medium text-gray-800 transition-colors">
+                      Change Password
+                    </h2>
+                    <div className="dark:text-dark-300 truncate text-xs text-gray-400">
+                      Update your login credentials
+                    </div>
+                  </div>
+                </Link>
+
+                {/* 🔁 Existing Settings Links */}
                 {links.map((link) => (
                   <Link
                     key={link.id}
@@ -117,6 +150,8 @@ export function Profile() {
                     </div>
                   </Link>
                 ))}
+
+                {/* Logout Button */}
                 <div className="px-4 pt-4">
                   <Button className="w-full gap-2">
                     <ArrowLeftStartOnRectangleIcon className="size-4.5" />

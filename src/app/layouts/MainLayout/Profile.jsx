@@ -14,7 +14,7 @@ import { Link } from "react-router";
 import { getSessionData } from "utils/sessionStorage";
 import { useAuthContext } from "app/contexts/auth/context";
 import { useNavigate } from "react-router-dom";
-
+import { KeyRound } from "lucide-react";
 
 // Local Imports
 import { Avatar, AvatarDot, Button } from "components/ui";
@@ -46,24 +46,34 @@ const links = [
     Icon: Cog6ToothIcon,
     color: "success",
   },
+  {
+    id: "6",
+    title: "Change Password",
+    description: "Update your login credentials",
+    to: "/settings/change-password",
+    Icon: KeyRound,
+    color: "info",
+  },
 ];
 
 export function Profile() {
   const navigate = useNavigate();
   const { logout } = useAuthContext();
-  const {user,  role}=getSessionData();
+  const { user, role, imageUrl } = getSessionData();
+
   const handleLogOut = async () => {
     console.log("Logging out...");
-    await logout(); 
+    await logout();
     navigate("/login?redirect=/");
   };
+
   return (
     <Popover className="relative">
       <PopoverButton
         as={Avatar}
         size={12}
         role="button"
-        src="/images/100x100.png"
+        src={imageUrl}
         alt="Profile"
         indicator={
           <AvatarDot color="success" className="ltr:right-0 rtl:left-0" />
@@ -87,11 +97,7 @@ export function Profile() {
           {({ close }) => (
             <>
               <div className="dark:bg-dark-800 flex items-center gap-4 rounded-t-lg bg-gray-100 px-4 py-5">
-                <Avatar
-                  size={14}
-                  src="/images/100x100.png"
-                  alt="Profile"
-                />
+                <Avatar size={14} src={imageUrl} alt="Profile" />
                 <div>
                   <Link
                     className="hover:text-primary-600 focus:text-primary-600 dark:text-dark-100 dark:hover:text-primary-400 dark:focus:text-primary-400 text-base font-medium text-gray-700"
@@ -99,12 +105,12 @@ export function Profile() {
                   >
                     {user}
                   </Link>
-
                   <p className="dark:text-dark-300 mt-0.5 text-xs text-gray-400">
-                   {role}
+                    {role}
                   </p>
                 </div>
               </div>
+
               <div className="flex flex-col pt-2 pb-5">
                 {links.map((link) => (
                   <Link
@@ -130,9 +136,11 @@ export function Profile() {
                     </div>
                   </Link>
                 ))}
+
+                {/* Logout */}
                 <div className="px-4 pt-4">
-                  <Button className="w-full gap-2"  onClick={handleLogOut}>
-                    <ArrowLeftStartOnRectangleIcon className="size-4.5"/>
+                  <Button className="w-full gap-2" onClick={handleLogOut}>
+                    <ArrowLeftStartOnRectangleIcon className="size-4.5" />
                     <span>Logout</span>
                   </Button>
                 </div>
