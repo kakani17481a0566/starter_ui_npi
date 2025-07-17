@@ -46,6 +46,15 @@ export function Header() {
       )}
     >
       <SidebarToggleBtn />
+      <div className="px-4">
+  <img
+    id="header-logo-main-bar"
+    alt="Company Logo"
+    className="h-500 w-auto max-w-[300px] object-contain"
+    src="https://res.cloudinary.com/kakani7/image/upload/v1746172182/MSI/yqjbpqtuvuf0co08zai4.svg"
+  />
+</div>
+
 
       <div className="flex items-center gap-2 ltr:-mr-1.5 rtl:-ml-1.5">
         <Search
