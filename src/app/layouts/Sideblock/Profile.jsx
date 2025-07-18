@@ -8,7 +8,9 @@ import {
   ArrowLeftStartOnRectangleIcon,
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
-import { TbCoins, TbUser } from "react-icons/tb";
+// import { TbCoins, TbUser } from "react-icons/tb";
+import { TbUser } from "react-icons/tb";
+
 import { Link } from "react-router";
 
 // Local Imports
@@ -27,14 +29,14 @@ const links = [
     Icon: TbUser,
     color: "warning",
   },
-  {
-    id: "2",
-    title: "Billing",
-    description: "Your billing information",
-    to: "/settings/billing",
-    Icon: TbCoins,
-    color: "error",
-  },
+  // {
+  //   id: "2",
+  //   title: "Billing",
+  //   description: "Your billing information",
+  //   to: "/settings/billing",
+  //   Icon: TbCoins,
+  //   color: "error",
+  // },
   {
     id: "3",
     title: "Settings",
