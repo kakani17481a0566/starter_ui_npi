@@ -25,7 +25,7 @@ export default function Error404() {
               "--primary-light": primary[300],
             }}
           />
-          <p className="pt-4 text-xl font-semibold text-gray-800 dark:text-dark-50">
+          <p className="pt-4 text-xl font-semibold text-primary-950 dark:text-dark-100  dark:text-dark-50">
             Oops. This Page Not Found.
           </p>
           <p className="pt-2 text-gray-500 dark:text-dark-200">

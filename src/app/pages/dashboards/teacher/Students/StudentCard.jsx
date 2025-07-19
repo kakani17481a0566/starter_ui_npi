@@ -33,7 +33,7 @@ export function StudentCard({
           }
         />
         <div className="min-w-0">
-          <p className="truncate font-medium text-gray-800 dark:text-dark-100">
+          <p className="truncate font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
             {name}
           </p>
           <p className="mt-0.5 truncate text-xs">{progress}% completed</p>

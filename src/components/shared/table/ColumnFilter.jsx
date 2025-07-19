@@ -150,7 +150,7 @@ export function ColumnFilter({ column }) {
                       key={item.value}
                       className={({ active }) =>
                         clsx(
-                          "relative flex cursor-pointer select-none items-center justify-between space-x-2 px-3 py-2 text-gray-800 outline-hidden transition-colors dark:text-dark-100 ",
+                          "relative flex cursor-pointer select-none items-center justify-between space-x-2 px-3 py-2 text-primary-950 dark:text-dark-100  outline-hidden transition-colors dark:text-dark-100 ",
                           active && "bg-gray-100 dark:bg-dark-600",
                         )
                       }

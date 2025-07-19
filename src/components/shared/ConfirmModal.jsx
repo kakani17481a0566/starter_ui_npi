@@ -123,7 +123,7 @@ function Confirm({ onOk, state, messages, confirmLoading, onClose, focusRef }) {
         )}
       />
       <div className="mt-4">
-        <h3 className="text-xl text-gray-800 dark:text-dark-100">
+        <h3 className="text-xl text-primary-950 dark:text-dark-100  dark:text-dark-100">
           {mergedMessages[state].title}
         </h3>
         <p className="mx-auto mt-2 max-w-xs">

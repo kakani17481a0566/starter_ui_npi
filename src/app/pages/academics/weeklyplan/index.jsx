@@ -1,9 +1,12 @@
 import { Page } from "components/shared/Page";
 import { AcademicCapIcon } from "@heroicons/react/24/outline";
 import { WeekTimeTable } from "app/pages/dashboards/teacher/WeekTimeTable";
-
+import { getSessionData } from "utils/sessionStorage"; // ✅ Import session helper
 
 export default function TermPlan() {
+  const { course } = getSessionData(); // ✅ Get courses from session
+  const defaultCourseId = course?.[0]?.id ?? null; // ✅ Safely get the first course ID
+
   return (
     <Page title="Academic Term Plan">
       <div className="transition-content w-full px-[var(--margin-x)] pt-5 lg:pt-6">
@@ -17,7 +20,7 @@ export default function TermPlan() {
           </div>
 
           <div className="mt-4">
-         <WeekTimeTable/>
+            <WeekTimeTable selectedCourseId={defaultCourseId} /> {/* ✅ Passed as prop */}
           </div>
         </div>
       </div>

@@ -54,7 +54,7 @@ export function SellerCard({ avatar, name, attendanceStatus, mobileNumber, class
           initialColor="auto"
         />
         <div>
-          <p className="text-base font-medium text-gray-800 dark:text-dark-100">{name}</p>
+          <p className="text-base font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">{name}</p>
           <p className="text-xs-plus text-gray-400 dark:text-dark-300">Student</p>
             <p className="text-xs text-gray-400 dark:text-dark-300">{className}</p> {/* ✅ className */}
 

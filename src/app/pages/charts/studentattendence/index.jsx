@@ -43,7 +43,7 @@ export default function StudentAttendanceGraph({ studentId }) {
     <div className="w-full rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
       {/* Title */}
       <div className="mb-4 text-center">
-        <h2 className="text-xl font-semibold text-gray-800">
+        <h2 className="text-xl font-semibold text-primary-950 dark:text-dark-100 ">
           Student Attendance (In &amp; Out Time)
         </h2>
         <p className="text-sm text-gray-500">

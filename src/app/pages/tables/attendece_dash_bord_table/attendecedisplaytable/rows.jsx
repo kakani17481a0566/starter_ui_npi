@@ -21,7 +21,7 @@ export function StudentNameCell({ getValue, column, table, row }) {
   const name = getValue() ?? "—";
   const status = row?.original?.attendanceStatus;
 
-  let textColor = "text-gray-800 dark:text-dark-100";
+  let textColor = "text-primary-950 dark:text-dark-100  dark:text-dark-100";
   let Icon = null;
 
   switch (status) {

@@ -81,14 +81,14 @@ export function SocialTraffic() {
   return (
     <Card className="px-4 pb-5 sm:px-5">
       <div className="flex h-14 min-w-0 items-center justify-between py-3">
-        <h2 className="truncate font-medium tracking-wide text-gray-800 dark:text-dark-100">
+        <h2 className="truncate font-medium tracking-wide text-primary-950 dark:text-dark-100  dark:text-dark-100">
           Social Traffic
         </h2>
         <ActionMenu />
       </div>
       <div>
         <p>
-          <span className="text-2xl text-gray-800 dark:text-dark-100">
+          <span className="text-2xl text-primary-950 dark:text-dark-100  dark:text-dark-100">
             135K
           </span>
           <span className="text-xs text-success dark:text-success-lighter">
@@ -113,7 +113,7 @@ export function SocialTraffic() {
               </a>
             </div>
             <div className="flex items-center gap-2">
-              <p className="text-sm-plus text-gray-800 dark:text-dark-100">
+              <p className="text-sm-plus text-primary-950 dark:text-dark-100  dark:text-dark-100">
                 {formatNumber(channel.views, 2)}
               </p>
               {channel.impression > 0 ? (
@@ -159,7 +159,7 @@ function ActionMenu() {
                 className={clsx(
                   "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
                   focus &&
-                    "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
+                    "bg-gray-100 text-primary-950 dark:text-dark-100  dark:bg-dark-600 dark:text-dark-100",
                 )}
               >
                 <span>Action</span>
@@ -172,7 +172,7 @@ function ActionMenu() {
                 className={clsx(
                   "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
                   focus &&
-                    "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
+                    "bg-gray-100 text-primary-950 dark:text-dark-100  dark:bg-dark-600 dark:text-dark-100",
                 )}
               >
                 <span>Another action</span>
@@ -185,7 +185,7 @@ function ActionMenu() {
                 className={clsx(
                   "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
                   focus &&
-                    "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
+                    "bg-gray-100 text-primary-950 dark:text-dark-100  dark:bg-dark-600 dark:text-dark-100",
                 )}
               >
                 <span>Other action</span>
@@ -201,7 +201,7 @@ function ActionMenu() {
                 className={clsx(
                   "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
                   focus &&
-                    "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
+                    "bg-gray-100 text-primary-950 dark:text-dark-100  dark:bg-dark-600 dark:text-dark-100",
                 )}
               >
                 <span>Separated action</span>

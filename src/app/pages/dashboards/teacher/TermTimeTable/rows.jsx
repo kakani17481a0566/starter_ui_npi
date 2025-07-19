@@ -20,7 +20,7 @@ export function FileCell({ getValue }) {
     <div
       className={clsx(
         "whitespace-normal text-sm",
-        value ? "text-gray-800 dark:text-dark-100" : "text-gray-400 italic"
+        value ? "text-primary-950 dark:text-dark-100  dark:text-dark-100" : "text-gray-400 italic"
       )}
     >
       {value || "—"}

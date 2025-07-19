@@ -34,7 +34,7 @@ export function FileItem({ file, handleRemove, ...rest }) {
           <Icon className="size-6" />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-gray-800 dark:text-dark-100">{name}</p>
+          <p className="truncate text-primary-950 dark:text-dark-100  dark:text-dark-100">{name}</p>
           <p className="mt-1 text-xs text-gray-400 dark:text-dark-300">
             {formatBytes(size)}
           </p>

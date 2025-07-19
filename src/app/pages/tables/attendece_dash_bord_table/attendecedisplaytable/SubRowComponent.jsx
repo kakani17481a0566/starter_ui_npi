@@ -14,7 +14,7 @@ export function SubRowComponent({ row, cardWidth }) {
       className="sticky border-b border-b-gray-200 bg-gray-50 pb-4 pt-3 dark:border-b-dark-500 dark:bg-dark-750 ltr:left-0 rtl:right-0"
       style={{ maxWidth: cardWidth }}
     >
-      <p className="mt-1 px-4 font-medium text-gray-800 dark:text-dark-100 sm:px-5 lg:ltr:ml-14 rtl:rtl:mr-14">
+      <p className="mt-1 px-4 font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100 sm:px-5 lg:ltr:ml-14 rtl:rtl:mr-14">
         Customer orders:
       </p>
 
@@ -28,7 +28,7 @@ export function SubRowComponent({ row, cardWidth }) {
               {cols.map((title, index) => (
                 <Th
                   key={index}
-                  className="py-2 font-semibold uppercase text-gray-800 first:px-0 last:px-0 dark:text-dark-100"
+                  className="py-2 font-semibold uppercase text-primary-950 dark:text-dark-100  first:px-0 last:px-0 dark:text-dark-100"
                 >
                   {title}
                 </Th>
@@ -57,7 +57,7 @@ export function SubRowComponent({ row, cardWidth }) {
                 <Td>{tr.price}</Td>
                 <Td>{tr.qty}</Td>
                 <Td>{tr.discount}</Td>
-                <Td className="px-0 font-medium text-gray-800 dark:text-dark-100 ltr:rounded-r-lg rtl:rounded-l-lg">
+                <Td className="px-0 font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100 ltr:rounded-r-lg rtl:rounded-l-lg">
                   {tr.total}
                 </Td>
               </Tr>
@@ -73,7 +73,7 @@ export function SubRowComponent({ row, cardWidth }) {
               <Tr>
                 <Td>Summary :</Td>
                 <Td>
-                  <span className="font-medium text-gray-800 dark:text-dark-100">
+                  <span className="font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
                     ${row.original.subtotal}
                   </span>
                 </Td>
@@ -81,7 +81,7 @@ export function SubRowComponent({ row, cardWidth }) {
               <Tr>
                 <Td>Delivery fee :</Td>
                 <Td>
-                  <span className="font-medium text-gray-800 dark:text-dark-100">
+                  <span className="font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
                     ${row.original.delivery_fee}
                   </span>
                 </Td>
@@ -89,7 +89,7 @@ export function SubRowComponent({ row, cardWidth }) {
               <Tr>
                 <Td>Tax :</Td>
                 <Td>
-                  <span className="font-medium text-gray-800 dark:text-dark-100">
+                  <span className="font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
                     ${row.original.tax}
                   </span>
                 </Td>

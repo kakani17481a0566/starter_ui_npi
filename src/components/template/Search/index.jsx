@@ -123,7 +123,7 @@ export function SearchDialog({ close }) {
 
       {result.length === 0 && query !== "" && (
         <div className="flex flex-col overflow-y-auto py-4">
-          <h3 className="px-4 text-gray-800 dark:text-dark-50 sm:px-5">
+          <h3 className="px-4 text-primary-950 dark:text-dark-100  dark:text-dark-50 sm:px-5">
             No Result Found
           </h3>
         </div>
@@ -131,7 +131,7 @@ export function SearchDialog({ close }) {
 
       {result.length > 0 && (
         <div className="flex flex-col overflow-y-auto py-4">
-          <h3 className="px-4 text-gray-800 dark:text-dark-50 sm:px-5">
+          <h3 className="px-4 text-primary-950 dark:text-dark-100  dark:text-dark-50 sm:px-5">
             Search Result
           </h3>
           <div className="space-y-3 px-4 pt-3">
@@ -147,7 +147,7 @@ export function SearchDialog({ close }) {
                 })}
                 data-search-item
                 to={item.path}
-                className="group flex items-center justify-between space-x-2 rounded-lg bg-gray-100 px-2.5 py-2 tracking-wide text-gray-800 outline-hidden transition-all focus:ring-3 focus:ring-primary-500/50 dark:bg-dark-600 dark:text-dark-100 "
+                className="group flex items-center justify-between space-x-2 rounded-lg bg-gray-100 px-2.5 py-2 tracking-wide text-primary-950 dark:text-dark-100  outline-hidden transition-all focus:ring-3 focus:ring-primary-500/50 dark:bg-dark-600 dark:text-dark-100 "
                 onClick={close}
               >
                 <div className="min-w-0">

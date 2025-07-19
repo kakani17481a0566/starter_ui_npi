@@ -1,32 +1,25 @@
-// src/app/pages/dashboards/Teacher/Classes/index.jsx
 import { useEffect, useState } from "react";
 import { ClassCard } from "./ClassCard";
 import { fetchWeeklyClasses } from "./fetchWeeklyClasses";
 import { DocumentPlusIcon } from "@heroicons/react/24/outline";
-import { Spinner } from "components/ui"; // ⬅️ Make sure this is correctly imported
-import { getSessionData } from "utils/sessionStorage";
+import { Spinner } from "components/ui";
 
-
-
-export function Classes() {
+export function Classes({ selectedCourseId }) {
   const [classes, setClasses] = useState([]);
   const [weekInfo, setWeekInfo] = useState({ weekName: "", currentDate: "" });
   const [loading, setLoading] = useState(false);
-  const {course} = getSessionData();
-
-  const defaultCourse = course && course.length > 0 ? course[0].id : null;
 
   useEffect(() => {
-    // if (!selectedCourseId) return;
+    if (!selectedCourseId) return;
 
     setLoading(true);
-    fetchWeeklyClasses(defaultCourse)
+    fetchWeeklyClasses(selectedCourseId)
       .then(({ classes, weekName, currentDate }) => {
         setClasses(classes);
         setWeekInfo({ weekName, currentDate });
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [selectedCourseId]);
 
   return (
     <div className="mt-4 sm:mt-5 lg:mt-6">

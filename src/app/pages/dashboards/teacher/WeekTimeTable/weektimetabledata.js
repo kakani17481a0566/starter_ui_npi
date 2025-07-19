@@ -1,11 +1,13 @@
-// src/app/pages/dashboards/teacher/MediaTable/weektimetabledata.js
 import axiosInstance from "utils/axios";
 import { handleAxiosError } from "utils/handleAxiosError";
 import { getSessionData } from "utils/sessionStorage";
 
-export async function fetchWeekTimeTableData() {
-  const {course,tenantId,week}=getSessionData();
-  const  courseId=course?course[0].id:1;
+export async function fetchWeekTimeTableData(courseIdOverride) {
+  const { course, tenantId, week } = getSessionData();
+
+  // ✅ Fallback logic: if no override passed, use first course from session or default to 1
+  const courseId = courseIdOverride ?? (Array.isArray(course) && course.length > 0 ? course[0].id : 1);
+
   try {
     const res = await axiosInstance.get(
       `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/TimeTable/weekId/${week}/tenantId/${tenantId}/courseId/${courseId}`
@@ -27,6 +29,7 @@ export async function fetchWeekTimeTableData() {
   } catch (error) {
     const err = handleAxiosError(error);
     console.error("❌ Failed to fetch week timetable data:", err.message);
+
     return {
       weekName: "",
       currentDate: "",
@@ -40,3 +43,4 @@ export async function fetchWeekTimeTableData() {
     };
   }
 }
+ 

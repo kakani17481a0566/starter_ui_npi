@@ -107,7 +107,7 @@ const CustomListbox = forwardRef(
                               "bg-gray-100 dark:bg-dark-600",
                             selected
                               ? "bg-primary-600 text-white dark:bg-primary-500"
-                              : "text-gray-800 dark:text-dark-100",
+                              : "text-primary-950 dark:text-dark-100  dark:text-dark-100",
                           )
                         }
                         value={item}

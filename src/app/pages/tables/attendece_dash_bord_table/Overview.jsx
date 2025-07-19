@@ -79,7 +79,7 @@ export function Overview({ date }) {
     <Card className="col-span-12 lg:col-span-8">
       <div className="flex flex-col justify-between px-4 pt-3 sm:flex-row sm:items-center sm:px-5">
         <div className="flex flex-1 items-center justify-between space-x-2 sm:flex-initial">
-          <h2 className="text-sm-plus font-medium tracking-wide text-gray-800 dark:text-dark-100">
+          <h2 className="text-sm-plus font-medium tracking-wide text-primary-950 dark:text-dark-100  dark:text-dark-100">
             Attendance Summary
           </h2>
           <ActionMenu />
@@ -127,7 +127,7 @@ function StatCard({ label, value, Icon }) {
   return (
     <div className="rounded-lg bg-gray-100 p-3 dark:bg-surface-3 2xl:p-4">
       <div className="flex justify-between space-x-1">
-        <p className="text-xl font-semibold text-gray-800 dark:text-dark-100">{value}</p>
+        <p className="text-xl font-semibold text-primary-950 dark:text-dark-100  dark:text-dark-100">{value}</p>
         <Icon className="size-5 text-primary-500 dark:text-primary-400" />
       </div>
       <p className="mt-1 text-xs-plus">{label}</p>
@@ -156,7 +156,7 @@ function ActionMenu() {
               <button
                 className={clsx(
                   "flex h-9 w-full items-center px-3 tracking-wide",
-                  focus && "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100"
+                  focus && "bg-gray-100 text-primary-950 dark:text-dark-100  dark:bg-dark-600 dark:text-dark-100"
                 )}
               >
                 <span>Export Summary</span>

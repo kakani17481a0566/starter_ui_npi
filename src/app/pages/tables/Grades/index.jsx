@@ -202,7 +202,7 @@ const conductedById = 1;
             src="https://res.cloudinary.com/kakani7/image/upload/v1750990674/MSI/STUDENTS/pq8wjceb814q7athx01m.jpg"
             className="h-15 w-15"
           />
-          <span className="font-medium text-gray-800">{row.original.studentName}</span>
+          <span className="font-medium text-primary-950 dark:text-dark-100 ">{row.original.studentName}</span>
         </div>
       ),
     };

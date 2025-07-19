@@ -67,7 +67,7 @@ export function TopCountries() {
   return (
     <Card className="px-4 pb-5 sm:px-5">
       <div className="flex h-14 min-w-0 items-center justify-between py-3">
-        <h2 className="truncate font-medium tracking-wide text-gray-800 dark:text-dark-100">
+        <h2 className="truncate font-medium tracking-wide text-primary-950 dark:text-dark-100  dark:text-dark-100">
           Top Countries
         </h2>
         <a
@@ -79,7 +79,7 @@ export function TopCountries() {
       </div>
       <div>
         <p>
-          <span className="text-2xl text-gray-800 dark:text-dark-100">64</span>
+          <span className="text-2xl text-primary-950 dark:text-dark-100  dark:text-dark-100">64</span>
         </p>
         <p className="text-xs-plus">Countries</p>
       </div>
@@ -99,7 +99,7 @@ export function TopCountries() {
               </a>
             </div>
             <div className="flex items-center gap-2">
-              <p className="text-sm-plus text-gray-800 dark:text-dark-100">
+              <p className="text-sm-plus text-primary-950 dark:text-dark-100  dark:text-dark-100">
                 {country.sales}
               </p>
               {country.impression > 0 ? (

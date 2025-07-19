@@ -34,7 +34,9 @@ const skipHeaders = [
   "updatedBy",
   "updatedOn",
   "imageUrl",
-  "attendanceDate"
+  "attendanceDate",
+  "gender",
+  "bloodGroup"
 ]; // Optional: add/remove here
 
 export function generateAttendanceColumns(headers) {
