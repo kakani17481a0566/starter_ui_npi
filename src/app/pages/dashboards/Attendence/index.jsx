@@ -11,7 +11,7 @@ export default function Attendance() {
         style={{ paddingLeft: "var(--margin-x)", paddingRight: "var(--margin-x)" }}
       >
         <div className="min-w-0">
-          <h2 className="truncate text-xl font-medium tracking-wide text-primary-950 dark:text-dark-100  dark:text-dark-50">
+          <h2 className="truncate text-xl font-medium tracking-wide text-gray-800 dark:text-dark-50">
             Attendance Page
           </h2>
         </div>

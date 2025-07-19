@@ -24,7 +24,7 @@ export function ClassCard({ image, name, category, time, color, students }) {
             src={image}
             alt={name}
           />
-          <h3 className="mt-3 line-clamp-2 font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
+          <h3 className="mt-3 line-clamp-2 font-medium text-gray-800 dark:text-dark-100">
             {name}
           </h3>
           <p className="text-xs-plus">{time}</p>

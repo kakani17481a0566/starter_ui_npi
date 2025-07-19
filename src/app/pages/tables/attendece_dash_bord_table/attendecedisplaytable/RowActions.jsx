@@ -111,7 +111,7 @@ export function RowActions({ row }) {
                   className={clsx(
                     "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors ",
                     focus &&
-                      "bg-gray-100 text-primary-950 dark:text-dark-100  dark:bg-dark-600 dark:text-dark-100",
+                      "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
                 >
                   <PresentationChartLineIcon className="size-4.5 stroke-1" />
@@ -125,7 +125,7 @@ export function RowActions({ row }) {
                   className={clsx(
                     "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors ",
                     focus &&
-                      "bg-gray-100 text-primary-950 dark:text-dark-100  dark:bg-dark-600 dark:text-dark-100",
+                      "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                   )}
                 >
                   <PencilIcon className="size-4.5 stroke-1" />

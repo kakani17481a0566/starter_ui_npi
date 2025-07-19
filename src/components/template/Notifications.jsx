@@ -122,7 +122,7 @@ export function Notifications() {
               <div className="rounded-t-lg bg-gray-100 dark:bg-dark-800">
                 <div className="flex items-center justify-between px-4 pt-2">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
+                    <h3 className="font-medium text-gray-800 dark:text-dark-100">
                       Notifications
                     </h3>
                     {notifications.length > 0 && (
@@ -164,7 +164,7 @@ export function Notifications() {
                         "shrink-0 scroll-mx-16 whitespace-nowrap border-b-2 px-3 py-2 font-medium",
                         selected
                           ? "border-primary-600 text-primary-600 dark:border-primary-500 dark:text-primary-400"
-                          : "border-transparent hover:text-primary-950 dark:text-dark-100  focus:text-primary-950 dark:text-dark-100  dark:hover:text-dark-100 dark:focus:text-dark-100",
+                          : "border-transparent hover:text-gray-800 focus:text-gray-800 dark:hover:text-dark-100 dark:focus:text-dark-100",
                       )
                     }
                     as={Button}
@@ -185,7 +185,7 @@ export function Notifications() {
                           "shrink-0 scroll-mx-16 whitespace-nowrap border-b-2 px-3 py-2 font-medium",
                           selected
                             ? "border-primary-600 text-primary-600 dark:border-primary-500 dark:text-primary-400"
-                            : "border-transparent hover:text-primary-950 dark:text-dark-100  focus:text-primary-950 dark:text-dark-100  dark:hover:text-dark-100 dark:focus:text-dark-100",
+                            : "border-transparent hover:text-gray-800 focus:text-gray-800 dark:hover:text-dark-100 dark:focus:text-dark-100",
                         )
                       }
                       as={Button}
@@ -277,7 +277,7 @@ function NotificationItem({ data, remove }) {
           <Icon className="size-4.5" />
         </Avatar>
         <div className="min-w-0">
-          <p className="-mt-0.5 truncate font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
+          <p className="-mt-0.5 truncate font-medium text-gray-800 dark:text-dark-100">
             {data.title}
           </p>
           <div className="mt-0.5 truncate text-xs">{data.description}</div>

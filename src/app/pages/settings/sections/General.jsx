@@ -19,7 +19,7 @@ export default function General() {
 
   return (
     <div className="w-full max-w-3xl 2xl:max-w-5xl">
-      <h5 className="text-lg font-medium text-primary-950 dark:text-dark-100  dark:text-dark-50">
+      <h5 className="text-lg font-medium text-gray-800 dark:text-dark-50">
         General
       </h5>
       <p className="mt-0.5 text-balance text-sm text-gray-500 dark:text-dark-200">
@@ -27,7 +27,7 @@ export default function General() {
       </p>
       <div className="my-5 h-px bg-gray-200 dark:bg-dark-500" />
       <div className="mt-4 flex flex-col space-y-1.5">
-        <span className="text-base font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
+        <span className="text-base font-medium text-gray-800 dark:text-dark-100">
           Avatar
         </span>
         <Avatar
@@ -92,7 +92,7 @@ export default function General() {
       <div className="my-7 h-px bg-gray-200 dark:bg-dark-500" />
       <div>
         <div>
-          <p className="text-base font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
+          <p className="text-base font-medium text-gray-800 dark:text-dark-100">
             Linked Accounts
           </p>
           <p className="mt-0.5">

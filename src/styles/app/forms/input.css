@@ -10,7 +10,7 @@
 
 .form-input,
 .form-textarea {
-  @apply rounded-lg border border-transparent px-3 py-2 text-start text-primary-950 dark:text-dark-100  placeholder:font-light placeholder:text-gray-600 dark:text-dark-100 dark:placeholder:text-dark-200;
+  @apply rounded-lg border border-transparent px-3 py-2 text-start text-gray-800 placeholder:font-light placeholder:text-gray-600 dark:text-dark-100 dark:placeholder:text-dark-200;
 }
 
 .form-textarea {

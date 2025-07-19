@@ -28,8 +28,8 @@ export function CollapsibleItem({ data }) {
             className={clsx(
               "text-xs-plus flex w-full min-w-0 cursor-pointer items-center justify-between gap-1 py-2 text-start tracking-wide outline-hidden transition-[color,padding-left,padding-right] duration-300 ease-in-out",
               open
-                ? "dark:text-dark-50 font-semibold text-primary-950 dark:text-dark-100 "
-                : "dark:text-dark-200 dark:hover:text-dark-50 dark:focus:text-dark-50 text-gray-600 hover:text-primary-950 dark:text-dark-100  focus:text-primary-950 dark:text-dark-100 ",
+                ? "dark:text-dark-50 font-semibold text-gray-800"
+                : "dark:text-dark-200 dark:hover:text-dark-50 dark:focus:text-dark-50 text-gray-600 hover:text-gray-800 focus:text-gray-800",
             )}
           >
             <span className="truncate">{title}</span>

@@ -5,7 +5,7 @@
 
 .form-select,
 .form-multiselect {
-  @apply rounded-lg border border-transparent bg-(--bg-color) px-3 py-2 text-start text-primary-950 dark:text-dark-100  [--bg-color:transparent] placeholder:text-gray-600 dark:text-dark-100 dark:placeholder:text-dark-200;
+  @apply rounded-lg border border-transparent bg-(--bg-color) px-3 py-2 text-start text-gray-800 [--bg-color:transparent] placeholder:text-gray-600 dark:text-dark-100 dark:placeholder:text-dark-200;
 }
 
 .form-multiselect {

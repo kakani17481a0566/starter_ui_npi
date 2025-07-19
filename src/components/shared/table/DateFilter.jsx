@@ -49,7 +49,7 @@ export function DateFilter({ column, title, config }) {
             : "bg-gray-150 px-2.5 py-2 dark:bg-dark-900",
         )}
       >
-        <p className="truncate text-start text-base font-medium text-primary-950 dark:text-dark-100  dark:text-dark-50 sm:py-1 sm:text-sm">
+        <p className="truncate text-start text-base font-medium text-gray-800 dark:text-dark-50 sm:py-1 sm:text-sm">
           {title}
         </p>
         {selectedValues && (

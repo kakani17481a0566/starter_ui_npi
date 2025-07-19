@@ -17,7 +17,7 @@ export function Toolbar({ table }) {
         enableFullScreen && "px-4 sm:px-5"
       )}
     >
-      <h2 className="truncate text-base font-medium tracking-wide text-primary-950 dark:text-dark-100  dark:text-dark-100">
+      <h2 className="truncate text-base font-medium tracking-wide text-gray-800 dark:text-dark-100">
         {/* Orders Table */}
       </h2>
       <div className={clsx("flex", enableFullScreen && "ltr:-mr-2 rtl:-ml-2")}>

@@ -18,7 +18,7 @@ export function Header() {
         <Link to="/">
           <Logo className="size-10 text-primary-600 dark:text-primary-400" />
         </Link>
-        <LogoType className="h-5 w-auto text-primary-950 dark:text-dark-100  dark:text-dark-50" />
+        <LogoType className="h-5 w-auto text-gray-800 dark:text-dark-50" />
       </div>
       <div className="pt-5 xl:hidden">
         <Button

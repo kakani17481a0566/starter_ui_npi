@@ -118,7 +118,7 @@ export function Profile() {
                     <KeyRound className="size-4.5" />
                   </Avatar>
                   <div>
-                    <h2 className="group-hover:text-primary-600 group-focus:text-primary-600 dark:text-dark-100 dark:group-hover:text-primary-400 dark:group-focus:text-primary-400 font-medium text-primary-950 dark:text-dark-100  transition-colors">
+                    <h2 className="group-hover:text-primary-600 group-focus:text-primary-600 dark:text-dark-100 dark:group-hover:text-primary-400 dark:group-focus:text-primary-400 font-medium text-gray-800 transition-colors">
                       Change Password
                     </h2>
                     <div className="dark:text-dark-300 truncate text-xs text-gray-400">
@@ -143,7 +143,7 @@ export function Profile() {
                       <link.Icon className="size-4.5" />
                     </Avatar>
                     <div>
-                      <h2 className="group-hover:text-primary-600 group-focus:text-primary-600 dark:text-dark-100 dark:group-hover:text-primary-400 dark:group-focus:text-primary-400 font-medium text-primary-950 dark:text-dark-100  transition-colors">
+                      <h2 className="group-hover:text-primary-600 group-focus:text-primary-600 dark:text-dark-100 dark:group-hover:text-primary-400 dark:group-focus:text-primary-400 font-medium text-gray-800 transition-colors">
                         {link.title}
                       </h2>
                       <div className="dark:text-dark-300 truncate text-xs text-gray-400">

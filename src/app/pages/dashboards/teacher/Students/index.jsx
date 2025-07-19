@@ -20,7 +20,7 @@ export function Students() {
   return (
     <div className="sm:col-span-2 lg:col-span-1">
       <div className="flex h-8 items-center justify-between">
-        <h2 className="flex items-center gap-2 font-medium tracking-wide text-primary-950 dark:text-dark-100  dark:text-dark-100">
+        <h2 className="flex items-center gap-2 font-medium tracking-wide text-gray-800 dark:text-dark-100">
           <UsersIcon className="size-5 text-primary-500" />
           Students
         </h2>

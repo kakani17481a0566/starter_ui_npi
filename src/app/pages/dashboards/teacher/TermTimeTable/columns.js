@@ -14,7 +14,7 @@ export function DayCell(cell) {
   return React.createElement(
     "span",
     {
-      className: "whitespace-pre-line font-semibold text-sm text-primary-950 dark:text-dark-100  dark:text-dark-100",
+      className: "whitespace-pre-line font-semibold text-sm text-gray-800 dark:text-dark-100",
     },
     day
   );
@@ -31,7 +31,7 @@ export function FileCell(cell) {
     "div",
     { className: "space-y-1" },
     parts.map((line, index) => {
-      let textClass = "text-primary-950 dark:text-dark-100 "; // default fallback
+      let textClass = "text-gray-800"; // default fallback
 
       if (line.startsWith("AS:") || line.startsWith("Action Song")) {
         textClass = "text-[#713427] font-bold";

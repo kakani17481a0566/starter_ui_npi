@@ -76,7 +76,7 @@ export default function Appearance() {
 
   return (
     <div className="w-full max-w-3xl 2xl:max-w-5xl">
-      <h5 className="text-lg font-medium text-primary-950 dark:text-dark-100  dark:text-dark-50">
+      <h5 className="text-lg font-medium text-gray-800 dark:text-dark-50">
         Appearance
       </h5>
       <p className="mt-0.5 text-balance text-sm text-gray-500 dark:text-dark-200">
@@ -88,7 +88,7 @@ export default function Appearance() {
       <div className="space-y-8">
         <div>
           <div>
-            <p className="text-base font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
+            <p className="text-base font-medium text-gray-800 dark:text-dark-100">
               Theme
             </p>
             <p className="mt-0.5">
@@ -223,7 +223,7 @@ export default function Appearance() {
         </div>
         <div>
           <div>
-            <p className="text-base font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
+            <p className="text-base font-medium text-gray-800 dark:text-dark-100">
               Primary Color
             </p>
             <p className="mt-0.5">
@@ -269,7 +269,7 @@ export default function Appearance() {
         </div>
         <div>
           <div>
-            <p className="text-base font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
+            <p className="text-base font-medium text-gray-800 dark:text-dark-100">
               Light Color Scheme
             </p>
             <p className="mt-0.5">
@@ -334,7 +334,7 @@ export default function Appearance() {
         </div>
         <div>
           <div>
-            <p className="text-base font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
+            <p className="text-base font-medium text-gray-800 dark:text-dark-100">
               Dark Color Scheme
             </p>
             <p className="mt-0.5">
@@ -407,7 +407,7 @@ export default function Appearance() {
       <div className="my-6 h-px bg-gray-200 dark:bg-dark-500"></div>
       <div>
         <div>
-          <p className="text-base font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
+          <p className="text-base font-medium text-gray-800 dark:text-dark-100">
             Notification
           </p>
           <p className="mt-0.5">
@@ -547,7 +547,7 @@ export default function Appearance() {
         <div className="grid grid-cols-1 md:grid-cols-3">
           <p className="my-auto">Theme Chrome Mode:</p>
           <div className="mt-1.5 flex flex-1 items-center justify-between space-x-2 rounded-lg border border-gray-300 px-3 py-2 dark:border-dark-450 md:col-span-2 md:mt-0 ">
-            <p className="text-primary-950 dark:text-dark-100  dark:text-dark-100">Monochrome Mode</p>
+            <p className="text-gray-800 dark:text-dark-100">Monochrome Mode</p>
             <Switch
               checked={theme.isMonochrome}
               onChange={(e) => theme.setMonochromeMode(e.target.checked)}

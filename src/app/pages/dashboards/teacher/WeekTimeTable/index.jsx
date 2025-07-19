@@ -1,3 +1,5 @@
+// src/app/pages/dashboards/teacher/WeekTimeTable/index.jsx
+
 import {
   flexRender,
   getCoreRowModel,
@@ -24,7 +26,7 @@ import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
-export function WeekTimeTable({ selectedCourseId }) {
+export function WeekTimeTable() {
   const [autoResetPageIndex] = useSkipper();
   const theadRef = useRef();
   const { height: theadHeight } = useBoxSize({ ref: theadRef });
@@ -34,31 +36,32 @@ export function WeekTimeTable({ selectedCourseId }) {
   const [sorting, setSorting] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!selectedCourseId) return;
+useEffect(() => {
+  setLoading(true);
+  fetchWeekTimeTableData()
+    .then((data) => {
+      const trimmed = data.timeTableData.map((row) => ({
+        column1: row.column1,
+        column2: row.column2,
+        column3: row.column3,
+        column4: row.column4,
+        column5: row.column5,
+        column6: row.column6,
+        column7: row.column7,
+      }));
+      setMedia(trimmed);
 
-    setLoading(true);
+      // Optional: if you want to show metadata later (weekName, course, etc.)
+      // setMeta({
+      //   weekName: data.weekName,
+      //   course: data.course,
+      //   currentDate: data.currentDate,
+      //   month: data.month,
+      // });
+    })
+    .finally(() => setLoading(false));
+}, []);
 
-    fetchWeekTimeTableData(selectedCourseId)
-      .then((data) => {
-        const trimmed = (data?.timeTableData || []).map((row) => ({
-          column1: row.column1,
-          column2: row.column2,
-          column3: row.column3,
-          column4: row.column4,
-          column5: row.column5,
-          column6: row.column6,
-          column7: row.column7,
-        }));
-
-        setMedia(trimmed);
-      })
-      .catch((err) => {
-        console.error("Failed to load week timetable:", err);
-        setMedia([]);
-      })
-      .finally(() => setLoading(false));
-  }, [selectedCourseId]);
 
   const table = useReactTable({
     data: media,
@@ -77,18 +80,10 @@ export function WeekTimeTable({ selectedCourseId }) {
 
   useDidUpdate(() => table.resetRowSelection(), [media.length]);
 
-  if (!selectedCourseId) {
-    return (
-      <div className="dark:text-dark-300 mt-6 text-center text-sm text-gray-500">
-        Please select a course to view the timetable.
-      </div>
-    );
-  }
-
   return (
-    <div className="ICON mt-4 sm:mt-5 lg:mt-6">
+    <div className="mt-4 sm:mt-5 lg:mt-6">
       <div className="table-toolbar flex items-center justify-between">
-        <h2 className="dark:text-dark-100 text-primary-950 truncate text-base font-medium tracking-wide">
+        <h2 className="dark:text-dark-100 truncate text-base font-medium tracking-wide text-gray-800">
           Weekly Timetable
         </h2>
         <div className="flex">
@@ -109,10 +104,7 @@ export function WeekTimeTable({ selectedCourseId }) {
           </div>
         ) : (
           <div className="table-wrapper w-full min-w-full overflow-x-auto">
-            <Table
-              hoverable
-              className="text-primary-950 dark:text-dark-100 w-full text-left rtl:text-right"
-            >
+            <Table hoverable className="w-full text-left rtl:text-right">
               <THead ref={theadRef}>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <Tr key={headerGroup.id}>
@@ -188,8 +180,8 @@ export function WeekTimeTable({ selectedCourseId }) {
                         className={clsx(
                           "border-r px-2 py-2 text-center text-sm",
                           cell.column.id === "week"
-                            ? "text-primary-950 bg-[#93E6E6]"
-                            : "text-primary-950 bg-white",
+                            ? "bg-[#93E6E6] text-gray-900"
+                            : "bg-white text-gray-900",
                         )}
                         style={{
                           borderRight: "1px solid #2BBBAD",

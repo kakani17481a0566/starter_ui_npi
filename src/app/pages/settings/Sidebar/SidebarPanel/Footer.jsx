@@ -30,7 +30,7 @@ export function Footer() {
               "flex-1 shrink-0 whitespace-nowrap rounded-lg px-3 py-1.5 font-medium",
               checked
                 ? "bg-white shadow-sm dark:bg-dark-500 dark:text-dark-100"
-                : "hover:text-primary-950 dark:text-dark-100  focus:text-primary-950 dark:text-dark-100  dark:hover:text-dark-100 dark:focus:text-dark-100",
+                : "hover:text-gray-800 focus:text-gray-800 dark:hover:text-dark-100 dark:focus:text-dark-100",
             )
           }
           as={Button}
@@ -45,7 +45,7 @@ export function Footer() {
               "flex-1 shrink-0 whitespace-nowrap rounded-lg px-3 py-1.5 font-medium",
               checked
                 ? "bg-white shadow-sm dark:bg-dark-500 dark:text-dark-100"
-                : "hover:text-primary-950 dark:text-dark-100  focus:text-primary-950 dark:text-dark-100  dark:hover:text-dark-100 dark:focus:text-dark-100",
+                : "hover:text-gray-800 focus:text-gray-800 dark:hover:text-dark-100 dark:focus:text-dark-100",
             )
           }
           as={Button}
@@ -60,7 +60,7 @@ export function Footer() {
               "flex-1 shrink-0 whitespace-nowrap rounded-lg px-3 py-1.5 font-medium",
               checked
                 ? "bg-white shadow-sm dark:bg-dark-500 dark:text-dark-100"
-                : "hover:text-primary-950 dark:text-dark-100  focus:text-primary-950 dark:text-dark-100  dark:hover:text-dark-100 dark:focus:text-dark-100",
+                : "hover:text-gray-800 focus:text-gray-800 dark:hover:text-dark-100 dark:focus:text-dark-100",
             )
           }
           as={Button}

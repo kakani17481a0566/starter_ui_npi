@@ -17,7 +17,7 @@ export function StudentNameCell({ getValue, column, table }) {
   const name = getValue();
 
   return (
-    <span className="truncate block max-w-[160px] font-medium text-primary-950 dark:text-dark-100  dark:text-dark-100">
+    <span className="truncate block max-w-[160px] font-medium text-gray-800 dark:text-dark-100">
       <Highlight query={[globalQuery, columnQuery]}>{name}</Highlight>
     </span>
   );

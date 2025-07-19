@@ -59,7 +59,7 @@ function FilterContent({ column, title, MinPrefixIcon, MaxPrefixIcon }) {
   return (
     <div className="sm:w-72">
       <div className="flex items-center justify-between bg-gray-150 px-2.5 py-2 dark:bg-dark-900">
-        <p className="truncate py-1 text-start font-medium text-primary-950 dark:text-dark-100  dark:text-dark-50">
+        <p className="truncate py-1 text-start font-medium text-gray-800 dark:text-dark-50">
           {title}
         </p>
         {selectedValues && (

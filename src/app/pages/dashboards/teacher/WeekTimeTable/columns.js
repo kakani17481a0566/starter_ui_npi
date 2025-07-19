@@ -21,7 +21,7 @@ export function DayCell(cell) {
   return React.createElement(
     "span",
     {
-      className: "font-semibold text-sm text-primary-950 dark:text-dark-100  dark:text-dark-100",
+      className: "font-semibold text-sm text-gray-800 dark:text-dark-100",
     },
     day,
   );

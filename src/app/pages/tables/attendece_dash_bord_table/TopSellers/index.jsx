@@ -50,7 +50,7 @@ export function TopSellers({ date }) {
   return (
     <Card className="col-span-12 pb-2 lg:col-span-12 xl:col-span-12">
       <div className="flex min-w-0 items-center justify-between px-4 py-3 sm:px-5">
-        <div className="dark:text-dark-100 truncate font-medium tracking-wide text-primary-950 dark:text-dark-100 ">
+        <div className="dark:text-dark-100 truncate font-medium tracking-wide text-gray-800">
           Student Not Attended Today
         </div>
         <ActionMenu />
@@ -117,7 +117,7 @@ function ActionMenu() {
                   className={clsx(
                     "flex h-9 w-full items-center px-3 tracking-wide transition-colors",
                     focus &&
-                      "dark:bg-dark-600 dark:text-dark-100 bg-gray-100 text-primary-950 dark:text-dark-100 "
+                      "dark:bg-dark-600 dark:text-dark-100 bg-gray-100 text-gray-800"
                   )}
                 >
                   <span>{label}</span>

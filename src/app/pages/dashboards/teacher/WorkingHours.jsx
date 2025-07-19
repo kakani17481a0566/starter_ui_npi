@@ -19,7 +19,7 @@ export function WorkingHours() {
   return (
     <Card className="pb-5">
       <div className="flex min-w-0 items-center justify-between px-4 py-3 pt-3">
-        <h2 className="truncate text-sm-plus font-medium tracking-wide text-primary-950 dark:text-dark-100  dark:text-dark-100">
+        <h2 className="truncate text-sm-plus font-medium tracking-wide text-gray-800 dark:text-dark-100">
           Working Hours
         </h2>
         <ActionMenu />
@@ -68,7 +68,7 @@ function ActionMenu() {
                 className={clsx(
                   "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
                   focus &&
-                    "bg-gray-100 text-primary-950 dark:text-dark-100  dark:bg-dark-600 dark:text-dark-100",
+                    "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                 )}
               >
                 <span>Action</span>
@@ -81,7 +81,7 @@ function ActionMenu() {
                 className={clsx(
                   "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
                   focus &&
-                    "bg-gray-100 text-primary-950 dark:text-dark-100  dark:bg-dark-600 dark:text-dark-100",
+                    "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                 )}
               >
                 <span>Another action</span>
@@ -94,7 +94,7 @@ function ActionMenu() {
                 className={clsx(
                   "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
                   focus &&
-                    "bg-gray-100 text-primary-950 dark:text-dark-100  dark:bg-dark-600 dark:text-dark-100",
+                    "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                 )}
               >
                 <span>Other action</span>
@@ -110,7 +110,7 @@ function ActionMenu() {
                 className={clsx(
                   "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
                   focus &&
-                    "bg-gray-100 text-primary-950 dark:text-dark-100  dark:bg-dark-600 dark:text-dark-100",
+                    "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                 )}
               >
                 <span>Separated action</span>

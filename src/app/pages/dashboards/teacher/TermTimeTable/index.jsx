@@ -72,7 +72,7 @@ export function TermTimeTable() {
   return (
     <div className="mt-4 sm:mt-5 lg:mt-6">
       <div className="table-toolbar flex items-center justify-between">
-        <h2 className="truncate text-base font-medium tracking-wide text-primary-950 dark:text-dark-100  dark:text-dark-100">
+        <h2 className="truncate text-base font-medium tracking-wide text-gray-800 dark:text-dark-100">
           Term Timetable
         </h2>
         <div className="flex">

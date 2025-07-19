@@ -28,7 +28,7 @@ export default function Error429() {
           <p className="pt-6 text-7xl font-bold text-primary-600 dark:text-primary-500">
             429
           </p>
-          <p className="pt-4 text-xl font-semibold text-primary-950 dark:text-dark-100  dark:text-dark-50">
+          <p className="pt-4 text-xl font-semibold text-gray-800 dark:text-dark-50">
             Too many requests
           </p>
           <p className="text-balance pt-2 text-gray-500 dark:text-dark-200">

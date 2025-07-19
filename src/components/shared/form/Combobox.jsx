@@ -171,7 +171,7 @@ const CustomCombobox = forwardRef(
                       )}
                     >
                       {filteredData.length === 0 && query !== "" ? (
-                        <div className="relative cursor-default select-none px-4 py-2 text-primary-950 dark:text-dark-100  dark:text-dark-100">
+                        <div className="relative cursor-default select-none px-4 py-2 text-gray-800 dark:text-dark-100">
                           Nothing found for {query}
                         </div>
                       ) : (
@@ -186,7 +186,7 @@ const CustomCombobox = forwardRef(
                                   "bg-gray-100 dark:bg-dark-600",
                                 selected
                                   ? "bg-primary-600 text-white dark:bg-primary-500"
-                                  : "text-primary-950 dark:text-dark-100  dark:text-dark-100",
+                                  : "text-gray-800 dark:text-dark-100",
                               )
                             }
                             value={item}
