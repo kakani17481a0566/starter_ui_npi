@@ -12,7 +12,7 @@ export function StudentCard({
   messagesCount,
   avatar,
   isOnline,
-  progress,
+  // progress,
 }) {
   return (
     <Card className="flex items-center justify-between gap-3 p-3">
@@ -36,7 +36,7 @@ export function StudentCard({
           <p className="truncate font-medium text-gray-800 dark:text-dark-100">
             {name}
           </p>
-          <p className="mt-0.5 truncate text-xs">{progress}% completed</p>
+          {/* <p className="mt-0.5 truncate text-xs">{progress}% completed</p> */}
         </div>
       </div>
       <div className="relative">

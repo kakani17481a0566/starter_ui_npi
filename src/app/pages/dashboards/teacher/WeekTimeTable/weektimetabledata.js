@@ -3,9 +3,14 @@ import axiosInstance from "utils/axios";
 import { handleAxiosError } from "utils/handleAxiosError";
 import { getSessionData } from "utils/sessionStorage";
 
-export async function fetchWeekTimeTableData() {
-  const {course,tenantId,week}=getSessionData();
-  const  courseId=course?course[0].id:1;
+export async function fetchWeekTimeTableData(courseId) {
+  const { tenantId, week } = getSessionData();
+
+  if (!courseId || !tenantId || !week) {
+    console.warn("Missing required params: courseId, tenantId, or week");
+    return defaultResponse();
+  }
+
   try {
     const res = await axiosInstance.get(
       `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/TimeTable/weekId/${week}/tenantId/${tenantId}/courseId/${courseId}`
@@ -27,16 +32,20 @@ export async function fetchWeekTimeTableData() {
   } catch (error) {
     const err = handleAxiosError(error);
     console.error("❌ Failed to fetch week timetable data:", err.message);
-    return {
-      weekName: "",
-      currentDate: "",
-      month: "",
-      course: "",
-      courseId: null,
-      events: [],
-      headers: [],
-      timeTableData: [],
-      resources: {},
-    };
+    return defaultResponse();
   }
+}
+
+function defaultResponse() {
+  return {
+    weekName: "",
+    currentDate: "",
+    month: "",
+    course: "",
+    courseId: null,
+    events: [],
+    headers: [],
+    timeTableData: [],
+    resources: {},
+  };
 }

@@ -1,5 +1,3 @@
-// src/app/pages/dashboards/teacher/WeekTimeTable/index.jsx
-
 import {
   flexRender,
   getCoreRowModel,
@@ -26,7 +24,7 @@ import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
-export function WeekTimeTable() {
+export function WeekTimeTable({ courseId }) {
   const [autoResetPageIndex] = useSkipper();
   const theadRef = useRef();
   const { height: theadHeight } = useBoxSize({ ref: theadRef });
@@ -36,9 +34,13 @@ export function WeekTimeTable() {
   const [sorting, setSorting] = useState([]);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
+  // ✅ Fetch timetable based on courseId
+  useEffect(() => {
+  console.log("Received courseId:", courseId); // ✅ Add this
+  if (!courseId) return;
+
   setLoading(true);
-  fetchWeekTimeTableData()
+  fetchWeekTimeTableData(courseId)
     .then((data) => {
       const trimmed = data.timeTableData.map((row) => ({
         column1: row.column1,
@@ -50,17 +52,9 @@ useEffect(() => {
         column7: row.column7,
       }));
       setMedia(trimmed);
-
-      // Optional: if you want to show metadata later (weekName, course, etc.)
-      // setMeta({
-      //   weekName: data.weekName,
-      //   course: data.course,
-      //   currentDate: data.currentDate,
-      //   month: data.month,
-      // });
     })
     .finally(() => setLoading(false));
-}, []);
+}, [courseId]);
 
 
   const table = useReactTable({
@@ -115,7 +109,7 @@ useEffect(() => {
                           "text-center text-xs font-semibold uppercase",
                           header.column.id === "week"
                             ? "text-primary-950"
-                            : "text-white",
+                            : "text-white"
                         )}
                         style={{
                           backgroundColor:
@@ -123,16 +117,13 @@ useEffect(() => {
                           borderBottom: "none",
                           borderRight: "1px solid #2BBBAD",
                           transform:
-                            header.column.id === "week"
-                              ? "translateY(-1px)"
-                              : undefined,
+                            header.column.id === "week" ? "translateY(-1px)" : undefined,
                           boxShadow:
                             header.column.id === "week"
                               ? "0px 4px 10px rgba(0,0,0,0.35), inset -2px 0 4px rgba(255,255,255,0.2), 1px 0 0 #2BBBAD"
                               : undefined,
                           zIndex: 2,
-                          position:
-                            header.column.id === "week" ? "sticky" : "relative",
+                          position: header.column.id === "week" ? "sticky" : "relative",
                           left: header.column.id === "week" ? 0 : undefined,
                           backgroundClip: "padding-box",
                         }}
@@ -145,17 +136,15 @@ useEffect(() => {
                             <span className="flex-1">
                               {flexRender(
                                 header.column.columnDef.header,
-                                header.getContext(),
+                                header.getContext()
                               )}
                             </span>
-                            <TableSortIcon
-                              sorted={header.column.getIsSorted()}
-                            />
+                            <TableSortIcon sorted={header.column.getIsSorted()} />
                           </div>
                         ) : (
                           flexRender(
                             header.column.columnDef.header,
-                            header.getContext(),
+                            header.getContext()
                           )
                         )}
                       </Th>
@@ -171,7 +160,7 @@ useEffect(() => {
                       "dark:border-b-dark-500 relative border-y border-transparent border-b-gray-200",
                       row.getIsSelected() &&
                         !isSafari &&
-                        "row-selected after:bg-primary-500/10 ltr:after:border-l-primary-500 rtl:after:border-r-primary-500 after:pointer-events-none after:absolute after:inset-0 after:z-2 after:h-full after:w-full after:border-3 after:border-transparent",
+                        "row-selected after:bg-primary-500/10 ltr:after:border-l-primary-500 rtl:after:border-r-primary-500 after:pointer-events-none after:absolute after:inset-0 after:z-2 after:h-full after:w-full after:border-3 after:border-transparent"
                     )}
                   >
                     {row.getVisibleCells().map((cell) => (
@@ -181,24 +170,20 @@ useEffect(() => {
                           "border-r px-2 py-2 text-center text-sm",
                           cell.column.id === "week"
                             ? "bg-[#93E6E6] text-gray-900"
-                            : "bg-white text-gray-900",
+                            : "bg-white text-gray-900"
                         )}
                         style={{
                           borderRight: "1px solid #2BBBAD",
-                          position:
-                            cell.column.id === "week" ? "sticky" : "relative",
+                          position: cell.column.id === "week" ? "sticky" : "relative",
                           left: cell.column.id === "week" ? 0 : undefined,
-                          transform:
-                            cell.column.id === "week"
-                              ? "translateY(-1px)"
-                              : undefined,
+                          transform: cell.column.id === "week" ? "translateY(-1px)" : undefined,
                           zIndex: cell.column.id === "week" ? 1 : "auto",
                           backgroundClip: "padding-box",
                         }}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext(),
+                          cell.getContext()
                         )}
                       </Td>
                     ))}
