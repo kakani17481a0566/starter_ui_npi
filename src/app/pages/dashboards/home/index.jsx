@@ -1,6 +1,6 @@
 import { Page } from "components/shared/Page";
-// import Teacher from "app/pages/dashboards/teacher";
-import InsertWeek from "app/pages/tables/InsertWeek";
+import Teacher from "app/pages/dashboards/teacher";
+// import InsertWeek from "app/pages/tables/InsertWeek";
 
 
 
@@ -18,9 +18,9 @@ export default function Home() {
         </div> */}
 
         {/* Render the Teacher dashboard */}
-        {/* <Teacher /> */}
+        <Teacher />
 
-        <InsertWeek />
+        {/* <InsertWeek /> */}
       </div>
     </Page>
   );

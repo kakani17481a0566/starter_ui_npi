@@ -71,7 +71,7 @@ export function Header() {
                 <div className="flex items-center gap-2">
                   <MagnifyingGlassIcon className="size-4" />
                   <span className="dark:text-dark-300 text-gray-400">
-                    kakani
+                    Search...
                   </span>
                 </div>
                 <SlashIcon />
