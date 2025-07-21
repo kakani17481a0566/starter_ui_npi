@@ -36,7 +36,7 @@ export const settings = {
             id: 'appearance',
             type: NAV_TYPE_ITEM,
             path: '/settings/change-password',
-            title: 'Appearance',
+            title: 'Change Password',
             transKey: 'changePassword',
             Icon: TbPalette,
         },

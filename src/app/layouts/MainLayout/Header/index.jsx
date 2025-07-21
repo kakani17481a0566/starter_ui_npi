@@ -50,12 +50,12 @@ export function Header() {
       <SidebarToggleBtn />
 
       <div className="flex items-center px-4 shrink-0">
-  <img
+  {/* <img
     id="header-logo-main-bar"
     alt="Company Logo"
-    className="h-100 w-auto max-w-[160px] object-contain pointer-events-none"
+    className="h-100 w-100 max-w-[300px] object-contain pointer-events-none"
     src="https://res.cloudinary.com/kakani7/image/upload/v1746172182/MSI/yqjbpqtuvuf0co08zai4.svg"
-  />
+  /> */}
 </div>
 
 
@@ -71,7 +71,7 @@ export function Header() {
                 <div className="flex items-center gap-2">
                   <MagnifyingGlassIcon className="size-4" />
                   <span className="dark:text-dark-300 text-gray-400">
-                    Search here...
+                    kakani
                   </span>
                 </div>
                 <SlashIcon />
