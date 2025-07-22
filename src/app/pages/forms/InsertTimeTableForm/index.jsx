@@ -4,7 +4,8 @@ import { toast } from "sonner";
 import { Input, Button, Card, Select } from "components/ui";
 import { DatePicker } from "components/shared/form/Datepicker";
 import { getSessionData } from "utils/sessionStorage";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { format } from "date-fns";
 import { schema } from "./schema";
 import { createTimeTable, fetchTimeTableInsertOptions } from "./data";
 import { CalendarIcon, Loader2Icon } from "lucide-react";
@@ -25,11 +26,13 @@ const InsertTimeTableForm = ({ onSuccess }) => {
     handleSubmit,
     control,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting, isValid },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      name: "",
+      name: "", // <-- start empty!
       date: new Date(),
       weekId: "",
       holidayId: "",
@@ -42,11 +45,29 @@ const InsertTimeTableForm = ({ onSuccess }) => {
     mode: "onChange",
   });
 
+  // Watch the date and name fields
+  const dateValue = watch("date");
+  const nameValue = watch("name");
+  const didMount = useRef(false);
+
+  // Only auto-fill name after mount and if name is empty
+  useEffect(() => {
+    if (!didMount.current) {
+      didMount.current = true;
+      return; // skip initial render
+    }
+    if (!dateValue) return;
+    if (!nameValue) {
+      const day = format(new Date(dateValue), "EEEE");
+      setValue("name", day, { shouldValidate: true });
+    }
+  }, [dateValue, nameValue, setValue]);
+
   useEffect(() => {
     const loadOptions = async () => {
       try {
         const res = await fetchTimeTableInsertOptions(session.tenantId);
-        setOptions(res.data); // Use .data because API response wraps it
+        setOptions(res.data);
       } catch {
         toast.error("❌ Failed to load insert options");
       }
@@ -162,7 +183,7 @@ const InsertTimeTableForm = ({ onSuccess }) => {
                 onValueChange={field.onChange}
                 error={errors?.holidayId?.message}
               >
-                <option value="">None</option> {/* ✅ Default NULL */}
+                <option value="">None</option>
                 {options.holidays.map((h) => (
                   <option key={h.id} value={h.id}>
                     {h.name}

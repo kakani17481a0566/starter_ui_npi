@@ -21,18 +21,32 @@ import { useLockScrollbar, useLocalStorage, useDidUpdate } from "hooks";
 import { fuzzyFilter } from "utils/react-table/fuzzyFilter";
 import { useSkipper } from "utils/react-table/useSkipper";
 import { generateTopicColumns } from "./columns";
-import { fetchTopicStructuredData } from "./data";
+import { fetchTopicStructuredData, fetchTopicById, fetchTimeTableDropdown } from "./data";
 import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 import { useThemeContext } from "app/contexts/theme/context";
 import InsertTopicsForm from "app/pages/forms/InsertTopicsForm";
+import UpdateTopicForm from "app/pages/forms/InsertTopicsForm/UpdateTopicForm";
 
 const isSafari = getUserAgentBrowser() === "Safari";
+
+// Helper: Find courseId given subjectId and courses structure
+function getCourseIdForSubject(subjectId, courses) {
+  for (const [courseId, courseObj] of Object.entries(courses)) {
+    if (courseObj.subjects && Object.keys(courseObj.subjects).includes(String(subjectId))) {
+      return courseId;
+    }
+  }
+  return "";
+}
 
 export default function InsertTopics() {
   const { cardSkin } = useThemeContext();
   const cardRef = useRef();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editRow, setEditRow] = useState(null);
+  const [metaDropdowns, setMetaDropdowns] = useState({ courses: {}, topicTypes: [] });
+  const [editLoading, setEditLoading] = useState(false);
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
   const [topicData, setTopicData] = useState([]);
   const [columns, setColumns] = useState([]);
@@ -48,10 +62,10 @@ export default function InsertTopics() {
     enableRowDense: false,
   });
 
-  // ✅ Memoized data loader with ESLint-safe usage
+  // Data loader
   const loadTopicData = useCallback(async () => {
     skipAutoResetPageIndex();
-    const { data } = await fetchTopicStructuredData(); // ✅ removed unused 'headers'
+    const { data } = await fetchTopicStructuredData();
     setTopicData(data);
     if (data.length > 0) {
       setColumns(generateTopicColumns(data[0]));
@@ -60,7 +74,7 @@ export default function InsertTopics() {
 
   useEffect(() => {
     loadTopicData();
-  }, [loadTopicData]); // ✅ no ESLint warning now
+  }, [loadTopicData]);
 
   const table = useReactTable({
     data: topicData,
@@ -101,6 +115,46 @@ export default function InsertTopics() {
   useDidUpdate(() => table.resetRowSelection(), [topicData]);
   useLockScrollbar(tableSettings.enableFullScreen);
 
+  // Add new
+  const handleAddNew = () => {
+    setEditRow(null);
+    setMetaDropdowns({ courses: {}, topicTypes: [] });
+    setIsFormOpen(true);
+  };
+
+  // Edit existing (fetch topic and dropdowns)
+  const handleEditRow = async (row) => {
+    setEditLoading(true);
+    try {
+      // Fetch both topic details and dropdown meta in parallel
+      const [topic, dropdownRes] = await Promise.all([
+        fetchTopicById(row.id, row.tenantId),
+        fetchTimeTableDropdown(row.tenantId),
+      ]);
+      const courses = dropdownRes.data.courses || {};
+      const topicTypes = dropdownRes.data.topicTypes || [];
+      // Derive courseId from subjectId for dropdown selection
+      const courseId = getCourseIdForSubject(topic.subjectId, courses);
+      setEditRow({
+        ...topic,
+        courseId,
+      });
+      setMetaDropdowns({ courses, topicTypes });
+      setIsFormOpen(true);
+    } catch {
+      setEditRow(null);
+      setMetaDropdowns({ courses: {}, topicTypes: [] });
+    }
+    setEditLoading(false);
+  };
+
+  const handleCloseModal = () => {
+    setIsFormOpen(false);
+    setEditRow(null);
+    setMetaDropdowns({ courses: {}, topicTypes: [] });
+    setEditLoading(false);
+  };
+
   return (
     <>
       <div className="transition-content grid grid-cols-1 px-(--margin-x) py-4">
@@ -109,7 +163,7 @@ export default function InsertTopics() {
           <Button
             className="h-8 space-x-1.5 rounded-md px-3 text-xs"
             color="primary"
-            onClick={() => setIsFormOpen(true)}
+            onClick={handleAddNew}
           >
             <PlusIcon className="size-5" />
             <span>New Topic</span>
@@ -174,11 +228,13 @@ export default function InsertTopics() {
                     <Fragment key={row.id}>
                       <Tr
                         className={clsx(
-                          "border-b border-gray-200 dark:border-dark-500",
+                          "border-b border-gray-200 dark:border-dark-500 cursor-pointer",
                           row.getIsSelected() &&
                             !isSafari &&
                             "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:border-l-2 after:border-primary-500 after:bg-primary-500/10"
                         )}
+                        onClick={() => !editLoading && handleEditRow(row.original)}
+                        style={editLoading ? { opacity: 0.6, pointerEvents: "none" } : undefined}
                       >
                         {row.getVisibleCells().map((cell) => (
                           <Td
@@ -209,22 +265,37 @@ export default function InsertTopics() {
         </div>
       </div>
 
-      <Dialog open={isFormOpen} onClose={() => setIsFormOpen(false)} className="relative z-50">
+      <Dialog open={isFormOpen} onClose={handleCloseModal} className="relative z-50">
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="relative w-full max-w-5xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg dark:bg-dark-800">
             <div className="flex items-center justify-between pb-4">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-100">Add New Topic</h3>
-              <Button variant="outlined" size="icon-sm" onClick={() => setIsFormOpen(false)}>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-100">
+                {editRow ? "Edit Topic" : "Add New Topic"}
+              </h3>
+              <Button variant="outlined" size="icon-sm" onClick={handleCloseModal}>
                 <XMarkIcon className="size-5" />
               </Button>
             </div>
-            <InsertTopicsForm
-              onSuccess={() => {
-                loadTopicData();      // ✅ refresh
-                setIsFormOpen(false); // ✅ close modal
-              }}
-            />
+            {editLoading ? (
+              <div className="py-10 text-center text-gray-500">Loading...</div>
+            ) : editRow ? (
+              <UpdateTopicForm
+                initialValues={editRow}
+                metaDropdowns={metaDropdowns}
+                onSuccess={() => {
+                  loadTopicData();
+                  handleCloseModal();
+                }}
+              />
+            ) : (
+              <InsertTopicsForm
+                onSuccess={() => {
+                  loadTopicData();
+                  handleCloseModal();
+                }}
+              />
+            )}
           </Dialog.Panel>
         </div>
       </Dialog>

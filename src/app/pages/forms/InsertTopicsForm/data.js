@@ -1,3 +1,4 @@
+//C:\Users\KAKANI\Documents\GitHub\starter_ui_npi\src\app\pages\forms\InsertTopicsForm\data.js
 import axios from "axios";
 
 // ✅ Production-ready base URL
@@ -33,6 +34,27 @@ export const fetchTimeTableDropdown = async (tenantId = 1) => {
     return response.data; // { statusCode, message, data: { courses, topicTypes } }
   } catch (error) {
     console.error("❌ Failed to fetch timetable dropdown data", error);
+    throw error;
+  }
+};
+
+
+// ✅ Update an existing topic
+export const updateTopic = async (id, tenantId, payload) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/Topic/${id}/tenant/${tenantId}`,
+      payload,
+      {
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data; // { statusCode, message, data }
+  } catch (error) {
+    console.error("❌ Failed to update topic", error);
     throw error;
   }
 };

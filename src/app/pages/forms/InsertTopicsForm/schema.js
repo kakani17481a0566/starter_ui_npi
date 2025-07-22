@@ -1,5 +1,18 @@
 import * as yup from "yup";
 
+const numberSelect = (msg) =>
+  yup
+    .number()
+    .transform((value, originalValue) => {
+      // If the field is empty string, return undefined to trigger required
+      if (originalValue === "" || originalValue === undefined || originalValue === null) return undefined;
+      // If originalValue is a string that looks like a number, parse it
+      if (typeof originalValue === "string" && !isNaN(originalValue)) return Number(originalValue);
+      return value;
+    })
+    .typeError(msg)
+    .required(msg);
+
 export const schema = yup.object().shape({
   name: yup
     .string()
@@ -16,26 +29,14 @@ export const schema = yup.object().shape({
     .nullable()
     .max(250, "Description must be under 250 characters"),
 
-  courseId: yup
-    .string()
-    .required("Course is required"),
-
-  subjectId: yup
-    .string()
-    .required("Subject is required"),
-
-  topicTypeId: yup
-    .number()
-    .typeError("Topic Type ID must be a number")
-    .required("Topic Type ID is required")
+  courseId: numberSelect("Course is required"),
+  subjectId: numberSelect("Subject is required"),
+  topicTypeId: numberSelect("Topic Type is required")
     .integer("Must be an integer")
     .positive("Must be a positive number"),
 
-  tenantId: yup
-    .number()
-    .required("Tenant ID is required"),
-
-  createdBy: yup
-    .number()
-    .required("Created By is required"),
+  tenantId: numberSelect("Tenant ID is required"),
+  // Use createdBy or updatedBy as needed in your form. For Update, use updatedBy.
+  createdBy: yup.number().notRequired(),
+  updatedBy: yup.number().notRequired(),
 });
