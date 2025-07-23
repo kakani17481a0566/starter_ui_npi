@@ -1,3 +1,5 @@
+// src/app/pages/forms/Week/schema.js
+
 import * as Yup from "yup";
 
 export const schema = Yup.object().shape({
@@ -24,7 +26,21 @@ export const schema = Yup.object().shape({
     .typeError("Tenant ID must be a number")
     .required("Tenant ID is required"),
 
+  // For Insert forms (CreatedBy required)
   CreatedBy: Yup.number()
     .typeError("Created By must be a number")
-    .required("Created By is required"),
+    .when("$isUpdate", {
+      is: false,
+      then: (schema) => schema.required("Created By is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+
+  // For Update forms (UpdatedBy required)
+  UpdatedBy: Yup.number()
+    .typeError("Updated By must be a number")
+    .when("$isUpdate", {
+      is: true,
+      then: (schema) => schema.required("Updated By is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
 });

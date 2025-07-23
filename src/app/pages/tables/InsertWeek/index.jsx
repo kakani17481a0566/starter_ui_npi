@@ -1,5 +1,3 @@
-// src/app/pages/tables/InsertWeek/index.jsx
-
 import {
   flexRender,
   getCoreRowModel,
@@ -12,7 +10,6 @@ import clsx from "clsx";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
-
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
 import { ColumnFilter } from "components/shared/table/ColumnFilter";
 import { PaginationSection } from "components/shared/table/PaginationSection";
@@ -27,6 +24,7 @@ import { fetchWeekList } from "./data";
 import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 import { useThemeContext } from "app/contexts/theme/context";
 import InsertWeekForm from "app/pages/forms/InsertWeekFrom";
+import UpdateWeekForm from "app/pages/forms/InsertWeekFrom/UpdateWeekForm";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
@@ -34,11 +32,12 @@ export default function InsertWeek() {
   const { cardSkin } = useThemeContext();
   const cardRef = useRef();
 
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isInsertFormOpen, setIsInsertFormOpen] = useState(false);
+  const [isUpdateFormOpen, setIsUpdateFormOpen] = useState(false);
+  const [selectedWeek, setSelectedWeek] = useState(null);
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
   const [weekData, setWeekData] = useState([]);
   const [columns, setColumns] = useState([]);
-
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
   const [columnVisibility, setColumnVisibility] = useLocalStorage("column-visibility-insert-week", {});
@@ -50,15 +49,14 @@ export default function InsertWeek() {
     enableRowDense: false,
   });
 
+  // Fetch data on mount or reload
   const load = async () => {
     const data = await fetchWeekList();
     setWeekData(data);
     if (data.length > 0) setColumns(generateWeekColumns(data[0]));
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const table = useReactTable({
     data: weekData,
@@ -99,6 +97,26 @@ export default function InsertWeek() {
   useDidUpdate(() => table.resetRowSelection(), [weekData]);
   useLockScrollbar(tableSettings.enableFullScreen);
 
+  // Row click = Edit
+  const handleRowClick = (row) => {
+    setSelectedWeek(row.original);
+    setIsUpdateFormOpen(true);
+  };
+
+  // Add New = Create
+  const handleAddNew = () => {
+    setSelectedWeek(null);
+    setIsInsertFormOpen(true);
+  };
+
+  // On form save (either insert or update)
+  const handleFormSuccess = () => {
+    load();
+    setIsInsertFormOpen(false);
+    setIsUpdateFormOpen(false);
+    setSelectedWeek(null);
+  };
+
   return (
     <>
       <div className="transition-content grid grid-cols-1 px-(--margin-x) py-4">
@@ -109,20 +127,18 @@ export default function InsertWeek() {
           <Button
             className="h-8 space-x-1.5 rounded-md px-3 text-xs"
             color="primary"
-            onClick={() => setIsFormOpen(true)}
+            onClick={handleAddNew}
           >
             <PlusIcon className="size-5" />
             <span>New Week</span>
           </Button>
         </div>
 
-        <div
-          className={clsx(
-            "flex flex-col pt-4",
-            tableSettings.enableFullScreen &&
-              "fixed inset-0 z-61 h-full w-full bg-white dark:bg-dark-900 pt-3"
-          )}
-        >
+        <div className={clsx(
+          "flex flex-col pt-4",
+          tableSettings.enableFullScreen &&
+            "fixed inset-0 z-61 h-full w-full bg-white dark:bg-dark-900 pt-3"
+        )}>
           <Toolbar table={table} />
           <Card ref={cardRef} className="relative mt-3 flex grow flex-col">
             <div className="table-wrapper min-w-full grow overflow-x-auto">
@@ -174,11 +190,12 @@ export default function InsertWeek() {
                     <Fragment key={row.id}>
                       <Tr
                         className={clsx(
-                          "border-b border-gray-200 dark:border-dark-500",
+                          "border-b border-gray-200 dark:border-dark-500 cursor-pointer",
                           row.getIsSelected() &&
                             !isSafari &&
                             "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:border-l-2 after:border-primary-500 after:bg-primary-500/10"
                         )}
+                        onClick={() => handleRowClick(row)}
                       >
                         {row.getVisibleCells().map((cell) => (
                           <Td
@@ -209,17 +226,66 @@ export default function InsertWeek() {
         </div>
       </div>
 
-      <Dialog open={isFormOpen} onClose={() => setIsFormOpen(false)} className="relative z-50">
+      {/* Insert Form Dialog */}
+      <Dialog
+        open={isInsertFormOpen}
+        onClose={() => {
+          setIsInsertFormOpen(false);
+        }}
+        className="relative z-50"
+      >
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="relative w-full max-w-5xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg dark:bg-dark-800">
             <div className="flex items-center justify-between pb-4">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-100">Add New Week</h3>
-              <Button variant="outlined" size="icon-sm" onClick={() => setIsFormOpen(false)}>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-100">
+                Add New Week
+              </h3>
+              <Button
+                variant="outlined"
+                size="icon-sm"
+                onClick={() => {
+                  setIsInsertFormOpen(false);
+                }}
+              >
                 <XMarkIcon className="size-5" />
               </Button>
             </div>
-            <InsertWeekForm onSuccess={() => { load(); setIsFormOpen(false); }} />
+            <InsertWeekForm onSuccess={handleFormSuccess} />
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+
+      {/* Update Form Dialog */}
+      <Dialog
+        open={isUpdateFormOpen}
+        onClose={() => {
+          setIsUpdateFormOpen(false);
+          setSelectedWeek(null);
+        }}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="relative w-full max-w-5xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg dark:bg-dark-800">
+            <div className="flex items-center justify-between pb-4">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-100">
+                Edit Week
+              </h3>
+              <Button
+                variant="outlined"
+                size="icon-sm"
+                onClick={() => {
+                  setIsUpdateFormOpen(false);
+                  setSelectedWeek(null);
+                }}
+              >
+                <XMarkIcon className="size-5" />
+              </Button>
+            </div>
+            {selectedWeek && (
+              <UpdateWeekForm initialValues={selectedWeek} onSuccess={handleFormSuccess} />
+            )}
           </Dialog.Panel>
         </div>
       </Dialog>

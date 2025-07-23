@@ -7,17 +7,24 @@ import { Input } from "components/ui";
 import { DatePicker } from "components/shared/form/Datepicker";
 import { Button, Card } from "components/ui";
 import { schema } from "./schema";
-
-const initialState = {
-  TermId: 1,
-  Name: "",
-  StartDate: "",
-  EndDate: "",
-  TenantId: 2,
-  CreatedBy: 1,
-};
+import { getSessionData } from "utils/sessionStorage";
 
 export default function InsertWeekForm({ onSuccess }) {
+  // Get session info
+  const session = getSessionData();
+  const sessionUserId = session.userId ? parseInt(session.userId) : 1;
+  const userName = session.user || `User ID: ${sessionUserId}`;
+  const tenantId = session.tenantId ? parseInt(session.tenantId) : "";
+
+  const initialState = {
+    TermId: "",
+    Name: "",
+    StartDate: "",
+    EndDate: "",
+    TenantId: tenantId,
+    CreatedBy: sessionUserId,
+  };
+
   const {
     register,
     handleSubmit,
@@ -35,6 +42,8 @@ export default function InsertWeekForm({ onSuccess }) {
       ...data,
       StartDate: dayjs(data.StartDate).format("YYYY-MM-DD"),
       EndDate: dayjs(data.EndDate).format("YYYY-MM-DD"),
+      TenantId: tenantId,
+      CreatedBy: sessionUserId,
     };
 
     try {
@@ -48,7 +57,7 @@ export default function InsertWeekForm({ onSuccess }) {
 
       if (response.status === 201) {
         toast.success("✅ " + (response.data.message || "Week created successfully"));
-        reset();
+        reset(initialState);
         onSuccess?.();
       } else {
         toast.error("❌ Unexpected response");
@@ -74,7 +83,6 @@ export default function InsertWeekForm({ onSuccess }) {
             error={errors?.Name?.message}
             className="text-primary-950"
           />
-
           <Input
             label="Term ID"
             type="number"
@@ -82,7 +90,6 @@ export default function InsertWeekForm({ onSuccess }) {
             error={errors?.TermId?.message}
             className="text-primary-950"
           />
-
           <Controller
             control={control}
             name="StartDate"
@@ -97,7 +104,6 @@ export default function InsertWeekForm({ onSuccess }) {
               />
             )}
           />
-
           <Controller
             control={control}
             name="EndDate"
@@ -112,20 +118,19 @@ export default function InsertWeekForm({ onSuccess }) {
               />
             )}
           />
-
           <Input
             label="Tenant ID"
             type="number"
-            {...register("TenantId")}
-            error={errors?.TenantId?.message}
+            value={tenantId}
+            readOnly
             className="text-primary-950"
           />
-
+          {/* Show user name, but pass only ID to backend */}
           <Input
             label="Created By"
-            type="number"
-            {...register("CreatedBy")}
-            error={errors?.CreatedBy?.message}
+            type="text"
+            value={userName}
+            readOnly
             className="text-primary-950"
           />
         </div>
