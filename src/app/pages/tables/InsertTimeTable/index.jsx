@@ -1,4 +1,4 @@
-//src/app/pages/tables/InsertTimeTable/index.jsx
+// src/app/pages/tables/InsertTimeTable/index.jsx
 
 import {
   flexRender,
@@ -9,7 +9,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import clsx from "clsx";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useRef, useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 
@@ -27,6 +27,7 @@ import { fetchTimeTableStructuredData } from "./data";
 import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 import { useThemeContext } from "app/contexts/theme/context";
 import InsertTimeTableForm from "app/pages/forms/InsertTimeTableForm";
+import UpdateTimeTableForm from "app/pages/forms/InsertTimeTableForm/UpdateTimeTableForm"; // Uncomment when created
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
@@ -35,6 +36,9 @@ export default function InsertTimeTable() {
   const cardRef = useRef();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const [updateRow, setUpdateRow] = useState(null);
+
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
   const [timeTableData, setTimeTableData] = useState([]);
   const [columns, setColumns] = useState([]);
@@ -50,17 +54,19 @@ export default function InsertTimeTable() {
     enableRowDense: false,
   });
 
- const loadTimeTableData = async () => {
-  skipAutoResetPageIndex(); // ✅ preserve current pagination
-  const { data } = await fetchTimeTableStructuredData();
-  setTimeTableData(data);
-  if (data.length > 0) {
-    setColumns(generateTimeTableColumns(data[0]));
-  }
-};
+  // Load data
+  const loadTimeTableData = async () => {
+    skipAutoResetPageIndex();
+    const { data } = await fetchTimeTableStructuredData();
+    setTimeTableData(data);
+    if (data.length > 0) {
+      setColumns(generateTimeTableColumns(data[0]));
+    }
+  };
 
   useEffect(() => {
     loadTimeTableData();
+    // eslint-disable-next-line
   }, []);
 
   const table = useReactTable({
@@ -102,11 +108,26 @@ export default function InsertTimeTable() {
   useDidUpdate(() => table.resetRowSelection(), [timeTableData]);
   useLockScrollbar(tableSettings.enableFullScreen);
 
+  // === HANDLER: Open update form on row click ===
+  const handleRowClick = (row) => {
+    setUpdateRow(row.original);
+    setIsUpdateOpen(true);
+  };
+
+  // === HANDLER: After update, refresh data and close modal ===
+  const handleUpdateSuccess = () => {
+    setIsUpdateOpen(false);
+    setUpdateRow(null);
+    loadTimeTableData();
+  };
+
   return (
     <>
       <div className="transition-content grid grid-cols-1 px-(--margin-x) py-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Academic Time Table</h2>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+            Academic Time Table
+          </h2>
           <Button
             className="h-8 space-x-1.5 rounded-md px-3 text-xs"
             color="primary"
@@ -178,8 +199,10 @@ export default function InsertTimeTable() {
                           "border-b border-gray-200 dark:border-dark-500",
                           row.getIsSelected() &&
                             !isSafari &&
-                            "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:border-l-2 after:border-primary-500 after:bg-primary-500/10"
+                            "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:border-l-2 after:border-primary-500 after:bg-primary-500/10",
+                          "cursor-pointer"
                         )}
+                        onClick={() => handleRowClick(row)}
                       >
                         {row.getVisibleCells().map((cell) => (
                           <Td
@@ -210,6 +233,7 @@ export default function InsertTimeTable() {
         </div>
       </div>
 
+      {/* CREATE MODAL */}
       <Dialog open={isFormOpen} onClose={() => setIsFormOpen(false)} className="relative z-50">
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
@@ -220,16 +244,38 @@ export default function InsertTimeTable() {
                 <XMarkIcon className="size-5" />
               </Button>
             </div>
-          <InsertTimeTableForm
-  onSuccess={() => {
-    loadTimeTableData();       // ✅ Refreshes table
-    setIsFormOpen(false);      // ✅ Closes modal
-  }}
-/>
-
+            <InsertTimeTableForm
+              onSuccess={() => {
+                loadTimeTableData();
+                setIsFormOpen(false);
+              }}
+            />
           </Dialog.Panel>
         </div>
       </Dialog>
+
+      {/* UPDATE MODAL (Plug in your update form here) */}
+      {
+      <Dialog open={isUpdateOpen} onClose={() => setIsUpdateOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="relative w-full max-w-5xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg dark:bg-dark-800">
+            <div className="flex items-center justify-between pb-4">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-100">Edit Time Table</h3>
+              <Button variant="outlined" size="icon-sm" onClick={() => setIsUpdateOpen(false)}>
+                <XMarkIcon className="size-5" />
+              </Button>
+            </div>
+            <UpdateTimeTableForm
+        initialData={updateRow}        
+
+              onSuccess={handleUpdateSuccess}
+              onCancel={() => setIsUpdateOpen(false)}
+            />
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+      }
     </>
   );
 }

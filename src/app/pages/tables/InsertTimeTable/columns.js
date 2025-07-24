@@ -1,3 +1,4 @@
+//src\app\pages\tables\InsertTimeTable\columns.js
 import { createColumnHelper } from "@tanstack/react-table";
 import {
   CalendarDaysIcon,
@@ -16,7 +17,8 @@ const allowedHeaders = [
   "id",                    // TimeTable ID
   "name",                  // Title
   "date",                  // Scheduled Date
-  "weekName",              // Week Name
+  "weekName",  
+  "status",            // Week Name
   "courseName",            // Course
   "assessmentStatusName",  // Assessment Status
   "tenantName",            // Tenant

@@ -1,3 +1,4 @@
+//src\app\pages\forms\InsertTimeTableForm\data.js
 import axios from "axios";
 
 // ✅ Centralized production API URL
@@ -33,6 +34,26 @@ export const fetchTimeTableInsertOptions = async (tenantId = 1) => {
     return response.data;
   } catch (error) {
     console.error("❌ Failed to fetch insert options", error);
+    throw error;
+  }
+};
+
+// ✅ Update an existing timetable entry
+export const updateTimeTable = async ({ id, tenantId, payload }) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/TimeTable/${id}/${tenantId}`,
+      payload,
+      {
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("❌ Failed to update timetable", error);
     throw error;
   }
 };

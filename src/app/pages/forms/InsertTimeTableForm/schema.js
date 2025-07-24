@@ -35,7 +35,7 @@ export const schema = Yup.object().shape({
     .typeError("Tenant ID must be a number")
     .required("Tenant ID is required"),
 
-  createdBy: Yup.number()
-    .typeError("Created By must be a number")
-    .required("Created By is required"),
+  updatedBy: Yup.number()
+    .typeError("Updated By must be a number")
+    .required("Updated By is required"),
 });
