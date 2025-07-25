@@ -27,6 +27,7 @@ import { fetchPeriodTableData } from "./data";
 import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 import { useThemeContext } from "app/contexts/theme/context";
 import InsertPeriodsForm from "app/pages/forms/InsertPeriodsForm";
+import UpdatePeriodsForm from "app/pages/forms/InsertPeriodsForm/UpdatePeriodsForm"; // <-- Import your update form
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
@@ -35,6 +36,9 @@ export default function InsertWeek() {
   const cardRef = useRef();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const [rowToUpdate, setRowToUpdate] = useState(null);
+
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
   const [weekData, setWeekData] = useState([]);
   const [columns, setColumns] = useState([]);
@@ -50,6 +54,7 @@ export default function InsertWeek() {
     enableRowDense: false,
   });
 
+  // Data loader
   const loadPeriodData = async () => {
     const { data: periodData } = await fetchPeriodTableData();
     setWeekData(periodData);
@@ -62,6 +67,7 @@ export default function InsertWeek() {
     loadPeriodData();
   }, []);
 
+  // Table setup
   const table = useReactTable({
     data: weekData,
     columns: columns,
@@ -100,6 +106,12 @@ export default function InsertWeek() {
 
   useDidUpdate(() => table.resetRowSelection(), [weekData]);
   useLockScrollbar(tableSettings.enableFullScreen);
+
+  // Row click handler for editing
+  const handleRowClick = (row) => {
+    setRowToUpdate(row.original);
+    setIsUpdateOpen(true);
+  };
 
   return (
     <>
@@ -177,8 +189,10 @@ export default function InsertWeek() {
                           "border-b border-gray-200 dark:border-dark-500",
                           row.getIsSelected() &&
                             !isSafari &&
-                            "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:border-l-2 after:border-primary-500 after:bg-primary-500/10"
+                            "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:border-l-2 after:border-primary-500 after:bg-primary-500/10",
+                          "cursor-pointer" // Make row clickable
                         )}
+                        onClick={() => handleRowClick(row)}
                       >
                         {row.getVisibleCells().map((cell) => (
                           <Td
@@ -209,6 +223,7 @@ export default function InsertWeek() {
         </div>
       </div>
 
+      {/* INSERT MODAL */}
       <Dialog open={isFormOpen} onClose={() => setIsFormOpen(false)} className="relative z-50">
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
@@ -220,6 +235,35 @@ export default function InsertWeek() {
               </Button>
             </div>
             <InsertPeriodsForm onSuccess={() => { loadPeriodData(); setIsFormOpen(false); }} />
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+
+      {/* UPDATE MODAL */}
+      <Dialog open={isUpdateOpen} onClose={() => setIsUpdateOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="relative w-full max-w-5xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg dark:bg-dark-800">
+            <div className="flex items-center justify-between pb-4">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-100">Edit Period</h3>
+              <Button variant="outlined" size="icon-sm" onClick={() => setIsUpdateOpen(false)}>
+                <XMarkIcon className="size-5" />
+              </Button>
+            </div>
+            {rowToUpdate && (
+              <UpdatePeriodsForm
+                initialData={rowToUpdate}
+                onSuccess={() => {
+                  setIsUpdateOpen(false);
+                  setRowToUpdate(null);
+                  loadPeriodData();
+                }}
+                onCancel={() => {
+                  setIsUpdateOpen(false);
+                  setRowToUpdate(null);
+                }}
+              />
+            )}
           </Dialog.Panel>
         </div>
       </Dialog>

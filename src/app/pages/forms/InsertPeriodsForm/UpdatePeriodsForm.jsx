@@ -1,10 +1,16 @@
+// src/app/pages/forms/InsertPeriodsForm/UpdatePeriodsForm.jsx
+
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "sonner";
 import { Input, Button, Card, Select } from "components/ui";
 import { useEffect, useState } from "react";
 import { schema } from "./schema";
-import { fetchCourseList, updatePeriod, fetchTenantById } from "./data";
+import {
+  fetchCourseList,
+  updatePeriod,
+  fetchTenantById,
+} from "./data";
 import { getSessionData } from "utils/sessionStorage";
 
 const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
@@ -19,12 +25,12 @@ const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
     reset,
     control,
     formState: { errors, isSubmitting, isValid },
-    // getValues,
+    getValues,
   } = useForm({
-    resolver: yupResolver(schema("update")), // <-- ensure you CALL the schema function
+    resolver: yupResolver(schema("update")), // <-- USE UPDATE MODE HERE
     defaultValues: {
       name: "",
-      courseId: null,      // <-- use null not empty string
+      courseId: "",
       startTime: "",
       endTime: "",
       tenantId: session.tenantId,
@@ -36,6 +42,15 @@ const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
   // Pad time to "HH:mm:ss"
   const padTime = (time) => (time?.length === 5 ? `${time}:00` : time);
 
+  // Mount log
+  useEffect(() => {
+    console.log("[UpdatePeriodsForm] Mounted, session:", session);
+  }, []);
+
+  useEffect(() => {
+    console.log("[UpdatePeriodsForm] initialData changed:", initialData);
+  }, [initialData]);
+
   // Fetch courses and tenant info
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -43,6 +58,7 @@ const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
         fetchCourseList(),
         fetchTenantById(session.tenantId),
       ]);
+      console.log("[UpdatePeriodsForm] Fetched courseData:", courseData);
       setCourses(courseData);
       setTenantName(tenant?.name || "");
       setCoursesLoaded(true);
@@ -53,15 +69,24 @@ const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
   // Reset form ONLY when both initialData and courses are loaded
   useEffect(() => {
     if (initialData && coursesLoaded) {
-      let courseId = null;
+      // Try to resolve courseId from courseName if needed
+      let courseId = "";
       if (initialData.courseId) {
-        courseId = Number(initialData.courseId);
+        courseId = String(initialData.courseId);
       } else if (initialData.courseName && courses.length > 0) {
         const matched = courses.find(
           (c) => c.name?.toLowerCase() === initialData.courseName?.toLowerCase()
         );
-        if (matched) courseId = matched.id;
+        if (matched) courseId = String(matched.id);
       }
+      console.log("[UpdatePeriodsForm] Resetting form with:", {
+        name: initialData.name || "",
+        courseId,
+        startTime: initialData.startTime ? initialData.startTime.slice(0, 5) : "",
+        endTime: initialData.endTime ? initialData.endTime.slice(0, 5) : "",
+        tenantId: initialData.tenantId,
+        updatedBy: session.userId,
+      });
       reset({
         name: initialData.name || "",
         courseId,
@@ -73,10 +98,15 @@ const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
     }
   }, [initialData, coursesLoaded, courses, reset, session.userId]);
 
+  // DEBUG: Log validation state, values, and errors
+  useEffect(() => {
+    console.log("[UpdatePeriodsForm] isValid:", isValid, "errors:", errors, "values:", getValues());
+  }, [isValid, errors, getValues]);
+
   const onSubmit = async (data) => {
     const payload = {
       ...data,
-      courseId: Number(data.courseId),
+      courseId: Number(data.courseId), // Always send as number
       startTime: padTime(data.startTime),
       endTime: padTime(data.endTime),
     };
@@ -122,8 +152,8 @@ const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
             render={({ field }) => (
               <Select
                 label="Course"
-                value={field.value ?? ""}
-                onChange={e => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                value={field.value || ""}
+                onChange={e => field.onChange(e.target.value)}
                 error={errors?.courseId?.message}
                 labelSlot={requiredMark}
               >
@@ -131,7 +161,7 @@ const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
                   Select Course
                 </option>
                 {courses.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.id} value={String(c.id)}>
                     {c.name}
                   </option>
                 ))}
@@ -154,13 +184,16 @@ const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
             labelSlot={requiredMark}
           />
 
-          <Input
-            label="Tenant"
-            value={tenantName}
-            readOnly
-            labelSlot={requiredMark}
-          />
-          <input type="hidden" {...register("tenantId")} />
+          {/* Tenant Name + Hidden Tenant ID */}
+          <>
+            <Input
+              label="Tenant"
+              value={tenantName}
+              readOnly
+              labelSlot={requiredMark}
+            />
+            <input type="hidden" {...register("tenantId")} />
+          </>
 
           <Input
             label="Updated By"

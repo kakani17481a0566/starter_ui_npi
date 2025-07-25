@@ -1,3 +1,4 @@
+//src\app\pages\forms\InsertPeriodsForm\data.js
 import axios from "axios";
 
 // Fetch list of courses
@@ -24,5 +25,25 @@ export const fetchTenantById = async (tenantId = 1) => {
   } catch (error) {
     console.error("Failed to fetch tenant", error);
     return null;
+  }
+};
+
+// Update an existing period by ID and tenant
+export const updatePeriod = async ({ id, tenantId, payload }) => {
+  try {
+    const response = await axios.put(
+      `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/Period/${id}/tenant/${tenantId}`,
+      payload,
+      {
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("❌ Failed to update period", error);
+    throw error;
   }
 };
