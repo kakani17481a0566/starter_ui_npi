@@ -3,12 +3,15 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "sonner";
 import { Input, Button, Card, Select } from "components/ui";
 import { getSessionData } from "utils/sessionStorage";
-import { schema } from "./schema";
-import { createTimeTableTopic, fetchTimeTableTopicsDropdown } from "./data";
-import { BookOpenIcon, Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { schema } from "./schema";
+import {
+  fetchTimeTableTopicsDropdown,
+  updateTimeTableTopic,
+} from "./data";
+import { BookOpenIcon, Loader2Icon } from "lucide-react";
 
-const InsertTimeTableTopicForm = ({ onSuccess }) => {
+const UpdateTimeTableTopicForm = ({ initialData, onSuccess, onCancel }) => {
   const session = getSessionData();
 
   const [dropdown, setDropdown] = useState({ courses: [] });
@@ -21,110 +24,119 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
     control,
     handleSubmit,
     setValue,
-    reset,
     formState: { errors, isSubmitting, isValid },
   } = useForm({
-    resolver: yupResolver(schema("create")),
+    resolver: yupResolver(schema("update")),
     defaultValues: {
       courseId: "",
       subjectId: "",
       topicId: "",
       timeTableDetailId: "",
       tenantId: session.tenantId,
-      createdBy: session.userId,
+      updatedBy: session.userId,
     },
     mode: "onChange",
   });
 
+  const inferCourseSubjectFromTopic = (topicId) => {
+    for (const course of dropdown.courses) {
+      for (const subject of course.subjects || []) {
+        if (subject.topics?.some((t) => t.id === topicId)) {
+          return {
+            courseId: String(course.id),
+            subjectId: String(subject.id),
+          };
+        }
+      }
+    }
+    return { courseId: "", subjectId: "" };
+  };
+
   useEffect(() => {
-    (async () => {
+    const loadDropdowns = async () => {
       try {
         setLoading(true);
         const res = await fetchTimeTableTopicsDropdown(session.tenantId);
         setDropdown(res.data || { courses: [] });
       } catch {
-        toast.error("❌ Failed to load dropdown options");
+        toast.error("❌ Failed to load data for update");
       } finally {
         setLoading(false);
       }
-    })();
+    };
+    loadDropdowns();
   }, [session.tenantId]);
 
+  useEffect(() => {
+    if (dropdown.courses.length > 0 && initialData) {
+      console.log("🟡 Initial Data received:", initialData);
+
+      let { courseId, subjectId } = initialData;
+
+      if (!courseId || !subjectId) {
+        const inferred = inferCourseSubjectFromTopic(initialData.topicId);
+        courseId = inferred.courseId;
+        subjectId = inferred.subjectId;
+      }
+
+      setValue("courseId", courseId);
+      setValue("subjectId", subjectId);
+      setValue("topicId", String(initialData.topicId));
+      setValue("timeTableDetailId", String(initialData.timeTableDetailId));
+
+      setSelectedCourseId(courseId);
+      setSelectedSubjectId(subjectId);
+      setSelectedDate(initialData.timeTableDate?.slice(0, 10) || "");
+    }
+  }, [dropdown, initialData, setValue]);
+
   const courseObj = dropdown.courses.find(
-    c => String(c.id) === String(selectedCourseId)
+    (c) => String(c.id) === String(selectedCourseId)
   );
   const subjectObj = courseObj?.subjects.find(
-    s => String(s.id) === String(selectedSubjectId)
+    (s) => String(s.id) === String(selectedSubjectId)
   );
 
-  useEffect(() => {
-    setValue("subjectId", "");
-    setSelectedSubjectId("");
-    setValue("topicId", "");
-    setValue("timeTableDetailId", "");
-  }, [selectedCourseId, setValue]);
-
-  useEffect(() => {
-    setValue("topicId", "");
-    setValue("timeTableDetailId", "");
-  }, [selectedSubjectId, setValue]);
-
-  useEffect(() => {
-    setValue("timeTableDetailId", "");
-  }, [selectedDate, setValue]);
-
   const filteredTimeTableDetails =
-    subjectObj?.timeTableDetails?.filter(ttd => {
-      if (!selectedDate || !ttd.date) return false;
-      return ttd.date.slice(0, 10) === selectedDate;
+    subjectObj?.timeTableDetails?.filter((ttd) => {
+      return selectedDate && ttd.date?.slice(0, 10) === selectedDate;
     }) || [];
 
   const onSubmit = async (data) => {
     try {
       const payload = {
+        id: initialData.id,
         topicId: Number(data.topicId),
         timeTableDetailId: Number(data.timeTableDetailId),
         tenantId: Number(data.tenantId),
-        createdBy: Number(data.createdBy),
+        updatedBy: Number(session.userId),
       };
 
-      const res = await createTimeTableTopic(payload);
+      const res = await updateTimeTableTopic(payload);
 
-      if (res?.statusCode === 201) {
-        toast.success("✅ " + (res.message || "Time Table Topic Created"));
-        reset({
-          courseId: "",
-          subjectId: "",
-          topicId: "",
-          timeTableDetailId: "",
-          tenantId: session.tenantId,
-          createdBy: session.userId,
-        });
-        setSelectedCourseId("");
-        setSelectedSubjectId("");
-        setSelectedDate("");
-        if (onSuccess) onSuccess();
+      if (res?.statusCode === 200) {
+        toast.success("✅ Time Table Topic Updated");
+        onSuccess?.();
       } else {
-        toast.error("❌ Unexpected error");
+        toast.error("❌ Unexpected error during update");
       }
     } catch (error) {
       const errData = error.response?.data;
       const message =
         Object.values(errData?.errors || {})[0]?.[0] ||
         errData?.title ||
-        "Failed to create Time Table Topic";
+        "Failed to update Time Table Topic";
       toast.error("❌ " + message);
     }
   };
 
-  const requiredMark = <span className="pl-1 text-red-500">*</span>;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
       <Card className="text-primary-950 dark:bg-dark-700 space-y-6 p-6 shadow-lg">
         <div className="text-primary-900 mb-2 text-lg font-semibold tracking-wide dark:text-white">
           <BookOpenIcon className="mr-2 inline-block h-5 w-5" />
-          Create Time Table Topic
+          Update Time Table Topic
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -135,19 +147,18 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
               <Select
                 label="Course"
                 value={field.value}
-                onChange={e => {
+                onChange={(e) => {
                   const value = e.target.value;
                   setSelectedCourseId(value);
                   field.onChange(value);
                 }}
                 error={errors?.courseId?.message}
-                labelSlot={requiredMark}
                 disabled={loading}
               >
                 <option value="" disabled>
                   {loading ? "Loading..." : "Select Course"}
                 </option>
-                {dropdown.courses.map(course => (
+                {dropdown.courses.map((course) => (
                   <option key={course.id} value={String(course.id)}>
                     {course.name}
                   </option>
@@ -163,19 +174,18 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
               <Select
                 label="Subject"
                 value={field.value}
-                onChange={e => {
+                onChange={(e) => {
                   const value = e.target.value;
                   setSelectedSubjectId(value);
                   field.onChange(value);
                 }}
                 error={errors?.subjectId?.message}
-                labelSlot={requiredMark}
                 disabled={!selectedCourseId || loading}
               >
                 <option value="" disabled>
                   {selectedCourseId ? "Select Subject" : "Select a course first"}
                 </option>
-                {courseObj?.subjects.map(subject => (
+                {courseObj?.subjects.map((subject) => (
                   <option key={subject.id} value={String(subject.id)}>
                     {subject.name}
                   </option>
@@ -186,10 +196,9 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
 
           <Input
             type="date"
-            label="Date"
+            label="Date *"
             value={selectedDate}
-            onChange={e => setSelectedDate(e.target.value)}
-            labelSlot={requiredMark}
+            onChange={(e) => setSelectedDate(e.target.value)}
             disabled={!selectedSubjectId}
           />
 
@@ -202,13 +211,12 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
                 value={field.value}
                 onChange={field.onChange}
                 error={errors?.topicId?.message}
-                labelSlot={requiredMark}
                 disabled={!selectedSubjectId || loading}
               >
                 <option value="" disabled>
                   {selectedSubjectId ? "Select Topic" : "Select a subject first"}
                 </option>
-                {subjectObj?.topics.map(topic => (
+                {subjectObj?.topics.map((topic) => (
                   <option key={topic.id} value={String(topic.id)}>
                     {topic.name}
                   </option>
@@ -226,7 +234,6 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
                 value={field.value}
                 onChange={field.onChange}
                 error={errors?.timeTableDetailId?.message}
-                labelSlot={requiredMark}
                 disabled={!selectedSubjectId || !selectedDate || loading}
               >
                 <option value="" disabled>
@@ -238,12 +245,9 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
                     ? "No periods for selected date"
                     : "Select Time Table Detail"}
                 </option>
-                {filteredTimeTableDetails.map(ttd => (
+                {filteredTimeTableDetails.map((ttd) => (
                   <option key={ttd.id} value={String(ttd.id)}>
-                    {ttd.name}
-                    {ttd.date
-                      ? ` (${new Date(ttd.date).toLocaleDateString()})`
-                      : ""}
+                    {ttd.name} ({new Date(ttd.date).toLocaleDateString()})
                   </option>
                 ))}
               </Select>
@@ -251,23 +255,24 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
           />
 
           <Input
-            label="Tenant ID"
+            label="Tenant ID *"
             value={session.tenantId}
             readOnly
             className="dark:bg-dark-500 bg-gray-100"
-            labelSlot={requiredMark}
           />
 
           <Input
-            label="Created By"
+            label="Updated By *"
             value={session.userId}
             readOnly
             className="dark:bg-dark-500 bg-gray-100"
-            labelSlot={requiredMark}
           />
         </div>
 
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end gap-4 pt-4">
+          <Button variant="outline" onClick={onCancel} type="button" className="min-w-[8rem]">
+            Cancel
+          </Button>
           <Button
             type="submit"
             className={`min-w-[8rem] font-medium text-white ${
@@ -283,7 +288,7 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
                 Saving...
               </span>
             ) : (
-              "Save"
+              "Update"
             )}
           </Button>
         </div>
@@ -292,4 +297,4 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
   );
 };
 
-export default InsertTimeTableTopicForm;
+export default UpdateTimeTableTopicForm;

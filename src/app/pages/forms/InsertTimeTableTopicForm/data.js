@@ -40,3 +40,26 @@
       throw error;
     }
   };
+
+  export const updateTimeTableTopic = async ({ id, tenantId, topicId, timeTableDetailId, updatedBy }) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/TimeTableTopics/${id}/tenant/${tenantId}`,
+      {
+        topicId,
+        timeTableDetailId,
+        updatedBy,
+      },
+      {
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data; // { statusCode, message, data }
+  } catch (error) {
+    console.error("❌ Failed to update TimeTableTopic", error);
+    throw error;
+  }
+};

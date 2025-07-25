@@ -25,6 +25,7 @@ import { fetchTimeTableTopicsStructuredData } from "./data";
 import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 import { useThemeContext } from "app/contexts/theme/context";
 import InsertTimeTableTopicForm from "app/pages/forms/InsertTimeTableTopicForm";
+import UpdateTimeTableTopicForm from "app/pages/forms/InsertTimeTableTopicForm/UpdateTimeTableTopicForm";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
@@ -33,6 +34,7 @@ export default function InsertTimeTableTopics() {
   const cardRef = useRef();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
   const [topicData, setTopicData] = useState([]);
   const [columns, setColumns] = useState([]);
@@ -48,7 +50,6 @@ export default function InsertTimeTableTopics() {
     enableRowDense: false,
   });
 
-  // Data loader
   const loadData = useCallback(async () => {
     skipAutoResetPageIndex();
     const { headers, data } = await fetchTimeTableTopicsStructuredData();
@@ -109,7 +110,10 @@ export default function InsertTimeTableTopics() {
           <Button
             className="h-8 space-x-1.5 rounded-md px-3 text-xs"
             color="primary"
-            onClick={() => setIsFormOpen(true)}
+            onClick={() => {
+              setSelectedRow(null);
+              setIsFormOpen(true);
+            }}
           >
             <PlusIcon className="size-5" />
             <span>New Time Table Topic</span>
@@ -174,11 +178,15 @@ export default function InsertTimeTableTopics() {
                     <Fragment key={row.id}>
                       <Tr
                         className={clsx(
-                          "border-b border-gray-200 dark:border-dark-500",
+                          "border-b border-gray-200 dark:border-dark-500 cursor-pointer",
                           row.getIsSelected() &&
                             !isSafari &&
                             "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:border-l-2 after:border-primary-500 after:bg-primary-500/10"
                         )}
+                        onClick={() => {
+                          setSelectedRow(row.original);
+                          setIsFormOpen(true);
+                        }}
                       >
                         {row.getVisibleCells().map((cell) => (
                           <Td
@@ -214,17 +222,30 @@ export default function InsertTimeTableTopics() {
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="relative w-full max-w-5xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg dark:bg-dark-800">
             <div className="flex items-center justify-between pb-4">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-100">Add New Topic</h3>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-100">
+                {selectedRow ? "Update Topic" : "Add New Topic"}
+              </h3>
               <Button variant="outlined" size="icon-sm" onClick={() => setIsFormOpen(false)}>
                 <XMarkIcon className="size-5" />
               </Button>
             </div>
-            <InsertTimeTableTopicForm
-              onSuccess={() => {
-                loadData();      // ✅ refresh
-                setIsFormOpen(false); // ✅ close modal
-              }}
-            />
+            {selectedRow ? (
+              <UpdateTimeTableTopicForm
+                initialData={selectedRow}
+                onSuccess={() => {
+                  loadData();
+                  setIsFormOpen(false);
+                }}
+                onCancel={() => setIsFormOpen(false)}
+              />
+            ) : (
+              <InsertTimeTableTopicForm
+                onSuccess={() => {
+                  loadData();
+                  setIsFormOpen(false);
+                }}
+              />
+            )}
           </Dialog.Panel>
         </div>
       </Dialog>
