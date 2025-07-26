@@ -1,11 +1,12 @@
-//src\app\pages\forms\InsertTimeTableForm\index.jsx
-import { useForm, Controller } from "react-hook-form";
+// src/app/pages/forms/InsertTimeTableForm/index.jsx
+
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "sonner";
 import { Input, Button, Card, Select } from "components/ui";
 import { DatePicker } from "components/shared/form/Datepicker";
 import { getSessionData } from "utils/sessionStorage";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { schema } from "./schema";
 import { createTimeTable, fetchTimeTableInsertOptions } from "./data";
@@ -13,6 +14,8 @@ import { CalendarIcon, Loader2Icon } from "lucide-react";
 
 const InsertTimeTableForm = ({ onSuccess }) => {
   const session = getSessionData();
+  const tenantId = Number(session?.tenantId ?? 0);
+  const createdBy = Number(session?.userId ?? 0);
 
   const [options, setOptions] = useState({
     weeks: [],
@@ -28,67 +31,62 @@ const InsertTimeTableForm = ({ onSuccess }) => {
     control,
     reset,
     setValue,
-    watch,
-    formState: { errors, isSubmitting, isValid },
+    formState: { errors, isSubmitting },
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema("create")),
     defaultValues: {
-      name: "", // <-- start empty!
+      name: "",
       date: new Date(),
       weekId: "",
       holidayId: "",
       status: "working",
       courseId: "",
       assessmentStatusCode: "",
-      tenantId: session.tenantId,
-      createdBy: session.userId,
+      tenantId,
+      createdBy,
     },
     mode: "onChange",
   });
 
-  // Watch the date and name fields
-  const dateValue = watch("date");
-  const nameValue = watch("name");
-  const didMount = useRef(false);
+  const dateValue = useWatch({ control, name: "date" });
 
-  // Only auto-fill name after mount and if name is empty
   useEffect(() => {
-    if (!didMount.current) {
-      didMount.current = true;
-      return; // skip initial render
+    if (dateValue) {
+      const dayName = format(new Date(dateValue), "EEEE").toUpperCase();
+      setValue("name", dayName, { shouldValidate: true });
     }
-    if (!dateValue) return;
-    if (!nameValue) {
-      const day = format(new Date(dateValue), "EEEE");
-      setValue("name", day, { shouldValidate: true });
-    }
-  }, [dateValue, nameValue, setValue]);
+  }, [dateValue, setValue]);
 
   useEffect(() => {
     const loadOptions = async () => {
       try {
-        const res = await fetchTimeTableInsertOptions(session.tenantId);
+        const res = await fetchTimeTableInsertOptions(tenantId);
         setOptions(res.data);
       } catch {
         toast.error("❌ Failed to load insert options");
       }
     };
     loadOptions();
-  }, [session.tenantId]);
+  }, [tenantId]);
 
   const onSubmit = async (data) => {
+    console.log("📝 Raw form date input:", data.date);
+    const formattedDate = format(new Date(data.date), "yyyy-MM-dd");
+    console.log("📦 Formatted date to send:", formattedDate);
+
     const payload = {
       ...data,
       name: data.name?.trim(),
-      date: new Date(data.date).toISOString(),
+      date: formattedDate,
       weekId: Number(data.weekId),
       holidayId: data.holidayId === "" ? null : Number(data.holidayId),
-      status: data.status,
       courseId: Number(data.courseId),
       assessmentStatusCode: Number(data.assessmentStatusCode),
-      tenantId: Number(data.tenantId),
-      createdBy: Number(data.createdBy),
+      tenantId,
+      createdBy,
     };
+
+    console.log("🚀 Final Payload:", payload);
 
     try {
       const res = await createTimeTable(payload);
@@ -102,8 +100,8 @@ const InsertTimeTableForm = ({ onSuccess }) => {
           status: "working",
           courseId: "",
           assessmentStatusCode: "",
-          tenantId: session.tenantId,
-          createdBy: session.userId,
+          tenantId,
+          createdBy,
         });
         if (onSuccess) onSuccess();
       } else {
@@ -133,6 +131,7 @@ const InsertTimeTableForm = ({ onSuccess }) => {
           <Input
             label="Name"
             {...register("name")}
+            readOnly
             error={errors?.name?.message}
             labelSlot={requiredMark}
           />
@@ -157,18 +156,14 @@ const InsertTimeTableForm = ({ onSuccess }) => {
             render={({ field }) => (
               <Select
                 label="Week"
-                {...field}
-                onValueChange={field.onChange}
+                value={field.value}
+                onChange={field.onChange}
                 error={errors?.weekId?.message}
                 labelSlot={requiredMark}
               >
-                <option value="" disabled>
-                  Select Week
-                </option>
+                <option value="" disabled>Select Week</option>
                 {options.weeks.map((w) => (
-                  <option key={w.id} value={w.id}>
-                    {w.name}
-                  </option>
+                  <option key={w.id} value={w.id}>{w.name}</option>
                 ))}
               </Select>
             )}
@@ -180,15 +175,13 @@ const InsertTimeTableForm = ({ onSuccess }) => {
             render={({ field }) => (
               <Select
                 label="Holiday (optional)"
-                {...field}
-                onValueChange={field.onChange}
+                value={field.value ?? ""}
+                onChange={field.onChange}
                 error={errors?.holidayId?.message}
               >
                 <option value="">None</option>
                 {options.holidays.map((h) => (
-                  <option key={h.id} value={h.id}>
-                    {h.name}
-                  </option>
+                  <option key={h.id} value={h.id}>{h.name}</option>
                 ))}
               </Select>
             )}
@@ -200,15 +193,13 @@ const InsertTimeTableForm = ({ onSuccess }) => {
             render={({ field }) => (
               <Select
                 label="Status"
-                {...field}
-                onValueChange={field.onChange}
+                value={field.value}
+                onChange={field.onChange}
                 error={errors?.status?.message}
                 labelSlot={requiredMark}
               >
                 {options.statusOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </option>
+                  <option key={status} value={status}>{status.charAt(0).toUpperCase() + status.slice(1)}</option>
                 ))}
               </Select>
             )}
@@ -220,18 +211,14 @@ const InsertTimeTableForm = ({ onSuccess }) => {
             render={({ field }) => (
               <Select
                 label="Course"
-                {...field}
-                onValueChange={field.onChange}
+                value={field.value}
+                onChange={field.onChange}
                 error={errors?.courseId?.message}
                 labelSlot={requiredMark}
               >
-                <option value="" disabled>
-                  Select Course
-                </option>
+                <option value="" disabled>Select Course</option>
                 {options.courses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </Select>
             )}
@@ -243,18 +230,14 @@ const InsertTimeTableForm = ({ onSuccess }) => {
             render={({ field }) => (
               <Select
                 label="Assessment Status"
-                {...field}
-                onValueChange={field.onChange}
+                value={field.value}
+                onChange={field.onChange}
                 error={errors?.assessmentStatusCode?.message}
                 labelSlot={requiredMark}
               >
-                <option value="" disabled>
-                  Select Status
-                </option>
+                <option value="" disabled>Select Status</option>
                 {options.assessmentStatuses.map((a) => (
-                  <option key={a.code} value={a.code}>
-                    {a.name}
-                  </option>
+                  <option key={a.code} value={a.code}>{a.name}</option>
                 ))}
               </Select>
             )}
@@ -281,11 +264,11 @@ const InsertTimeTableForm = ({ onSuccess }) => {
           <Button
             type="submit"
             className={`min-w-[8rem] font-medium text-white ${
-              !isValid || isSubmitting
+              isSubmitting
                 ? "cursor-not-allowed bg-red-500 opacity-70"
                 : "bg-primary-600 hover:bg-primary-700"
             }`}
-            disabled={!isValid || isSubmitting}
+            disabled={isSubmitting}
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center gap-2">

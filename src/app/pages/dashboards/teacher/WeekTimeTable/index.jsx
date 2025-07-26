@@ -1,3 +1,5 @@
+// src/app/pages/dashboards/teacher/WeekTimeTable/index.jsx
+
 import {
   flexRender,
   getCoreRowModel,
@@ -7,7 +9,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import clsx from "clsx";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CollapsibleSearch } from "components/shared/CollapsibleSearch";
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
@@ -18,9 +20,9 @@ import { fuzzyFilter } from "utils/react-table/fuzzyFilter";
 import { useSkipper } from "utils/react-table/useSkipper";
 import { PaginationSection } from "./PaginationSection";
 import { MenuAction } from "./MenuActions";
-import { columns } from "./columns";
 import { fetchWeekTimeTableData } from "./weektimetabledata";
 import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
+import { generateColumns } from "./columns";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
@@ -30,32 +32,37 @@ export function WeekTimeTable({ courseId }) {
   const { height: theadHeight } = useBoxSize({ ref: theadRef });
 
   const [media, setMedia] = useState([]);
+  const [headers, setHeaders] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch timetable based on courseId
   useEffect(() => {
-  console.log("Received courseId:", courseId); // ✅ Add this
-  if (!courseId) return;
+    console.log("Received courseId:", courseId);
+    if (!courseId) return;
 
-  setLoading(true);
-  fetchWeekTimeTableData(courseId)
-    .then((data) => {
-      const trimmed = data.timeTableData.map((row) => ({
-        column1: row.column1,
-        column2: row.column2,
-        column3: row.column3,
-        column4: row.column4,
-        column5: row.column5,
-        column6: row.column6,
-        column7: row.column7,
-      }));
-      setMedia(trimmed);
-    })
-    .finally(() => setLoading(false));
-}, [courseId]);
+    setLoading(true);
+    fetchWeekTimeTableData(courseId)
+      .then((data) => {
+        const trimmed = data.timeTableData.map((row) => ({
+          column1: row.column1,
+          column2: row.column2,
+          column3: row.column3,
+          column4: row.column4,
+          column5: row.column5,
+          column6: row.column6,
+          column7: row.column7,
+          column8: row.column8,
+          column9: row.column9,
+        }));
+        setMedia(trimmed);
+        setHeaders(data.headers);
+        console.log("📦 Auto headers:", data.headers);
+      })
+      .finally(() => setLoading(false));
+  }, [courseId]);
 
+  const columns = useMemo(() => generateColumns(headers), [headers]);
 
   const table = useReactTable({
     data: media,

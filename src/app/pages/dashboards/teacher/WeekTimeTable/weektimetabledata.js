@@ -13,7 +13,7 @@ export async function fetchWeekTimeTableData(courseId) {
 
   try {
     const res = await axiosInstance.get(
-      `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/TimeTable/weekId/${week}/tenantId/${tenantId}/courseId/${courseId}`
+      `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/TimeTable/weekId/8/tenantId/${tenantId}/courseId/${courseId}`
     );
 
     const data = res.data?.data ?? {};

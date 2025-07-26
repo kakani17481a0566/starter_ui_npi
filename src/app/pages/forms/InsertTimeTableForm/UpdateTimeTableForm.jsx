@@ -14,6 +14,7 @@ import { getSessionData } from "utils/sessionStorage";
 
 const UpdateTimeTableForm = ({ initialData, onSuccess, onCancel }) => {
   const session = getSessionData();
+  const userId = Number(session?.userId ?? 0);
 
   const [options, setOptions] = useState({
     weeks: [],
@@ -32,7 +33,7 @@ const UpdateTimeTableForm = ({ initialData, onSuccess, onCancel }) => {
     getValues,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema("update")), // ✅ use 'update' mode
     defaultValues: {
       name: "",
       date: null,
@@ -42,7 +43,7 @@ const UpdateTimeTableForm = ({ initialData, onSuccess, onCancel }) => {
       courseId: "",
       assessmentStatusCode: "",
       tenantId: "",
-      updatedBy: session.userId || "",
+      updatedBy: userId,
     },
     mode: "onTouched",
   });
@@ -72,7 +73,7 @@ const UpdateTimeTableForm = ({ initialData, onSuccess, onCancel }) => {
     loadOptions();
   }, [initialData]);
 
-  // Reset with initial data and first status if missing
+  // Reset form with incoming initial data
   useEffect(() => {
     if (initialData) {
       let dateValue = initialData.date
@@ -82,7 +83,6 @@ const UpdateTimeTableForm = ({ initialData, onSuccess, onCancel }) => {
         : new Date();
       const dayName = format(dateValue, "EEEE").toUpperCase();
 
-      // Fallback for status: use first status option if missing
       let statusValue = initialData.status;
       if (!statusValue && options.statusOptions.length > 0) {
         statusValue = options.statusOptions[0];
@@ -100,17 +100,13 @@ const UpdateTimeTableForm = ({ initialData, onSuccess, onCancel }) => {
           ? String(initialData.assessmentStatusCode)
           : "",
         tenantId: initialData.tenantId ? String(initialData.tenantId) : "",
-        updatedBy:
-          session.userId ||
-          initialData.updatedBy ||
-          initialData.createdBy ||
-          "",
+        updatedBy: userId,
       });
     }
     // eslint-disable-next-line
-  }, [initialData, options.statusOptions, session.userId, reset]);
+  }, [initialData, options.statusOptions]);
 
-  // Keep name in sync with date
+  // Auto-sync day name from date
   const dateValue = useWatch({ control, name: "date" });
   useEffect(() => {
     if (dateValue && isValid(dateValue)) {
@@ -122,26 +118,32 @@ const UpdateTimeTableForm = ({ initialData, onSuccess, onCancel }) => {
         );
       }
     }
-    // eslint-disable-next-line
   }, [dateValue]);
 
-  // Submit handler
   const onSubmit = async (data) => {
     try {
       const formattedDate = data.date ? format(data.date, "yyyy-MM-dd") : null;
+
       const payload = {
         ...data,
         name: data.name?.trim(),
-        status: data.status, // No conversion!
         date: formattedDate,
         weekId: Number(data.weekId),
-        // This is the critical line: ensure null if not provided
-        holidayId: data.holidayId === "" || data.holidayId == null ? null : Number(data.holidayId),
+        holidayId:
+          data.holidayId === "" || data.holidayId == null
+            ? null
+            : Number(data.holidayId),
         courseId: Number(data.courseId),
         assessmentStatusCode: Number(data.assessmentStatusCode),
         tenantId: Number(data.tenantId),
-        updatedBy: Number(session.userId),
+        updatedBy: userId,
       };
+
+      console.log("🔼 Submitting update payload", {
+        id: initialData.id,
+        tenantId: initialData.tenantId,
+        payload,
+      });
 
       const res = await updateTimeTable({
         id: initialData.id,
@@ -153,7 +155,7 @@ const UpdateTimeTableForm = ({ initialData, onSuccess, onCancel }) => {
         toast.success(res.message || "Time Table updated successfully");
         if (onSuccess) onSuccess();
       } else {
-        throw new Error(res.message || "Unexpected response from server");
+        throw new Error(res.message || "Unexpected server response");
       }
     } catch (error) {
       const errData = error.response?.data;
@@ -162,7 +164,7 @@ const UpdateTimeTableForm = ({ initialData, onSuccess, onCancel }) => {
         errData?.message ||
         error.message ||
         "Failed to update timetable";
-      toast.error(message);
+      toast.error("❌ " + message);
     }
   };
 
@@ -257,11 +259,9 @@ const UpdateTimeTableForm = ({ initialData, onSuccess, onCancel }) => {
                 label="Holiday (optional)"
                 {...field}
                 value={field.value ?? ""}
-                // Ensures "" or undefined always sets null onChange
-                onChange={e => {
-                  const v = e.target.value;
-                  field.onChange(v === "" ? null : v);
-                }}
+                onChange={(e) =>
+                  field.onChange(e.target.value === "" ? null : e.target.value)
+                }
                 error={errors?.holidayId?.message}
               >
                 <option value="">None</option>
@@ -343,7 +343,6 @@ const UpdateTimeTableForm = ({ initialData, onSuccess, onCancel }) => {
             )}
           />
 
-          {/* User name only (no userId shown) */}
           <Input
             label="User"
             value={session.user || ""}
