@@ -14,7 +14,7 @@ import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
 import { ColumnFilter } from "components/shared/table/ColumnFilter";
 import { PaginationSection } from "components/shared/table/PaginationSection";
-import { Button, Card, Table, THead, TBody, Th, Tr, Td } from "components/ui";
+import { Button, Card, Table, THead, TBody, Th, Tr, Td, Spinner } from "components/ui";
 import { Toolbar } from "./Toolbar";
 import { SelectedRowsActions } from "./SelectedRowsActions";
 import { useLockScrollbar, useLocalStorage, useDidUpdate } from "hooks";
@@ -38,6 +38,7 @@ export default function InsertTimeTableTopics() {
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
   const [topicData, setTopicData] = useState([]);
   const [columns, setColumns] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
@@ -52,10 +53,15 @@ export default function InsertTimeTableTopics() {
 
   const loadData = useCallback(async () => {
     skipAutoResetPageIndex();
-    const { headers, data } = await fetchTimeTableTopicsStructuredData();
-    setTopicData(data);
-    if (data.length > 0) {
-      setColumns(generateTimeTableTopicsColumns(headers, data[0]));
+    setLoading(true);
+    try {
+      const { headers, data } = await fetchTimeTableTopicsStructuredData();
+      setTopicData(data);
+      if (data.length > 0) {
+        setColumns(generateTimeTableTopicsColumns(headers, data[0]));
+      }
+    } finally {
+      setLoading(false);
     }
   }, [skipAutoResetPageIndex]);
 
@@ -65,7 +71,7 @@ export default function InsertTimeTableTopics() {
 
   const table = useReactTable({
     data: topicData,
-    columns: columns,
+    columns,
     state: {
       globalFilter,
       sorting,
@@ -129,86 +135,100 @@ export default function InsertTimeTableTopics() {
         >
           <Toolbar table={table} />
           <Card ref={cardRef} className="relative mt-3 flex grow flex-col">
-            <div className="table-wrapper min-w-full grow overflow-x-auto">
-              <Table
-                hoverable
-                dense={tableSettings.enableRowDense}
-                sticky={tableSettings.enableFullScreen}
-                className="w-full text-left"
-              >
-                <THead>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <Tr key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <Th
-                          key={header.id}
-                          className={clsx(
-                            "bg-gray-200 font-semibold text-gray-800 dark:bg-dark-800 dark:text-dark-100",
-                            header.column.getCanPin() && [
-                              header.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
-                              header.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
-                            ]
-                          )}
-                        >
-                          {header.column.getCanSort() ? (
-                            <div
-                              className="flex cursor-pointer items-center space-x-3"
-                              onClick={header.column.getToggleSortingHandler()}
-                            >
-                              <span>
-                                {header.isPlaceholder
-                                  ? null
-                                  : flexRender(header.column.columnDef.header, header.getContext())}
-                              </span>
-                              <TableSortIcon sorted={header.column.getIsSorted()} />
-                            </div>
-                          ) : (
-                            flexRender(header.column.columnDef.header, header.getContext())
-                          )}
-                          {header.column.getCanFilter() ? (
-                            <ColumnFilter column={header.column} />
-                          ) : null}
-                        </Th>
-                      ))}
-                    </Tr>
-                  ))}
-                </THead>
-                <TBody>
-                  {table.getRowModel().rows.map((row) => (
-                    <Fragment key={row.id}>
-                      <Tr
-                        className={clsx(
-                          "border-b border-gray-200 dark:border-dark-500 cursor-pointer",
-                          row.getIsSelected() &&
-                            !isSafari &&
-                            "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:border-l-2 after:border-primary-500 after:bg-primary-500/10"
-                        )}
-                        onClick={() => {
-                          setSelectedRow(row.original);
-                          setIsFormOpen(true);
-                        }}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <Td
-                            key={cell.id}
+            {loading ? (
+              <div className="flex justify-center items-center py-10">
+                <Spinner color="primary" className="size-10" />
+              </div>
+            ) : (
+              <div className="table-wrapper min-w-full grow overflow-x-auto">
+                <Table
+                  hoverable
+                  dense={tableSettings.enableRowDense}
+                  sticky={tableSettings.enableFullScreen}
+                  className="w-full text-left"
+                >
+                  <THead>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <Tr key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => (
+                          <Th
+                            key={header.id}
                             className={clsx(
-                              "relative",
-                              cardSkin === "shadow-sm" ? "dark:bg-dark-700" : "dark:bg-dark-900",
-                              cell.column.getCanPin() && [
-                                cell.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
-                                cell.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
+                              "bg-gray-200 font-semibold text-gray-800 dark:bg-dark-800 dark:text-dark-100",
+                              header.column.getCanPin() && [
+                                header.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
+                                header.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
                               ]
                             )}
                           >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </Td>
+                            {header.column.getCanSort() ? (
+                              <div
+                                className="flex cursor-pointer items-center space-x-3"
+                                onClick={header.column.getToggleSortingHandler()}
+                              >
+                                <span>
+                                  {header.isPlaceholder
+                                    ? null
+                                    : flexRender(header.column.columnDef.header, header.getContext())}
+                                </span>
+                                <TableSortIcon sorted={header.column.getIsSorted()} />
+                              </div>
+                            ) : (
+                              flexRender(header.column.columnDef.header, header.getContext())
+                            )}
+                            {header.column.getCanFilter() ? (
+                              <ColumnFilter column={header.column} />
+                            ) : null}
+                          </Th>
                         ))}
                       </Tr>
-                    </Fragment>
-                  ))}
-                </TBody>
-              </Table>
-            </div>
+                    ))}
+                  </THead>
+                  <TBody>
+                    {table.getRowModel().rows.length === 0 ? (
+                      <Tr>
+                        <Td colSpan={columns.length} className="text-center py-10 text-gray-500">
+                          No topics available.
+                        </Td>
+                      </Tr>
+                    ) : (
+                      table.getRowModel().rows.map((row) => (
+                        <Fragment key={row.id}>
+                          <Tr
+                            className={clsx(
+                              "border-b border-gray-200 dark:border-dark-500 cursor-pointer",
+                              row.getIsSelected() &&
+                                !isSafari &&
+                                "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:border-l-2 after:border-primary-500 after:bg-primary-500/10"
+                            )}
+                            onClick={() => {
+                              setSelectedRow(row.original);
+                              setIsFormOpen(true);
+                            }}
+                          >
+                            {row.getVisibleCells().map((cell) => (
+                              <Td
+                                key={cell.id}
+                                className={clsx(
+                                  "relative",
+                                  cardSkin === "shadow-sm" ? "dark:bg-dark-700" : "dark:bg-dark-900",
+                                  cell.column.getCanPin() && [
+                                    cell.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
+                                    cell.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
+                                  ]
+                                )}
+                              >
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </Td>
+                            ))}
+                          </Tr>
+                        </Fragment>
+                      ))
+                    )}
+                  </TBody>
+                </Table>
+              </div>
+            )}
             <SelectedRowsActions table={table} />
             <div className="px-4 pb-4 sm:px-5 sm:pt-4">
               <PaginationSection table={table} />
