@@ -2,7 +2,7 @@
 import clsx from "clsx";
 
 // Local Imports
-import {  Card } from "components/ui";
+import { Card } from "components/ui";
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
 import TeacherWelcome from "assets/illustrations/teacher-welcome.svg?react";
 import { getSessionData } from "utils/sessionStorage";
@@ -11,7 +11,7 @@ import { getSessionData } from "utils/sessionStorage";
 
 export function Welcome() {
   const { smAndUp } = useBreakpointsContext();
-  const {user}=getSessionData();
+  const { user } = getSessionData();
   return (
     <Card
       className={clsx(
@@ -25,8 +25,12 @@ export function Welcome() {
 
       <div className="mt-2 flex-1 pt-2 text-center text-white sm:mt-0 sm:text-start">
         <h3 className="text-xl">
-          Welcome Back, <span className="font-semibold">{user}</span>
+          Welcome Back,{" "}
+          <span className="font-semibold">
+            {user?.charAt(0).toUpperCase() + user?.slice(1).toLowerCase()}
+          </span>
         </h3>
+
         {/* <p className="mt-2 leading-relaxed">
           Your student completed
           <span className="font-semibold text-black/90"> 85%</span> of tasks
