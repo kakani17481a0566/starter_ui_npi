@@ -1,7 +1,7 @@
 // src/app/pages/dashboards/Attendence/page.jsx
 
 import { Page } from "components/shared/Page";
-import Orders from "app/pages/tables/attendece_dash_bord_table";
+import AttendanceDashboard from "app/pages/tables/attendece_dash_bord_table";
 
 export default function Attendance() {
   return (
@@ -16,7 +16,7 @@ export default function Attendance() {
           </h2>
         </div>
 
-        <Orders />
+        <AttendanceDashboard />
       </div>
     </Page>
   );

@@ -10,36 +10,29 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import clsx from "clsx";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
 import { ColumnFilter } from "components/shared/table/ColumnFilter";
 import { PaginationSection } from "components/shared/table/PaginationSection";
 import { Card, Table, THead, TBody, Th, Tr, Td, Spinner } from "components/ui";
-import {
-  useBoxSize,
-  useLockScrollbar,
-  useDidUpdate,
-  useLocalStorage,
-} from "hooks";
+import { useBoxSize, useLockScrollbar, useDidUpdate, useLocalStorage } from "hooks";
 import { fuzzyFilter } from "utils/react-table/fuzzyFilter";
 import { useSkipper } from "utils/react-table/useSkipper";
 import { SelectedRowsActions } from "./SelectedRowsActions";
 import { SubRowComponent } from "./SubRowComponent";
 import { generateAttendanceColumns } from "./columns";
-import { fetchAttendanceSummary } from "./data";
 import { Toolbar } from "./Toolbar";
 import { useThemeContext } from "app/contexts/theme/context";
 import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
-export default function AttendanceStatusDisplayTable({ date }) {
+export default function AttendanceStatusDisplayTable({ data }) {
   const { cardSkin } = useThemeContext();
   const [autoResetPageIndex] = useSkipper();
-  const [records, setRecords] = useState([]);
-  const [columns, setColumns] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const records = data?.records || [];
+  const columns = generateAttendanceColumns(data?.headers || []);
 
   const [tableSettings, setTableSettings] = useState({
     enableSorting: true,
@@ -47,7 +40,6 @@ export default function AttendanceStatusDisplayTable({ date }) {
     enableFullScreen: false,
     enableRowDense: false,
   });
-
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
   const [columnVisibility, setColumnVisibility] = useLocalStorage("column-visibility-attendance", {});
@@ -59,21 +51,9 @@ export default function AttendanceStatusDisplayTable({ date }) {
   const table = useReactTable({
     data: records,
     columns,
-    state: {
-      globalFilter,
-      sorting,
-      columnVisibility,
-      columnPinning,
-      tableSettings,
-    },
-    meta: {
-      setTableSettings,
-      deleteRow: () => {},
-      deleteRows: () => {},
-    },
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
+    state: { globalFilter, sorting, columnVisibility, columnPinning, tableSettings },
+    meta: { setTableSettings, deleteRow: () => {}, deleteRows: () => {} },
+    filterFns: { fuzzy: fuzzyFilter },
     globalFilterFn: fuzzyFilter,
     getCoreRowModel: getCoreRowModel(),
     onGlobalFilterChange: setGlobalFilter,
@@ -90,32 +70,10 @@ export default function AttendanceStatusDisplayTable({ date }) {
     autoResetPageIndex,
   });
 
-  useDidUpdate(() => {
-    table.resetRowSelection();
-  }, [records]);
-
+  useDidUpdate(() => table.resetRowSelection(), [records]);
   useLockScrollbar(tableSettings.enableFullScreen);
 
-  useEffect(() => {
-    const loadData = async () => {
-      if (!date) return;
-
-      setLoading(true);
-      try {
-        const { records, headers } = await fetchAttendanceSummary({ date });
-        setRecords(records || []);
-        setColumns(generateAttendanceColumns(headers || []));
-      } catch (error) {
-        console.error("❌ Failed to load attendance data", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, [date]);
-
-  if (loading || !columns.length) {
+  if (!data || !columns.length) {
     return (
       <div className="col-span-12 flex justify-center items-center py-12">
         <Spinner color="primary" className="size-10 border-4" />
@@ -125,22 +83,10 @@ export default function AttendanceStatusDisplayTable({ date }) {
 
   return (
     <div className="col-span-12">
-      <div
-        className={clsx(
-          "flex flex-col",
-          tableSettings.enableFullScreen &&
-            "fixed inset-0 z-61 h-full w-full bg-white pt-3 dark:bg-dark-900"
-        )}
-      >
+      <div className={clsx("flex flex-col", tableSettings.enableFullScreen && "fixed inset-0 z-61 h-full w-full bg-white pt-3 dark:bg-dark-900")}>        
         <Toolbar table={table} />
 
-        <Card
-          className={clsx(
-            "relative mt-3 flex grow flex-col",
-            tableSettings.enableFullScreen && "overflow-hidden"
-          )}
-          ref={cardRef}
-        >
+        <Card ref={cardRef} className={clsx("relative mt-3 flex grow flex-col", tableSettings.enableFullScreen && "overflow-hidden")}>          
           <div className="table-wrapper min-w-full grow overflow-x-auto">
             <Table
               hoverable
@@ -149,51 +95,40 @@ export default function AttendanceStatusDisplayTable({ date }) {
               className="w-full text-left rtl:text-right"
             >
               <THead>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <Tr key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
+                {table.getHeaderGroups().map((group) => (
+                  <Tr key={group.id}>
+                    {group.headers.map((header) => (
                       <Th
                         key={header.id}
                         className={clsx(
-                          "bg-gray-200 font-semibold uppercase text-gray-800 dark:bg-dark-800 dark:text-dark-100 first:ltr:rounded-tl-lg last:ltr:rounded-tr-lg first:rtl:rounded-tr-lg last:rtl:rounded-tl-lg",
+                          "bg-gray-200 font-semibold uppercase text-gray-800 dark:bg-dark-800 dark:text-dark-100",
                           header.column.getCanPin() && [
-                            header.column.getIsPinned() === "left" &&
-                              "sticky z-2 ltr:left-0 rtl:right-0",
-                            header.column.getIsPinned() === "right" &&
-                              "sticky z-2 ltr:right-0 rtl:left-0",
+                            header.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
+                            header.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
                           ]
                         )}
                       >
-                        {header.column.getCanSort() ? (
-                          <div
-                            className="flex cursor-pointer select-none items-center space-x-3"
-                            onClick={header.column.getToggleSortingHandler()}
-                          >
-                            <span className="flex-1">
-                              {header.isPlaceholder
-                                ? null
-                                : flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                  )}
-                            </span>
-                            <TableSortIcon sorted={header.column.getIsSorted()} />
-                          </div>
-                        ) : header.isPlaceholder ? null : (
-                          flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )
-                        )}
-                        {header.column.getCanFilter() ? (
-                          <ColumnFilter column={header.column} />
-                        ) : null}
+                        {header.isPlaceholder
+                          ? null
+                          : header.column.getCanSort()
+                          ? (
+                              <div
+                                className="flex cursor-pointer select-none items-center space-x-3"
+                                onClick={header.column.getToggleSortingHandler()}
+                              >
+                                <span className="flex-1">
+                                  {flexRender(header.column.columnDef.header, header.getContext())}
+                                </span>
+                                <TableSortIcon sorted={header.column.getIsSorted()} />
+                              </div>
+                            )
+                          : flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.column.getCanFilter() && <ColumnFilter column={header.column} />}
                       </Th>
                     ))}
                   </Tr>
                 ))}
               </THead>
-
               <TBody>
                 {table.getRowModel().rows.map((row) => (
                   <Fragment key={row.id}>
@@ -211,14 +146,10 @@ export default function AttendanceStatusDisplayTable({ date }) {
                           key={cell.id}
                           className={clsx(
                             "relative",
-                            cardSkin === "shadow-sm"
-                              ? "dark:bg-dark-700"
-                              : "dark:bg-dark-900",
+                            cardSkin === "shadow-sm" ? "dark:bg-dark-700" : "dark:bg-dark-900",
                             cell.column.getCanPin() && [
-                              cell.column.getIsPinned() === "left" &&
-                                "sticky z-2 ltr:left-0 rtl:right-0",
-                              cell.column.getIsPinned() === "right" &&
-                                "sticky z-2 ltr:right-0 rtl:left-0",
+                              cell.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
+                              cell.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
                             ]
                           )}
                         >
@@ -232,10 +163,7 @@ export default function AttendanceStatusDisplayTable({ date }) {
                               )}
                             ></div>
                           )}
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </Td>
                       ))}
                     </Tr>

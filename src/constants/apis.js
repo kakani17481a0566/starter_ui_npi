@@ -12,6 +12,12 @@ export const TermTimeTableAPI = {
 };
 
 
+// src/constants/apis.js
+
+export const AttendanceAPI = {
+  summary: (date, tenantId, branchId, courseId = -1) =>
+    `/StudentAttendance/summary-structured?date=${date}&tenantId=${tenantId}&branchId=${branchId}&courseId=${courseId}`,
+};
 
 
 
