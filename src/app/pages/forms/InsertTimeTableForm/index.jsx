@@ -1,4 +1,4 @@
-// src/app/pages/forms/InsertTimeTableForm/index.jsx
+""// src/app/pages/forms/InsertTimeTableForm/index.jsx
 
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { schema } from "./schema";
 import { createTimeTable, fetchTimeTableInsertOptions } from "./data";
+import { fetchTenantById } from "../InsertPeriodsForm/data";
 import { CalendarIcon, Loader2Icon } from "lucide-react";
 
 const InsertTimeTableForm = ({ onSuccess }) => {
@@ -17,6 +18,7 @@ const InsertTimeTableForm = ({ onSuccess }) => {
   const tenantId = Number(session?.tenantId ?? 0);
   const createdBy = Number(session?.userId ?? 0);
 
+  const [tenantName, setTenantName] = useState("");
   const [options, setOptions] = useState({
     weeks: [],
     holidays: [],
@@ -41,7 +43,7 @@ const InsertTimeTableForm = ({ onSuccess }) => {
       holidayId: "",
       status: "working",
       courseId: "",
-      assessmentStatusCode: "",
+      assessmentStatusCode: "171",
       tenantId,
       createdBy,
     },
@@ -61,19 +63,18 @@ const InsertTimeTableForm = ({ onSuccess }) => {
     const loadOptions = async () => {
       try {
         const res = await fetchTimeTableInsertOptions(tenantId);
+        const tenant = await fetchTenantById(tenantId);
         setOptions(res.data);
+        setTenantName(tenant?.name || "");
       } catch {
-        toast.error("❌ Failed to load insert options");
+        toast.error("❌ Failed to load insert options or tenant");
       }
     };
     loadOptions();
   }, [tenantId]);
 
   const onSubmit = async (data) => {
-    console.log("📝 Raw form date input:", data.date);
     const formattedDate = format(new Date(data.date), "yyyy-MM-dd");
-    console.log("📦 Formatted date to send:", formattedDate);
-
     const payload = {
       ...data,
       name: data.name?.trim(),
@@ -85,8 +86,6 @@ const InsertTimeTableForm = ({ onSuccess }) => {
       tenantId,
       createdBy,
     };
-
-    console.log("🚀 Final Payload:", payload);
 
     try {
       const res = await createTimeTable(payload);
@@ -244,20 +243,22 @@ const InsertTimeTableForm = ({ onSuccess }) => {
           />
 
           <Input
-            label="Tenant ID"
-            {...register("tenantId")}
+            label="Tenant"
+            value={tenantName}
             readOnly
             className="dark:bg-dark-500 bg-gray-100"
             labelSlot={requiredMark}
           />
+          <input type="hidden" {...register("tenantId")} />
 
           <Input
             label="Created By"
-            {...register("createdBy")}
+            value={session.user}
             readOnly
             className="dark:bg-dark-500 bg-gray-100"
             labelSlot={requiredMark}
           />
+          <input type="hidden" {...register("createdBy")} />
         </div>
 
         <div className="flex justify-end pt-4">

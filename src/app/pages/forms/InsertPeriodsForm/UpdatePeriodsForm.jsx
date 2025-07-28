@@ -13,7 +13,7 @@ import {
 } from "./data";
 import { getSessionData } from "utils/sessionStorage";
 
-const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
+const UpdatePeriodsForm = ({ initialData, onSuccess }) => {
   const session = getSessionData();
   const [courses, setCourses] = useState([]);
   const [tenantName, setTenantName] = useState("");
@@ -206,14 +206,7 @@ const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
         </div>
 
         <div className="flex justify-end gap-2">
-          <Button
-            type="button"
-            variant="outlined"
-            onClick={onCancel}
-            className="min-w-[7rem]"
-          >
-            Cancel
-          </Button>
+       
           <Button
             type="submit"
             className={`min-w-[7rem] text-white transition-all ${

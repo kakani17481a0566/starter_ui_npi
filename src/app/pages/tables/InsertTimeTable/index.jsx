@@ -16,7 +16,7 @@ import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
 import { ColumnFilter } from "components/shared/table/ColumnFilter";
 import { PaginationSection } from "components/shared/table/PaginationSection";
-import { Button, Card, Table, THead, TBody, Th, Tr, Td } from "components/ui";
+import { Button, Card, Table, THead, TBody, Th, Tr, Td, Spinner } from "components/ui";
 import { Toolbar } from "./Toolbar";
 import { SelectedRowsActions } from "./SelectedRowsActions";
 import { useLockScrollbar, useLocalStorage, useDidUpdate } from "hooks";
@@ -42,11 +42,18 @@ export default function InsertTimeTable() {
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
   const [timeTableData, setTimeTableData] = useState([]);
   const [columns, setColumns] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
-  const [columnVisibility, setColumnVisibility] = useLocalStorage("column-visibility-insert-timetable", {});
-  const [columnPinning, setColumnPinning] = useLocalStorage("column-pinning-insert-timetable", {});
+  const [columnVisibility, setColumnVisibility] = useLocalStorage(
+    "column-visibility-insert-timetable",
+    {},
+  );
+  const [columnPinning, setColumnPinning] = useLocalStorage(
+    "column-pinning-insert-timetable",
+    {},
+  );
   const [tableSettings, setTableSettings] = useState({
     enableSorting: true,
     enableColumnFilters: true,
@@ -54,14 +61,15 @@ export default function InsertTimeTable() {
     enableRowDense: false,
   });
 
-  // Load data
   const loadTimeTableData = async () => {
+    setLoading(true);
     skipAutoResetPageIndex();
     const { data } = await fetchTimeTableStructuredData();
     setTimeTableData(data);
     if (data.length > 0) {
       setColumns(generateTimeTableColumns(data[0]));
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -108,13 +116,11 @@ export default function InsertTimeTable() {
   useDidUpdate(() => table.resetRowSelection(), [timeTableData]);
   useLockScrollbar(tableSettings.enableFullScreen);
 
-  // === HANDLER: Open update form on row click ===
   const handleRowClick = (row) => {
     setUpdateRow(row.original);
     setIsUpdateOpen(true);
   };
 
-  // === HANDLER: After update, refresh data and close modal ===
   const handleUpdateSuccess = () => {
     setIsUpdateOpen(false);
     setUpdateRow(null);
@@ -142,89 +148,112 @@ export default function InsertTimeTable() {
           className={clsx(
             "flex flex-col pt-4",
             tableSettings.enableFullScreen &&
-              "fixed inset-0 z-61 h-full w-full bg-white dark:bg-dark-900 pt-3"
+              "dark:bg-dark-900 fixed inset-0 z-61 h-full w-full bg-white pt-3",
           )}
         >
           <Toolbar table={table} />
           <Card ref={cardRef} className="relative mt-3 flex grow flex-col">
-            <div className="table-wrapper min-w-full grow overflow-x-auto">
-              <Table
-                hoverable
-                dense={tableSettings.enableRowDense}
-                sticky={tableSettings.enableFullScreen}
-                className="w-full text-left"
-              >
-                <THead>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <Tr key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <Th
-                          key={header.id}
-                          className={clsx(
-                            "bg-gray-200 font-semibold text-gray-800 dark:bg-dark-800 dark:text-dark-100",
-                            header.column.getCanPin() && [
-                              header.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
-                              header.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
-                            ]
-                          )}
-                        >
-                          {header.column.getCanSort() ? (
-                            <div
-                              className="flex cursor-pointer items-center space-x-3"
-                              onClick={header.column.getToggleSortingHandler()}
-                            >
-                              <span>
-                                {header.isPlaceholder
-                                  ? null
-                                  : flexRender(header.column.columnDef.header, header.getContext())}
-                              </span>
-                              <TableSortIcon sorted={header.column.getIsSorted()} />
-                            </div>
-                          ) : (
-                            flexRender(header.column.columnDef.header, header.getContext())
-                          )}
-                          {header.column.getCanFilter() ? (
-                            <ColumnFilter column={header.column} />
-                          ) : null}
-                        </Th>
-                      ))}
-                    </Tr>
-                  ))}
-                </THead>
-                <TBody>
-                  {table.getRowModel().rows.map((row) => (
-                    <Fragment key={row.id}>
-                      <Tr
-                        className={clsx(
-                          "border-b border-gray-200 dark:border-dark-500",
-                          row.getIsSelected() &&
-                            !isSafari &&
-                            "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:border-l-2 after:border-primary-500 after:bg-primary-500/10",
-                          "cursor-pointer"
-                        )}
-                        onClick={() => handleRowClick(row)}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <Td
-                            key={cell.id}
+            {loading ? (
+              <div className="flex items-center justify-center p-6">
+                <Spinner className="size-8 border-2 text-primary" />
+              </div>
+            ) : (
+              <div className="table-wrapper min-w-full grow overflow-x-auto">
+                <Table
+                  hoverable
+                  dense={tableSettings.enableRowDense}
+                  sticky={tableSettings.enableFullScreen}
+                  className="w-full text-left"
+                >
+                  <THead>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <Tr key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => (
+                          <Th
+                            key={header.id}
                             className={clsx(
-                              "relative",
-                              cardSkin === "shadow-sm" ? "dark:bg-dark-700" : "dark:bg-dark-900",
-                              cell.column.getCanPin() && [
-                                cell.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
-                                cell.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
-                              ]
+                              "dark:bg-dark-800 dark:text-dark-100 bg-gray-200 font-semibold text-gray-800",
+                              header.column.getCanPin() && [
+                                header.column.getIsPinned() === "left" &&
+                                  "sticky z-2 ltr:left-0 rtl:right-0",
+                                header.column.getIsPinned() === "right" &&
+                                  "sticky z-2 ltr:right-0 rtl:left-0",
+                              ],
                             )}
                           >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </Td>
+                            {header.column.getCanSort() ? (
+                              <div
+                                className="flex cursor-pointer items-center space-x-3"
+                                onClick={header.column.getToggleSortingHandler()}
+                              >
+                                <span>
+                                  {header.isPlaceholder
+                                    ? null
+                                    : flexRender(
+                                        header.column.columnDef.header,
+                                        header.getContext(),
+                                      )}
+                                </span>
+                                <TableSortIcon
+                                  sorted={header.column.getIsSorted()}
+                                />
+                              </div>
+                            ) : (
+                              flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )
+                            )}
+                            {header.column.getCanFilter() ? (
+                              <ColumnFilter column={header.column} />
+                            ) : null}
+                          </Th>
                         ))}
                       </Tr>
-                    </Fragment>
-                  ))}
-                </TBody>
-              </Table>
-            </div>
+                    ))}
+                  </THead>
+                  <TBody>
+                    {table.getRowModel().rows.map((row) => (
+                      <Fragment key={row.id}>
+                        <Tr
+                          className={clsx(
+                            "dark:border-dark-500 border-b border-gray-200",
+                            row.getIsSelected() &&
+                              !isSafari &&
+                              "row-selected after:border-primary-500 after:bg-primary-500/10 after:pointer-events-none after:absolute after:inset-0 after:z-2 after:border-l-2",
+                            "cursor-pointer",
+                          )}
+                          onClick={() => handleRowClick(row)}
+                        >
+                          {row.getVisibleCells().map((cell) => (
+                            <Td
+                              key={cell.id}
+                              className={clsx(
+                                "relative",
+                                cardSkin === "shadow-sm"
+                                  ? "dark:bg-dark-700"
+                                  : "dark:bg-dark-900",
+                                cell.column.getCanPin() && [
+                                  cell.column.getIsPinned() === "left" &&
+                                    "sticky z-2 ltr:left-0 rtl:right-0",
+                                  cell.column.getIsPinned() === "right" &&
+                                    "sticky z-2 ltr:right-0 rtl:left-0",
+                                ],
+                              )}
+                            >
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                            </Td>
+                          ))}
+                        </Tr>
+                      </Fragment>
+                    ))}
+                  </TBody>
+                </Table>
+              </div>
+            )}
             <SelectedRowsActions table={table} />
             <div className="px-4 pb-4 sm:px-5 sm:pt-4">
               <PaginationSection table={table} />
@@ -234,13 +263,23 @@ export default function InsertTimeTable() {
       </div>
 
       {/* CREATE MODAL */}
-      <Dialog open={isFormOpen} onClose={() => setIsFormOpen(false)} className="relative z-50">
+      <Dialog
+        open={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        className="relative z-50"
+      >
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="relative w-full max-w-5xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg dark:bg-dark-800">
+          <Dialog.Panel className="dark:bg-dark-800 relative w-full max-w-5xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
             <div className="flex items-center justify-between pb-4">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-100">Add New Time Table</h3>
-              <Button variant="outlined" size="icon-sm" onClick={() => setIsFormOpen(false)}>
+              <h3 className="dark:text-dark-100 text-lg font-semibold text-gray-800">
+                Add New Time Table
+              </h3>
+              <Button
+                variant="outlined"
+                size="icon-sm"
+                onClick={() => setIsFormOpen(false)}
+              >
                 <XMarkIcon className="size-5" />
               </Button>
             </div>
@@ -254,28 +293,35 @@ export default function InsertTimeTable() {
         </div>
       </Dialog>
 
-      {/* UPDATE MODAL (Plug in your update form here) */}
-      {
-      <Dialog open={isUpdateOpen} onClose={() => setIsUpdateOpen(false)} className="relative z-50">
+      {/* UPDATE MODAL */}
+      <Dialog
+        open={isUpdateOpen}
+        onClose={() => setIsUpdateOpen(false)}
+        className="relative z-50"
+      >
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="relative w-full max-w-5xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg dark:bg-dark-800">
+          <Dialog.Panel className="dark:bg-dark-800 relative w-full max-w-5xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg">
             <div className="flex items-center justify-between pb-4">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-100">Edit Time Table</h3>
-              <Button variant="outlined" size="icon-sm" onClick={() => setIsUpdateOpen(false)}>
+              <h3 className="dark:text-dark-100 text-lg font-semibold text-gray-800">
+                Edit Time Table
+              </h3>
+              <Button
+                variant="outlined"
+                size="icon-sm"
+                onClick={() => setIsUpdateOpen(false)}
+              >
                 <XMarkIcon className="size-5" />
               </Button>
             </div>
             <UpdateTimeTableForm
-        initialData={updateRow}        
-
+              initialData={updateRow}
               onSuccess={handleUpdateSuccess}
               onCancel={() => setIsUpdateOpen(false)}
             />
           </Dialog.Panel>
         </div>
       </Dialog>
-      }
     </>
   );
 }

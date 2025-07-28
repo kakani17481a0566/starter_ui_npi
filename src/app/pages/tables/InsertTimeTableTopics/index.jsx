@@ -1,3 +1,5 @@
+// src/app/pages/tables/InsertTimeTableTopics/index.jsx
+
 import {
   flexRender,
   getCoreRowModel,
@@ -66,6 +68,7 @@ export default function InsertTimeTableTopics() {
   }, [skipAutoResetPageIndex]);
 
   useEffect(() => {
+    console.log("📦 useEffect triggered → calling loadData()");
     loadData();
   }, [loadData]);
 

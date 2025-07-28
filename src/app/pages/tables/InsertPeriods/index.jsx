@@ -1,4 +1,4 @@
-// src/app/pages/tables/InsertWeek/index.jsx
+""// src/app/pages/tables/InsertWeek/index.jsx
 
 import {
   flexRender,
@@ -16,7 +16,7 @@ import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
 import { ColumnFilter } from "components/shared/table/ColumnFilter";
 import { PaginationSection } from "components/shared/table/PaginationSection";
-import { Button, Card, Table, THead, TBody, Th, Tr, Td } from "components/ui";
+import { Button, Card, Table, THead, TBody, Th, Tr, Td, Spinner } from "components/ui";
 import { Toolbar } from "./Toolbar";
 import { SelectedRowsActions } from "./SelectedRowsActions";
 import { useLockScrollbar, useLocalStorage, useDidUpdate } from "hooks";
@@ -42,6 +42,7 @@ export default function InsertWeek() {
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
   const [weekData, setWeekData] = useState([]);
   const [columns, setColumns] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
@@ -56,11 +57,13 @@ export default function InsertWeek() {
 
   // Data loader
   const loadPeriodData = async () => {
+    setLoading(true);
     const { data: periodData } = await fetchPeriodTableData();
     setWeekData(periodData);
     if (periodData.length > 0) {
       setColumns(generatePeriodColumns(periodData[0]));
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -137,84 +140,90 @@ export default function InsertWeek() {
         >
           <Toolbar table={table} />
           <Card ref={cardRef} className="relative mt-3 flex grow flex-col">
-            <div className="table-wrapper min-w-full grow overflow-x-auto">
-              <Table
-                hoverable
-                dense={tableSettings.enableRowDense}
-                sticky={tableSettings.enableFullScreen}
-                className="w-full text-left"
-              >
-                <THead>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <Tr key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <Th
-                          key={header.id}
-                          className={clsx(
-                            "bg-gray-200 font-semibold text-gray-800 dark:bg-dark-800 dark:text-dark-100",
-                            header.column.getCanPin() && [
-                              header.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
-                              header.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
-                            ]
-                          )}
-                        >
-                          {header.column.getCanSort() ? (
-                            <div
-                              className="flex cursor-pointer items-center space-x-3"
-                              onClick={header.column.getToggleSortingHandler()}
-                            >
-                              <span>
-                                {header.isPlaceholder
-                                  ? null
-                                  : flexRender(header.column.columnDef.header, header.getContext())}
-                              </span>
-                              <TableSortIcon sorted={header.column.getIsSorted()} />
-                            </div>
-                          ) : (
-                            flexRender(header.column.columnDef.header, header.getContext())
-                          )}
-                          {header.column.getCanFilter() ? (
-                            <ColumnFilter column={header.column} />
-                          ) : null}
-                        </Th>
-                      ))}
-                    </Tr>
-                  ))}
-                </THead>
-                <TBody>
-                  {table.getRowModel().rows.map((row) => (
-                    <Fragment key={row.id}>
-                      <Tr
-                        className={clsx(
-                          "border-b border-gray-200 dark:border-dark-500",
-                          row.getIsSelected() &&
-                            !isSafari &&
-                            "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:border-l-2 after:border-primary-500 after:bg-primary-500/10",
-                          "cursor-pointer" // Make row clickable
-                        )}
-                        onClick={() => handleRowClick(row)}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <Td
-                            key={cell.id}
+            {loading ? (
+              <div className="flex items-center justify-center p-6">
+                <Spinner className="size-8 border-2 text-primary" />
+              </div>
+            ) : (
+              <div className="table-wrapper min-w-full grow overflow-x-auto">
+                <Table
+                  hoverable
+                  dense={tableSettings.enableRowDense}
+                  sticky={tableSettings.enableFullScreen}
+                  className="w-full text-left"
+                >
+                  <THead>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <Tr key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => (
+                          <Th
+                            key={header.id}
                             className={clsx(
-                              "relative",
-                              cardSkin === "shadow-sm" ? "dark:bg-dark-700" : "dark:bg-dark-900",
-                              cell.column.getCanPin() && [
-                                cell.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
-                                cell.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
+                              "bg-gray-200 font-semibold text-gray-800 dark:bg-dark-800 dark:text-dark-100",
+                              header.column.getCanPin() && [
+                                header.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
+                                header.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
                               ]
                             )}
                           >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </Td>
+                            {header.column.getCanSort() ? (
+                              <div
+                                className="flex cursor-pointer items-center space-x-3"
+                                onClick={header.column.getToggleSortingHandler()}
+                              >
+                                <span>
+                                  {header.isPlaceholder
+                                    ? null
+                                    : flexRender(header.column.columnDef.header, header.getContext())}
+                                </span>
+                                <TableSortIcon sorted={header.column.getIsSorted()} />
+                              </div>
+                            ) : (
+                              flexRender(header.column.columnDef.header, header.getContext())
+                            )}
+                            {header.column.getCanFilter() ? (
+                              <ColumnFilter column={header.column} />
+                            ) : null}
+                          </Th>
                         ))}
                       </Tr>
-                    </Fragment>
-                  ))}
-                </TBody>
-              </Table>
-            </div>
+                    ))}
+                  </THead>
+                  <TBody>
+                    {table.getRowModel().rows.map((row) => (
+                      <Fragment key={row.id}>
+                        <Tr
+                          className={clsx(
+                            "border-b border-gray-200 dark:border-dark-500",
+                            row.getIsSelected() &&
+                              !isSafari &&
+                              "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:border-l-2 after:border-primary-500 after:bg-primary-500/10",
+                            "cursor-pointer" // Make row clickable
+                          )}
+                          onClick={() => handleRowClick(row)}
+                        >
+                          {row.getVisibleCells().map((cell) => (
+                            <Td
+                              key={cell.id}
+                              className={clsx(
+                                "relative",
+                                cardSkin === "shadow-sm" ? "dark:bg-dark-700" : "dark:bg-dark-900",
+                                cell.column.getCanPin() && [
+                                  cell.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
+                                  cell.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
+                                ]
+                              )}
+                            >
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </Td>
+                          ))}
+                        </Tr>
+                      </Fragment>
+                    ))}
+                  </TBody>
+                </Table>
+              </div>
+            )}
             <SelectedRowsActions table={table} />
             <div className="px-4 pb-4 sm:px-5 sm:pt-4">
               <PaginationSection table={table} />
@@ -229,7 +238,7 @@ export default function InsertWeek() {
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="relative w-full max-w-5xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg dark:bg-dark-800">
             <div className="flex items-center justify-between pb-4">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-100">Add New Week</h3>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-dark-100">Add New Period</h3>
               <Button variant="outlined" size="icon-sm" onClick={() => setIsFormOpen(false)}>
                 <XMarkIcon className="size-5" />
               </Button>

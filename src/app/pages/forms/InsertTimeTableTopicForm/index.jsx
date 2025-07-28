@@ -8,7 +8,7 @@ import { createTimeTableTopic, fetchTimeTableTopicsDropdown } from "./data";
 import { BookOpenIcon, Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const InsertTimeTableTopicForm = ({ onSuccess }) => {
+const InsertTimeTableTopicForm = ({ onSuccess, onCancel }) => {
   const session = getSessionData();
 
   const [dropdown, setDropdown] = useState({ courses: [] });
@@ -51,10 +51,10 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
   }, [session.tenantId]);
 
   const courseObj = dropdown.courses.find(
-    c => String(c.id) === String(selectedCourseId)
+    (c) => String(c.id) === String(selectedCourseId),
   );
   const subjectObj = courseObj?.subjects.find(
-    s => String(s.id) === String(selectedSubjectId)
+    (s) => String(s.id) === String(selectedSubjectId),
   );
 
   useEffect(() => {
@@ -74,7 +74,7 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
   }, [selectedDate, setValue]);
 
   const filteredTimeTableDetails =
-    subjectObj?.timeTableDetails?.filter(ttd => {
+    subjectObj?.timeTableDetails?.filter((ttd) => {
       if (!selectedDate || !ttd.date) return false;
       return ttd.date.slice(0, 10) === selectedDate;
     }) || [];
@@ -135,7 +135,7 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
               <Select
                 label="Course"
                 value={field.value}
-                onChange={e => {
+                onChange={(e) => {
                   const value = e.target.value;
                   setSelectedCourseId(value);
                   field.onChange(value);
@@ -147,7 +147,7 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
                 <option value="" disabled>
                   {loading ? "Loading..." : "Select Course"}
                 </option>
-                {dropdown.courses.map(course => (
+                {dropdown.courses.map((course) => (
                   <option key={course.id} value={String(course.id)}>
                     {course.name}
                   </option>
@@ -163,7 +163,7 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
               <Select
                 label="Subject"
                 value={field.value}
-                onChange={e => {
+                onChange={(e) => {
                   const value = e.target.value;
                   setSelectedSubjectId(value);
                   field.onChange(value);
@@ -173,9 +173,11 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
                 disabled={!selectedCourseId || loading}
               >
                 <option value="" disabled>
-                  {selectedCourseId ? "Select Subject" : "Select a course first"}
+                  {selectedCourseId
+                    ? "Select Subject"
+                    : "Select a course first"}
                 </option>
-                {courseObj?.subjects.map(subject => (
+                {courseObj?.subjects.map((subject) => (
                   <option key={subject.id} value={String(subject.id)}>
                     {subject.name}
                   </option>
@@ -188,7 +190,7 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
             type="date"
             label="Date"
             value={selectedDate}
-            onChange={e => setSelectedDate(e.target.value)}
+            onChange={(e) => setSelectedDate(e.target.value)}
             labelSlot={requiredMark}
             disabled={!selectedSubjectId}
           />
@@ -206,9 +208,11 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
                 disabled={!selectedSubjectId || loading}
               >
                 <option value="" disabled>
-                  {selectedSubjectId ? "Select Topic" : "Select a subject first"}
+                  {selectedSubjectId
+                    ? "Select Topic"
+                    : "Select a subject first"}
                 </option>
-                {subjectObj?.topics.map(topic => (
+                {subjectObj?.topics.map((topic) => (
                   <option key={topic.id} value={String(topic.id)}>
                     {topic.name}
                   </option>
@@ -233,12 +237,12 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
                   {!selectedSubjectId
                     ? "Select a subject first"
                     : !selectedDate
-                    ? "Select a date"
-                    : filteredTimeTableDetails.length === 0
-                    ? "No periods for selected date"
-                    : "Select Time Table Detail"}
+                      ? "Select a date"
+                      : filteredTimeTableDetails.length === 0
+                        ? "No periods for selected date"
+                        : "Select Time Table Detail"}
                 </option>
-                {filteredTimeTableDetails.map(ttd => (
+                {filteredTimeTableDetails.map((ttd) => (
                   <option key={ttd.id} value={String(ttd.id)}>
                     {ttd.name}
                     {ttd.date
@@ -267,7 +271,15 @@ const InsertTimeTableTopicForm = ({ onSuccess }) => {
           />
         </div>
 
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end gap-4 pt-4">
+          <Button
+            type="button"
+            variant="outlined"
+            onClick={onCancel}
+            className="min-w-[8rem]"
+          >
+            Cancel
+          </Button>
           <Button
             type="submit"
             className={`min-w-[8rem] font-medium text-white ${

@@ -9,6 +9,7 @@ import { Comments } from "./Tops/Comments";
 import { Searchs } from "./Tops/Searchs";
 import { FeaturedAuthors } from "./FeaturedAuthors";
 import { fetchPerformanceSummary } from "app/pages/tables/ParentTeacherDashbord/performanceSummaryData";
+import StudentAttendanceGraph from "app/pages/charts/studentattendence";
 
 // ----------------------------------------------------------------------
 
@@ -44,7 +45,7 @@ export default function ParentTeacherDashbord() {
   }, []);
 
   if (loading) {
-    return <div className="p-4 text-primary-600">Loading dashboard...</div>;
+    return <div className="text-primary-600 p-4">Loading dashboard...</div>;
   }
 
   return (
@@ -67,7 +68,7 @@ export default function ParentTeacherDashbord() {
             <div className="mt-3 px-4 sm:px-6 lg:px-8">
               <button
                 onClick={() => setSelectedSubjectCode(null)}
-                className="text-xs text-primary-600 underline hover:text-primary-800 transition"
+                className="text-primary-600 hover:text-primary-800 text-xs underline transition"
               >
                 Clear Subject Filter ({selectedSubjectCode})
               </button>
@@ -83,6 +84,11 @@ export default function ParentTeacherDashbord() {
                 selectedStudentName={selectedStudent.studentName}
                 selectedSubjectCode={selectedSubjectCode}
               />
+              <StudentAttendanceGraph
+                studentId={selectedStudent.studentId}
+                studentName={selectedStudent.studentName}
+              />
+
               <Visitors />
               <Comments />
               <Searchs />

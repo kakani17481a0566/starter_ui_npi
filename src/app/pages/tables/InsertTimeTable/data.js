@@ -1,33 +1,54 @@
-//src\app\pages\tables\InsertTimeTable\data.js
-import axios from "axios";
+// src/app/pages/tables/InsertTimeTable/data.js
 
-// const API_BASE_URL = "https://localhost:7202/api";
-
-const API_BASE_URL=`https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api`;
-
+import axiosInstance from "utils/axios";
+import { TimeTableAPI } from "constants/apis";
 
 /**
  * Fetches structured TimeTable data by tenantId
+ *
+ * @param {number} tenantId - The tenant ID to fetch data for
+ * @returns {Promise<{ headers: object[], data: object[], filters: { courses: object, weeks: object, statuses: object } }>}}
  */
 export const fetchTimeTableStructuredData = async (tenantId = 1) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/TimeTable/structured/${tenantId}`, {
-      headers: {
-        Accept: "*/*",
-      },
-    });
+  const endpoint = TimeTableAPI.structured(tenantId);
 
-    if (response.status === 200 && response.data?.data) {
-      const { headers, timeTableDataList, filters } = response.data.data;
-      const courses = filters?.courses || {};
-      const weeks = filters?.weeks || {};
-      const statuses = filters?.assessmentStatuses || {};
-      return { headers, data: timeTableDataList, filters: { courses, weeks, statuses } };
+  try {
+    const response = await axiosInstance.get(endpoint);
+    const responseData = response.data?.data;
+
+    if (response.status === 200 && responseData) {
+      const { headers, timeTableDataList, filters } = responseData;
+
+      return {
+        headers: headers || [],
+        data: timeTableDataList || [],
+        filters: {
+          courses: filters?.courses || {},
+          weeks: filters?.weeks || {},
+          statuses: filters?.assessmentStatuses || {},
+        },
+      };
     }
 
-    return { headers: {}, data: [], filters: { courses: {}, weeks: {}, statuses: {} } };
+    console.warn("⚠️ No valid response data returned from API.");
+    return emptyResponse();
   } catch (error) {
-    console.error(`❌ Failed to fetch structured timetable data:`, error);
-    return { headers: {}, data: [], filters: { courses: {}, weeks: {}, statuses: {} } };
+    console.error("❌ Failed to fetch structured timetable data:", error);
+    return emptyResponse();
   }
 };
+
+/**
+ * Returns a consistent empty response object
+ */
+function emptyResponse() {
+  return {
+    headers: [],
+    data: [],
+    filters: {
+      courses: {},
+      weeks: {},
+      statuses: {},
+    },
+  };
+}
