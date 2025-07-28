@@ -5,6 +5,13 @@ export const TimeTableAPI  = {
     `/TimeTable/weekId/${weekId}/tenantId/${tenantId}/courseId/${courseId}`,
 };
 
+// ✅ Add this inside apis.js
+export const TermTimeTableAPI = {
+  getMatrix: (tenantId, courseId, termId = 1) =>
+    `/VTermTable/get-week-matrix?tenantId=${tenantId}&courseId=${courseId}&termId=${termId}`,
+};
+
+
 
 
 

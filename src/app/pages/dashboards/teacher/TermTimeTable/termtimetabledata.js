@@ -1,22 +1,20 @@
 // src/app/pages/dashboards/teacher/TermTimeTable/termtimetabledata.js
 import axiosInstance from "utils/axios";
+import { getSessionData } from "utils/sessionStorage";
+import { TermTimeTableAPI } from "constants/apis"; // 🆕 Use centralized API
 
-export async function fetchTermTimeTableData() {
+// ✅ Accept dynamic courseId as object parameter
+export async function fetchTermTimeTableData({ courseId }) {
   try {
-    const res = await axiosInstance.get(
-      "https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/VTermTable/get-week-matrix",
-      {
-        params: {
-          tenantId: 1,
-          courseId: 1,
-          termId: 1,
-        },
-      }
-    );
+    if (!courseId) return { headers: {}, timeTableData: [] };
 
+    const { tenantId } = getSessionData(); // 🆕 Get tenantId dynamically
+    const url = TermTimeTableAPI.getMatrix(tenantId, courseId, 1); // 🆕 Centralized endpoint
+
+    const res = await axiosInstance.get(url);
     const { headers, dataTerm } = res.data?.data ?? {};
 
-    if (!Array.isArray(dataTerm)) return [];
+    if (!Array.isArray(dataTerm)) return { headers: {}, timeTableData: [] };
 
     return {
       headers,
@@ -31,7 +29,7 @@ export async function fetchTermTimeTableData() {
       })),
     };
   } catch (err) {
-    console.error("Failed to fetch term timetable data", err);
-    return [];
+    console.error("❌ Failed to fetch term timetable data", err);
+    return { headers: {}, timeTableData: [] };
   }
 }
