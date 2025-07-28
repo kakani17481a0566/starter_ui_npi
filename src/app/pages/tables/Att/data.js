@@ -1,22 +1,27 @@
-//src\app\pages\tables\Att\data.js
-import axios from "axios";
+import axiosInstance from "utils/axios";
+import { AttendanceAPI } from "constants/apis";
+import { getSessionData } from "utils/sessionStorage";
 
 /**
  * Fetch structured student attendance summary
  * @param {Object} params
  * @param {string} params.date - Format: YYYY-MM-DD
- * @param {number} params.tenantId
- * @param {number} params.branchId
- * @param {number} params.courseId
+ * @param {number} [params.tenantId]
+ * @param {number} [params.branchId]
+ * @param {number} [params.courseId]
  * @returns {Promise<{headers: string[], data: object[]}>}
  */
-export async function fetchAttendanceSummary({ date, tenantId }) {
+export async function fetchAttendanceSummary({ date, tenantId, branchId, courseId }) {
   try {
-    const url = `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/StudentAttendance/summary-structured`;
-    
-    const response = await axios.get(url, {
-      params: { date, tenantId, branchId:1, courseId:-1 },
-    });
+    const session = getSessionData();
+
+    const tid = tenantId ?? session.tenantId;
+    const bid = branchId ?? session.branch;
+    const cid = courseId ?? -1;
+
+    const endpoint = AttendanceAPI.summary(date, tid, bid, cid);
+
+    const response = await axiosInstance.get(endpoint);
 
     const result = response?.data?.data || {};
 
