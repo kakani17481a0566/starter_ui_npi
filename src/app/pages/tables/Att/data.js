@@ -11,12 +11,15 @@ import { getSessionData } from "utils/sessionStorage";
  * @param {number} [params.courseId]
  * @returns {Promise<{headers: string[], data: object[]}>}
  */
-export async function fetchAttendanceSummary({ date, tenantId, branchId, courseId }) {
+// export async function fetchAttendanceSummary({ date, tenantId, branchId, courseId }) {
+export async function fetchAttendanceSummary({ date, tenantId, courseId }) {
   try {
     const session = getSessionData();
 
     const tid = tenantId ?? session.tenantId;
-    const bid = branchId ?? session.branch;
+    // const bid = branchId ?? session.branch;
+    const bid = 1;
+
     const cid = courseId ?? -1;
 
     const endpoint = AttendanceAPI.summary(date, tid, bid, cid);
@@ -30,7 +33,10 @@ export async function fetchAttendanceSummary({ date, tenantId, branchId, courseI
       data: Array.isArray(result.records) ? result.records : [],
     };
   } catch (error) {
-    console.error("❌ Error fetching attendance summary:", error?.response?.data || error.message);
+    console.error(
+      "❌ Error fetching attendance summary:",
+      error?.response?.data || error.message,
+    );
     return {
       headers: [],
       data: [],
