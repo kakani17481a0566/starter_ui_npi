@@ -47,6 +47,14 @@ else if(role ==='Teacher'){
       title: "Term",
       transKey: "nav.dashboards.term",
       Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
+    {
+      id: "dashboards.mark-attendance",
+      path: "dashboards/mark-attendance",
+      type: NAV_TYPE_ITEM,
+      title: "Mark Attendance",
+      transKey: "nav.dashboards.mark",
+      Icon: ClipboardDocumentCheckIcon,
     }
   ]
 }

@@ -1,6 +1,6 @@
 import Chart from "react-apexcharts";
 
-// Dark border color for each subject domain
+// ✅ Domain color mappings
 const domainColorMap = {
   CLL: "#465C8A",
   PSRN: "#D2486E",
@@ -10,17 +10,16 @@ const domainColorMap = {
   PSED: "#475468",
 };
 
-// Light inner fill color for each domain (pastel versions)
 const domainFillMap = {
-  CLL: "#CBD5E1",   // light slate
-  PSRN: "#FBCFE8",  // light pink
-  KUW: "#FFEEDD",   // light orange
-  PD: "#EAD4C2",    // soft brown
-  EAD: "#FFF3C2",   // light yellow
-  PSED: "#E2E8F0",  // light grey-blue
+  CLL: "#CBD5E1",
+  PSRN: "#FBCFE8",
+  KUW: "#FFEEDD",
+  PD: "#EAD4C2",
+  EAD: "#FFF3C2",
+  PSED: "#E2E8F0",
 };
 
-// Extract subject-wise scores and color maps
+// ✅ Extract subject-wise scores and visual styles
 function getSubjectVsMarks(subjectWiseAssessments, studentId) {
   const subjects = [];
   const scores = [];
@@ -32,9 +31,9 @@ function getSubjectVsMarks(subjectWiseAssessments, studentId) {
     let count = 0;
 
     for (const skill of subject.skills) {
-      const studentScore = skill.studentScores.find((s) => s.studentId === studentId);
-      if (studentScore?.score != null) {
-        total += studentScore.score;
+      const score = skill.studentScores.find((s) => s.studentId === studentId);
+      if (score?.score != null) {
+        total += score.score;
         count++;
       }
     }
@@ -43,14 +42,15 @@ function getSubjectVsMarks(subjectWiseAssessments, studentId) {
       const code = subject.subjectCode;
       subjects.push(code);
       scores.push(Number((total / count).toFixed(2)));
-      fillColors.push(domainFillMap[code] || "#E0E7FF"); // fallback light
-      strokeColors.push(domainColorMap[code] || "#4C4EE7"); // fallback dark
+      fillColors.push(domainFillMap[code] || "#E0E7FF");
+      strokeColors.push(domainColorMap[code] || "#4C4EE7");
     }
   }
 
   return { subjects, scores, fillColors, strokeColors };
 }
 
+// ✅ Chart Component
 export function CombinationChart({ subjectWiseAssessments, selectedStudentId }) {
   if (!subjectWiseAssessments || !selectedStudentId) {
     return <div className="text-gray-500 p-4">No chart data</div>;
@@ -61,37 +61,44 @@ export function CombinationChart({ subjectWiseAssessments, selectedStudentId }) 
     selectedStudentId
   );
 
+  const series = [
+    {
+      name: "Average Score",
+      data: scores,
+    },
+  ];
+
   const chartOptions = {
     chart: {
+      type: "bar",
       height: 280,
-      type: "line",
       toolbar: { show: false },
       fontFamily: "inherit",
     },
+    colors: fillColors, // ✅ Per-bar fill colors
     stroke: {
-      width: [1, 3], // bar border, line
-      colors: strokeColors.concat("#FF9800"),
-    },
-    fill: {
-      opacity: 1,
-      colors: fillColors.concat("#FF9800"), // Light bar fill + orange line
+      show: true,
+      width: 2,
+      colors: strokeColors, // ✅ Per-bar border colors
     },
     plotOptions: {
       bar: {
+        distributed: true,
         columnWidth: "40%",
         borderRadius: 6,
-        distributed: true, // for multi-colored bars
       },
     },
     dataLabels: {
       enabled: true,
-      enabledOnSeries: [1],
+      style: {
+        fontSize: "12px",
+        fontWeight: "bold",
+      },
     },
-    labels: subjects,
     xaxis: {
-      type: "category",
+      categories: subjects,
       labels: {
-        style: { fontSize: "12px" },
+        style: { fontSize: "12px", colors: "#374151" },
       },
     },
     yaxis: {
@@ -99,48 +106,49 @@ export function CombinationChart({ subjectWiseAssessments, selectedStudentId }) 
         text: "Marks (%)",
         style: { fontSize: "12px" },
       },
+      labels: {
+        style: { fontSize: "12px", colors: "#6B7280" },
+      },
     },
-    colors: fillColors.concat("#FF9800"),
     tooltip: {
-      shared: true,
-      intersect: false,
+      shared: false,
+      intersect: true,
     },
-    legend: {
-      position: "top",
-      fontSize: "12px",
-    },
+    legend: { show: false },
     grid: {
       padding: { top: 10, bottom: 0, left: 0, right: 0 },
+      borderColor: "#E5E7EB",
     },
-    responsive: [
-      {
-        breakpoint: 768,
-        options: {
-          plotOptions: {
-            bar: { columnWidth: "55%" },
-          },
+   responsive: [
+  {
+    breakpoint: 768,
+    options: {
+      plotOptions: {
+        bar: {
+          columnWidth: "35%", // tighter bars
         },
       },
-    ],
-  };
+      xaxis: {
+        labels: {
+          rotate: -45, // rotate labels to avoid overlap
+          style: { fontSize: "10px", colors: "#374151" },
+        },
+      },
+      dataLabels: {
+        style: {
+          fontSize: "10px", // smaller font for data labels
+        },
+      },
+    },
+  },
+],
 
-  const series = [
-    {
-      name: "Score (Bar)",
-      type: "column",
-      data: scores,
-    },
-    {
-      name: "Score Trend (Line)",
-      type: "line",
-      data: scores,
-    },
-  ];
+  };
 
   return (
     <div className="col-span-12 px-4 mt-6">
       <div className="rounded-2xl bg-white shadow-sm dark:bg-dark-700 p-4">
-        <Chart options={chartOptions} series={series} type="line" height={280} />
+        <Chart options={chartOptions} series={series} type="bar" height={280} />
       </div>
     </div>
   );

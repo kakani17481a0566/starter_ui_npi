@@ -1,3 +1,4 @@
+import React from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { RowActions } from "./RowActions";
 import {
@@ -11,9 +12,27 @@ import {
   StatusCell,
   UserCell,
 } from "./rows";
+import {
+  CalendarDaysIcon,
+  ClockIcon,
+  UserIcon,
+  ShieldCheckIcon,
+} from "lucide-react";
+
+// ✅ Allowed headers
+const allowedHeaders = [
+  "studentName",
+  "attendanceDate",
+  "className",
+  "fromTime",
+  "toTime",
+  "attendanceStatus",
+  "markedBy",
+];
 
 const columnHelper = createColumnHelper();
 
+// ✅ Fallback header formatter
 function formatHeader(header) {
   if (header === "id" || header.toLowerCase().endsWith("id")) return header.toUpperCase();
   return header
@@ -21,17 +40,51 @@ function formatHeader(header) {
     .replace(/^./, (str) => str.toUpperCase());
 }
 
+// ✅ Pure JS icons + labels
+const iconHeaderMap = {
+  studentName: () =>
+    React.createElement("div", { className: "flex items-center gap-1" }, [
+      React.createElement(UserIcon, { className: "w-4 h-4 text-gray-500", key: "icon" }),
+      React.createElement("span", { key: "label" }, "Name"),
+    ]),
+  attendanceDate: () =>
+    React.createElement("div", { className: "flex items-center gap-1" }, [
+      React.createElement(CalendarDaysIcon, { className: "w-4 h-4 text-gray-500", key: "icon" }),
+      React.createElement("span", { key: "label" }, "Date"),
+    ]),
+  fromTime: () =>
+    React.createElement("div", { className: "flex items-center gap-1" }, [
+      React.createElement(ClockIcon, { className: "w-4 h-4 text-gray-500", key: "icon" }),
+      React.createElement("span", { key: "label" }, "In"),
+    ]),
+  toTime: () =>
+    React.createElement("div", { className: "flex items-center gap-1" }, [
+      React.createElement(ClockIcon, { className: "w-4 h-4 text-gray-500", key: "icon" }),
+      React.createElement("span", { key: "label" }, "Out"),
+    ]),
+  attendanceStatus: () =>
+    React.createElement("div", { className: "flex items-center gap-1" }, [
+      React.createElement(ShieldCheckIcon, { className: "w-4 h-4 text-gray-500", key: "icon" }),
+      React.createElement("span", { key: "label" }, "Status"),
+    ]),
+};
+
 export function generateAttendanceColumns(headers) {
-  const columns = [
+  const columns = [];
+
+  // Select checkbox column
+  columns.push(
     columnHelper.display({
       id: "select",
       label: "Row Selection",
       header: SelectHeader,
       cell: SelectCell,
-    }),
-  ];
+    })
+  );
 
   headers.forEach((header) => {
+    if (!allowedHeaders.includes(header)) return;
+
     let cell = (info) => info.getValue();
     let filter = "text";
     let filterFn = "includesString";
@@ -41,8 +94,6 @@ export function generateAttendanceColumns(headers) {
         cell = StudentNameCell;
         break;
       case "attendanceDate":
-      case "markedOn":
-      case "updatedOn":
         cell = DateCell;
         filter = "dateRange";
         filterFn = "inNumberRange";
@@ -55,7 +106,6 @@ export function generateAttendanceColumns(headers) {
         cell = StatusCell;
         break;
       case "markedBy":
-      case "updatedBy":
         cell = UserCell;
         break;
     }
@@ -63,7 +113,9 @@ export function generateAttendanceColumns(headers) {
     columns.push(
       columnHelper.accessor(header, {
         id: header,
-        header: formatHeader(header),
+        header: iconHeaderMap[header]
+          ? iconHeaderMap[header]()
+          : formatHeader(header),
         cell,
         filter,
         filterFn,
@@ -73,11 +125,17 @@ export function generateAttendanceColumns(headers) {
     );
   });
 
+  // ✅ Always pin RowActions to the left for screens ≤1024px
+  const shouldPin = typeof window !== "undefined" && window.innerWidth <= 1024;
+
   columns.push(
     columnHelper.display({
       id: "actions",
       header: "Actions",
       cell: RowActions,
+      meta: {
+        pinned: shouldPin ? "left" : false,
+      },
     })
   );
 
