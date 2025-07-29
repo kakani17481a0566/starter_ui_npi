@@ -72,7 +72,24 @@ const iconHeaderMap = {
 export function generateAttendanceColumns(headers) {
   const columns = [];
 
-  // Select checkbox column
+  const shouldPin = typeof window !== "undefined" && window.innerWidth <= 1024;
+
+  // ✅ RowActions column
+  const actionsColumn = columnHelper.display({
+    id: "actions",
+    header: "Actions",
+    cell: RowActions,
+    meta: {
+      pinned: shouldPin ? "left" : false,
+    },
+  });
+
+  // ✅ On small screens, show Actions column first
+  if (shouldPin) {
+    columns.push(actionsColumn);
+  }
+
+  // ✅ Selection checkbox column
   columns.push(
     columnHelper.display({
       id: "select",
@@ -82,6 +99,7 @@ export function generateAttendanceColumns(headers) {
     })
   );
 
+  // ✅ Dynamic data columns
   headers.forEach((header) => {
     if (!allowedHeaders.includes(header)) return;
 
@@ -125,19 +143,10 @@ export function generateAttendanceColumns(headers) {
     );
   });
 
-  // ✅ Always pin RowActions to the left for screens ≤1024px
-  const shouldPin = typeof window !== "undefined" && window.innerWidth <= 1024;
-
-  columns.push(
-    columnHelper.display({
-      id: "actions",
-      header: "Actions",
-      cell: RowActions,
-      meta: {
-        pinned: shouldPin ? "left" : false,
-      },
-    })
-  );
+  // ✅ On large screens, show Actions column last
+  if (!shouldPin) {
+    columns.push(actionsColumn);
+  }
 
   return columns;
 }
