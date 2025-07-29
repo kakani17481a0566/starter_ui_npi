@@ -14,6 +14,8 @@ export async function fetchStudentsData({
 
   const tid = tenantId ?? session.tenantId;
   const cid = courseId ?? session.course?.[0]?.id;
+  console.log("cid ===> " + cid);
+
   const bid = branchId ?? session.branch;
 
   if (!tid || !cid || !bid) {

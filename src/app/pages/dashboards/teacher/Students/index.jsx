@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { StudentCard } from "./StudentCard";
 import { fetchStudentsData } from "./studentdata";
-import {
-  UsersIcon,
-  ArrowRightIcon,
-} from "@heroicons/react/24/outline";
+import { getSessionData } from "utils/sessionStorage";
+import { UsersIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 
 export function Students() {
   const [students, setStudents] = useState([]);
@@ -14,12 +12,21 @@ export function Students() {
   useEffect(() => {
     const loadStudents = async () => {
       try {
-        // ✅ Hardcoded for now — replace with dynamic session values if needed
-        const tenantId = 1;
-        const courseId = 4;
-        const branchId = 1;
+        const { tenantId, course, branch } = getSessionData();
+        const courseId = Array.isArray(course) ? course[0]?.id || -1 : -1;
+        const branchId = parseInt(branch, 10);
 
-        const res = await fetchStudentsData({ tenantId, courseId, branchId });
+        if (!tenantId || !courseId || !branchId) {
+          setError("❌ Missing session data.");
+          return;
+        }
+
+        const res = await fetchStudentsData({
+          tenantId: parseInt(tenantId, 10),
+          courseId,
+          branchId,
+        });
+
         setStudents(res.students);
       } catch (err) {
         setError("❌ Failed to load students.");
