@@ -20,7 +20,7 @@ export async function fetchAttendanceSummary({ date, tenantId, courseId }) {
     // const bid = branchId ?? session.branch;
     const bid = 1;
 
-    const cid = courseId ?? -1;
+    const cid = courseId ?? session.course?.[0]?.id ;
 
     const endpoint = AttendanceAPI.summary(date, tid, bid, cid);
 
