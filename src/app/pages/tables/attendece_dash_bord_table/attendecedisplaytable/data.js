@@ -1,8 +1,9 @@
 // src/app/pages/tables/attendece_dash_bord_table/attendecedisplaytable/data.js
 
 import axiosInstance from "utils/axios";
+import { AttendanceAPI } from "constants/apis";
 
-// Fetch attendance summary with full response
+// Fetch attendance summary using centralized API path
 export async function fetchAttendanceSummary({
   date,
   tenantId = 1,
@@ -14,17 +15,8 @@ export async function fetchAttendanceSummary({
   }
 
   try {
-    const response = await axiosInstance.get(
-      "https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/StudentAttendance/summary-structured",
-      {
-        params: {
-          date,
-          tenantId,
-          branchId,
-          courseId,
-        },
-      }
-    );
+    const endpoint = AttendanceAPI.summary(date, tenantId, branchId, courseId);
+    const response = await axiosInstance.get(endpoint);
 
     return response.data?.data ?? {
       records: [],

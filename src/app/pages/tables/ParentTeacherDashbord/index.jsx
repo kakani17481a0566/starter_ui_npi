@@ -9,6 +9,7 @@ import { Comments } from "./Tops/Comments";
 import { Searchs } from "./Tops/Searchs";
 import { FeaturedAuthors } from "./FeaturedAuthors";
 import { fetchPerformanceSummary } from "app/pages/tables/ParentTeacherDashbord/performanceSummaryData";
+import StudentAttendanceGraph from "app/pages/charts/studentattendence";
 
 // ----------------------------------------------------------------------
 
@@ -18,29 +19,31 @@ export default function ParentTeacherDashbord() {
   const [selectedSubjectCode, setSelectedSubjectCode] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Load and refresh performance summary
   const refreshData = async () => {
     try {
-      const res = await fetchPerformanceSummary({
+      const response = await fetchPerformanceSummary({
         tenantId: 1,
         courseId: 4,
         branchId: 1,
         weekId: 0,
       });
-      setData(res);
-      setSelectedStudent(res?.students?.[0] ?? null);
-      setSelectedSubjectCode(null); // Reset filter on data refresh
+      setData(response);
+      setSelectedStudent(response?.students?.[0] ?? null);
+      setSelectedSubjectCode(null);
     } catch (error) {
-      console.error("Failed to fetch performance summary:", error);
+      console.error("❌ Failed to fetch performance summary:", error);
     }
   };
 
+  // ✅ Initial Load
   useEffect(() => {
-    const load = async () => {
+    const init = async () => {
       setLoading(true);
       await refreshData();
       setLoading(false);
     };
-    load();
+    init();
   }, []);
 
   if (loading) {
@@ -51,7 +54,7 @@ export default function ParentTeacherDashbord() {
     <Page title="CMS Analytics Dashboard">
       <div className="mt-5 pb-8 lg:mt-6">
         <div className="transition-content px-4 sm:px-6 lg:px-8">
-          {/* Subject performance section */}
+          {/* ✅ Subject Performance Summary */}
           {data && selectedStudent && (
             <PageViews
               summaryData={data}
@@ -62,8 +65,8 @@ export default function ParentTeacherDashbord() {
             />
           )}
 
-          {/* Clear filter button */}
-          {data && selectedStudent && selectedSubjectCode && (
+          {/* ✅ Subject Filter Reset Button */}
+          {selectedSubjectCode && (
             <div className="mt-3 px-4 sm:px-6 lg:px-8">
               <button
                 onClick={() => setSelectedSubjectCode(null)}
@@ -74,14 +77,18 @@ export default function ParentTeacherDashbord() {
             </div>
           )}
 
-          {/* Other analytics widgets */}
+          {/* ✅ Additional Analytics Cards */}
           {data && selectedStudent && (
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:mt-5 sm:gap-5 lg:mt-6 lg:grid-cols-3 lg:gap-6">
+            <div className="mt-5 grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-3 lg:gap-6">
               <SkillsPerformance
                 subjectWiseAssessments={data.subjectWiseAssessments}
                 selectedStudentId={selectedStudent.studentId}
                 selectedStudentName={selectedStudent.studentName}
                 selectedSubjectCode={selectedSubjectCode}
+              />
+              <StudentAttendanceGraph
+                studentId={selectedStudent.studentId}
+                studentName={selectedStudent.studentName}
               />
               <Visitors />
               <Comments />
@@ -90,7 +97,7 @@ export default function ParentTeacherDashbord() {
           )}
         </div>
 
-        {/* Footer content */}
+        {/* ✅ Footer */}
         <FeaturedAuthors />
       </div>
     </Page>

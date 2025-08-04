@@ -7,14 +7,23 @@ import {
   LayoutDashboardIcon,
   TagIcon,
 } from "lucide-react";
-import React from "react"; // Needed for createElement in .js
+import React from "react";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat); // ⬅️ Required to parse "HH:mm" manually
 
 const columnHelper = createColumnHelper();
 
-// ✅ Fields allowed in the table
-const allowedHeaders = ["id", "name", "courseName", "startTime", "endTime", "tenantName"];
+const allowedHeaders = [
+  "id",
+  "name",
+  "courseName",
+  "startTime",
+  "endTime",
+  "tenantName",
+];
 
-// ✅ Map each field to an icon
 const iconMap = {
   id: TagIcon,
   name: BadgeIcon,
@@ -24,9 +33,6 @@ const iconMap = {
   tenantName: LayoutDashboardIcon,
 };
 
-/**
- * Generate table columns with icons and Tailwind classes (compatible with .js file)
- */
 export const generatePeriodColumns = (sampleRow) => {
   if (!sampleRow) return [];
 
@@ -45,15 +51,25 @@ export const generatePeriodColumns = (sampleRow) => {
             React.createElement(
               "span",
               null,
-              key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())
+              key
+                .replace(/([A-Z])/g, " $1")
+                .replace(/^./, (str) => str.toUpperCase())
             )
           ),
-        cell: (info) =>
-          React.createElement(
+        cell: (info) => {
+          const value = info.getValue();
+          const isTimeField = key.toLowerCase().includes("time");
+
+          return React.createElement(
             "span",
             { className: "text-sm text-primary-950" },
-            info.getValue()
-          ),
+            isTimeField && value
+              ? dayjs(value, "HH:mm").isValid()
+                ? dayjs(value, "HH:mm").format("h:mm A")
+                : value
+              : value
+          );
+        },
       });
     });
 };

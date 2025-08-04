@@ -56,9 +56,17 @@ else if(role ==='Teacher'){
       transKey: "nav.parent.ai",
       Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
     },
+    {
+      id: "dashboards.mark-attendance",
+      path: "dashboards/mark-attendance",
+      type: NAV_TYPE_ITEM,
+      title: "Mark Attendance",
+      transKey: "nav.dashboards.mark",
+      Icon: ClipboardDocumentCheckIcon,
+    }
   ]
 }
-else if(role.toLowerCase()==="admin"){
+  else if(role.toLowerCase()==="admin"){
   dynamicChilds=[
     {
       id: "dashboards.home",

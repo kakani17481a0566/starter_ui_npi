@@ -18,7 +18,7 @@ export function Toolbar({ table }) {
       )}
     >
       <h2 className="truncate text-base font-medium tracking-wide text-gray-800 dark:text-dark-100">
-        Academic Time Table
+        Academic Time Table Topics
       </h2>
       <div className={clsx("flex", enableFullScreen && "ltr:-mr-2 rtl:-ml-2")}>
         <CollapsibleSearch

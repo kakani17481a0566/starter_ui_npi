@@ -4,7 +4,7 @@ import * as Yup from "yup";
 
 /**
  * Returns a Yup validation schema for Period forms.
- * @param {'insert'|'update'} mode - Use "insert" for Insert form (requires createdBy), "update" for Update form (requires updatedBy)
+ * @param {'insert'|'update'} mode - Determines which user field is required.
  */
 export const schema = (mode = "insert") => {
   const baseFields = {
@@ -14,7 +14,6 @@ export const schema = (mode = "insert") => {
       .max(50, "Period name is too long")
       .required("Period name is required"),
 
-    // Accept string or number for courseId (from Select), always convert to number for backend.
     courseId: Yup.number()
       .transform((value, originalValue) =>
         typeof originalValue === "string" ? Number(originalValue) : value
@@ -32,10 +31,12 @@ export const schema = (mode = "insert") => {
       .test("is-after", "End Time must be after Start Time", function (endTime) {
         const { startTime } = this.parent;
         if (!startTime || !endTime) return true;
+
         const [startH, startM] = startTime.split(":").map(Number);
         const [endH, endM] = endTime.split(":").map(Number);
         const start = new Date(0, 0, 0, startH, startM);
         const end = new Date(0, 0, 0, endH, endM);
+
         return end > start;
       }),
 
@@ -44,12 +45,12 @@ export const schema = (mode = "insert") => {
       .required("Tenant ID is required"),
   };
 
-  // Only require the correct field based on form mode
   if (mode === "insert") {
     baseFields.createdBy = Yup.number()
       .typeError("Created By must be a number")
       .required("Created By is required");
   }
+
   if (mode === "update") {
     baseFields.updatedBy = Yup.number()
       .typeError("Updated By must be a number")

@@ -12,7 +12,7 @@ import { CalendarIcon, Loader2Icon } from "lucide-react";
 import { format, parseISO, isValid } from "date-fns";
 import { getSessionData } from "utils/sessionStorage";
 
-const UpdateTimeTableForm = ({ initialData, onSuccess, onCancel }) => {
+const UpdateTimeTableForm = ({ initialData, onSuccess }) => {
   const session = getSessionData();
   const userId = Number(session?.userId ?? 0);
 
@@ -351,15 +351,7 @@ const UpdateTimeTableForm = ({ initialData, onSuccess, onCancel }) => {
           />
         </div>
 
-        <div className="flex justify-end gap-2 pt-4">
-          <Button
-            type="button"
-            variant="outlined"
-            className="font-medium"
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
+        <div className="flex justify-end pt-4">
           <Button
             type="submit"
             className="bg-primary-600 hover:bg-primary-700 min-w-[8rem] font-medium text-white"

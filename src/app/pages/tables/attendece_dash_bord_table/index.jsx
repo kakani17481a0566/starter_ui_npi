@@ -1,48 +1,76 @@
 // Local Imports
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Page } from "components/shared/Page";
 import { Overview } from "./Overview";
-// import { Budget } from "./Budget";
-// import { Income } from "./Income";
-// import { Expense } from "./Expense";
 import { TopSellers } from "./TopSellers";
 import { Calendar } from "./Calendar";
-// import { SocialTraffic } from "./SocialTraffic";
-// import { TopCountries } from "./TopCountries";
 import AttendanceStatusDisplayTable from "./attendecedisplaytable";
+import { fetchAttendanceSummary } from "./attendecedisplaytable/data";
+import { Spinner } from "components/ui";
 
 // Get today's date in yyyy-mm-dd format
 const getToday = () => new Date().toISOString().split("T")[0];
 
 export default function Orders() {
   const [selectedDate, setSelectedDate] = useState(getToday());
+  const [summaryData, setSummaryData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const didFetch = useRef(false); // ✅ Prevent double-fetch
+
+  useEffect(() => {
+    if (didFetch.current) return;
+
+    async function loadData() {
+      console.log("📅 Fetching attendance summary for date:", selectedDate);
+      setLoading(true);
+      try {
+        const data = await fetchAttendanceSummary({ date: selectedDate });
+        console.log("✅ Attendance summary fetched:", data);
+        setSummaryData(data);
+      } catch {
+        setSummaryData(null);
+      } finally {
+        setLoading(false);
+        console.log("🕓 Loading state set to false");
+      }
+    }
+
+    loadData();
+    didFetch.current = true;
+  }, [selectedDate]);
+
+  const handleDateChange = (newDate) => {
+    console.log("📆 Date selected from calendar:", newDate);
+    setSelectedDate(newDate);
+    didFetch.current = false; // ✅ Allow new fetch
+  };
 
   return (
     <Page title="Orders Dashboard">
       <div className="transition-content mt-5 px-[--margin-x] pb-8 lg:mt-6">
         <div className="grid grid-cols-12 gap-4 sm:gap-5 lg:gap-6">
-          {/* Attendance Summary */}
-          <Overview date={selectedDate}/>
+          {loading ? (
+            <div className="col-span-12 flex justify-center items-center py-20">
+              <Spinner color="primary" className="size-10 border-4" />
+            </div>
+          ) : (
+            <>
+              {/* Overview Summary */}
+              <Overview data={summaryData} />
 
-          {/* Responsive Calendar (full-width on mobile, 2-col grid on large screens) */}
-          <div className="col-span-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-5 lg:col-span-4 lg:gap-6">
-            <Calendar onChange={setSelectedDate} />
-            {/* <Budget />
-            <Income />
-            <Expense /> */}
-          </div>
+              {/* Calendar */}
+              <div className="col-span-12 sm:col-span-6 lg:col-span-4">
+                <Calendar onChange={handleDateChange} />
+              </div>
 
-          {/* Not Marked Students */}
-          <TopSellers date={selectedDate} />
+              {/* Not Marked Students */}
+              <TopSellers data={summaryData} />
 
-          {/* Social Traffic & Top Countries */}
-          {/* <div className="col-span-12 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:col-span-7 lg:gap-6 xl:col-span-6">
-              <SocialTraffic />
-              <TopCountries />
-            </div> */}
-
-          {/* Attendance Table */}
-          <AttendanceStatusDisplayTable date={selectedDate} />
+              {/* Attendance Table */}
+              <AttendanceStatusDisplayTable data={summaryData} />
+            </>
+          )}
         </div>
       </div>
     </Page>

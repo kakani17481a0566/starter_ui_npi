@@ -2,14 +2,12 @@ import { Page } from "components/shared/Page";
 import Teacher from "app/pages/dashboards/teacher";
 // import InsertWeek from "app/pages/tables/InsertWeek";
 
-
-
 export default function Home() {
   return (
     <Page title="Homepage">
       {/* <div className="transition-content w-full px-(--margin-x) pt-5 lg:pt-6"> */}
 
-      <div className="transition-content w-full  pt-5 lg:pt-6">
+      <div className="transition-content w-full pt-5 lg:pt-6">
         {/* Optional heading if you still want one */}
         {/* <div className="min-w-0 mb-4">
           <h2 className="truncate text-xl font-medium tracking-wide text-gray-800 dark:text-dark-50">

@@ -5,14 +5,13 @@ export function SkillsPerformance({
   subjectWiseAssessments,
   selectedStudentId,
   selectedStudentName,
-  selectedSubjectCode, // ✅ new
+  selectedSubjectCode,
 }) {
   if (!subjectWiseAssessments || !selectedStudentId) return null;
 
   const skills = [];
 
   for (const subject of subjectWiseAssessments) {
-    // ✅ filter only selected subject
     if (selectedSubjectCode && subject.subjectCode !== selectedSubjectCode) continue;
 
     for (const skill of subject.skills) {
@@ -29,14 +28,23 @@ export function SkillsPerformance({
     }
   }
 
+  const sortedSkills = [...skills].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+
   if (!skills.length) {
     return (
-      <Card className="px-4 py-4">
-        <h2 className="mb-2 font-medium text-gray-800 dark:text-dark-100">Skills Performance</h2>
-        <p className="text-sm text-gray-500 dark:text-dark-300">{selectedStudentName}</p>
-        <p className="mt-4 text-sm text-gray-400 dark:text-dark-300">
-          No skills found for {selectedSubjectCode ? `subject "${selectedSubjectCode}"` : "this student"}.
+      <Card className="px-4 py-4 text-center">
+        <h2 className="mb-2 font-medium text-gray-800 dark:text-dark-100">
+          Skills Performance
+        </h2>
+        <p className="text-sm text-gray-500 dark:text-dark-300">
+          {selectedStudentName}
         </p>
+        <div className="mt-4 text-sm text-gray-400 dark:text-dark-300">
+          No skills found for{" "}
+          {selectedSubjectCode ? `subject "${selectedSubjectCode}"` : "this student"}.
+          <br />
+          Try selecting a different subject or week.
+        </div>
       </Card>
     );
   }
@@ -58,27 +66,48 @@ export function SkillsPerformance({
       </p>
       <p className="mt-0.5 text-xs-plus text-gray-400 dark:text-dark-300">Grade & Score</p>
 
-      <div className="mt-4 flex justify-between">
-        <p className="text-xs uppercase text-gray-400 dark:text-dark-300">Skill</p>
-        <p className="text-xs uppercase text-gray-400 dark:text-dark-300">Score</p>
-      </div>
-
-      <div className="mt-2 space-y-2.5">
-        {skills.map((item, index) => (
-          <div key={index} className="flex justify-between gap-4">
-            <p className="truncate text-sm text-gray-800 dark:text-dark-100">
-              {item.skillName}
-            </p>
-            <div className="flex items-center gap-1.5">
-              <p className="text-sm-plus text-gray-800 dark:text-dark-100">
-                {item.grade} ({item.score})
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {sortedSkills.map((item, index) => (
+          <div key={index} className="flex flex-col gap-1">
+            <div className="flex justify-between items-center gap-2">
+              <p
+                className="truncate text-sm font-medium text-gray-800 dark:text-dark-100"
+                title={item.skillName}
+              >
+                {item.skillName}
               </p>
-              {item.score >= 90 ? (
-                <ArrowUpIcon className="text-success size-3 stroke-2" />
-              ) : item.score < 75 ? (
-                <ArrowDownIcon className="text-error size-3 stroke-2" />
-              ) : null}
+              <div className="flex items-center gap-1">
+                {/* Grade Badge */}
+                <span
+                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                    item.grade === "A+"
+                      ? "bg-green-100 text-green-700"
+                      : item.grade === "A"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : item.grade === "B"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {item.grade}
+                </span>
+                {/* Arrow Icon */}
+                {item.score >= 90 ? (
+                  <ArrowUpIcon className="text-success size-3 stroke-2" />
+                ) : item.score < 75 ? (
+                  <ArrowDownIcon className="text-error size-3 stroke-2" />
+                ) : null}
+              </div>
             </div>
+
+            {/* Score Bar */}
+            <div className="relative h-2 w-full rounded bg-gray-200">
+              <div
+                className="absolute top-0 left-0 h-full rounded bg-emerald-500"
+                style={{ width: `${item.score ?? 0}%` }}
+              ></div>
+            </div>
+            <p className="text-right text-xs text-gray-500 mt-0.5">{item.score} / 100</p>
           </div>
         ))}
       </div>

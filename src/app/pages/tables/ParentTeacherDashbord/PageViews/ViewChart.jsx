@@ -1,7 +1,17 @@
 import { useMemo } from "react";
 import Chart from "react-apexcharts";
 
-// Helper to compute average score per subject for a student
+// Domain color mapping
+const domainColorMap = {
+  CLL: "#465C8A",
+  PSRN: "#D2486E",
+  KUW: "#E27257",
+  PD: "#713427",
+  EAD: "#DA973A",
+  PSED: "#475468",
+};
+
+// Helper: Calculate average scores for each subject
 function getSubjectVsScores(subjectWiseAssessments, studentId) {
   const subjects = [];
   const scores = [];
@@ -27,6 +37,7 @@ function getSubjectVsScores(subjectWiseAssessments, studentId) {
   return { subjects, scores };
 }
 
+// Main component
 export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubjectSelect }) {
   const { subjects, scores } = useMemo(() => {
     if (!subjectWiseAssessments || !selectedStudentId)
@@ -38,93 +49,77 @@ export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubject
     return (
       <div className="col-span-12 px-2 sm:col-span-6 lg:col-span-8">
         <p className="text-sm text-gray-500 dark:text-dark-300">
-          No score data available.
+          No score data available for the selected student.
         </p>
       </div>
     );
   }
 
-  const series = [
-    {
-      name: "Average Score",
-      data: scores,
-    },
-  ];
+  const barColors = subjects.map(
+    (code) => domainColorMap[code] || "#A5B4FC" // fallback indigo-300
+  );
 
-  const chartConfig = {
+  const series = [{ name: "Average Score", data: scores }];
+
+  const chartOptions = {
     chart: {
-      parentHeightOffset: 0,
+      type: "bar",
       toolbar: { show: false },
+      parentHeightOffset: 0,
       animations: {
         enabled: true,
         easing: "easeinout",
         speed: 400,
       },
       events: {
-        // ✅ Handle bar click
         dataPointSelection: (event, chartContext, config) => {
           const subjectCode = subjects[config.dataPointIndex];
-          if (onSubjectSelect) {
-            onSubjectSelect(subjectCode);
-          }
+          if (onSubjectSelect) onSubjectSelect(subjectCode);
         },
       },
     },
-
     plotOptions: {
       bar: {
         borderRadius: 6,
-        columnWidth: "35%",
-        barHeight: "90%",
-        distributed: false,
+        columnWidth: "30%",
+        distributed: true,
       },
     },
-
-    fill: {
-      colors: ["#E0E7FF"], // Light indigo
-      opacity: 1,
-    },
-
+    colors: barColors,
+    dataLabels: { enabled: false },
     stroke: {
       show: true,
       width: 2,
-      colors: ["#3730A3"], // Indigo-800
+      colors: ["#111827"], // gray-900 for outline
     },
-
-    dataLabels: {
-      enabled: false,
-    },
-
     xaxis: {
       categories: subjects,
-      labels: { hideOverlappingLabels: false },
+      labels: {
+        style: { fontSize: "13px", colors: "#374151" },
+      },
       axisBorder: { show: false },
       axisTicks: { show: false },
-      tooltip: { enabled: false },
     },
-
     yaxis: {
-      show: true,
       title: {
-        text: "Marks (%)",
+        text: "Average Marks (%)",
         style: { fontSize: "12px" },
       },
+      labels: {
+        style: { fontSize: "12px", colors: "#6B7280" }, // gray-500
+      },
     },
-
     legend: { show: false },
-
     grid: {
-      padding: { left: 0, right: 0, top: 0, bottom: -10 },
+      padding: { top: 10, bottom: -10, left: 0, right: 0 },
+      borderColor: "#E5E7EB",
     },
-
     responsive: [
       {
         breakpoint: 1024,
         options: {
           plotOptions: {
-            bar: {
-              columnWidth: "55%",
-            },
+            bar: { columnWidth: "60%" },
           },
         },
       },
@@ -133,7 +128,7 @@ export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubject
 
   return (
     <div className="ax-transparent-gridline col-span-12 px-2 sm:col-span-6 lg:col-span-8">
-      <Chart options={chartConfig} series={series} type="bar" height={280} />
+      <Chart options={chartOptions} series={series} type="bar" height={280} />
     </div>
   );
 }

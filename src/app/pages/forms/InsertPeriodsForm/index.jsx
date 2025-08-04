@@ -4,74 +4,46 @@ import { toast } from "sonner";
 import { Input, Button, Card, Select } from "components/ui";
 import { useEffect, useState } from "react";
 import { schema } from "./schema";
-import { fetchCourseList, updatePeriod, fetchTenantById } from "./data";
+import { fetchCourseList, fetchTenantById, createPeriod } from "./data";
 import { getSessionData } from "utils/sessionStorage";
 
-const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
+const InsertPeriodsForm = ({ onSuccess }) => {
   const session = getSessionData();
   const [courses, setCourses] = useState([]);
   const [tenantName, setTenantName] = useState("");
-  const [coursesLoaded, setCoursesLoaded] = useState(false);
 
   const {
     register,
     handleSubmit,
-    reset,
     control,
+    reset,
     formState: { errors, isSubmitting, isValid },
-    // getValues,
   } = useForm({
-    resolver: yupResolver(schema("update")), // <-- ensure you CALL the schema function
+    resolver: yupResolver(schema("insert")),
     defaultValues: {
       name: "",
-      courseId: null,      // <-- use null not empty string
+      courseId: null,
       startTime: "",
       endTime: "",
       tenantId: session.tenantId,
-      updatedBy: session.userId,
+      createdBy: session.userId,
     },
     mode: "onChange",
   });
 
-  // Pad time to "HH:mm:ss"
   const padTime = (time) => (time?.length === 5 ? `${time}:00` : time);
 
-  // Fetch courses and tenant info
   useEffect(() => {
-    const fetchInitialData = async () => {
+    const fetchData = async () => {
       const [courseData, tenant] = await Promise.all([
         fetchCourseList(),
         fetchTenantById(session.tenantId),
       ]);
       setCourses(courseData);
       setTenantName(tenant?.name || "");
-      setCoursesLoaded(true);
     };
-    fetchInitialData();
+    fetchData();
   }, [session.tenantId]);
-
-  // Reset form ONLY when both initialData and courses are loaded
-  useEffect(() => {
-    if (initialData && coursesLoaded) {
-      let courseId = null;
-      if (initialData.courseId) {
-        courseId = Number(initialData.courseId);
-      } else if (initialData.courseName && courses.length > 0) {
-        const matched = courses.find(
-          (c) => c.name?.toLowerCase() === initialData.courseName?.toLowerCase()
-        );
-        if (matched) courseId = matched.id;
-      }
-      reset({
-        name: initialData.name || "",
-        courseId,
-        startTime: initialData.startTime ? initialData.startTime.slice(0, 5) : "",
-        endTime: initialData.endTime ? initialData.endTime.slice(0, 5) : "",
-        tenantId: initialData.tenantId,
-        updatedBy: session.userId,
-      });
-    }
-  }, [initialData, coursesLoaded, courses, reset, session.userId]);
 
   const onSubmit = async (data) => {
     const payload = {
@@ -80,33 +52,38 @@ const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
       startTime: padTime(data.startTime),
       endTime: padTime(data.endTime),
     };
+
     try {
-      const response = await updatePeriod({
-        id: initialData.id,
-        tenantId: data.tenantId,
-        payload,
-      });
-      if (response?.statusCode === 200) {
-        toast.success("✅ " + (response.message || "Period updated successfully"));
-        if (onSuccess) onSuccess();
+      const response = await createPeriod(payload);
+
+      const statusCode = response?.statusCode || response?.status;
+      const message =
+        response?.message ||
+        response?.data?.message ||
+        "Period created successfully";
+
+      if (statusCode === 201) {
+        toast.success("✅ " + message);
+        reset();
+        onSuccess?.();
       } else {
         toast.error("❌ Unexpected response");
       }
     } catch (error) {
       const errData = error.response?.data;
       const firstError = Object.values(errData?.errors || {})[0]?.[0];
-      const message = firstError || errData?.title || "Failed to update period";
+      const message = firstError || errData?.title || "Failed to create period";
       toast.error("❌ " + message);
     }
   };
 
-  const requiredMark = <span className="text-red-500 pl-1">*</span>;
+  const requiredMark = <span className="pl-1 text-red-500">*</span>;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
-      <Card className="space-y-5 p-5 text-primary-950">
-        <h2 className="text-lg font-semibold text-primary-950 dark:text-white">
-          Update Period
+      <Card className="text-primary-950 space-y-5 p-5">
+        <h2 className="text-primary-950 text-lg font-semibold dark:text-white">
+          New Period
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input
@@ -123,7 +100,9 @@ const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
               <Select
                 label="Course"
                 value={field.value ?? ""}
-                onChange={e => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                onChange={(e) =>
+                  field.onChange(e.target.value ? Number(e.target.value) : null)
+                }
                 error={errors?.courseId?.message}
                 labelSlot={requiredMark}
               >
@@ -163,37 +142,51 @@ const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
           <input type="hidden" {...register("tenantId")} />
 
           <Input
-            label="Updated By"
-            type="number"
+            label="Created By"
+            value={session.user}
             readOnly
-            {...register("updatedBy")}
-            error={errors?.updatedBy?.message}
             labelSlot={requiredMark}
           />
+          <input type="hidden" {...register("createdBy")} />
         </div>
 
-        <div className="flex justify-end gap-2">
-          <Button
-            type="button"
-            variant="outlined"
-            onClick={onCancel}
-            className="min-w-[7rem]"
-          >
-            Cancel
-          </Button>
+        <div className="flex justify-end gap-4">
+        
           <Button
             type="submit"
-            className={`min-w-[7rem] text-white transition-all ${
-              !isValid || isSubmitting
-                ? "bg-red-500 cursor-not-allowed opacity-70"
-                : "bg-primary-600 hover:bg-primary-700"
+            className={`min-w-[7rem] rounded-md px-4 py-2 font-medium transition-all duration-200 ease-in-out ${
+              isValid && !isSubmitting
+                ? "bg-primary-600 hover:bg-primary-700 text-white"
+                : "cursor-not-allowed bg-gray-300 text-gray-500"
             }`}
             disabled={!isValid || isSubmitting}
           >
             {isSubmitting ? (
-              <span className="text-white">Saving...</span>
+              <div className="flex items-center gap-2">
+                <svg
+                  className="h-4 w-4 animate-spin text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 000 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                  />
+                </svg>
+                <span>Saving...</span>
+              </div>
             ) : (
-              <span className="text-white">Save</span>
+              <span>Save</span>
             )}
           </Button>
         </div>
@@ -202,4 +195,4 @@ const UpdatePeriodsForm = ({ initialData, onSuccess, onCancel }) => {
   );
 };
 
-export default UpdatePeriodsForm;
+export default InsertPeriodsForm;

@@ -9,83 +9,125 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-
+import { ClockIcon, LogOutIcon, CalendarDaysIcon } from "lucide-react";
 import { fetchAttendanceGraph } from "./data";
 import { timeFormatter } from "./column";
 
-// Updated stroke colors here
+// Series with icon-based legend names
 const attendanceGraphLines = [
   {
     name: "In Time",
+    icon: <ClockIcon className="inline w-4 h-4 text-emerald-500 mr-1" />,
     dataKey: "inTime",
-    stroke: "#10B981", // emerald-500
+    stroke: "#10B981",
   },
   {
     name: "Out Time",
+    icon: <LogOutIcon className="inline w-4 h-4 text-red-400 mr-1" />,
     dataKey: "outTime",
-    stroke: "#F87171", // red-400
+    stroke: "#F87171",
   },
 ];
 
-export default function StudentAttendanceGraph({ studentId }) {
-  const [data, setData] = useState([]);
+// Format x-axis label like "29 Jul"
+const formatDayLabel = (dateStr) =>
+  new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+  }).format(new Date(dateStr));
 
-  const tenantId = 1;
-  const branchId = 1;
-  const getDayOnly = (dateStr) => new Date(dateStr).getDate();
-
+export default function StudentAttendanceGraph({
+  studentId,
+  tenantId = 1,
+  branchId = 1,
+}) {
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAttendanceGraph({ studentId, tenantId, branchId }).then(setData);
-  }, [studentId]);
+    setLoading(true);
+    fetchAttendanceGraph({ studentId, tenantId, branchId })
+      .then((res) => setAttendanceData(res ?? []))
+      .finally(() => setLoading(false));
+  }, [studentId, tenantId, branchId]);
+
+  const maxHour =
+    Math.max(...attendanceData.flatMap((d) => [d.inTime, d.outTime]), 0) + 1;
+
+  if (loading) {
+    return (
+      <div className="w-full rounded-lg border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 p-5 text-center text-gray-500 dark:text-dark-200 shadow-sm">
+        Loading attendance graph...
+      </div>
+    );
+  }
+
+  if (!attendanceData.length) {
+    return (
+      <div className="w-full rounded-lg border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 p-5 text-center text-gray-500 dark:text-dark-200 shadow-sm">
+        No attendance data available.
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-      {/* Title */}
-      <div className="mb-4 text-center">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Student Attendance (In &amp; Out Time)
-        </h2>
-        <p className="text-sm text-gray-500">
-          Line chart showing check-in/out times
-        </p>
-      </div>
+   <div className="w-full rounded-lg border border-gray-200 dark:border-dark-400 bg-white dark:bg-dark-700 p-5 shadow-sm">
+  <div className="mb-4 text-center">
+    <h2 className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-800 dark:text-white">
+      <CalendarDaysIcon className="w-5 h-5 text-primary-500" />
+      In & Out Time
+    </h2>
+    <p className="text-xs text-gray-500 dark:text-dark-300">Daily time overview</p>
+  </div>
 
       {/* Chart */}
       <div className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={data}
+            data={attendanceData}
             margin={{ top: 30, right: 30, left: 0, bottom: 5 }}
           >
-            <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" />
-          <XAxis
-  dataKey="date"
-  stroke="#374151"
-  tickFormatter={getDayOnly}
-  tick={{ fontSize: 12, fill: "#374151" }}
-/>
-
+            <CartesianGrid
+              strokeDasharray="4 4"
+              stroke="#e5e7eb"
+              strokeOpacity={0.4}
+            />
+            <XAxis
+              dataKey="date"
+              tickFormatter={formatDayLabel}
+              tick={{ fontSize: 12, fill: "#9CA3AF" }}
+            />
             <YAxis
-              domain={[0, 24]}
+              domain={[0, maxHour]}
               tickFormatter={timeFormatter}
-              stroke="#374151"
-              tick={{ fontSize: 12, fill: "#374151" }}
+              tick={{ fontSize: 12, fill: "#9CA3AF" }}
             />
             <Tooltip
               formatter={(val, name) => [timeFormatter(val), name]}
               contentStyle={{
-                backgroundColor: "#ffffff",
-                borderColor: "#d1d5db",
-                color: "#111827",
+                backgroundColor: "#1f2937", // gray-800
+                borderColor: "#4B5563",
+                color: "#F9FAFB",
                 fontSize: "13px",
               }}
+              labelStyle={{ color: "#D1D5DB" }}
+              itemStyle={{ color: "#F9FAFB" }}
             />
-            <Legend wrapperStyle={{ color: "#374151", fontWeight: "500" }} />
-
-            {attendanceGraphLines.map((line, idx) => (
+            <Legend
+              formatter={(value) => {
+                const item = attendanceGraphLines.find((l) => l.name === value);
+                return (
+                  <span className="flex items-center text-sm text-gray-600 dark:text-gray-200">
+                    {item?.icon}
+                    {value}
+                  </span>
+                );
+              }}
+              iconType="circle"
+            />
+            {attendanceGraphLines.map((line) => (
               <Line
-                key={idx}
+                key={line.dataKey}
                 type="monotone"
                 dataKey={line.dataKey}
                 stroke={line.stroke}

@@ -1,79 +1,21 @@
-import {
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-  Radio,
-  RadioGroup,
-  Transition,
-} from "@headlessui/react";
+import { Card, Button } from "components/ui";
+import { CheckBadgeIcon, ArrowPathIcon, ClockIcon, QuestionMarkCircleIcon, CurrencyDollarIcon, ScissorsIcon } from "@heroicons/react/24/outline";
+import { Menu, MenuButton, MenuItem, MenuItems, Transition } from "@headlessui/react";
 import { EllipsisHorizontalIcon } from "@heroicons/react/20/solid";
-import {
-  ArrowPathIcon,
-  CheckBadgeIcon,
-  ClockIcon,
-  CurrencyDollarIcon,
-  QuestionMarkCircleIcon,
-  ScissorsIcon,
-} from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 
-import { Button, Card } from "components/ui";
-import { fetchAttendanceSummary } from "./attendecedisplaytable/data";
-
-export function Overview({ date }) {
+export function Overview({ data }) {
   const [focusRange, setFocusRange] = useState("monthly");
-  const [data,setData]=useState([]);
-  const [summary, setSummary] = useState({
-    totalStudents: 0,
-    checkedInCount: 0,
-    checkedOutCount: 0,
-    notMarkedCount: 0,
-    unknownCount: 0,
-    cutterDayCount: 0,
-  });
 
-  useEffect(() => {
-    async function loadSummary() {
-      try {
-      const res = await fetchAttendanceSummary({ date });
-      setData(res);
-        
-
-        if (res?.data) {
-          const {
-            totalStudents ,
-            checkedInCount ,
-            checkedOutCount ,
-            notMarkedCount,
-            unknownCount ,
-            // records = [],
-          } = res.data;
-          
-
-          // const cutterDayCount = Math.max(
-          //   records.filter((r) => r.attendanceStatus === "Checked-In").length -
-          //     records.filter((r) => r.attendanceStatus === "Checked-Out").length,
-          //   0
-          // );
-
-          setSummary({
-            totalStudents,
-            checkedInCount,
-            checkedOutCount,
-            notMarkedCount,
-            unknownCount,
-            // cutterDayCount,
-          });
-        }
-      } catch (err) {
-        console.error("Failed to fetch attendance summary", err);
-      }
-    }
-
-    loadSummary();
-  }, []);
+  const {
+    totalStudents = 0,
+    checkedInCount = 0,
+    checkedOutCount = 0,
+    notMarkedCount = 0,
+    unknownCount = 0,
+    cutterDayCount = 0,
+  } = data || {};
 
   return (
     <Card className="col-span-12 lg:col-span-8">
@@ -85,38 +27,31 @@ export function Overview({ date }) {
           <ActionMenu />
         </div>
 
-        <RadioGroup
-          name="options"
-          value={focusRange}
-          onChange={setFocusRange}
-          className="hidden gap-2 sm:flex"
-        >
+        <div className="hidden gap-2 sm:flex">
           {["monthly", "yearly"].map((range) => (
-            <Radio key={range} as={Fragment} value={range}>
-              {({ checked }) => (
-                <Button
-                  className="h-8 rounded-full text-xs"
-                  variant={checked ? "soft" : "flat"}
-                  color={checked ? "primary" : "neutral"}
-                >
-                  {range.charAt(0).toUpperCase() + range.slice(1)}
-                </Button>
-              )}
-            </Radio>
+            <Button
+              key={range}
+              className="h-8 rounded-full text-xs"
+              variant={focusRange === range ? "soft" : "flat"}
+              color={focusRange === range ? "primary" : "neutral"}
+              onClick={() => setFocusRange(range)}
+            >
+              {range.charAt(0).toUpperCase() + range.slice(1)}
+            </Button>
           ))}
-        </RadioGroup>
+        </div>
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3 px-4 sm:mt-5 sm:grid-cols-4 sm:px-5 lg:mt-6">
-        <StatCard label="Total Students" value={data.totalStudents} Icon={CurrencyDollarIcon} />
-        <StatCard label="Checked-In" value={data.checkedInCount} Icon={CheckBadgeIcon} />
-        <StatCard label="Checked-Out" value={data.checkedOutCount} Icon={ArrowPathIcon} />
-        <StatCard label="Not Marked" value={data.notMarkedCount} Icon={ClockIcon} />
-        {summary.unknownCount > 0 && (
-          <StatCard label="Unknown" value={data.unknownCount} Icon={QuestionMarkCircleIcon} />
+        <StatCard label="Total Students" value={totalStudents} Icon={CurrencyDollarIcon} />
+        <StatCard label="Checked-In" value={checkedInCount} Icon={CheckBadgeIcon} />
+        <StatCard label="Checked-Out" value={checkedOutCount} Icon={ArrowPathIcon} />
+        <StatCard label="Not Marked" value={notMarkedCount} Icon={ClockIcon} />
+        {unknownCount > 0 && (
+          <StatCard label="Unknown" value={unknownCount} Icon={QuestionMarkCircleIcon} />
         )}
-        {summary.cutterDayCount > 0 && (
-          <StatCard label="Cutter Day" value={summary.cutterDayCount} Icon={ScissorsIcon} />
+        {cutterDayCount > 0 && (
+          <StatCard label="Cutter Day" value={cutterDayCount} Icon={ScissorsIcon} />
         )}
       </div>
     </Card>

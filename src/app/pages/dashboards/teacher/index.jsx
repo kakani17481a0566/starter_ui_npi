@@ -36,9 +36,8 @@ export default function Teacher() {
         <div className="col-span-12 lg:col-span-8 xl:col-span-9">
           <Welcome />
 
-          {/* ✅ Passing courseId to Classes */}
-<Classes courseId={selectedCourse?.id} />
-
+          {/* ✅ Passing courseId to Cl+asses */}
+          <Classes courseId={selectedCourse?.id} />
 
           <VerticalDividerCard
             onCourseSelect={(course) => {

@@ -23,7 +23,7 @@ import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
-export function TermTimeTable() {
+export function TermTimeTable({ courseId }) {
   const [autoResetPageIndex] = useSkipper();
   const theadRef = useRef();
   useBoxSize({ ref: theadRef });
@@ -33,12 +33,18 @@ export function TermTimeTable() {
   const [sorting, setSorting] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const hasFetchedOnce = useRef(false); // ✅ Prevent double fetch in dev
+
   useEffect(() => {
+    if (!courseId || hasFetchedOnce.current) return;
+
+    hasFetchedOnce.current = true;
     setLoading(true);
-    fetchTermTimeTableData()
+
+    fetchTermTimeTableData({ courseId })
       .then((res) => {
         const { timeTableData } = res || {};
-        const trimmed = timeTableData.map((row) => ({
+        const trimmed = (timeTableData || []).map((row) => ({
           column1: row.column1,
           column2: row.column2,
           column3: row.column3,
@@ -50,7 +56,7 @@ export function TermTimeTable() {
         setMedia(trimmed);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [courseId]);
 
   const table = useReactTable({
     data: media,

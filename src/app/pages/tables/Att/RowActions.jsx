@@ -5,6 +5,8 @@ import dayjs from "dayjs";
 
 // Local Imports
 import { Button } from "components/ui";
+import { getSessionData } from "utils/sessionStorage";
+ // 🔁 Adjust the path as needed
 
 export function RowActions({ row, table }) {
   const [hasCheckedIn, setHasCheckedIn] = useState(false);
@@ -13,10 +15,8 @@ export function RowActions({ row, table }) {
 
   const student = row.original;
 
-  // ✅ Hardcoded values
-  const tenantId = 1;
-  const branchId = 1;
-  const userId = 1; // ⚠️ Replace with correct userId if needed
+  // ✅ Load session data
+  const { tenantId, branch, userId } = getSessionData();
 
   useEffect(() => {
     setHasCheckedIn(student.fromTime && student.fromTime !== "Not marked");
@@ -36,7 +36,7 @@ export function RowActions({ row, table }) {
     const payload = {
       date: today,
       userId: userId,
-      branchId: branchId,
+      branchId: branch,
       tenantId: tenantId,
       entries: [entry],
     };

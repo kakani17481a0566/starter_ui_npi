@@ -1,9 +1,28 @@
-
 export const TimeTableAPI  = {
   structured: (tenantId) => `/TimeTable/structured/${tenantId}`,
   fetchByWeek: (weekId, tenantId, courseId) =>
     `/TimeTable/weekId/${weekId}/tenantId/${tenantId}/courseId/${courseId}`,
 };
+
+// ✅ Add this inside apis.js
+export const TermTimeTableAPI = {
+  getMatrix: (tenantId, courseId, termId = 1) =>
+    `/VTermTable/get-week-matrix?tenantId=${tenantId}&courseId=${courseId}&termId=${termId}`,
+};
+
+
+// src/constants/apis.js
+export const AttendanceAPI = {
+  summary: (date, tenantId, branchId, courseId ) =>
+    `/StudentAttendance/summary-structured?date=${date}&tenantId=${tenantId}&branchId=${branchId}&courseId=${courseId}`,
+};
+
+// src/constants/apis.js
+export const StudentAPI = {
+  byTenantCourseBranch: (tenantId, courseId, branchId) =>
+    `/Student/by-tenant-course-branch?tenantId=${tenantId}&courseId=${courseId}&branchId=${branchId}`,
+};
+
 
 
 

@@ -7,39 +7,27 @@ import {
 } from "@headlessui/react";
 import { EllipsisHorizontalIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 
 // Local Imports
 import { Button, Card, Spinner } from "components/ui";
 import { SellerCard } from "./SellerCard";
-import { fetchAttendanceSummary } from "../attendecedisplaytable/data";
 
-export function TopSellers({ date }) {
-  const [sellers, setSellers] = useState([]);
+export function TopSellers({ data }) {
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!date) return;
-
-    setLoading(true);
-    fetchAttendanceSummary({ date }).then((data) => {
-      const mapped = (data?.records ?? [])
-        .filter((r) => r.attendanceStatus === "Not Marked")
-        .map((r) => ({
-          uid: r.studentId,
-          avatar: "/images/200x200.png",
-          name: r.studentName,
-          attendanceStatus: r.attendanceStatus,
-          mobileNumber: r.mobileNumber,
-          className: r.className,
-          chartData: Array(6).fill(0),
-        }));
-
-      setSellers(mapped);
-      setLoading(false);
-    });
-  }, [date]);
+  const sellers =
+    (data?.records ?? [])
+      .filter((r) => r.attendanceStatus === "Not Marked")
+      .map((r) => ({
+        uid: r.studentId,
+        avatar: "/images/200x200.png",
+        name: r.studentName,
+        attendanceStatus: r.attendanceStatus,
+        mobileNumber: r.mobileNumber,
+        className: r.className,
+        chartData: Array(6).fill(0),
+      })) || [];
 
   const filteredSellers = sellers
     .sort((a, b) => a.className.localeCompare(b.className))
@@ -70,7 +58,7 @@ export function TopSellers({ date }) {
         className="custom-scrollbar flex space-x-3 overflow-x-auto px-4 pb-3 sm:px-5"
         style={{ "--margin-scroll": "1.25rem" }}
       >
-        {loading ? (
+        {data === null ? (
           <div className="w-full flex justify-center items-center py-6">
             <Spinner color="primary" className="size-6 border-2" />
           </div>
