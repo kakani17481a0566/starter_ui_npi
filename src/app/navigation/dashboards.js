@@ -47,7 +47,15 @@ else if(role ==='Teacher'){
       title: "Term",
       transKey: "nav.dashboards.term",
       Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
-    }
+    },
+     {
+      id: "dashboards.AI",
+      path: path(ROOT_DASHBOARDS, "/ai"),
+      type: NAV_TYPE_ITEM,
+      title: "Ai",
+      transKey: "nav.parent.ai",
+      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
   ]
 }
 else if(role.toLowerCase()==="admin"){

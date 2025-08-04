@@ -18,4 +18,5 @@ export const baseNavigation = [
         transKey: 'nav.parent.parent',
         Icon: DashboardsIcon,
     },
+ 
 ]

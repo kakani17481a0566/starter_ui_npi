@@ -53,6 +53,13 @@ const protectedRoutes = {
                   .default,
               }),
             },
+              {
+              path: "ai",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/AI"))
+                  .default,
+              }),
+            },
             {
               path: "mark-attendance",
               lazy: async () => ({

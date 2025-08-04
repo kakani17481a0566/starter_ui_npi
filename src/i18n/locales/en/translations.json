@@ -10,7 +10,8 @@
     },
   "parent":{
     "parent":"Parent Dashboard",
-    "dashboard":"Student Performance"
+    "dashboard":"Student Performance",
+    "ai":"AI"
   },
     "settings": {
       "settings": "Settings",
