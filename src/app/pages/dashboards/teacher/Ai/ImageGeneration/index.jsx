@@ -24,7 +24,7 @@ export default function ImageGeneration() {
 
     const apiEndpoint =
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent";
-    const apiKey = "AIzaSyADRBX3vm2b-p2VRGkPeDd7ilViG3i6sD4"; // Replace with your actual Gemini API key
+    const apiKey = "AIzaSyDfTNmGdgr5d0nq9v8YVYwbgt8WjDQOOds";
 
     const prompt = `Generate a ${text}  image with ${text} word with kids`;
 
