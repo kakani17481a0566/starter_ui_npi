@@ -27,6 +27,7 @@ export function MainPanel({ nav, setActiveSegment, activeSegment }) {
     } else {
       navigate("/"); // ✅
     }
+    close();
   };
 
   return (
