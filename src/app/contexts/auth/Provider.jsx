@@ -142,7 +142,7 @@ export function AuthProvider({ children }) {
       if (!isString(token)) throw new Error("Invalid token format");
       let branchId, weekId, termId, courses, userProfile;
       if(roleName==='PARENT'){
-        const res=await axios.get(`https://localhost:7202/parent/${userId}/tenant/${tenantId}`);
+        const res=await axios.get(`https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/parent/${userId}/tenant/${tenantId}`);
         ({ branchId, weekId, termId, courses, userProfile } = res.data.data);
       }
       else{
