@@ -23,13 +23,13 @@ dynamicChilds=[{
     }
   ]
 }
-else if(role ==='Teacher'){
+else if(role ==='TEACHER'){
   dynamicChilds=[
     {
       id: "parent.dashboard",
       path: path(ROOT_DASHBOARDS, "/dashboard"),
       type: NAV_TYPE_ITEM,
-      title: "Dashboard", 
+      title: "Dashboard",
       transKey: "nav.parent.dashboard",
       Icon: HomeIcon,
     },
@@ -49,7 +49,7 @@ else if(role.toLowerCase()==="admin"){
       id: "dashboards.home",
       path: path(ROOT_DASHBOARDS, "/week"),
       type: NAV_TYPE_ITEM,
-      title: "Week Plan", 
+      title: "Week Plan",
       transKey: "nav.dashboards.week",
       Icon: HomeIcon,
     },
