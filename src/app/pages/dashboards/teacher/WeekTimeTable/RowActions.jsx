@@ -27,7 +27,7 @@ import { fetchWeekTimeTableData as fetchWeeklyTimeTableData } from "./weektimeta
 
 import Grades from "app/pages/tables/Grades";
 import Att from "app/pages/tables/Att";
-// import { getSessionData } from "utils/sessionStorage";
+import { getSessionData } from "utils/sessionStorage";
 
 export function RowActions({ row }) {
   const [showPdfViewerModal, setShowPdfViewerModal] = useState(false);
@@ -43,8 +43,13 @@ export function RowActions({ row }) {
   const [showWorkShopPopup, setShowWorkShopPopup] = useState(false);
   const [assignments, setAssignments] = useState([]);
   const [showAssignmentsPopUp, setShowAssignmentsPopUp] = useState(false);
+  const { role } = getSessionData(); // e.g., "Parent", "Teacher"
+  const isParent = role === "PARENT";
+  const isTeacher = role === "TEACHER";
+
+
   // const { course } = getSessionData();
-  
+
   // const defaultCourse = course && course.length > 0 ? course[0].id : null;
 
   const defaultCourse = 4;
@@ -176,80 +181,91 @@ export function RowActions({ row }) {
             leaveTo="opacity-0 translate-y-2"
             className="dark:border-dark-500 dark:bg-dark-100 absolute z-100 mt-1.5 min-w-[10rem] rounded-lg border border-gray-300 bg-white py-1 shadow-lg ltr:right-0 rtl:left-0"
           >
-            <MenuItem>
-              {({ active }) => (
-                <button
-                  onClick={handleViewPdfPopup}
-                  className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3",
-                    active && "bg-gray-100 dark:bg-purple-50",
-                  )}
-                >
-                  <EyeIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+            {(isParent || isTeacher) && (
+              <MenuItem>
+                {({ active }) => (
+                  <button
+                    onClick={handleViewPdfPopup}
+                    className={clsx(
+                      "flex h-9 w-full items-center space-x-3 px-3",
+                      active && "bg-gray-100 dark:bg-purple-50",
+                    )}
+                  >
+                    <EyeIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+                    <span className="text-primary-950">Lesson Plan</span>
+                  </button>
+                )}
+              </MenuItem>
+            )}
 
-                  <span className="text-primary-950">Lesson Plan</span>
-                </button>
-              )}
-            </MenuItem>
-            <MenuItem>
-              {({ active }) => (
-                <button
-                  onClick={handleViewResourcePopup}
-                  className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3",
-                    active && "bg-gray-100 dark:bg-purple-50",
-                  )}
-                >
-                  <LinkIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+            {(isParent || isTeacher) && (
+              <MenuItem>
+                {({ active }) => (
+                  <button
+                    onClick={handleViewResourcePopup}
+                    className={clsx(
+                      "flex h-9 w-full items-center space-x-3 px-3",
+                      active && "bg-gray-100 dark:bg-purple-50",
+                    )}
+                  >
+                    <LinkIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+                    <span className="text-primary-950">Resources</span>
+                  </button>
+                )}
+              </MenuItem>
+            )}
 
-                  <span className="text-primary-950">Resources</span>
-                </button>
-              )}
-            </MenuItem>
-            <MenuItem>
-              {({ active }) => (
-                <button
-                  onClick={handleViewWorkSheetPopUp}
-                  className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3",
-                    active && "bg-gray-100 dark:bg-purple-50",
-                  )}
-                >
-                  <DocumentIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+            {(isParent || isTeacher) && (
+              <MenuItem>
+                {({ active }) => (
+                  <button
+                    onClick={handleViewWorkSheetPopUp}
+                    className={clsx(
+                      "flex h-9 w-full items-center space-x-3 px-3",
+                      active && "bg-gray-100 dark:bg-purple-50",
+                    )}
+                  >
+                    <DocumentIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+                    <span className="text-primary-950">WorkSheets</span>
+                  </button>
+                )}
+              </MenuItem>
+            )}
 
-                  <span className="text-primary-950">WorkSheets</span>
-                </button>
-              )}
-            </MenuItem>
-            <MenuItem>
-              {({ active }) => (
-                <button
-                  onClick={handleViewAttendancePopup}
-                  className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3",
-                    active && "bg-gray-100 dark:bg-purple-50",
-                  )}
-                >
-                  <UserGroupIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
-                  <span className="text-primary-950">Attendance</span>
-                </button>
-              )}
-            </MenuItem>
-            <MenuItem>
-              {({ active }) => (
-                <button
-                  onClick={handleAssignMarks}
-                  className={clsx(
-                    "flex h-9 w-full items-center space-x-3 px-3",
-                    active && "bg-gray-100 dark:bg-purple-50",
-                  )}
-                >
-                  <ClipboardDocumentListIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+            {isTeacher && (
+              <MenuItem>
+                {({ active }) => (
+                  <button
+                    onClick={handleViewAttendancePopup}
+                    className={clsx(
+                      "flex h-9 w-full items-center space-x-3 px-3",
+                      active && "bg-gray-100 dark:bg-purple-50",
+                    )}
+                  >
+                    <UserGroupIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+                    <span className="text-primary-950">Attendance</span>
+                  </button>
+                )}
+              </MenuItem>
+            )}
 
-                  <span className="text-primary-950">Assignment</span>
-                </button>
-              )}
-            </MenuItem>
+            {isTeacher && (
+              <MenuItem>
+                {({ active }) => (
+                  <button
+                    onClick={handleAssignMarks}
+                    className={clsx(
+                      "flex h-9 w-full items-center space-x-3 px-3",
+                      active && "bg-gray-100 dark:bg-purple-50",
+                    )}
+                  >
+                    <ClipboardDocumentListIcon className="text-primary-600 size-4.5 stroke-[1.5]" />
+                    <span className="text-primary-950">Assignment</span>
+                  </button>
+                )}
+              </MenuItem>
+            )}
+
           </Transition>
         </Menu>
       </div>
@@ -284,81 +300,81 @@ export function RowActions({ row }) {
       )}
 
       {showResourcePopup && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-    <div className="relative w-full max-w-4xl overflow-auto rounded-lg bg-white p-6 shadow-lg">
-      <h2 className="text-primary-950 mb-4 text-lg font-semibold">
-        Resources
-      </h2>
-      {loadingResources ? (
-        <p>Loading...</p>
-      ) : (
-        <table className="w-full table-fixed border">
-          <thead className="background-primary-600">
-            <tr className="bg-gray-100">
-              <th className="text-primary-950 w-1/3 border-b p-2">PDF</th>
-              <th className="text-primary-950 w-1/3 border-b p-2">Video</th>
-              <th className="text-primary-950 w-1/3 border-b p-2">Template</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(() => {
-              const pdf = resources.anx || [];
-              const mp4 = resources.mp4 || [];
-              const template = resources.template || [];
-              const len = Math.max(pdf.length, mp4.length, template.length);
-              return Array.from({ length: len }).map((_, i) => (
-                <tr key={i} className="hover:bg-gray-50">
-                  <td className="border-b p-2 text-center">
-                    {pdf[i] ? (
-                      <button
-                        onClick={() => handlepdfResource(pdf[i])}
-                        className="text-primary-950 underline"
-                      >
-                        {pdf[i].name}
-                      </button>
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-                  <td className="border-b p-2 text-center">
-                    {mp4[i] ? (
-                      <button
-                        onClick={() => handleResourceClick(mp4[i])}
-                        className="text-primary-950 underline"
-                      >
-                        {mp4[i].name}
-                      </button>
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-                  <td className="border-b p-2 text-center">
-                    {template[i] ? (
-                      <button
-                        onClick={() => handlepdfResource(template[i])}
-                        className="text-primary-950 underline"
-                      >
-                        {template[i].name}
-                      </button>
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-                </tr>
-              ));
-            })()}
-          </tbody>
-        </table>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-4xl overflow-auto rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="text-primary-950 mb-4 text-lg font-semibold">
+              Resources
+            </h2>
+            {loadingResources ? (
+              <p>Loading...</p>
+            ) : (
+              <table className="w-full table-fixed border">
+                <thead className="background-primary-600">
+                  <tr className="bg-gray-100">
+                    <th className="text-primary-950 w-1/3 border-b p-2">PDF</th>
+                    <th className="text-primary-950 w-1/3 border-b p-2">Video</th>
+                    <th className="text-primary-950 w-1/3 border-b p-2">Template</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(() => {
+                    const pdf = resources.anx || [];
+                    const mp4 = resources.mp4 || [];
+                    const template = resources.template || [];
+                    const len = Math.max(pdf.length, mp4.length, template.length);
+                    return Array.from({ length: len }).map((_, i) => (
+                      <tr key={i} className="hover:bg-gray-50">
+                        <td className="border-b p-2 text-center">
+                          {pdf[i] ? (
+                            <button
+                              onClick={() => handlepdfResource(pdf[i])}
+                              className="text-primary-950 underline"
+                            >
+                              {pdf[i].name}
+                            </button>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                        <td className="border-b p-2 text-center">
+                          {mp4[i] ? (
+                            <button
+                              onClick={() => handleResourceClick(mp4[i])}
+                              className="text-primary-950 underline"
+                            >
+                              {mp4[i].name}
+                            </button>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                        <td className="border-b p-2 text-center">
+                          {template[i] ? (
+                            <button
+                              onClick={() => handlepdfResource(template[i])}
+                              className="text-primary-950 underline"
+                            >
+                              {template[i].name}
+                            </button>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                      </tr>
+                    ));
+                  })()}
+                </tbody>
+              </table>
+            )}
+            <button
+              className="bg-primary-600 mt-4 rounded px-4 py-2 text-white"
+              onClick={handleClosePopup}
+            >
+              Close
+            </button>
+          </div>
+        </div>
       )}
-      <button
-        className="bg-primary-600 mt-4 rounded px-4 py-2 text-white"
-        onClick={handleClosePopup}
-      >
-        Close
-      </button>
-    </div>
-  </div>
-)}
 
       {showWorkShopPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">

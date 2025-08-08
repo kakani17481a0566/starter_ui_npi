@@ -13,7 +13,7 @@ export default function VoiceInputCard({ text, audioFile }) {
 
       try {
         const response = await axios.post(
-          `https://localhost:7202/api/Audio/upload/${text}`,
+          `https://localhost:7202/${text}`,
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -46,7 +46,7 @@ export default function VoiceInputCard({ text, audioFile }) {
 
   return (
     <div className="p-4 mt-4 bg-gray-100 rounded">
-      <h3 className="font-semibold text-primary-800">🧠 Feedback from Server</h3>
+      {/* <h3 className="font-semibold text-primary-800">🧠 Feedback from Server</h3> */}
 
       {textResult && <p className="mt-2 text-sm">{textResult}</p>}
 

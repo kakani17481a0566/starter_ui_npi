@@ -2,7 +2,8 @@
 
 import { Page } from "components/shared/Page";
 import VoiceInputCard from '../teacher/Ai/VoiceInputCard';
-import ImageGenerator from "../teacher/Ai/ImageGeneration";
+// import ImageGenerator from "../teacher/Ai/ImageGeneration";
+import AlphabetTutor from'../teacher/AiNew';
 export default function AI() {
   return (
     <Page title="Attendance">
@@ -17,7 +18,8 @@ export default function AI() {
         </div>
 
         <VoiceInputCard/>
-        <ImageGenerator/>
+        {/* <ImageGenerator/> */}
+        <AlphabetTutor/>
       </div>
     </Page>
   );
