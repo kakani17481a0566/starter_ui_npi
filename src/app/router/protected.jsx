@@ -61,6 +61,13 @@ const protectedRoutes = {
               }),
             },
             {
+              path: "result",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/teacher/AiNew/Result"))
+                  .default,
+              }),
+            },
+            {
               path: "mark-attendance",
               lazy: async () => ({
                 Component: (
@@ -87,6 +94,12 @@ const protectedRoutes = {
               path: "week",
               lazy: async () => ({
                 Component: (await import("app/pages/academics/weeklyplan")).default,
+              }),
+            },
+            {
+              path: "visitor",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/Visitor")).default,
               }),
             },
           ]

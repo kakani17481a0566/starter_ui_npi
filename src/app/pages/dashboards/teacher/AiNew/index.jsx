@@ -3,16 +3,20 @@ import RecordRTC from "recordrtc";
 import { Mic, Square } from "lucide-react";
 import VoiceInputCard from "../Ai/VoiceInputCard";
 import { fetchImageGenerationText } from "../Ai/ImageGeneration/data";
+import { useNavigate } from "react-router";
 
 export default function AlphabetTutor() {
   const [index, setIndex] = useState(0);
   const [dataList, setDataList] = useState([]);
   const [imageSrc, setImageSrc] = useState("");
   const [loading, setLoading] = useState(false);
-  const [combinedText, setCombinedText] = useState("");
   const [audioFile, setAudioFile] = useState(null);
   const [recordedAudioURL, setRecordedAudioURL] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
+  const navigate=useNavigate();
+
+
+  const [setSpeakTick] = useState(0);
 
   const recorderRef = useRef(null);
   const streamRef = useRef(null);
@@ -43,6 +47,15 @@ export default function AlphabetTutor() {
     }
   };
 
+  const handleImageLogic = async (item) => {
+    if (!item) return;
+    if (item?.url) {
+      setImageSrc(item.url);
+    } else {
+      await generateImage(item.name);
+    }
+  };
+
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     streamRef.current = stream;
@@ -56,6 +69,7 @@ export default function AlphabetTutor() {
     recorderRef.current = recorder;
     setIsRecording(true);
     setAudioFile(null);
+    setSpeakTick(t => t + 1);
   };
 
   const stopRecording = async () => {
@@ -68,6 +82,7 @@ export default function AlphabetTutor() {
         setRecordedAudioURL(URL.createObjectURL(blob));
         streamRef.current?.getTracks().forEach((track) => track.stop());
         setIsRecording(false);
+        setSpeakTick(t => t + 1);
       });
     }
   };
@@ -75,10 +90,10 @@ export default function AlphabetTutor() {
   useEffect(() => {
     const init = async () => {
       const list = await fetchImageGenerationText();
-      setDataList(list);
-      if (list.length > 0) {
-        setCombinedText(list[0]);
-        await generateImage(list[0]);
+      setDataList(list || []);
+      if (list && list.length > 0) {
+        await handleImageLogic(list[0]);
+        setSpeakTick(t => t + 1);
       }
     };
     init();
@@ -88,56 +103,91 @@ export default function AlphabetTutor() {
     const nextIndex = index + 1;
     if (nextIndex < dataList.length) {
       setIndex(nextIndex);
-      setCombinedText((prev) => `${prev} ${dataList[nextIndex]}`);
-      await generateImage(dataList[nextIndex]);
+      await handleImageLogic(dataList[nextIndex]);
+      setSpeakTick(t => t + 1);
     }
   };
 
   const handlePrevious = async () => {
     const prevIndex = Math.max(0, index - 1);
     setIndex(prevIndex);
-    await generateImage(dataList[prevIndex]);
+    await handleImageLogic(dataList[prevIndex]);
+    setSpeakTick(t => t + 1);
   };
+  const handleSubmit=async()=>{
+    navigate("/dashboards/result");
+  }
+
+  const currentItem = dataList[index];
 
   return (
-   <div className="flex min-h-screen w-full bg-gray-100 p-4 gap-4 overflow-hidden">
-      <div className="flex-1 bg-white rounded-xl flex items-center justify-center relative overflow-hidden">
-        {loading ? <p>Loading...</p> : (
-          <img src={imageSrc} alt="Generated" className="max-h-full max-w-full object-contain rounded-xl" />
+  <div className="fixed inset-0 flex flex-col md:flex-row overflow-hidden bg-gray-100">
+    {/* IMAGE PANE (fills available space) */}
+    <div className="flex-1 bg-white rounded-none md:rounded-xl m-0 md:m-4 overflow-hidden">
+      <div className="w-full h-[55dvh] md:h-full flex items-center justify-center">
+        {loading ? (
+          <p>Loading...</p>
+        ) : imageSrc ? (
+          // Prefer <img> for images (no PDF zoom UI). If you must use iframe, see notes below.
+          // <img
+          //   src={imageSrc}
+          //   alt={currentItem?.name || "Generated image"}
+          //   className="w-full h-full object-contain"
+          // />
+          // If you MUST use iframe:
+          <iframe
+            src={imageSrc}
+            className="w-full h-full border-0"
+            style={{ display: 'block' }}
+            // sandbox="allow-scripts allow-pointer-lock"
+            // scrolling="no" // not reliable; browser may override
+          />
+        ) : (
+          <p className="text-sm text-gray-500">No image yet</p>
         )}
-      </div>
-
-      <div className="w-96 flex flex-col overflow-y-auto max-h-screen">
-        <div className="text-4xl font-bold text-center border p-4 rounded mb-4 bg-gray-50 shadow">
-          <span className="block py-2 px-4 border border-gray-300 rounded-lg bg-white">{dataList[index] || "Loading..."}</span>
-        </div>
-
-        {recordedAudioURL && (
-          <div className="mb-4">
-            <h4 className="text-sm font-medium">🔊 Your Recording</h4>
-            <audio controls src={recordedAudioURL} className="mt-2 w-full" />
-          </div>
-        )}
-
-        <VoiceInputCard text={combinedText} audioFile={audioFile} />
-
-        <div className="mt-8 flex justify-center mb-6">
-          <button
-            onClick={isRecording ? stopRecording : startRecording}
-            className={`rounded-full p-6 ${isRecording ? "bg-red-600" : "bg-green-600"}`}
-          >
-            {isRecording ? <Square className="w-8 h-8 text-white" /> : <Mic className="w-8 h-8 text-white" />}
-          </button>
-        </div>
-
-        <div className="mt-auto">
-          <div className="flex justify-between gap-2 mb-2">
-            <button onClick={handlePrevious} className="border text-xs rounded px-3 py-2">⬅️ Prev</button>
-            <button onClick={handleNext} className="border text-xs rounded px-3 py-2">Next ➡️</button>
-          </div>
-          <button className="w-full bg-blue-600 text-white text-sm rounded py-2">Submit</button>
-        </div>
       </div>
     </div>
-  );
+
+    {/* CONTROLS PANE (the ONLY scroller) */}
+    <aside className="w-full md:w-96 bg-white md:bg-transparent md:m-4 md:ml-0 md:rounded-xl flex flex-col 
+                     h-[45dvh] md:h-[calc(100dvh-2rem)] overflow-y-auto p-4 gap-4">
+      <div className="text-4xl font-bold text-center border p-4 rounded bg-gray-50 shadow">
+        <span className="block py-2 px-4 border border-gray-300 rounded-lg bg-white">
+          {currentItem?.name || "Loading..."}
+        </span>
+      </div>
+
+      {recordedAudioURL && (
+        <div>
+          <h4 className="text-sm font-medium">🔊 Your Recording</h4>
+          <audio controls src={recordedAudioURL} className="mt-2 w-full" />
+        </div>
+      )}
+
+      <VoiceInputCard
+        text={currentItem?.name || ""}
+        audioFile={audioFile}
+        isRecording={isRecording}
+      />
+
+      <div className="mt-4 flex justify-center">
+        <button
+          onClick={isRecording ? stopRecording : startRecording}
+          className={`rounded-full p-6 ${isRecording ? "bg-red-600" : "bg-green-600"}`}
+        >
+          {isRecording ? <Square className="w-8 h-8 text-white" /> : <Mic className="w-8 h-8 text-white" />}
+        </button>
+      </div>
+
+      <div className="mt-auto">
+        <div className="flex justify-between gap-2 mb-2">
+          <button onClick={handlePrevious} className="border text-xs rounded px-3 py-2">⬅️ Prev</button>
+          <button onClick={handleNext} className="border text-xs rounded px-3 py-2">Next ➡️</button>
+        </div>
+        <button className="w-full bg-blue-600 text-white text-sm rounded py-2" onClick={handleSubmit}>Submit</button>
+      </div>
+    </aside>
+  </div>
+);
+
 }

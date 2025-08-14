@@ -48,11 +48,11 @@
     const isTeacher = role === "TEACHER";
 
 
-    const { course } = getSessionData();
+  const { course } = getSessionData();
 
-    const defaultCourse = course && course.length > 0 ? course[0].id : null;
+  const defaultCourse = course && course.length > 0 ? course[0].id : null;
 
-    // const defaultCourse = 4;
+  // const defaultCourse = 4;
 
     const normalizeUrl = (url) =>
       url && !/^https?:\/\//i.test(url) ? `https://${url}` : url || "";
@@ -78,16 +78,16 @@
       setLoadingResources(true);
       setOpenedFromAssignments(false);
 
-      try {
-        const { resources } = await fetchWeeklyTimeTableData(defaultCourse );
-        setResources(resources);
-      } catch (err) {
-        console.error("Failed to fetch resources:", err);
-        setResources([]);
-      } finally {
-        setLoadingResources(false);
-      }
-    };
+    try {
+      const { resources } = await fetchWeeklyTimeTableData(defaultCourse);
+      setResources(resources);
+    } catch (err) {
+      console.error("Failed to fetch resources:", err);
+      setResources([]);
+    } finally {
+      setLoadingResources(false);
+    }
+  };
 
     const handleResourceClick = (res) => {
       setlinkId(res.link);
