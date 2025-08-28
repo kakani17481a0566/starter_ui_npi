@@ -6,26 +6,37 @@ import { getSessionData } from "utils/sessionStorage";
  * Fetch structured student attendance summary
  * @param {Object} params
  * @param {string} params.date - Format: YYYY-MM-DD
- * @param {number} [params.tenantId]
- * @param {number} [params.branchId]
- * @param {number} [params.courseId]
+ * @param {number} [params.tenantId] - falls back to session.tenantId
+ * @param {number} [params.courseId] - falls back to first course in session, else -1
  * @returns {Promise<{headers: string[], data: object[]}>}
  */
-// export async function fetchAttendanceSummary({ date, tenantId, branchId, courseId }) {
-export async function fetchAttendanceSummary({ date, tenantId, courseId }) {
+export async function fetchAttendanceSummary({ date, tenantId, courseId } = {}) {
   try {
-    const session = getSessionData();
+    if (!date) throw new Error("❌ 'date' is required in fetchAttendanceSummary.");
 
-    const tid = tenantId ?? session.tenantId;
-    // const bid = branchId ?? session.branch;
-    const bid = 1;
+    const session = getSessionData() || {};
 
-    const cid = courseId ?? session.course?.[0]?.id ;
+    const tid =
+      tenantId ?? (session.tenantId != null ? Number(session.tenantId) : undefined);
+
+    // ✅ branchId from session storage (no hardcoding)
+    const bid =
+      session.branch != null && session.branch !== ""
+        ? Number(session.branch)
+        : undefined;
+
+    // Use provided courseId, else first course from session, else -1 (all)
+    const cid =
+      courseId ??
+      (Array.isArray(session.course) && session.course[0]
+        ? Number(session.course[0]?.id ?? session.course[0])
+        : -1);
+
+    if (!tid) throw new Error("❌ 'tenantId' missing (not in args or session).");
+    if (!bid) throw new Error("❌ 'branchId' missing in session.");
 
     const endpoint = AttendanceAPI.summary(date, tid, bid, cid);
-
     const response = await axiosInstance.get(endpoint);
-
     const result = response?.data?.data || {};
 
     return {
@@ -35,7 +46,7 @@ export async function fetchAttendanceSummary({ date, tenantId, courseId }) {
   } catch (error) {
     console.error(
       "❌ Error fetching attendance summary:",
-      error?.response?.data || error.message,
+      error?.response?.data || error.message
     );
     return {
       headers: [],
