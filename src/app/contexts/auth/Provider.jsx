@@ -147,7 +147,7 @@ export function AuthProvider({ children }) {
       }
       else{
         const ids = await axios.get(
-        `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/department/${departmentId}/user/${userId}`,
+        `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/department/${userId}/user/${tenantId}`,
       );
 
       ({ branchId, weekId, termId, courses, userProfile } = ids.data.data);

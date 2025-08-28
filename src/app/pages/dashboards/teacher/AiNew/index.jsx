@@ -4,8 +4,9 @@ import { Mic, Square } from "lucide-react";
 import VoiceInputCard from "../Ai/VoiceInputCard";
 import { fetchImageGenerationText } from "../Ai/ImageGeneration/data";
 import { useNavigate } from "react-router";
+import axios from "axios";
 
-export default function AlphabetTutor() {
+export default function AlphabetTutor({name}) {
   const [index, setIndex] = useState(0);
   const [dataList, setDataList] = useState([]);
   const [imageSrc, setImageSrc] = useState("");
@@ -27,7 +28,8 @@ export default function AlphabetTutor() {
     try {
       const apiEndpoint =
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent";
-      const apiKey = "AIzaSyDfTNmGdgr5d0nq9v8YVYwbgt8WjDQOOds";
+        // "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent";
+      const apiKey = "AIzaSyAgAIac62cChPU-sAmfbCjC79kz676dlhU";
       const prompt = `Generate a ${text} image with ${text} word with kids`;
       const response = await fetch(`${apiEndpoint}?key=${apiKey}`, {
         method: "POST",
@@ -39,13 +41,50 @@ export default function AlphabetTutor() {
       });
       const result = await response.json();
       const base64Image = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-      if (base64Image) setImageSrc(`data:image/png;base64,${base64Image}`);
+      if (base64Image) setImageSrc(` ${base64Image} `);
+       await uploadGeneratedImageSimple(base64Image, text);
     } catch (err) {
       console.error("Image generation failed:", err.message);
     } finally {
       setLoading(false);
     }
   };
+  function base64ToBlob(dataUrl) {
+  // supports "data:image/png;base64,AAAA" or raw base64 "AAAA"
+  const hasPrefix = dataUrl.startsWith("data:");
+  const [meta, b64] = hasPrefix ? dataUrl.split(",") : ["data:application/octet-stream;base64", dataUrl];
+  const contentType = hasPrefix ? meta.match(/data:(.*?);base64/)[1] : "application/octet-stream";
+  const byteStr = atob(b64);
+  const bytes = new Uint8Array(byteStr.length);
+  for (let i = 0; i < byteStr.length; i++) bytes[i] = byteStr.charCodeAt(i);
+  return new Blob([bytes], { type: contentType });
+}
+  async function uploadGeneratedImageSimple(base64Image, text) {
+    const formData = new FormData();
+     const blob = base64ToBlob(base64Image);
+    formData.append("file", blob);
+    // formData.append("test", text || "unknown");
+    console.log(formData);
+
+   try {
+  const res = await axios.post(
+    `https://localhost:7202/updateimage/${text}`,
+    formData,
+    // {
+    //   headers: {
+    //     "Content-Type": "multipart/form-data",
+    //     "accept: text/plain"
+    //   },
+    // }
+  );
+  
+
+  console.log("Upload success:", res.data);
+} catch (err) {
+  console.error("Upload failed:", err.response?.status, err.message);
+}
+}
+
 
   const handleImageLogic = async (item) => {
     if (!item) return;
@@ -89,7 +128,13 @@ export default function AlphabetTutor() {
 
   useEffect(() => {
     const init = async () => {
-      const list = await fetchImageGenerationText();
+      var list=[];
+      if(!name){
+      list = await fetchImageGenerationText();
+      }
+      else{
+        list=await fetchImageGenerationText();
+      }
       setDataList(list || []);
       if (list && list.length > 0) {
         await handleImageLogic(list[0]);
@@ -117,6 +162,7 @@ export default function AlphabetTutor() {
   const handleSubmit=async()=>{
     navigate("/dashboards/result");
   }
+  console.log(imageSrc);
 
   const currentItem = dataList[index];
 
@@ -129,19 +175,19 @@ export default function AlphabetTutor() {
           <p>Loading...</p>
         ) : imageSrc ? (
           // Prefer <img> for images (no PDF zoom UI). If you must use iframe, see notes below.
-          // <img
-          //   src={imageSrc}
-          //   alt={currentItem?.name || "Generated image"}
-          //   className="w-full h-full object-contain"
-          // />
-          // If you MUST use iframe:
-          <iframe
-            src={imageSrc}
-            className="w-full h-full border-0"
-            style={{ display: 'block' }}
-            // sandbox="allow-scripts allow-pointer-lock"
-            // scrolling="no" // not reliable; browser may override
+          <img
+            src={`data:image/png;base64, ${imageSrc} `}
+            alt={currentItem?.name || "Generated image"}
+            className="w-full h-full object-contain"
           />
+          // If you MUST use iframe:
+          // <iframe
+          //   src={imageSrc}
+          //   className="w-full h-full border-0"
+          //   style={{ display: 'block' }}
+          //   // sandbox="allow-scripts allow-pointer-lock"
+          //   // scrolling="no" // not reliable; browser may override
+          // />
         ) : (
           <p className="text-sm text-gray-500">No image yet</p>
         )}

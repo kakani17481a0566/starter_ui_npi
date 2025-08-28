@@ -3,7 +3,9 @@ import axios from "axios";
 
 export async function fetchImageGenerationText() {
   try {
-    const url = `https://localhost:7202/images`;
+    const url = `https://localhost:7202/1?relationId=1`;
+    // const url = `https://localhost:7202/getImages`;
+
     
     const response = await axios.get(url);
 

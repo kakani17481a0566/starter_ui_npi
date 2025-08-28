@@ -1,11 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchResponseData } from "./ResponseData"; // adjust alias if needed
 import Card from "./Card";
+// import { useNavigate } from "react-router-dom";  
+import AlphabetTutor from "..";
+// import { useNavigate } from "react-router-dom";
 
 export default function StatusCards() {
   const [loading, setLoading] = useState(true);
   const [records, setRecords] = useState([]);
   const [page, setPage] = useState(1);
+  const [okMsg, setOkMsg] = useState("");              
+  const [activeTutorName, setActiveTutorName] = useState(null);
+  // const navigate=useNavigate();
+
 
   // Prevent page scroll while this component is mounted
   useEffect(() => {
@@ -43,8 +50,28 @@ export default function StatusCards() {
     const start = (page - 1) * PER_PAGE;
     return records.slice(start, start + PER_PAGE);
   }, [records, page]);
+  const handleOnClick=(item)=>{
+    const isRight =
+    item?.isCorrect === true ||
+    String(item?.isCorrect ?? "")
+      .toLowerCase()
+      .trim() === "correct";
+
+  if (isRight) {
+    setOkMsg(`Pronounced "${item.name}" correctly!`);
+    setTimeout(() => setOkMsg(""), 1500);
+  } else {
+    setActiveTutorName(item.name);
+    // navigate("/dashboards/ai")
+  }
+  };
 
   return (
+    <>
+    {activeTutorName ? (
+      <AlphabetTutor name={activeTutorName} />
+    ) : (
+
     <div className="h-screen w-full overflow-hidden bg-slate-50 flex flex-col">
       {/* Header / Controls */}
       <div className="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
@@ -75,10 +102,19 @@ export default function StatusCards() {
           </button>
         </div>
       </div>
+      
+
 
       {/* Content (fills remaining viewport height, no scroll) */}
       <div className="flex-1 px-4 sm:px-6 lg:px-8 pb-6">
         <div className="h-full w-full rounded-2xl bg-white shadow p-4 sm:p-6 overflow-hidden">
+          {okMsg && (
+            <div className="fixed inset-0 flex items-center justify-center pointer-events-none">
+              <div className="px-4 py-2 rounded-xl bg-black/80 text-white text-center text-sm sm:text-base">
+                {okMsg}
+              </div>
+            </div>
+          )}
           {loading ? (
             <div className="h-full w-full grid place-items-center">
               <div className="animate-pulse text-slate-500">Loading…</div>
@@ -92,7 +128,7 @@ export default function StatusCards() {
               "
             >
               {pageData.map((item) => (
-                <Card key={item.id} name={item.name} isCorrect={item.isCorrect} />
+                <Card key={item.id} name={item.name} isCorrect={item.isCorrect} url={item.url} onClick={()=>handleOnClick(item)}/>
               ))}
 
               {/* fill placeholders to keep grid stable */}
@@ -104,5 +140,7 @@ export default function StatusCards() {
         </div>
       </div>
     </div>
+     )}
+      </>
   );
 }

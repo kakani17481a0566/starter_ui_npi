@@ -18,7 +18,8 @@ export async function fetchResponseData() {
     return {
       id: idx + 1,
       name: String(item?.name ?? `Item ${idx + 1}`),
-      isCorrect: result === "correct", // case-insensitive match
+      isCorrect: result === "correct", 
+      url:item.url// case-insensitive match
     };
   });
 }
