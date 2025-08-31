@@ -199,7 +199,7 @@ const conductedById = 1;
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
           <Avatar
-            src="https://res.cloudinary.com/kakani7/image/upload/v1750990674/MSI/STUDENTS/pq8wjceb814q7athx01m.jpg"
+            src="http://147.93.155.157/websiteimages/Neuropi%20Revised%20Logo-01%20(1).jpeg"
             className="h-15 w-15"
           />
           <span className="font-medium text-gray-800">{row.original.studentName}</span>

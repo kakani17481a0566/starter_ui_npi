@@ -59,7 +59,7 @@ export default function SignIn() {
               className="flex h-48 items-center justify-center bg-cover bg-center sm:h-auto sm:w-1/2"
               style={{
                 backgroundImage:
-                  "url('https://res.cloudinary.com/kakani7/image/upload/v1750923624/MSI/LOGIN_PAGE/c5okkfelbao4zxbsoc11.jpg')",
+                  "url('http://147.93.155.157/websiteimages/Neuropi%20Revised%20Logo-01%20(1).jpeg')",
               }}
             />
 
