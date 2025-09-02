@@ -84,7 +84,15 @@ else if(role.toLowerCase()==="admin"){
       title: "Mark Attendance",
       transKey: "nav.dashboards.mark",
       Icon: ClipboardDocumentCheckIcon,
-    }
+    },
+        {
+      id: "dashboards.Registration",
+      path: path(ROOT_DASHBOARDS, "/registrationForm"),
+      type: NAV_TYPE_ITEM,
+      title: "RegistrationForm",
+      transKey: "nav.parent.registrationForm",
+      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
   ]
 }
 

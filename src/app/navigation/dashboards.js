@@ -99,7 +99,8 @@ else if(role ==='TEACHER'){
       title: "Mark Attendance",
       transKey: "nav.dashboards.mark",
       Icon: ClipboardDocumentCheckIcon,
-    }
+    },
+
   ]
 }
 

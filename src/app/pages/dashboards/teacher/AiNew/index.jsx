@@ -5,6 +5,7 @@ import VoiceInputCard from "../Ai/VoiceInputCard";
 import { fetchImageGenerationText } from "../Ai/ImageGeneration/data";
 import { useNavigate } from "react-router";
 import axios from "axios";
+import SecurityGuard from "components/security/SecurityGuard";
 
 export default function AlphabetTutor({name}) {
   const [index, setIndex] = useState(0);
@@ -167,6 +168,9 @@ export default function AlphabetTutor({name}) {
   const currentItem = dataList[index];
 
   return (
+    <SecurityGuard   title="Secure Exam / Alphabet Tutor"
+      watermark={name}             // or pass nothing to use session user from getSessionData
+      deferUntilArmed={true} >
   <div className="fixed inset-0 flex flex-col md:flex-row overflow-hidden bg-gray-100">
     {/* IMAGE PANE (fills available space) */}
     <div className="flex-1 bg-white rounded-none md:rounded-xl m-0 md:m-4 overflow-hidden">
@@ -234,6 +238,7 @@ export default function AlphabetTutor({name}) {
       </div>
     </aside>
   </div>
+  </SecurityGuard>
 );
 
 }

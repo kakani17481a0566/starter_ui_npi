@@ -11,7 +11,8 @@
   "parent":{
     "parent":"Parent Dashboard",
     "dashboard":"Student Performance",
-    "ai":"AI"
+    "ai":"AI",
+    "registrationForm":"Registration Form"
   },
     "settings": {
       "settings": "Settings",

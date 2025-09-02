@@ -102,6 +102,12 @@ const protectedRoutes = {
                 Component: (await import("app/pages/dashboards/Visitor")).default,
               }),
             },
+            {
+              path: "registrationForm",
+              lazy: async () => ({
+                Component: (await import("app/pages/forms/RegistrationForm")).default,
+              }),
+            },
           ]
         }
       ],
