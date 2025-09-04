@@ -1,22 +1,33 @@
-import { NAV_TYPE_ITEM, } from "constants/app.constant";
-import DashboardsIcon from 'assets/dualicons/dashboards.svg?react'
+import { NAV_TYPE_ITEM } from "constants/app.constant";
+import {
+  UsersIcon,
+  ClipboardDocumentListIcon,
+} from "@heroicons/react/24/outline";
+import DashboardsIcon from "assets/dualicons/dashboards.svg?react";
 
 export const baseNavigation = [
-    {
-        id: 'dashboards',
-        type: NAV_TYPE_ITEM,
-        path: '/dashboards',
-        title: 'Dashboards',
-        transKey: 'nav.dashboards.dashboards',
-        Icon: DashboardsIcon,
-    },
-    {
-        id: 'parentDashboard',
-        type: NAV_TYPE_ITEM,
-        path: '/parent',
-        title: 'ParentDashboards',
-        transKey: 'nav.parent.parent',
-        Icon: DashboardsIcon,
-    },
- 
-]
+  {
+    id: "dashboards",
+    type: NAV_TYPE_ITEM,
+    path: "/dashboards",
+    title: "Dashboards",
+    transKey: "nav.dashboards.dashboards",
+    Icon: DashboardsIcon, // semantic for dashboards/analytics
+  },
+  {
+    id: "parentDashboard",
+    type: NAV_TYPE_ITEM,
+    path: "/parent",
+    title: "Parent Dashboards",
+    transKey: "nav.parent.parent",
+    Icon: UsersIcon, // semantic for parents/people
+  },
+  {
+    id: "studentEnquiry",
+    type: NAV_TYPE_ITEM,
+    path: "/student",
+    title: "Student Enquiry",
+    transKey: "nav.student.student",
+    Icon: ClipboardDocumentListIcon, // semantic for enquiry/form
+  },
+];

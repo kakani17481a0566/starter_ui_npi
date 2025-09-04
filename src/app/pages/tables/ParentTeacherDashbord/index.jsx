@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 // Local Imports
 import { Page } from "components/shared/Page";
 import { PageViews } from "./PageViews";
-import { Visitors } from "./Tops/Visitors";
+// import { Visitors } from "./Tops/Visitors";
 import { SkillsPerformance } from "./Tops/SkillsPerformance";
-import { Comments } from "./Tops/Comments";
-import { Searchs } from "./Tops/Searchs";
-import { FeaturedAuthors } from "./FeaturedAuthors";
+// import { Comments } from "./Tops/Comments";
+// import { Searchs } from "./Tops/Searchs";
+// import { FeaturedAuthors } from "./FeaturedAuthors";
 import { fetchPerformanceSummary } from "app/pages/tables/ParentTeacherDashbord/performanceSummaryData";
 import StudentAttendanceGraph from "app/pages/charts/studentattendence";
 
@@ -90,15 +90,14 @@ export default function ParentTeacherDashbord() {
                 studentId={selectedStudent.studentId}
                 studentName={selectedStudent.studentName}
               />
-              <Visitors />
-              <Comments />
-              <Searchs />
+
+
             </div>
           )}
         </div>
 
         {/* ✅ Footer */}
-        <FeaturedAuthors />
+        {/* <FeaturedAuthors /> */}
       </div>
     </Page>
   );

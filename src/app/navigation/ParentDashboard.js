@@ -1,7 +1,7 @@
 import {
   HomeIcon,
   ClipboardDocumentCheckIcon,
-  AcademicCapIcon,
+  UsersIcon,
 } from "@heroicons/react/24/outline";
 // import DashboardsIcon from "assets/dualicons/dashboards.svg?react";
 import { NAV_TYPE_ROOT, NAV_TYPE_ITEM } from "constants/app.constant";
@@ -102,6 +102,6 @@ export const ParentDashboards = {
   path: "/parent",
   title: "ParentDashboards",
   transKey: "nav.parent.parent",
-  Icon: AcademicCapIcon,
+  Icon: UsersIcon,
   childs: dynamicChilds
 };

@@ -109,6 +109,39 @@ const protectedRoutes = {
               }),
             },
           ]
+        },
+        {
+          path: "student",
+          children: [
+            {
+              index: true,
+              element: <Navigate to="/student" />,
+            },
+            {
+              path: "enquiryForm",
+              lazy: async () => ({
+                Component: (await import("app/pages/forms/AdmissionEnquiry")).default,
+              }),
+            },
+             {
+              path: "week",
+              lazy: async () => ({
+                Component: (await import("app/pages/academics/weeklyplan")).default,
+              }),
+            },
+            {
+              path: "visitor",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/Visitor")).default,
+              }),
+            },
+            {
+              path: "registrationForm",
+              lazy: async () => ({
+                Component: (await import("app/pages/forms/RegistrationForm")).default,
+              }),
+            },
+          ]
         }
       ],
     },
