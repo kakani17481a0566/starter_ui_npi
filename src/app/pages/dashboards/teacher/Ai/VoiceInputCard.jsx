@@ -13,7 +13,7 @@ export default function VoiceInputCard({ text, audioFile }) {
 
       try {
         const response = await axios.post(
-          `https://localhost:7202/${text}`,
+          `https://localhost:7202/api/Audio/upload/${text}`,
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );

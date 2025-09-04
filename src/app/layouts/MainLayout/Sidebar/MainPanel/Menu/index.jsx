@@ -31,7 +31,7 @@ export function Menu({ nav, setActiveSegment, activeSegment }) {
 
   };
 
-  const getProps = ({ path, type, title, transKey, linkProps }) => {
+  const getProps = ({ path, type, title, transKey, linkProps,Icon }) => {
     const isLink = type === NAV_TYPE_ITEM;
 
     return {
@@ -41,6 +41,7 @@ export function Menu({ nav, setActiveSegment, activeSegment }) {
       isActive: path === activeSegment,
       title: t(transKey) || title,
       path,
+      Icon
     };
   };
 
@@ -53,7 +54,7 @@ export function Menu({ nav, setActiveSegment, activeSegment }) {
         return (
           <Item
             key={path}
-            {...getProps({ path, type, title, transKey, linkProps })}
+            {...getProps({ path, type, title, transKey, linkProps,Icon })}
             id={id}
             Icon={Icon}
           />
