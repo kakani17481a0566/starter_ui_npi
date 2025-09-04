@@ -5,7 +5,7 @@ import VoiceInputCard from "../Ai/VoiceInputCard";
 import { fetchImageGenerationText } from "../Ai/ImageGeneration/data";
 import { useNavigate } from "react-router";
 import axios from "axios";
-import SecurityGuard from "components/security/SecurityGuard";
+// import SecurityGuard from "components/security/SecurityGuard";
 import useTextToSpeech from "./useTextToSpeech"; 
 
 export default function AlphabetTutor({ name }) {
@@ -47,7 +47,7 @@ export default function AlphabetTutor({ name }) {
     try {
       const apiEndpoint =
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent";
-      const apiKey = "YOUR-API-KEY-HERE"; // ⚠️ Move this to your backend and proxy calls!
+      const apiKey = "AIzaSyAgAIac62cChPU-sAmfbCjC79kz676dlhU"; // ⚠️ Move this to your backend and proxy calls!
       const prompt = `Generate a ${text} image with the word "${text}" for kids`;
 
       const response = await fetch(`${apiEndpoint}?key=${apiKey}`, {
@@ -60,60 +60,56 @@ export default function AlphabetTutor({ name }) {
       });
 
       const result = await response.json();
-      const base64Image =
-        result?.candidates?.[0]?.content?.parts?.find((p) => p.inlineData)?.inlineData?.data;
-
-      if (base64Image) {
-        // store trim() to avoid stray spaces breaking data URLs
-        setImageSrc(base64Image.trim());
-        await uploadGeneratedImageSimple(base64Image, text);
-      }
+      const base64Image = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+      if (base64Image) setImageSrc(` ${base64Image} `);
+       await uploadGeneratedImageSimple(base64Image, text);
     } catch (err) {
-      console.error("Image generation failed:", err?.message || err);
+      console.error("Image generation failed:", err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  function base64ToBlob(dataUrl) {
-    // supports "data:image/png;base64,AAAA" or raw base64 "AAAA"
-    const hasPrefix = typeof dataUrl === "string" && dataUrl.startsWith("data:");
-    const [meta, b64] = hasPrefix
-      ? dataUrl.split(",")
-      : ["data:image/png;base64", dataUrl];
-    const contentType = hasPrefix
-      ? meta.match(/data:(.*?);base64/)?.[1] || "image/png"
-      : "image/png";
+   function base64ToBlob(dataUrl) {
+  // supports "data:image/png;base64,AAAA" or raw base64 "AAAA"
+  const hasPrefix = dataUrl.startsWith("data:");
+  const [meta, b64] = hasPrefix ? dataUrl.split(",") : ["data:application/octet-stream;base64", dataUrl];
+  const contentType = hasPrefix ? meta.match(/data:(.*?);base64/)[1] : "application/octet-stream";
+  const byteStr = atob(b64);
+  const bytes = new Uint8Array(byteStr.length);
+  for (let i = 0; i < byteStr.length; i++) bytes[i] = byteStr.charCodeAt(i);
+  return new Blob([bytes], { type: contentType });
+}
+async function uploadGeneratedImageSimple(base64Image, text) {
+    const formData = new FormData();
+     const blob = base64ToBlob(base64Image);
+    formData.append("file", blob);
+    // formData.append("test", text || "unknown");
+    console.log(formData);
 
-    const byteStr = atob(b64);
-    const bytes = new Uint8Array(byteStr.length);
-    for (let i = 0; i < byteStr.length; i++) bytes[i] = byteStr.charCodeAt(i);
-    return new Blob([bytes], { type: contentType });
-  }
+   try {
+  const res = await axios.post(
+    `https://localhost:7202/updateimage/${text}`,
+    formData,
+    // {
+    //   headers: {
+    //     "Content-Type": "multipart/form-data",
+    //     "accept: text/plain"
+    //   },
+    // }
+  );
+  
 
-  async function uploadGeneratedImageSimple(base64Image, text) {
-    try {
-      const blob = base64ToBlob(base64Image);
-      const formData = new FormData();
-      formData.append("file", blob, `${text || "image"}.png`);
-
-      const res = await axios.post(
-        `https://localhost:7202/updateimage/${encodeURIComponent(text || "")}`,
-        formData
-        // If your backend expects headers, uncomment:
-        // { headers: { "Content-Type": "multipart/form-data", Accept: "text/plain" } }
-      );
-
-      console.log("Upload success:", res.data);
-    } catch (err) {
-      console.error("Upload failed:", err?.response?.status, err?.message);
-    }
-  }
+  console.log("Upload success:", res.data);
+} catch (err) {
+  console.error("Upload failed:", err.response?.status, err.message);
+}
+}
 
   const handleImageLogic = async (item) => {
     if (!item) return;
     if (item?.url) {
-      setImageSrc(item.url.trim());
+      setImageSrc(item.url);
     } else {
       await generateImage(item.name);
     }
@@ -150,16 +146,19 @@ export default function AlphabetTutor({ name }) {
     }
   };
 
-  useEffect(() => {
+useEffect(() => {
     const init = async () => {
-      let list = [];
-      // (You can branch by `name` here if you intend to filter)
+      var list=[];
+      if(!name){
       list = await fetchImageGenerationText();
-
+      }
+      else{
+        list=await fetchImageGenerationText();
+      }
       setDataList(list || []);
       if (list && list.length > 0) {
         await handleImageLogic(list[0]);
-        setSpeakTick((t) => t + 1);
+        setSpeakTick(t => t + 1);
       }
     };
     init();
@@ -209,11 +208,11 @@ export default function AlphabetTutor({ name }) {
   };
 
   return (
-    <SecurityGuard
-      title="Secure Exam / Alphabet Tutor"
-      watermark={name}
-      deferUntilArmed={true}
-    >
+    // <SecurityGuard
+    //   title="Secure Exam / Alphabet Tutor"
+    //   watermark={name}
+    //   deferUntilArmed={true}
+    // >
       <div className="fixed inset-0 flex flex-col md:flex-row overflow-hidden bg-gray-100">
         {/* IMAGE PANE */}
         <div className="flex-1 bg-white rounded-none md:rounded-xl m-0 md:m-4 overflow-hidden">
@@ -365,6 +364,6 @@ export default function AlphabetTutor({ name }) {
           </div>
         </aside>
       </div>
-    </SecurityGuard>
+    
   );
 }
