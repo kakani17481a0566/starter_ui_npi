@@ -56,7 +56,7 @@ const protectedRoutes = {
               {
               path: "ai",
               lazy: async () => ({
-                Component: (await import("app/pages/dashboards/AI"))
+                Component: (await import("app/pages/dashboards/teacher/TestRegistartion"))
                   .default,
               }),
             },

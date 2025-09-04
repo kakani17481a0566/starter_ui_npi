@@ -1,28 +1,55 @@
-import  { useEffect, useMemo, useState } from "react";
+
+import { useEffect, useMemo, useState, Fragment } from "react";
+import {
+  ChevronDownIcon,
+  CheckIcon,
+  BuildingLibraryIcon,
+  BookOpenIcon,
+  UserIcon,
+  ClipboardDocumentIcon,
+} from "@heroicons/react/24/outline";
+
+import {
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+  Transition,
+} from "@headlessui/react";
+import clsx from "clsx";
+
 import { getBranches } from "./branchData";
 import { getCoursesByBranch } from "./courseData";
 import { getStudentsByCourse } from "./StudentData";
 import { getStudentTest } from "./testData";
+import { StudentTestVertical } from "./components/StudentTestVertical/StudentTestVertical";
+import { Button } from "components/ui";
 
 export default function StudentTest() {
   const [branches, setBranches] = useState([]);
   const [courses, setCourses] = useState([]);
   const [students, setStudents] = useState([]);
   const [tests, setTests] = useState([]);
+
   const [branchId, setBranchId] = useState("");
   const [courseId, setCourseId] = useState("");
   const [studentId, setStudentId] = useState("");
   const [testId, setTestId] = useState("");
 
-
   const [loading, setLoading] = useState({
     branches: false,
     courses: false,
     students: false,
+    tests: false,
   });
+
   const [error, setError] = useState("");
 
-  // load branches on mount
+  const canSubmit = useMemo(
+    () => !!branchId && !!courseId && !!studentId && !!testId,
+    [branchId, courseId, studentId, testId]
+  );
+
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -31,9 +58,8 @@ export default function StudentTest() {
       try {
         const data = await getBranches();
         if (alive) setBranches(data);
-      } catch (e) {
+      } catch {
         if (alive) setError("Failed to load branches.");
-        console.error(e);
       } finally {
         if (alive) setLoading((s) => ({ ...s, branches: false }));
       }
@@ -43,24 +69,25 @@ export default function StudentTest() {
     };
   }, []);
 
-  // when branch changes → load courses
   useEffect(() => {
     let alive = true;
     setCourses([]);
     setCourseId("");
     setStudents([]);
     setStudentId("");
+    setTests([]);
+    setTestId("");
 
     if (!branchId) return;
+
     (async () => {
       setLoading((s) => ({ ...s, courses: true }));
       setError("");
       try {
-        const data = await getCoursesByBranch();
+        const data = await getCoursesByBranch(branchId);
         if (alive) setCourses(data);
-      } catch (e) {
-        if (alive) setError("Failed to load courses for the selected branch.");
-        console.error(e);
+      } catch {
+        if (alive) setError("Failed to load courses.");
       } finally {
         if (alive) setLoading((s) => ({ ...s, courses: false }));
       }
@@ -71,22 +98,21 @@ export default function StudentTest() {
     };
   }, [branchId]);
 
-  // when course changes → load students
   useEffect(() => {
     let alive = true;
     setStudents([]);
     setStudentId("");
 
     if (!courseId) return;
+
     (async () => {
       setLoading((s) => ({ ...s, students: true }));
       setError("");
       try {
-        const data = await getStudentsByCourse(branchId,courseId);
+        const data = await getStudentsByCourse(branchId, courseId);
         if (alive) setStudents(data);
-      } catch (e) {
-        if (alive) setError("Failed to load students for the selected course.");
-        console.error(e);
+      } catch {
+        if (alive) setError("Failed to load students.");
       } finally {
         if (alive) setLoading((s) => ({ ...s, students: false }));
       }
@@ -95,37 +121,32 @@ export default function StudentTest() {
     return () => {
       alive = false;
     };
-  }, [courseId,branchId]);
-
-  const canSubmit = useMemo(
-    () => !!branchId && !!courseId && !!studentId,
-    [branchId, courseId, studentId]
-  );
+  }, [courseId, branchId]);
 
   useEffect(() => {
     let alive = true;
     setTests([]);
     setTestId("");
 
-    if (!courseId) return;
+    if (!studentId) return;
+
     (async () => {
-      setLoading((s) => ({ ...s, students: true }));
+      setLoading((s) => ({ ...s, tests: true }));
       setError("");
       try {
         const data = await getStudentTest();
         if (alive) setTests(data);
-      } catch (e) {
-        if (alive) setError("Failed to load students for the selected course.");
-        console.error(e);
+      } catch {
+        if (alive) setError("Failed to load tests.");
       } finally {
-        if (alive) setLoading((s) => ({ ...s, students: false }));
+        if (alive) setLoading((s) => ({ ...s, tests: false }));
       }
     })();
 
     return () => {
       alive = false;
     };
-  }, [courseId,branchId,studentId]);
+  }, [studentId]);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -135,130 +156,113 @@ export default function StudentTest() {
       branchId: Number(branchId),
       courseId: Number(courseId),
       studentId: Number(studentId),
-      testId:testId
+      testId: Number(testId),
     };
     console.log("Submit payload:", payload);
-    
+    alert(`Submitted:\nBranch: ${branchId}\nCourse: ${courseId}\nStudent: ${studentId}\nTest: ${testId}`);
+  };
+
+  const iconMap = {
+    Branch: BuildingLibraryIcon,
+    Course: BookOpenIcon,
+    Student: UserIcon,
+    Test: ClipboardDocumentIcon,
+  };
+
+  const renderDropdown = (
+    label,
+    data,
+    selectedId,
+    setSelectedId,
+    loadingKey,
+    disabled
+  ) => {
+    const Icon = iconMap[label];
+    return (
+      <div className="space-y-1">
+        <label className="flex items-center gap-1 font-medium text-sm text-gray-800 dark:text-gray-200">
+          <Icon className="w-4 h-4 text-primary-500" />
+          {label}:
+        </label>
+        <Menu as="div" className="relative w-full text-left">
+          <MenuButton
+            as="button"
+            disabled={disabled}
+            className={clsx(
+              "w-full flex justify-between items-center px-4 py-2 text-sm rounded-md border shadow-sm",
+              "border-primary-500 bg-white dark:bg-gray-900 text-black dark:text-white",
+              disabled && "opacity-50 cursor-not-allowed"
+            )}
+          >
+            <span className="truncate">
+              {data.find((item) => item.id === selectedId)?.name || `Select ${label}`}
+            </span>
+            <ChevronDownIcon className="w-4 h-4" />
+          </MenuButton>
+
+          <Transition
+            as={Fragment}
+            enter="transition ease-out duration-100"
+            enterFrom="opacity-0 translate-y-2"
+            enterTo="opacity-100 translate-y-0"
+            leave="transition ease-in duration-75"
+            leaveFrom="opacity-100 translate-y-0"
+            leaveTo="opacity-0 translate-y-2"
+          >
+            <MenuItems className="absolute z-50 mt-2 w-full rounded-md border border-primary-800 bg-white dark:bg-gray-900 shadow-md text-sm overflow-hidden">
+              {data.map((item) => (
+                <MenuItem key={item.id}>
+                  {() => (
+                    <button
+                      onClick={() => setSelectedId(item.id)}
+                      className={clsx(
+                        "w-full px-4 py-2 text-left flex justify-between items-center",
+                        selectedId === item.id
+                          ? "bg-primary-500 text-white"
+                          : "bg-white dark:bg-gray-900 text-black dark:text-white"
+                      )}
+                    >
+                      {item.name}
+                      {selectedId === item.id && (
+                        <CheckIcon className="w-4 h-4 text-white" />
+                      )}
+                    </button>
+                  )}
+                </MenuItem>
+              ))}
+            </MenuItems>
+          </Transition>
+        </Menu>
+
+        {loading[loadingKey] && (
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Loading {label.toLowerCase()}…
+          </p>
+        )}
+      </div>
+    );
   };
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-8">
-      {/* Header box */}
-      <div className="border-4 border-black p-8 mb-6">
-        <h1 className="text-2xl font-bold text-center">Student Test</h1>
-      </div>
+    <div className="min-h-screen bg-white dark:bg-dark-900 p-4 md:p-8">
+      <StudentTestVertical />
 
-      {/* Form box */}
-      <form onSubmit={onSubmit} className="border-4 border-black p-6 md:p-10">
-        <div className="max-w-3xl mx-auto space-y-8">
-          {/* Branch */}
-          <div className="grid md:grid-cols-3 items-center gap-4">
-            <label className="font-semibold md:text-right">Branch :</label>
-            <div className="md:col-span-2">
-              <select
-                className="w-full border rounded px-3 py-2"
-                value={branchId}
-                onChange={(e) => setBranchId(e.target.value)}
-              >
-                <option value="">Select Branch</option>
-                {branches.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
-              {loading.branches && (
-                <p className="text-sm mt-1">Loading branches…</p>
-              )}
-            </div>
-          </div>
+      <div className="max-w-3xl mx-auto rounded-lg border-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 shadow-md px-6 py-8 space-y-6">
+        <form onSubmit={onSubmit} className="space-y-6">
+          {renderDropdown("Branch", branches, branchId, setBranchId, "branches", false)}
+          {renderDropdown("Course", courses, courseId, setCourseId, "courses", !branchId)}
+          {renderDropdown("Student", students, studentId, setStudentId, "students", !courseId)}
+          {renderDropdown("Test", tests, testId, setTestId, "tests", !studentId)}
 
-          {/* Course */}
-          <div className="grid md:grid-cols-3 items-center gap-4">
-            <label className="font-semibold md:text-right">Course :</label>
-            <div className="md:col-span-2">
-              <select
-                className="w-full border rounded px-3 py-2"
-                value={courseId}
-                onChange={(e) => setCourseId(e.target.value)}
-                disabled={!branchId || loading.courses}
-              >
-                <option value="">Select Course</option>
-                {courses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-              {loading.courses && (
-                <p className="text-sm mt-1">Loading courses…</p>
-              )}
-            </div>
-          </div>
+          {!!error && <p className="text-sm text-red-600">{error}</p>}
 
-          {/* Student */}
-          <div className="grid md:grid-cols-3 items-center gap-4">
-            <label className="font-semibold md:text-right">Student :</label>
-            <div className="md:col-span-2">
-              <select
-                className="w-full border rounded px-3 py-2"
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
-                disabled={!courseId || loading.students}
-              >
-                <option value="">Select Student</option>
-                {students.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-              {loading.students && (
-                <p className="text-sm mt-1">Loading students…</p>
-              )}
-            </div>
-          </div>
-
-          {/* Tests Display */}
-
-          <div className="grid md:grid-cols-3 items-center gap-4">
-            <label className="font-semibold md:text-right">Test:</label>
-            <div className="md:col-span-2">
-              <select
-                className="w-full border rounded px-3 py-2"
-                value={studentId}
-                onChange={(e) => setTestId(e.target.value)}
-                disabled={!courseId || loading.students}
-              >
-                <option value="">Select Test</option>
-                {tests.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-              {loading.tests && (
-                <p className="text-sm mt-1">Loading Tests....</p>
-              )}
-            </div>
-          </div>
-
-          {/* Error */}
-          {!!error && <p className="text-red-600">{error}</p>}
-
-          {/* Submit */}
-          <div className="flex justify-end pt-8">
-            <button
-              type="submit"
-              disabled={!canSubmit}
-              className="px-6 py-2 font-semibold border rounded disabled:opacity-50"
-            >
+          <div className="flex justify-end pt-4">
+            <Button type="submit" disabled={!canSubmit} size="sm">
               Submit
-            </button>
+            </Button>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
-
