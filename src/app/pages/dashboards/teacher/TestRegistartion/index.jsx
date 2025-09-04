@@ -138,9 +138,7 @@ export default function StudentTest() {
       testId:testId
     };
     console.log("Submit payload:", payload);
-    alert(
-      `Submitted:\nBranch: ${branchId}\nCourse: ${courseId}\nStudent: ${studentId}`
-    );
+    
   };
 
   return (

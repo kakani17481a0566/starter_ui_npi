@@ -57,7 +57,7 @@ export default function useTextToSpeech() {
     const synth = window.speechSynthesis;
     const utt = utteranceRef.current || new SpeechSynthesisUtterance();
 
-    // Cancel anything currently speaking to avoid overlap
+    
     if (synth.speaking || synth.pending) synth.cancel();
 
     // Assign options safely

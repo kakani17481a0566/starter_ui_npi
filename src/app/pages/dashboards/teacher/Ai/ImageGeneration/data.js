@@ -1,9 +1,9 @@
 import axios from "axios";
 
 
-export async function fetchImageGenerationText() {
+export async function fetchImageGenerationText({testId,relationId}) {
   try {
-    const url = `https://localhost:7202/1?relationId=1`;
+    const url = `https://localhost:7202/${testId}?relationId=$${relationId}`;
     // const url = `https://localhost:7202/getImages`;
 
     
