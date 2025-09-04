@@ -6,7 +6,7 @@ import { fetchImageGenerationText } from "../Ai/ImageGeneration/data";
 import { useNavigate } from "react-router";
 import axios from "axios";
 import SecurityGuard from "components/security/SecurityGuard";
-import useTextToSpeech from "./useTextToSpeech"; // <- adjust path if needed
+import useTextToSpeech from "./useTextToSpeech"; 
 
 export default function AlphabetTutor({ name }) {
   const [index, setIndex] = useState(0);
