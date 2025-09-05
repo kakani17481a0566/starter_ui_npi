@@ -18,7 +18,8 @@
     "student":"Student",
     "enquiryForm":"Enquiry Form",
     "followUp":"Follow Up",
-    "admissionForm":"Admission Form"
+    "admissionForm":"Admission Form",
+    "StudentRegistrationForm":"Student Registration Form"
   },
     "settings": {
       "settings": "Settings",

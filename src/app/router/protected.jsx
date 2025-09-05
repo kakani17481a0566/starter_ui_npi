@@ -124,9 +124,9 @@ const protectedRoutes = {
               }),
             },
              {
-              path: "week",
+              path: "StudentRegistrationForm",
               lazy: async () => ({
-                Component: (await import("app/pages/academics/weeklyplan")).default,
+                Component: (await import("app/pages/forms/StudentRegistrationForm")).default,
               }),
             },
             {
