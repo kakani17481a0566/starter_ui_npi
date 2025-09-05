@@ -19,6 +19,7 @@ import ContactSection from "./sections/ContactSection";
 import MedicalInfoSection from "./sections/MedicalInfoSection";
 import OtherInfoSection from "./sections/OtherInfoSection";
 import SignatureSection from "./sections/SignatureSection";
+import DocumentUploadSection from "./sections/DocumentUploadSection";
 
 function StudentRegistrationForm() {
   const methods = useForm({
@@ -38,6 +39,12 @@ function StudentRegistrationForm() {
     payload.registration_date = payload.registration_date ? new Date(payload.registration_date).toISOString() : null;
     payload.birth_date = payload.birth_date ? new Date(payload.birth_date).toISOString() : null;
     payload.signature_date = payload.signature_date ? new Date(payload.signature_date).toISOString() : null;
+
+    console.log("Files: ", {
+      birth_certificate: data.birth_certificate,
+      aadhaar: data.aadhaar,
+      immunisation_record: data.immunisation_record,
+    });
 
     await new Promise((r) => setTimeout(r, 600));
     console.log(payload);
@@ -118,6 +125,17 @@ function StudentRegistrationForm() {
 
               <div className="col-span-12">
                 <OtherInfoSection />
+              </div>
+
+              <div className="col-span-12">
+                <DocumentUploadSection
+                  title="Upload Required Documents"
+                  documents={[
+                    { name: "birth_certificate", label: "Birth Certificate" },
+                    { name: "aadhaar", label: "Aadhaar Card" },
+                    { name: "immunisation_record", label: "Immunisation Record" },
+                  ]}
+                />
               </div>
 
               <div className="col-span-12">

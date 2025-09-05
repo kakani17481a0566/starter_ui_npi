@@ -7,12 +7,24 @@ import {
 import { Card } from "components/ui";
 
 export default function RegistrationOverview() {
+  const currentYear = new Date().getFullYear();
+  const nextYear = currentYear + 1;
+
+  const academicYearLabel = `${currentYear}–${nextYear.toString().slice(-2)}`; // 2024–25
+  const physicalExamDeadline = `June 1, ${currentYear}`;
+
+  const eligibilityList = [
+    { date: `1/4/${currentYear - 3}`, grade: "Nursery" },
+    { date: `1/4/${currentYear - 4}`, grade: "K-1" },
+    { date: `1/4/${currentYear - 5}`, grade: "K-2" },
+  ];
+
   return (
     <Card className="mb-4 p-4 sm:px-5">
       <div className="mb-3 flex items-center gap-2">
         <DocumentPlusIcon className="text-primary-600 dark:text-primary-400 size-5" />
         <h2 className="dark:text-dark-50 text-base font-semibold text-gray-800">
-          Registration Overview — 2024–25
+          Registration Overview — {academicYearLabel}
         </h2>
       </div>
 
@@ -25,16 +37,12 @@ export default function RegistrationOverview() {
           </span>
         </div>
         <ul className="mt-1 space-y-1">
-          {[
-            { date: "1/4/2021", grade: "Nursery" },
-            { date: "1/4/2020", grade: "K-1" },
-            { date: "1/4/2019", grade: "K-2" },
-          ].map((item, index) => (
+          {eligibilityList.map((item, index) => (
             <li key={index} className="flex items-start gap-2">
               <CheckCircleIcon className="mt-0.5 size-4 text-emerald-600" />
               <span className="dark:text-dark-100 text-sm text-gray-700">
                 A child born on/before <strong>{item.date}</strong> is eligible
-                for <strong>{item.grade}</strong> in 2024–25.
+                for <strong>{item.grade}</strong> in {academicYearLabel}.
               </span>
             </li>
           ))}
@@ -92,8 +100,8 @@ export default function RegistrationOverview() {
         <div className="mt-2 rounded-md bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-900/20 dark:text-amber-100">
           * The <strong>Health Form</strong> and <strong>Oral Form</strong> must
           be completed by the child’s doctor and dentist and submitted before
-          school starts. Physical exams for 2024–25 registrants must be done
-          after <strong>June 1, 2024</strong>.
+          school starts. Physical exams for {academicYearLabel} registrants must
+          be done after <strong>{physicalExamDeadline}</strong>.
         </div>
       </div>
 
