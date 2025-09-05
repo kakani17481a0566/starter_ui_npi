@@ -12,6 +12,8 @@ import { useAuthContext } from "app/contexts/auth/context";
 import { schema } from "./schema";
 import { Page } from "components/shared/Page";
 import CloudinaryBg from "./cloudinaryBg";
+import neuropiLogo from './Neuropi_logo.jpeg';
+
 
 export default function SignIn() {
   const { login, errorMessage } = useAuthContext();
@@ -58,8 +60,8 @@ export default function SignIn() {
             <div
               className="flex h-48 items-center justify-center bg-cover bg-center sm:h-auto sm:w-1/2"
               style={{
-                backgroundImage:
-                  "url('http://147.93.155.157/websiteimages/Neuropi%20Revised%20Logo-01%20(1).jpeg')",
+    backgroundImage: `url(${neuropiLogo})`,
+
               }}
             />
 
