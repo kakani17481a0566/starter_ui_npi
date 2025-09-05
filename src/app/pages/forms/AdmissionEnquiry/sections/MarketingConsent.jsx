@@ -7,7 +7,11 @@ import { MegaphoneIcon } from "@heroicons/react/24/outline";
 import { fetchHeardAboutUsOptions } from "./MarketingConsentdata";
 
 export default function MarketingConsent() {
-  const { register, control, formState: { errors } } = useFormContext();
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useFormContext();
 
   const [heardAboutUsOptions, setHeardAboutUsOptions] = useState([]);
 
@@ -26,9 +30,10 @@ export default function MarketingConsent() {
         </div>
 
         <div className="mt-5 grid grid-cols-12 gap-4">
+          {/* Heard About Us */}
           <div className="col-span-12 lg:col-span-6">
             <Controller
-              name="heard_about_us"
+              name="hearAboutUsTypeId"
               control={control}
               render={({ field }) => (
                 <Listbox
@@ -39,23 +44,22 @@ export default function MarketingConsent() {
                     </span>
                   }
                   data={heardAboutUsOptions}
-                  value={
-                    heardAboutUsOptions.find((h) => h.id === field.value) || null
-                  }
+                  value={heardAboutUsOptions.find((h) => h.id === field.value) || null}
                   onChange={(val) => field.onChange(val?.id ?? null)}
                   displayField="label"
                   placeholder="Select option"
-                  error={errors?.heard_about_us?.message}
+                  error={errors?.hearAboutUsTypeId?.message}
                 />
               )}
             />
           </div>
 
+          {/* Consent Checkbox */}
           <div className="col-span-12">
             <label className="dark:text-dark-100 flex items-start gap-2 text-sm text-gray-700">
               <input
                 type="checkbox"
-                {...register("consent_agree")}
+                {...register("isAgreedToTerms")}
                 className="text-primary focus:ring-primary mt-1 h-4 w-4 rounded border-gray-300"
               />
               <span>
@@ -63,18 +67,19 @@ export default function MarketingConsent() {
                 through Email/SMS from My School Italy.
               </span>
             </label>
-            {errors?.consent_agree && (
+            {errors?.isAgreedToTerms && (
               <p className="mt-1 text-xs text-red-500">
-                {errors.consent_agree.message}
+                {errors.isAgreedToTerms.message}
               </p>
             )}
           </div>
 
+          {/* E-signature */}
           <div className="col-span-12 lg:col-span-6">
             <Input
               label="E-Signature"
-              {...register("e_signature")}
-              error={errors?.e_signature?.message}
+              {...register("signature")}
+              error={errors?.signature?.message}
             />
           </div>
         </div>

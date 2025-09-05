@@ -24,28 +24,30 @@ export default function MotherDetails() {
         </div>
 
         <div className="mt-4 grid grid-cols-12 gap-4">
+          {/* Name Fields */}
           <div className="col-span-12 md:col-span-4">
             <Input
-              label={<IconLabel Icon={UserIcon} text="Mother First Name" />}
+              label={<IconLabel Icon={UserIcon} text="First Name" />}
               {...register("mother_first_name")}
               error={errors?.mother_first_name?.message}
             />
           </div>
           <div className="col-span-12 md:col-span-4">
             <Input
-              label={<IconLabel Icon={UserIcon} text="Mother Middle Name" />}
+              label={<IconLabel Icon={UserIcon} text="Middle Name" />}
               {...register("mother_middle_name")}
               error={errors?.mother_middle_name?.message}
             />
           </div>
           <div className="col-span-12 md:col-span-4">
             <Input
-              label={<IconLabel Icon={UserIcon} text="Mother Last Name" />}
+              label={<IconLabel Icon={UserIcon} text="Last Name" />}
               {...register("mother_last_name")}
               error={errors?.mother_last_name?.message}
             />
           </div>
 
+          {/* Qualification & Profession */}
           <div className="col-span-12 md:col-span-6">
             <Input
               label={<IconLabel Icon={PencilSquareIcon} text="Qualification" />}
@@ -61,8 +63,14 @@ export default function MotherDetails() {
             />
           </div>
 
-          <PhoneField dialName="mother_dialCode" numberName="mother_phone" label="Mobile Number" />
+          {/* Phone */}
+          <PhoneField
+            dialName="mother_dialCode"
+            numberName="mother_phone"
+            label="Mobile Number"
+          />
 
+          {/* Email */}
           <div className="col-span-12 md:col-span-6">
             <Input
               label={<IconLabel Icon={EnvelopeIcon} text="Email" />}

@@ -1,8 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { DatePicker } from "components/shared/form/Datepicker";
 import { Listbox } from "components/shared/form/Listbox";
-import { grades } from "../data";
+import { fetchCourseOptions } from "./PreviousSchoolInfodata";
 import SectionCard from "../components/SectionCard";
 import LabelWithIcon from "../components/LabelWithIcon";
 import InputWithIcon from "../components/InputWithIcon";
@@ -22,15 +22,24 @@ export default function PreviousSchoolInfo() {
     formState: { errors },
   } = useFormContext();
 
-  const fromGrade = watch("from_grade");
+  const fromGrade = watch("fromCourseId");
+  const [grades, setGrades] = useState([]);
+  const tenantId = 1; // Make dynamic if needed
 
-  // Auto-set to_grade when from_grade changes (only if to_grade is empty)
+  // Load grades/courses from API
   useEffect(() => {
-    if (fromGrade) {
-      const existingToGrade = watch("to_grade");
-      if (!existingToGrade) {
-        setValue("to_grade", fromGrade);
-      }
+    const loadCourses = async () => {
+      const options = await fetchCourseOptions(tenantId);
+      setGrades(options);
+    };
+    loadCourses();
+  }, [tenantId]);
+
+  // Auto-fill toCourseId if empty
+  useEffect(() => {
+    const existingToGrade = watch("toCourseId");
+    if (fromGrade && !existingToGrade) {
+      setValue("toCourseId", fromGrade);
     }
   }, [fromGrade, setValue, watch]);
 
@@ -45,44 +54,54 @@ export default function PreviousSchoolInfo() {
         </div>
 
         <div className="mt-5 grid grid-cols-12 gap-4">
+          {/* School Name */}
           <div className="col-span-12">
             <InputWithIcon
               icon={BuildingOffice2Icon}
               label="School Name"
               placeholder="Enter previous school name"
-              {...register("prev_school_name")}
-              error={errors?.prev_school_name?.message}
+              {...register("prevSchoolName")}
+              error={errors?.prevSchoolName?.message}
             />
           </div>
 
+          {/* From Grade */}
           <div className="col-span-12 md:col-span-3">
             <Controller
-              name="from_grade"
+              name="fromCourseId"
               control={control}
               render={({ field }) => (
                 <Listbox
-                  label={<LabelWithIcon icon={AcademicCapIcon}>From Grade</LabelWithIcon>}
+                  label={
+                    <LabelWithIcon icon={AcademicCapIcon}>
+                      From Grade
+                    </LabelWithIcon>
+                  }
                   data={grades}
                   value={grades.find((g) => g.id === field.value) || null}
                   onChange={(val) => field.onChange(val?.id ?? null)}
                   displayField="label"
                   placeholder="Select grade"
-                  error={errors?.from_grade?.message}
+                  error={errors?.fromCourseId?.message}
                 />
               )}
             />
           </div>
 
+          {/* From Year */}
           <div className="col-span-12 md:col-span-3">
             <Controller
-              name="from_year"
+              name="fromYear"
               control={control}
               render={({ field: { onChange, value, ...rest } }) => (
                 <DatePicker
                   label={<LabelWithIcon icon={CalendarDaysIcon}>From Year</LabelWithIcon>}
-                  value={value ?? null}
-                  onChange={onChange}
-                  error={errors?.from_year?.message}
+                  value={value ? new Date(value, 0) : null}
+                  onChange={(date) => {
+                    const year = new Date(date).getFullYear();
+                    onChange(year);
+                  }}
+                  error={errors?.fromYear?.message}
                   options={{ disableMobile: true, dateFormat: "Y" }}
                   placeholder="Choose year..."
                   {...rest}
@@ -91,9 +110,10 @@ export default function PreviousSchoolInfo() {
             />
           </div>
 
+          {/* To Grade */}
           <div className="col-span-12 md:col-span-3">
             <Controller
-              name="to_grade"
+              name="toCourseId"
               control={control}
               render={({ field }) => (
                 <Listbox
@@ -103,22 +123,26 @@ export default function PreviousSchoolInfo() {
                   onChange={(val) => field.onChange(val?.id ?? null)}
                   displayField="label"
                   placeholder="Select grade"
-                  error={errors?.to_grade?.message}
+                  error={errors?.toCourseId?.message}
                 />
               )}
             />
           </div>
 
+          {/* To Year */}
           <div className="col-span-12 md:col-span-3">
             <Controller
-              name="to_year"
+              name="toYear"
               control={control}
               render={({ field: { onChange, value, ...rest } }) => (
                 <DatePicker
                   label={<LabelWithIcon icon={CalendarDaysIcon}>To Year</LabelWithIcon>}
-                  value={value ?? null}
-                  onChange={onChange}
-                  error={errors?.to_year?.message}
+                  value={value ? new Date(value, 0) : null}
+                  onChange={(date) => {
+                    const year = new Date(date).getFullYear();
+                    onChange(year);
+                  }}
+                  error={errors?.toYear?.message}
                   options={{ disableMobile: true, dateFormat: "Y" }}
                   placeholder="Choose year..."
                   {...rest}
