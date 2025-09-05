@@ -1,12 +1,19 @@
+import { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { Input } from "components/ui";
 import { Listbox } from "components/shared/form/Listbox";
 import SectionCard from "../components/SectionCard";
-import { heardAboutUs } from "../data";
 import { MegaphoneIcon } from "@heroicons/react/24/outline";
+import { fetchHeardAboutUsOptions } from "./MarketingConsentdata";
 
 export default function MarketingConsent() {
   const { register, control, formState: { errors } } = useFormContext();
+
+  const [heardAboutUsOptions, setHeardAboutUsOptions] = useState([]);
+
+  useEffect(() => {
+    fetchHeardAboutUsOptions().then(setHeardAboutUsOptions);
+  }, []);
 
   return (
     <div className="col-span-12">
@@ -31,8 +38,10 @@ export default function MarketingConsent() {
                       Where did you hear about us?
                     </span>
                   }
-                  data={heardAboutUs}
-                  value={heardAboutUs.find((h) => h.id === field.value) || null}
+                  data={heardAboutUsOptions}
+                  value={
+                    heardAboutUsOptions.find((h) => h.id === field.value) || null
+                  }
                   onChange={(val) => field.onChange(val?.id ?? null)}
                   displayField="label"
                   placeholder="Select option"
@@ -50,11 +59,14 @@ export default function MarketingConsent() {
                 className="text-primary focus:ring-primary mt-1 h-4 w-4 rounded border-gray-300"
               />
               <span>
-                I hereby acknowledge to receive promotion and transaction updates through Email/SMS from My School Italy.
+                I hereby acknowledge to receive promotion and transaction updates
+                through Email/SMS from My School Italy.
               </span>
             </label>
             {errors?.consent_agree && (
-              <p className="mt-1 text-xs text-red-500">{errors.consent_agree.message}</p>
+              <p className="mt-1 text-xs text-red-500">
+                {errors.consent_agree.message}
+              </p>
             )}
           </div>
 

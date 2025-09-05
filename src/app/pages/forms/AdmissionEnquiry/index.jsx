@@ -1,8 +1,6 @@
-// src/app/pages/forms/AdmissionEnquiry/index.jsx (or your page file)
-
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormProvider, useForm } from "react-hook-form";
-import { useEffect, useState } from "react"; // ✅ useMemo no longer needed
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { schema } from "./schema";
 import { Page } from "components/shared/Page";
@@ -13,7 +11,7 @@ import {
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 
-import { initialState } from "./data"; // ✅ genders/grades/heardAboutUs no longer needed here
+import { initialState } from "./data";
 import { getDialFromCountry, normalizeCountry } from "./utils";
 import StudentDetails from "./sections/StudentDetails";
 import PreviousSchoolInfo from "./sections/PreviousSchoolInfo";
@@ -21,8 +19,6 @@ import AddressSection from "./sections/AddressSection";
 import ParentGuardianDetails from "./sections/ParentGuardianDetails";
 import MotherDetails from "./sections/MotherDetails";
 import MarketingConsent from "./sections/MarketingConsent";
-
-// ✅ import the standalone PreviewModal component
 import PreviewModal from "./components/PreviewModal";
 
 export default function AdmissionEnquiryForm() {
@@ -42,11 +38,9 @@ export default function AdmissionEnquiryForm() {
     getValues,
   } = methods;
 
-  // Preview state
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewValues, setPreviewValues] = useState(null);
 
-  // --- Effects that coordinate fields across sections -------------------
   const selectedCountry = watch("country");
   const isSame = watch("isSameCorrespondenceAddress");
   const studentDial = watch("student_dialCode");
@@ -122,21 +116,22 @@ export default function AdmissionEnquiryForm() {
 
   return (
     <Page title="Student Enquiry Form">
-      <div className="transition-content px-(--margin-x) pb-6">
-        <div className="flex flex-col items-center justify-between space-y-4 py-5 sm:flex-row sm:space-y-0 lg:py-6">
+      {/* Sticky Button Bar */}
+      <footer className="sticky bottom-0 z-10 bg-white dark:bg-dark-900 border-t border-gray-200 dark:border-dark-600 px-4 sm:px-6 lg:px-8 py-4 shadow-[0_-4px_8px_-2px_rgba(0,0,0,0.1)]">
+        <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
           <div className="flex items-center gap-1">
             <DocumentPlusIcon className="size-6 text-primary-600 dark:text-primary-400" />
             <h2 className="dark:text-dark-50 line-clamp-1 text-xl font-medium text-gray-700">
               Student Enquiry Form
             </h2>
           </div>
+
           <div className="flex gap-2">
-            {/* Open preview */}
             <Button
               className="min-w-[7rem]"
               variant="outlined"
               onClick={() => {
-                setPreviewValues(getValues()); // snapshot current raw values
+                setPreviewValues(getValues());
                 setPreviewOpen(true);
               }}
             >
@@ -160,7 +155,10 @@ export default function AdmissionEnquiryForm() {
             </Button>
           </div>
         </div>
+      </footer>
 
+      {/* Main Form */}
+      <div className="transition-content px-4 sm:px-6 lg:px-8 pb-36">
         <FormProvider {...methods}>
           <form id="enquiry-form" autoComplete="off" noValidate onSubmit={handleSubmit(onSubmit)}>
             <div className="grid grid-cols-12 gap-4 sm:gap-5 lg:gap-6">
@@ -175,12 +173,11 @@ export default function AdmissionEnquiryForm() {
         </FormProvider>
       </div>
 
-      {/* Use the external PreviewModal */}
+      {/* Preview Modal */}
       <PreviewModal
         open={previewOpen}
-        values={previewValues}                 // ✅ pass raw values; component formats them
+        values={previewValues}
         onClose={() => setPreviewOpen(false)}
-        // onSave={handleSubmit(onSubmit)}     // ← optional: enable "Save" inside the modal
       />
     </Page>
   );

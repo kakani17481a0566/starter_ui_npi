@@ -3,15 +3,71 @@ import { Input } from "components/ui";
 import { DatePicker } from "components/shared/form/Datepicker";
 import { Listbox } from "components/shared/form/Listbox";
 import SectionCard from "../components/SectionCard";
-import { genders, grades } from "../data";
 import {
   AcademicCapIcon,
   CalendarDaysIcon,
 } from "@heroicons/react/24/outline";
+import { useEffect, useState } from "react";
+import axios from "axios";
 // import PhoneField from "../components/PhoneField";
 
 export default function StudentDetails() {
   const { register, control, formState: { errors } } = useFormContext();
+
+  // ✅ Load dynamic dropdowns
+  const [genders, setGenders] = useState([]);
+  const [grades, setGrades] = useState([]);
+  const [branches, setBranches] = useState([]);
+
+  useEffect(() => {
+    // Load gender
+    axios
+      .get("https://localhost:7202/getByMasterTypeId/49/1?isUtilites=false")
+      .then((res) => {
+        if (res.data?.statusCode === 200) {
+          const options = res.data.data.map((item) => ({
+            id: item.id,
+            label: item.name,
+          }));
+          setGenders(options);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load gender options:", err);
+      });
+
+    // Load grades (courses)
+    axios
+      .get("https://localhost:7202/api/Course/dropdown-options-course/1")
+      .then((res) => {
+        if (res.data?.statusCode === 200) {
+          const options = res.data.data.map((item) => ({
+            id: item.id,
+            label: item.name,
+          }));
+          setGrades(options);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load grade/course options:", err);
+      });
+
+    // Load branches
+    axios
+      .get("https://localhost:7202/api/Branch/dropdown-options/1")
+      .then((res) => {
+        if (res.data?.statusCode === 200) {
+          const options = res.data.data.map((item) => ({
+            id: item.id,
+            label: item.name,
+          }));
+          setBranches(options);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load branch options:", err);
+      });
+  }, []);
 
   return (
     <div className="col-span-12">
@@ -103,6 +159,24 @@ export default function StudentDetails() {
                   displayField="label"
                   placeholder="Select Grade"
                   error={errors?.grade_applying_for?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div className="col-span-12 md:col-span-4">
+            <Controller
+              name="branch_id"
+              control={control}
+              render={({ field }) => (
+                <Listbox
+                  label="Branch"
+                  data={branches}
+                  value={branches.find((b) => b.id === field.value) || null}
+                  onChange={(val) => field.onChange(val?.id ?? null)}
+                  displayField="label"
+                  placeholder="Select Branch"
+                  error={errors?.branch_id?.message}
                 />
               )}
             />

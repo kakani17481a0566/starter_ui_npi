@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { DatePicker } from "components/shared/form/Datepicker";
 import { Listbox } from "components/shared/form/Listbox";
@@ -13,7 +14,25 @@ import {
 } from "@heroicons/react/24/outline";
 
 export default function PreviousSchoolInfo() {
-  const { control, register, formState: { errors } } = useFormContext();
+  const {
+    control,
+    register,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext();
+
+  const fromGrade = watch("from_grade");
+
+  // Auto-set to_grade when from_grade changes (only if to_grade is empty)
+  useEffect(() => {
+    if (fromGrade) {
+      const existingToGrade = watch("to_grade");
+      if (!existingToGrade) {
+        setValue("to_grade", fromGrade);
+      }
+    }
+  }, [fromGrade, setValue, watch]);
 
   return (
     <div className="col-span-12">
