@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
-import { Card, Input } from "components/ui";
+import { Card, Input, Checkbox } from "components/ui";
 import {
   HomeIcon,
   UserGroupIcon,
@@ -9,167 +10,171 @@ import {
 } from "@heroicons/react/24/outline";
 import LabelWithIcon from "../components/LabelWithIcon";
 
-export default function AddressSection() {
-  const { register, formState: { errors } } = useFormContext();
+const f = (prefix, name) => (prefix ? `${prefix}${name}` : name);
+
+function AddressGroup({ title, prefix = "", syncWithPrimary = false }) {
+  const { register, setValue, watch, formState: { errors } } = useFormContext();
+
+  const primaryValues = watch([
+    "pg_names",
+    "home_apt",
+    "home_street",
+    "mailing_city",
+    "mailing_postal",
+    "civic_city",
+    "civic_postal",
+    "civic_house",
+    "civic_po_box",
+  ]);
+
+  const sameAsPrimaryName = f(prefix, "same_as_primary");
+  const sameAsPrimaryChecked = watch(sameAsPrimaryName);
+
+  // keep alt fields synced when checkbox is ON
+  useEffect(() => {
+    if (!syncWithPrimary || !sameAsPrimaryChecked) return;
+    const [
+      pg_names,
+      home_apt,
+      home_street,
+      mailing_city,
+      mailing_postal,
+      civic_city,
+      civic_postal,
+      civic_house,
+      civic_po_box,
+    ] = primaryValues;
+
+    setValue(f(prefix, "pg_names"), pg_names ?? "");
+    setValue(f(prefix, "home_apt"), home_apt ?? "");
+    setValue(f(prefix, "home_street"), home_street ?? "");
+    setValue(f(prefix, "mailing_city"), mailing_city ?? "");
+    setValue(f(prefix, "mailing_postal"), (mailing_postal || "").toString().toUpperCase());
+    setValue(f(prefix, "civic_city"), civic_city ?? "");
+    setValue(f(prefix, "civic_postal"), (civic_postal || "").toString().toUpperCase());
+    setValue(f(prefix, "civic_house"), civic_house ?? "");
+    setValue(f(prefix, "civic_po_box"), civic_po_box ?? "");
+  }, [sameAsPrimaryChecked, primaryValues, prefix, setValue, syncWithPrimary]);
+
+  const handlePostalBlur = (fieldName) => (e) => {
+    const val = (e.target.value || "").toString().trim().toUpperCase();
+    setValue(fieldName, val, { shouldValidate: true, shouldDirty: true });
+  };
 
   return (
+    <Card className="p-4 sm:px-5">
+      <div className="flex items-center gap-2">
+        <HomeIcon className="text-primary-600 dark:text-primary-400 size-5" />
+        <h3 className="text-base font-medium">{title}</h3>
+      </div>
+
+      {syncWithPrimary && (
+        <div className="mt-3">
+          <Checkbox
+            {...register(sameAsPrimaryName)}
+            label="Same as Primary Address"
+          />
+        </div>
+      )}
+
+      <div className="mt-4 grid grid-cols-12 gap-4">
+        <div className="col-span-12">
+          <Input
+            label={<LabelWithIcon icon={UserGroupIcon}>Parent/Guardian – Name(s)</LabelWithIcon>}
+            {...register(f(prefix, "pg_names"))}
+            error={errors?.[f(prefix, "pg_names")]?.message}
+            disabled={syncWithPrimary && sameAsPrimaryChecked}
+          />
+        </div>
+
+        <div className="col-span-12 md:col-span-3">
+          <Input
+            label={<LabelWithIcon icon={HomeIcon}>Apt</LabelWithIcon>}
+            {...register(f(prefix, "home_apt"))}
+            error={errors?.[f(prefix, "home_apt")]?.message}
+            disabled={syncWithPrimary && sameAsPrimaryChecked}
+          />
+        </div>
+
+        <div className="col-span-12 md:col-span-9">
+          <Input
+            label={<LabelWithIcon icon={MapPinIcon}>Street/Road</LabelWithIcon>}
+            {...register(f(prefix, "home_street"))}
+            error={errors?.[f(prefix, "home_street")]?.message}
+            disabled={syncWithPrimary && sameAsPrimaryChecked}
+          />
+        </div>
+
+        <div className="col-span-12 md:col-span-4">
+          <Input
+            label={<LabelWithIcon icon={GlobeAltIcon}>City (mailing)</LabelWithIcon>}
+            {...register(f(prefix, "mailing_city"))}
+            error={errors?.[f(prefix, "mailing_city")]?.message}
+            disabled={syncWithPrimary && sameAsPrimaryChecked}
+          />
+        </div>
+        <div className="col-span-12 md:col-span-2">
+          <Input
+            label={<LabelWithIcon icon={HashtagIcon}>Postal Code </LabelWithIcon>}
+            {...register(f(prefix, "mailing_postal"))}
+            onBlur={handlePostalBlur(f(prefix, "mailing_postal"))}
+            error={errors?.[f(prefix, "mailing_postal")]?.message}
+            disabled={syncWithPrimary && sameAsPrimaryChecked}
+          />
+        </div>
+
+        <div className="col-span-12 md:col-span-4">
+          <Input
+            label={<LabelWithIcon icon={GlobeAltIcon}>City (civic)</LabelWithIcon>}
+            {...register(f(prefix, "civic_city"))}
+            error={errors?.[f(prefix, "civic_city")]?.message}
+            disabled={syncWithPrimary && sameAsPrimaryChecked}
+          />
+        </div>
+        <div className="col-span-12 md:col-span-2">
+          <Input
+            label={<LabelWithIcon icon={HashtagIcon}>Postal Code (civic)</LabelWithIcon>}
+            {...register(f(prefix, "civic_postal"))}
+            onBlur={handlePostalBlur(f(prefix, "civic_postal"))}
+            error={errors?.[f(prefix, "civic_postal")]?.message}
+            disabled={syncWithPrimary && sameAsPrimaryChecked}
+          />
+        </div>
+
+        <div className="col-span-12 md:col-span-4">
+          <Input
+            label={<LabelWithIcon icon={HomeIcon}>House</LabelWithIcon>}
+            {...register(f(prefix, "civic_house"))}
+            error={errors?.[f(prefix, "civic_house")]?.message}
+            disabled={syncWithPrimary && sameAsPrimaryChecked}
+          />
+        </div>
+        <div className="col-span-12 md:col-span-4">
+          <Input
+            label={<LabelWithIcon icon={HomeIcon}>PO Box</LabelWithIcon>}
+            {...register(f(prefix, "civic_po_box"))}
+            error={errors?.[f(prefix, "civic_po_box")]?.message}
+            disabled={syncWithPrimary && sameAsPrimaryChecked}
+          />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+export default function AddressSection() {
+  return (
     <>
-      {/* Home Address (Civic + Mailing) */}
-      <Card className="p-4 sm:px-5">
-        <div className="flex items-center gap-2">
-          <HomeIcon className="text-primary-600 dark:text-primary-400 size-5" />
-          <h3 className="text-base font-medium">
-            Demographics — Home Address (Civic + Mailing)
-          </h3>
-        </div>
-
-        <div className="mt-4 grid grid-cols-12 gap-4">
-          <div className="col-span-12">
-            <Input
-              label={<LabelWithIcon icon={UserGroupIcon}>Parent/Guardian – Name(s)</LabelWithIcon>}
-              {...register("pg_names")}
-              error={errors?.pg_names?.message}
-            />
-          </div>
-
-          <div className="col-span-12 md:col-span-3">
-            <Input
-              label={<LabelWithIcon icon={HomeIcon}>Apt</LabelWithIcon>}
-              {...register("home_apt")}
-              error={errors?.home_apt?.message}
-            />
-          </div>
-          <div className="col-span-12 md:col-span-9">
-            <Input
-              label={<LabelWithIcon icon={MapPinIcon}>Street/Road</LabelWithIcon>}
-              {...register("home_street")}
-              error={errors?.home_street?.message}
-            />
-          </div>
-
-          <div className="col-span-12 md:col-span-4">
-            <Input
-              label={<LabelWithIcon icon={GlobeAltIcon}>City (mailing)</LabelWithIcon>}
-              {...register("mailing_city")}
-              error={errors?.mailing_city?.message}
-            />
-          </div>
-          <div className="col-span-12 md:col-span-2">
-            <Input
-              label={<LabelWithIcon icon={HashtagIcon}>Postal Code (mailing)</LabelWithIcon>}
-              {...register("mailing_postal")}
-              error={errors?.mailing_postal?.message}
-            />
-          </div>
-
-          <div className="col-span-12 md:col-span-4">
-            <Input
-              label={<LabelWithIcon icon={GlobeAltIcon}>City (civic)</LabelWithIcon>}
-              {...register("civic_city")}
-              error={errors?.civic_city?.message}
-            />
-          </div>
-          <div className="col-span-12 md:col-span-2">
-            <Input
-              label={<LabelWithIcon icon={HashtagIcon}>Postal Code (civic)</LabelWithIcon>}
-              {...register("civic_postal")}
-              error={errors?.civic_postal?.message}
-            />
-          </div>
-
-          <div className="col-span-12 md:col-span-4">
-            <Input
-              label={<LabelWithIcon icon={HomeIcon}>House</LabelWithIcon>}
-              {...register("civic_house")}
-              error={errors?.civic_house?.message}
-            />
-          </div>
-          <div className="col-span-12 md:col-span-4">
-            <Input
-              label={<LabelWithIcon icon={HomeIcon}>PO Box</LabelWithIcon>}
-              {...register("civic_po_box")}
-              error={errors?.civic_po_box?.message}
-            />
-          </div>
-        </div>
-      </Card>
-
-      {/* Alternate Home Address (Shared Custody) */}
-      <Card className="p-4 sm:px-5">
-        <div className="dark:text-dark-100 mb-2 text-sm text-gray-700">
-          Demographics — Alternate Home Address (Shared Custody) — Civic + Mailing
-        </div>
-
-        <div className="grid grid-cols-12 gap-4">
-          <div className="col-span-12">
-            <Input
-              label={<LabelWithIcon icon={UserGroupIcon}>Parent/Guardian – Name(s)</LabelWithIcon>}
-              {...register("alt_pg_names")}
-              error={errors?.alt_pg_names?.message}
-            />
-          </div>
-
-          <div className="col-span-12 md:col-span-3">
-            <Input
-              label={<LabelWithIcon icon={HomeIcon}>Apt</LabelWithIcon>}
-              {...register("alt_home_apt")}
-              error={errors?.alt_home_apt?.message}
-            />
-          </div>
-          <div className="col-span-12 md:col-span-9">
-            <Input
-              label={<LabelWithIcon icon={MapPinIcon}>Street/Road</LabelWithIcon>}
-              {...register("alt_home_street")}
-              error={errors?.alt_home_street?.message}
-            />
-          </div>
-
-          <div className="col-span-12 md:col-span-4">
-            <Input
-              label={<LabelWithIcon icon={GlobeAltIcon}>City (mailing)</LabelWithIcon>}
-              {...register("alt_mailing_city")}
-              error={errors?.alt_mailing_city?.message}
-            />
-          </div>
-          <div className="col-span-12 md:col-span-2">
-            <Input
-              label={<LabelWithIcon icon={HashtagIcon}>Postal Code (mailing)</LabelWithIcon>}
-              {...register("alt_mailing_postal")}
-              error={errors?.alt_mailing_postal?.message}
-            />
-          </div>
-
-          <div className="col-span-12 md:col-span-4">
-            <Input
-              label={<LabelWithIcon icon={GlobeAltIcon}>City (civic)</LabelWithIcon>}
-              {...register("alt_civic_city")}
-              error={errors?.alt_civic_city?.message}
-            />
-          </div>
-          <div className="col-span-12 md:col-span-2">
-            <Input
-              label={<LabelWithIcon icon={HashtagIcon}>Postal Code (civic)</LabelWithIcon>}
-              {...register("alt_civic_postal")}
-              error={errors?.alt_civic_postal?.message}
-            />
-          </div>
-
-          <div className="col-span-12 md:col-span-4">
-            <Input
-              label={<LabelWithIcon icon={HomeIcon}>House</LabelWithIcon>}
-              {...register("alt_civic_house")}
-              error={errors?.alt_civic_house?.message}
-            />
-          </div>
-          <div className="col-span-12 md:col-span-4">
-            <Input
-              label={<LabelWithIcon icon={HomeIcon}>PO Box</LabelWithIcon>}
-              {...register("alt_civic_po_box")}
-              error={errors?.alt_civic_po_box?.message}
-            />
-          </div>
-        </div>
-      </Card>
+      <AddressGroup
+        title="Demographics — Home Address (Civic + Mailing)"
+        prefix="" // primary group
+        syncWithPrimary={false}
+      />
+      <AddressGroup
+        title="Demographics — Alternate Home Address (Shared Custody) — Civic + Mailing"
+        prefix="alt_" // alternate group
+        syncWithPrimary={true}
+      />
     </>
   );
 }

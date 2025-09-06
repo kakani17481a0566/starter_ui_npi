@@ -1,3 +1,5 @@
+// src\app\pages\forms\AdmissionEnquiry\utils.js
+
 export const getDialFromCountry = (countryVal) =>
   countryVal?.dialCode || countryVal?.phone || countryVal?.callingCode || null;
 

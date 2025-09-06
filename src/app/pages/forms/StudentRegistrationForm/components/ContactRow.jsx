@@ -8,7 +8,7 @@ import {
 import { Input } from "components/ui";
 import LabelWithIcon from "./LabelWithIcon";
 import { useFormContext, useWatch } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 export default function ContactRow({
   title,
@@ -20,7 +20,14 @@ export default function ContactRow({
 }) {
   const { setValue, control, watch } = useFormContext();
 
+  // dynamic label: "Same as Father/Mother/..."
+  const primaryLabel = useMemo(
+    () => primaryPrefix.charAt(0).toUpperCase() + primaryPrefix.slice(1),
+    [primaryPrefix]
+  );
+
   const sameAsPrimary = watch(`${prefix}_same_as_primary`);
+
   const primaryValues = useWatch({
     control,
     name: [
@@ -58,7 +65,8 @@ export default function ContactRow({
 
   return (
     <div className="col-span-12">
-      <div className="mt-6 mb-3 flex items-center justify-between gap-4">
+      {/* Header stack: title on top; checkbox aligned LEFT just under it */}
+      <div className="mt-6 mb-3 flex flex-col items-start gap-2">
         <div className="flex items-center gap-2">
           <UserIcon className="text-primary-600 dark:text-primary-400 size-5" />
           <h4 className="text-sm font-semibold text-gray-800 dark:text-dark-100">
@@ -70,7 +78,7 @@ export default function ContactRow({
           <label className="flex items-center gap-2 text-sm text-gray-600">
             <input type="checkbox" {...register(`${prefix}_same_as_primary`)} />
             <CheckCircleIcon className="size-4 text-primary-500" />
-            Same as Father
+            <span>Same as {primaryLabel}</span>
           </label>
         )}
       </div>
