@@ -4,75 +4,65 @@ import { normalizeCountry } from "./utils";
 const API_URL = "https://localhost:7202/api/StudentEnquiry/create";
 
 export async function submitAdmissionEnquiry(data) {
-  // Convert any form values into expected payload
   const asInt = (v) => (v === "" || v == null ? null : Number(v));
   const asBool = (v) => Boolean(v);
 
   const dobIso = data?.dob ? new Date(data.dob).toISOString() : null;
 
   const payload = {
-    studentFirstName: data.studentFirstName?.trim() ?? "",
-    studentMiddleName: data.studentMiddleName ?? "",
-    studentLastName: data.studentLastName?.trim() ?? "",
-    dob: dobIso,
-    genderId: asInt(data.genderId),
-    admissionCourseId: asInt(data.admissionCourseId),
+    StudentFirstName: data.studentFirstName?.trim() ?? "",
+    StudentMiddleName: data.studentMiddleName ?? "",
+    StudentLastName: data.studentLastName?.trim() ?? "",
+    Dob: dobIso,
+    GenderId: asInt(data.genderId),
+    AdmissionCourseId: asInt(data.admissionCourseId),
 
-    prevSchoolName: data.prevSchoolName ?? "",
-    fromCourseId: asInt(data.fromCourseId),
-    fromYear: asInt(data.fromYear),
-    toCourseId: asInt(data.toCourseId),
-    toYear: asInt(data.toYear),
+    PrevSchoolName: data.prevSchoolName ?? "",
+    FromCourseId: asInt(data.fromCourseId),
+    FromYear: asInt(data.fromYear),
+    ToCourseId: asInt(data.toCourseId),
+    ToYear: asInt(data.toYear),
 
-    isGuardian: asBool(data.isGuardian),
+    IsGuardian: asBool(data.isGuardian),
 
-    parentFirstName: data.parentFirstName?.trim() ?? "",
-    parentMiddleName: data.parentMiddleName ?? "",
-    parentLastName: data.parentLastName?.trim() ?? "",
-    parentPhone: data.parentPhone ?? "",
-    parentAlternatePhone: data.parentAlternatePhone ?? "",
+    ParentFirstName: data.parentFirstName?.trim() ?? "",
+    ParentMiddleName: data.parentMiddleName ?? "",
+    ParentLastName: data.parentLastName?.trim() ?? "",
+    ParentPhone: data.parentPhone ?? "",
+    ParentAlternatePhone: "0",
     parentEmail: data.parentEmail ?? "",
-    parentAddress1: data.parentAddress1 ?? "",
-    parentAddress2: data.parentAddress2 ?? "",
-    parentCity: data.parentCity ?? "",
-    parentState: data.parentState ?? "",
-    parentPincode: data.parentPincode ?? "",
-    parentQualification: data.parentQualification ?? "", // ✅ add this
-    parentProfession: data.parentProfession ?? "", // ✅ add this
+    ParentAddress1: data.parentAddress1 ?? ""+ normalizeCountry(data.country),
+    ParentAddress2: data.parentAddress2 ?? "",
+    ParentCity: data.parentCity ?? "",
+    ParentState: data.parentState ?? "",
+    ParentPincode: data.parentPincode ?? "",
+    ParentQualification: data.parentQualification ?? "",
+    ParentProfession: data.parentProfession ?? "",
 
-    motherFirstName: data.motherFirstName?.trim() ?? "",
-    motherMiddleName: data.motherMiddleName ?? "",
-    motherLastName: data.motherLastName?.trim() ?? "",
-    motherPhone: data.motherPhone ?? "",
-    motherEmail: data.motherEmail ?? "",
-    motherQualification: data.motherQualification ?? "", // ✅ add this
-    motherProfession: data.motherProfession ?? "", // ✅ add this
+    MotherFirstName: data.motherFirstName?.trim() ?? "",
+    MotherMiddleName: data.motherMiddleName ?? "",
+    MotherLastName: data.motherLastName?.trim() ?? "",
+    MotherPhone: data.motherPhone ?? "",
+    MotherEmail: data.motherEmail ?? "",
+    MotherQualification: data.motherQualification ?? "",
+    MotherProfession: data.motherProfession ?? "",
 
-    hearAboutUsTypeId: asInt(data.hearAboutUsTypeId),
-    isAgreedToTerms: asBool(data.isAgreedToTerms),
-    signature: data.signature ?? "",
+    HearAboutUsTypeId: asInt(data.hearAboutUsTypeId),
+    IsAgreedToTerms: asBool(data.isAgreedToTerms),
+    Signature: data.signature ?? "",
 
-    statusId: asInt(data.statusId),
-    tenantId: asInt(data.tenantId),
-    branchId: asInt(data.branchId),
-    createdBy: asInt(data.createdBy),
+    StatusId: asInt(data.statusId),
+    TenantId: asInt(data.tenantId),
+    BranchId: asInt(data.branchId),
+    CreatedBy: asInt(data.createdBy),
 
-    country: normalizeCountry(data.country),
-    correspondence_country: normalizeCountry(data.correspondence_country),
+    // country:,
+    // correspondence_country: normalizeCountry(data.correspondence_country),
   };
 
-  // Normalize countries (if using them later)
-  payload.country = normalizeCountry(data.country);
-  payload.correspondence_country = normalizeCountry(
-    data.correspondence_country,
-  );
-
-  // Send to ASP.NET Core API
   const response = await axios.post(API_URL, payload, {
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "*/*",
-    },
+    headers: { "Content-Type": "application/json", Accept: "*/*" },
+    // withCredentials: true, // uncomment if you need cookies
   });
 
   return response.data;

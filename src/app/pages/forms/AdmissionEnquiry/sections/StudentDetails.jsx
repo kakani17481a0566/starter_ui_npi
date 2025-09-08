@@ -4,10 +4,7 @@ import { Input } from "components/ui";
 import { DatePicker } from "components/shared/form/Datepicker";
 import { Listbox } from "components/shared/form/Listbox";
 import SectionCard from "../components/SectionCard";
-import {
-  AcademicCapIcon,
-  CalendarDaysIcon,
-} from "@heroicons/react/24/outline";
+import { AcademicCapIcon, CalendarDaysIcon } from "@heroicons/react/24/outline";
 
 import {
   fetchGenderOptions,
@@ -16,20 +13,31 @@ import {
 } from "./StudentDetailsData";
 
 export default function StudentDetails() {
-  const {
-    register,
-    control,
-    formState: { errors },
-  } = useFormContext();
+  const { register, control, formState: { errors } } = useFormContext();
 
   const [genders, setGenders] = useState([]);
   const [grades, setGrades] = useState([]);
   const [branches, setBranches] = useState([]);
 
   useEffect(() => {
-    fetchGenderOptions().then(setGenders).catch(console.error);
-    fetchCourseOptions().then(setGrades).catch(console.error);
-    fetchBranchOptions().then(setBranches).catch(console.error);
+    let alive = true;
+    (async () => {
+      try {
+        const [g, c, b] = await Promise.all([
+          fetchGenderOptions(),
+          fetchCourseOptions(),
+          fetchBranchOptions(),
+        ]);
+        if (!alive) return;
+        // Expecting arrays of { id: number, label: string }
+        setGenders(Array.isArray(g) ? g : []);
+        setGrades(Array.isArray(c) ? c : []);
+        setBranches(Array.isArray(b) ? b : []);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+    return () => { alive = false; };
   }, []);
 
   return (
@@ -48,7 +56,7 @@ export default function StudentDetails() {
             <Input
               label="First Name"
               placeholder="Enter first name"
-              {...register("studentFirstName")}
+              {...register("student_first_name")}
               error={errors?.studentFirstName?.message}
             />
           </div>
@@ -58,7 +66,7 @@ export default function StudentDetails() {
             <Input
               label="Middle Name"
               placeholder="Enter middle name"
-              {...register("studentMiddleName")}
+              {...register("student_middle_name")}
               error={errors?.studentMiddleName?.message}
             />
           </div>
@@ -68,7 +76,7 @@ export default function StudentDetails() {
             <Input
               label="Last Name"
               placeholder="Enter last name"
-              {...register("studentLastName")}
+              {...register("student_last_name")}
               error={errors?.studentLastName?.message}
             />
           </div>
@@ -78,7 +86,7 @@ export default function StudentDetails() {
             <Controller
               name="dob"
               control={control}
-              render={({ field: { onChange, value, ...rest } }) => (
+              render={({ field: { value, onChange, ...field } }) => (
                 <DatePicker
                   label={
                     <span className="inline-flex items-center gap-2">
@@ -86,12 +94,12 @@ export default function StudentDetails() {
                       <span>DOB</span>
                     </span>
                   }
-                  value={value ?? null}
-                  onChange={onChange}
+                  value={value ?? null}            // RHF holds a Date or null
+                  onChange={onChange}              // You convert to ISO in submit
                   error={errors?.dob?.message}
                   options={{ disableMobile: true, maxDate: "today" }}
                   placeholder="Choose date..."
-                  {...rest}
+                  {...field}
                 />
               )}
             />
@@ -100,15 +108,15 @@ export default function StudentDetails() {
           {/* Gender */}
           <div className="col-span-12 md:col-span-4">
             <Controller
-              name="genderId"
+              name="gender_id"
               control={control}
               render={({ field }) => (
                 <Listbox
                   label="Gender"
                   data={genders}
-                  value={genders.find((g) => g.id === field.value) || null}
-                  onChange={(val) => field.onChange(val?.id ?? null)}
                   displayField="label"
+                  value={genders.find((g) => g.id === field.value) || null}
+                  onChange={(val) => field.onChange(val?.id != null ? Number(val.id) : null)}
                   placeholder="Select Gender"
                   error={errors?.genderId?.message}
                 />
@@ -119,15 +127,15 @@ export default function StudentDetails() {
           {/* Grade / Course Applying For */}
           <div className="col-span-12 md:col-span-4">
             <Controller
-              name="admissionCourseId"
+              name="admission_course_id"
               control={control}
               render={({ field }) => (
                 <Listbox
                   label="Grade Applying For"
                   data={grades}
-                  value={grades.find((g) => g.id === field.value) || null}
-                  onChange={(val) => field.onChange(val?.id ?? null)}
                   displayField="label"
+                  value={grades.find((g) => g.id === field.value) || null}
+                  onChange={(val) => field.onChange(val?.id != null ? Number(val.id) : null)}
                   placeholder="Select Grade"
                   error={errors?.admissionCourseId?.message}
                 />
@@ -138,15 +146,15 @@ export default function StudentDetails() {
           {/* Branch */}
           <div className="col-span-12 md:col-span-4">
             <Controller
-              name="branchId"
+              name="branch_id"
               control={control}
               render={({ field }) => (
                 <Listbox
                   label="Branch"
                   data={branches}
-                  value={branches.find((b) => b.id === field.value) || null}
-                  onChange={(val) => field.onChange(val?.id ?? null)}
                   displayField="label"
+                  value={branches.find((b) => b.id === field.value) || null}
+                  onChange={(val) => field.onChange(val?.id != null ? Number(val.id) : null)}
                   placeholder="Select Branch"
                   error={errors?.branchId?.message}
                 />
