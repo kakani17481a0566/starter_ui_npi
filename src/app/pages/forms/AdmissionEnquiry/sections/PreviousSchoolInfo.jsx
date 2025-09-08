@@ -178,7 +178,7 @@ export default function PreviousSchoolInfo() {
               icon={BuildingOffice2Icon}
               label="School Name"
               placeholder="Enter previous school name"
-              {...register("prevSchoolName")}
+              {...register("prev_school_name")}
               error={errors?.prevSchoolName?.message}
             />
           </div>
@@ -187,7 +187,7 @@ export default function PreviousSchoolInfo() {
           {showPrevSchoolFields && (
             <div className="col-span-12 md:col-span-3">
               <Controller
-                name="fromCourseId"
+                name="from_course_id"
                 control={control}
                 render={({ field }) => (
                   <Listbox
@@ -208,7 +208,7 @@ export default function PreviousSchoolInfo() {
           {showPrevSchoolFields && (
             <div className="col-span-12 md:col-span-3">
               <Controller
-                name="fromYear"
+                name="from_year"
                 control={control}
                 render={({ field: { onChange, value, ...rest } }) => (
                   <DatePicker
@@ -236,7 +236,7 @@ export default function PreviousSchoolInfo() {
           {showPrevSchoolFields && (
             <div className="col-span-12 md:col-span-3">
               <Controller
-                name="toCourseId"
+                name="to_course_id"
                 control={control}
                 render={({ field }) => (
                   <Listbox
@@ -257,7 +257,7 @@ export default function PreviousSchoolInfo() {
           {showPrevSchoolFields && (
             <div className="col-span-12 md:col-span-3">
               <Controller
-                name="toYear"
+                name="to_year"
                 control={control}
                 render={({ field: { onChange, value, ...rest } }) => (
                   <DatePicker

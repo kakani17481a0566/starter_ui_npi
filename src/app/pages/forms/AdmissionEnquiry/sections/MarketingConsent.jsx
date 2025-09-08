@@ -33,7 +33,7 @@ export default function MarketingConsent() {
           {/* Heard About Us */}
           <div className="col-span-12 lg:col-span-6">
             <Controller
-              name="hearAboutUsTypeId"
+              name="hear_about_us_type_id"
               control={control}
               render={({ field }) => (
                 <Listbox

@@ -2,6 +2,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { getSessionData } from "utils/sessionStorage";
 
 import { Page } from "components/shared/Page";
 import { Button } from "components/ui";
@@ -14,6 +15,7 @@ import {
 import { schema } from "./schema";
 import { initialState } from "./data";
 import { getDialFromCountry, normalizeCountry } from "./utils";
+import { submitAdmissionEnquiry } from "./PostData"; // <-- ensure path is correct
 
 // Sections
 import StudentDetails from "./sections/StudentDetails";
@@ -49,7 +51,107 @@ export default function AdmissionEnquiryForm() {
   const studentDial = watch("student_dialCode");
   const parentDial = watch("parent_dialCode");
   const motherDial = watch("mother_dialCode");
+  const {tenantId,userId}=getSessionData();
 
+  // --- helpers ---
+  const asInt = (v) => (v === "" || v == null ? null : Number(v));
+  const toYearNum = (v) =>
+    v == null ? null : v instanceof Date ? v.getFullYear() : Number(v);
+  const getId = (v) =>
+    v && typeof v === "object" ? asInt(v.id) : asInt(v);
+  const makeE164 = (dial, number) => {
+    const d = (dial ?? "").toString().replace(/\D/g, "");
+    const n = (number ?? "").toString().replace(/\D/g, "");
+    return d || n ? `+${d}${n}` : "";
+  };
+
+  // Map RHF values (mostly snake_case) -> API payload (camelCase)
+  function mapFormToApi(values) {
+    const dobIso = values?.dob ? new Date(values.dob).toISOString() : null;
+
+    // Mirror correspondence when 'same' is checked
+    const corr = values.isSameCorrespondenceAddress
+      ? {
+          address_line1: values.address_line1 ?? "",
+          address_line2: values.address_line2 ?? "",
+          city: values.city ?? "",
+          state: values.state ?? "",
+          postal_code: values.postal_code ?? "",
+          country: values.country ?? null,
+        }
+      : {
+          address_line1: values.correspondence_address_line1 ?? "",
+          address_line2: values.correspondence_address_line2 ?? "",
+          city: values.correspondence_city ?? "",
+          state: values.correspondence_state ?? "",
+          postal_code: values.correspondence_postal_code ?? "",
+          country: values.correspondence_country ?? null,
+        };
+
+    return {
+      // Student
+      studentFirstName: values.student_first_name?.trim() ?? "",
+      studentMiddleName: values.student_middle_name ?? "",
+      studentLastName: values.student_last_name?.trim() ?? "",
+      dob: dobIso,
+      genderId: asInt(values.gender_id),
+      admissionCourseId: asInt(values.admission_course_id),
+
+      // Previous school
+      prevSchoolName: values.prev_school_name ?? "",
+      fromCourseId: asInt(values.from_course_id),
+      fromYear: toYearNum(values.from_year),
+      toCourseId: asInt(values.to_course_id),
+      toYear: toYearNum(values.to_year),
+
+      // Guardian/Parent
+      isGuardian: Boolean(values.is_guardian),
+      parentFirstName: values.parent_first_name?.trim() ?? "",
+      parentMiddleName: values.parent_middle_name ?? "",
+      parentLastName: values.parent_last_name?.trim() ?? "",
+      parentPhone: makeE164(values.parent_dialCode, values.parent_phone),
+      parentAlternatePhone: makeE164(
+        values.parent_dialCode,
+        values.parent_alternate_phone
+      ),
+      parentEmail: values.parent_email ?? "",
+
+      // Address (API expects a single "parent" address block)
+      parentAddress1: values.address_line1 ?? "",
+      parentAddress2: values.address_line2 ?? "",
+      parentCity: values.city ?? "",
+      parentState: values.state ?? "",
+      parentPincode: values.postal_code ?? "",
+      motherQualification: values.mother_qualification ?? "",
+      motherProfession: values.mother_profession ?? "",
+
+      // Mother
+      motherFirstName: values.mother_first_name?.trim() ?? "",
+      motherMiddleName: values.mother_middle_name ?? "",
+      motherLastName: values.mother_last_name?.trim() ?? "",
+      motherPhone: makeE164(values.mother_dialCode, values.mother_phone),
+      motherEmail: values.mother_email ?? "",
+      parentQualification: values.parent_qualification ?? "",
+      parentProfession: values.parent_profession ?? "",
+
+      // Marketing & Consent
+      hearAboutUsTypeId:
+        getId(values.heard_about_us_type_id ?? values.hear_about_us_type_id),
+      isAgreedToTerms: Boolean(values.is_agreed_to_terms),
+      signature: values.signature ?? "",
+      // Meta
+      statusId:204,
+      tenantId: tenantId,
+      branchId: asInt(values.branch_id),
+      createdBy: userId,
+
+      // Countries (normalized for API)
+      country: normalizeCountry(values.country),
+      correspondence_country: normalizeCountry(corr.country),
+    };
+  }
+
+  // Autofill dial codes from Country
   useEffect(() => {
     const dial = getDialFromCountry(selectedCountry);
     if (!dial) return;
@@ -58,41 +160,23 @@ export default function AdmissionEnquiryForm() {
       setValue("student_dialCode", dial, { shouldDirty: true, shouldValidate: true });
       clearErrors("student_dialCode");
     }
-
     if (!parentDial) {
       setValue("parent_dialCode", dial, { shouldDirty: true, shouldValidate: true });
       clearErrors("parent_dialCode");
     }
-
     if (!motherDial) {
       setValue("mother_dialCode", dial, { shouldDirty: true, shouldValidate: true });
       clearErrors("mother_dialCode");
     }
-  }, [
-    selectedCountry,
-    studentDial,
-    parentDial,
-    motherDial,
-    setValue,
-    clearErrors,
-  ]);
+  }, [selectedCountry, studentDial, parentDial, motherDial, setValue, clearErrors]);
 
+  // Mirror correspondence address when 'same' is checked
   useEffect(() => {
     if (!isSame) return;
 
-    const addressFields = [
-      "address_line1",
-      "address_line2",
-      "city",
-      "state",
-      "postal_code",
-      "country",
-    ];
-
-    addressFields.forEach((field) => {
-      setValue(`correspondence_${field}`, getValues(field) ?? "", {
-        shouldValidate: false,
-      });
+    const fields = ["address_line1", "address_line2", "city", "state", "postal_code", "country"];
+    fields.forEach((f) => {
+      setValue(`correspondence_${f}`, getValues(f) ?? "", { shouldValidate: false });
     });
 
     clearErrors([
@@ -105,24 +189,12 @@ export default function AdmissionEnquiryForm() {
     ]);
   }, [isSame, getValues, setValue, clearErrors]);
 
-  const onSubmit = async (data) => {
-    const payload = { ...data };
-
-    if (payload.isSameCorrespondenceAddress) {
-      payload.correspondence_address_line1 = payload.address_line1 ?? "";
-      payload.correspondence_address_line2 = payload.address_line2 ?? "";
-      payload.correspondence_city = payload.city ?? "";
-      payload.correspondence_state = payload.state ?? "";
-      payload.correspondence_postal_code = payload.postal_code ?? "";
-      payload.correspondence_country = payload.country ?? null;
-    }
-
-    payload.country = normalizeCountry(payload.country);
-    payload.correspondence_country = normalizeCountry(payload.correspondence_country);
-
+  const onSubmit = async (values) => {
     try {
-      await new Promise((r) => setTimeout(r, 600));
-      console.log("📤 Submitting Payload:", payload);
+      const apiPayload = mapFormToApi(values);
+      console.log("📦 API Payload:", apiPayload);
+      const result = await submitAdmissionEnquiry(apiPayload); // <-- real POST
+      console.log("✅ API Response:", result);
       toast.success("Enquiry saved successfully");
       reset(initialState);
     } catch (error) {
@@ -175,17 +247,17 @@ export default function AdmissionEnquiryForm() {
                 const errors = methods.formState.errors;
 
                 const fieldLabels = {
-                  studentFirstName: "Student First Name",
-                  studentMiddleName: "Student Middle Name",
-                  studentLastName: "Student Last Name",
+                  student_first_name: "Student First Name",
+                  student_middle_name: "Student Middle Name",
+                  student_last_name: "Student Last Name",
                   dob: "Date of Birth",
-                  genderId: "Gender",
-                  admissionCourseId: "Grade Applying For",
-                  prevSchoolName: "Previous School Name",
-                  fromCourseId: "From Grade",
-                  fromYear: "From Year",
-                  toCourseId: "To Grade",
-                  toYear: "To Year",
+                  gender_id: "Gender",
+                  admission_course_id: "Grade Applying For",
+                  prev_school_name: "Previous School Name",
+                  from_course_id: "From Grade",
+                  from_year: "From Year",
+                  to_course_id: "To Grade",
+                  to_year: "To Year",
                   address_line1: "Address Line 1",
                   city: "City",
                   state: "State",
@@ -196,17 +268,17 @@ export default function AdmissionEnquiryForm() {
                   correspondence_state: "Correspondence State",
                   correspondence_postal_code: "Correspondence Postal Code",
                   correspondence_country: "Correspondence Country",
-                  parentFirstName: "Parent First Name",
-                  parentPhone: "Parent Mobile Number",
-                  parentEmail: "Parent Email",
-                  parentQualification: "Parent Qualification",
-                  parentProfession: "Parent Profession",
-                  motherFirstName: "Mother First Name",
-                  motherPhone: "Mother Mobile Number",
-                  motherEmail: "Mother Email",
-                  motherQualification: "Mother Qualification",
-                  motherProfession: "Mother Profession",
-                  heard_about_us: "Heard About Us",
+                  parent_first_name: "Parent First Name",
+                  parent_phone: "Parent Mobile Number",
+                  parent_email: "Parent Email",
+                  parent_qualification: "Parent Qualification",
+                  parent_profession: "Parent Profession",
+                  mother_first_name: "Mother First Name",
+                  mother_phone: "Mother Mobile Number",
+                  mother_email: "Mother Email",
+                  mother_qualification: "Mother Qualification",
+                  mother_profession: "Mother Profession",
+                  heard_about_us_type_id: "Heard About Us",
                   signature: "E-Signature",
                 };
 
@@ -215,19 +287,15 @@ export default function AdmissionEnquiryForm() {
                     Field: fieldLabels[key] || key,
                     Reason: val?.message || "Required",
                   }));
-
                   console.clear();
                   console.warn("🚨 Form submission blocked due to missing fields:");
                   console.table(missingFields);
                   toast.error("Please fill all required fields");
-
                   scrollToFirstError();
                 } else {
-                  console.log("✅ All validations passed. Submitting form...");
                   handleSubmit(onSubmit)();
                 }
               }}
-
             >
               <span className="inline-flex items-center gap-2">
                 <CheckCircleIcon className="size-4" />

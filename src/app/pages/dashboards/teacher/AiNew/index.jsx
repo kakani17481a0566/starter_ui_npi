@@ -150,10 +150,10 @@ useEffect(() => {
     const init = async () => {
       var list=[];
       if(!name){
-      list = await fetchImageGenerationText();
+      list = await fetchImageGenerationText(1,2);
       }
       else{
-        list=await fetchImageGenerationText();
+        list=await fetchImageGenerationText(1,2);
       }
       setDataList(list || []);
       if (list && list.length > 0) {
