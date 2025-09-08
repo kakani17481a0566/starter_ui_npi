@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, } from "react";
 import PropTypes from "prop-types";
 import isString from "lodash/isString";
 import { jwtDecode } from "jwt-decode";
@@ -153,7 +153,7 @@ export function AuthProvider({ children }) {
       ({ branchId, weekId, termId, courses, userProfile } = ids.data.data);
 
       }
-      
+
 
       setSessionData({
         token,
