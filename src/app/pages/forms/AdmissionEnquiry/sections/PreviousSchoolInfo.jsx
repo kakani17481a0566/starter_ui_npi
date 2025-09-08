@@ -90,20 +90,9 @@ export default function PreviousSchoolInfo() {
         </div>
 
         <div className="mt-5 grid grid-cols-12 gap-4">
-          {/* School Name */}
+          {/* Joined School? — moved to the top */}
           <div className="col-span-12">
-            <InputWithIcon
-              icon={BuildingOffice2Icon}
-              label="School Name"
-              placeholder="Enter previous school name"
-              {...register("prev_school_name")}
-              error={errors?.prevSchoolName?.message}
-            />
-          </div>
-
-          {/* Joined School? — full width so the next fields start on a new row */}
-          <div className="col-span-12">
-            <label className="block text-sm font-medium text-gray-700 dark:text-dark-100 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-dark-100">
               Did the student join the school?
             </label>
 
@@ -131,7 +120,6 @@ export default function PreviousSchoolInfo() {
                         value="yes"
                         label="Yes"
                         name="joinedSchool"
-                        color="primary"
                         onChange={() => setJoined("yes")}
                       />
                       <Radio
@@ -139,12 +127,11 @@ export default function PreviousSchoolInfo() {
                         value="no"
                         label="No"
                         name="joinedSchool"
-                        color="error"
                         onChange={() => setJoined("no")}
                       />
                     </div>
 
-                    {/* Hidden inputs to keep native semantics if your form utilities expect them */}
+                    {/* Hidden inputs to keep native semantics if your form utils expect them */}
                     <input
                       type="radio"
                       value="yes"
@@ -173,7 +160,7 @@ export default function PreviousSchoolInfo() {
 
           {/* Optional divider */}
           <div className="col-span-12">
-            <div className="border-t border-gray-200 dark:border-dark-600 mt-2"></div>
+            <div className="mt-2 border-t border-gray-200 dark:border-dark-600" />
           </div>
 
           {/* Helper note when No */}
@@ -184,6 +171,17 @@ export default function PreviousSchoolInfo() {
               </div>
             </div>
           )}
+
+          {/* School Name */}
+          <div className="col-span-12">
+            <InputWithIcon
+              icon={BuildingOffice2Icon}
+              label="School Name"
+              placeholder="Enter previous school name"
+              {...register("prev_school_name")}
+              error={errors?.prevSchoolName?.message}
+            />
+          </div>
 
           {/* From Grade */}
           {showPrevSchoolFields && (
