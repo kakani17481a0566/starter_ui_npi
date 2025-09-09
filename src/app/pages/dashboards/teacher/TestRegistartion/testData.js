@@ -2,12 +2,12 @@ import axios from "axios";
 
 
 
-export async function getStudentTest(branchId,courseId) {
-  if (!courseId) return [];
-  const { data } = await axios.get(`https://localhost:7202/api/Student/dropdown-options-students?tenantId=1&courseId=${courseId}&branchId=${branchId}`);
+export async function getStudentTest() {
+  // if (!courseId) return [];
+  const { data } = await axios.get(`https://localhost:7202/api/Test`);
   const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
   return list.map(s => ({
-    id: s.id ?? s.Id ?? s.studentId,
-    name: s.fullName ?? s.name,
+    id: s.id ?? s.Id ?? s.id,
+    name: s.name ?? s.name,
   }));
 }

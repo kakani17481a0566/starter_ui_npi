@@ -54,7 +54,7 @@ export const schema = yup.object().shape({
   branch_id:idField("Branch Field is required"),
 
   // Previous School Info
-  prev_school_name: yup.string().trim().required("Previous School Name is required"),
+  prev_school_name: yup.string().trim().optional(),
   from_course_id: idField("From Grade"),
   from_year: yearField("From Year"),
   to_course_id: idField("To Grade"),
@@ -113,5 +113,9 @@ export const schema = yup.object().shape({
   // Marketing & Consent
   hear_about_us_type_id: idField("This field"),
 
-  signature: yup.string().trim().required("Signature is required"),
+signature: yup
+  .string()
+  .required("Signature is required"),
+
+
 });

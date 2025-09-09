@@ -2,7 +2,7 @@ import axios from "axios";
 import { getSessionData } from "utils/sessionStorage";
 
 
-export async function getBranches() {
+export async function getTest() {
     const tenantId=getSessionData();
   const { data } = await axios.get(`https://localhost:7202/api/Branch/dropdown-options/${tenantId.tenantId}`);
   // Accept both {data:[...]} or direct array
