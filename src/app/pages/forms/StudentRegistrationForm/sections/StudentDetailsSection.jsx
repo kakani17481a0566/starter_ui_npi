@@ -1,7 +1,8 @@
 // src/app/pages/forms/StudentRegistrationForm/sections/StudentDetailsSection.jsx
 
+import { useEffect } from "react";
 import { useFormContext, Controller } from "react-hook-form";
-import { Card, Input, Radio, Collapse } from "components/ui";
+import { Card, Input, Radio } from "components/ui";
 import {
   AcademicCapIcon,
   UserGroupIcon,
@@ -10,19 +11,41 @@ import {
 } from "@heroicons/react/24/outline";
 import { DatePicker } from "components/shared/form/Datepicker";
 import LabelWithIcon from "../components/LabelWithIcon";
+import clsx from "clsx";
 
 export default function StudentDetailsSection() {
   const {
     register,
     control,
     watch,
+    setValue,
+    getValues,
     formState: { errors },
   } = useFormContext();
 
+  // Ensure defaults = "yes" if missing (so sections start enabled & visible)
+  useEffect(() => {
+    [
+      "attending_preschool",
+      "previously_registered_kg",
+      "siblings_in_this_school",
+      "siblings_in_other_schools",
+    ].forEach((f) => {
+      const v = getValues(f);
+      if (v == null || v === "") {
+        setValue(f, "yes", { shouldDirty: false, shouldValidate: true });
+      }
+    });
+  }, [getValues, setValue]);
+
+  // Values
   const attendingPreschool = watch("attending_preschool");
   const previousKG = watch("previously_registered_kg");
   const hasSiblingsHere = watch("siblings_in_this_school");
   const hasSiblingsOther = watch("siblings_in_other_schools");
+
+  // Helper to decide enable/disable
+  const isOn = (v) => v === "yes";
 
   return (
     <Card className="p-4 sm:px-5">
@@ -30,9 +53,8 @@ export default function StudentDetailsSection() {
         {/* ---------- Student Name ---------- */}
         <div className="col-span-12 md:col-span-4">
           <Input
-            label={
-              <LabelWithIcon icon={UserGroupIcon}>Student First Name</LabelWithIcon>
-            }
+            className="h-8 py-1 text-xs"
+            label={<LabelWithIcon icon={UserGroupIcon}>Student First Name</LabelWithIcon>}
             {...register("student_first_name")}
             error={errors?.student_first_name?.message}
           />
@@ -40,9 +62,8 @@ export default function StudentDetailsSection() {
 
         <div className="col-span-12 md:col-span-4">
           <Input
-            label={
-              <LabelWithIcon icon={UserGroupIcon}>Student Middle Name</LabelWithIcon>
-            }
+            className="h-8 py-1 text-xs"
+            label={<LabelWithIcon icon={UserGroupIcon}>Student Middle Name</LabelWithIcon>}
             {...register("student_middle_name")}
             error={errors?.student_middle_name?.message}
           />
@@ -50,9 +71,8 @@ export default function StudentDetailsSection() {
 
         <div className="col-span-12 md:col-span-4">
           <Input
-            label={
-              <LabelWithIcon icon={UserGroupIcon}>Student Last Name</LabelWithIcon>
-            }
+            className="h-8 py-1 text-xs"
+            label={<LabelWithIcon icon={UserGroupIcon}>Student Last Name</LabelWithIcon>}
             {...register("student_last_name")}
             error={errors?.student_last_name?.message}
           />
@@ -68,10 +88,8 @@ export default function StudentDetailsSection() {
             control={control}
             render={({ field }) => (
               <>
-                <DatePicker value={field.value ?? null} onChange={field.onChange} />
-                {errors?.dob?.message && (
-                  <p className="mt-1 text-xs text-red-600">{errors.dob.message}</p>
-                )}
+                <DatePicker value={field.value ?? null} onChange={field.onChange} className="h-8 py-1 text-xs" />
+                {errors?.dob?.message && <p className="mt-1 text-xs text-red-600">{errors.dob.message}</p>}
               </>
             )}
           />
@@ -85,7 +103,7 @@ export default function StudentDetailsSection() {
           <div className="flex flex-wrap gap-6">
             <Radio
               label="Male"
-              value="204" // replace with your actual Master ID if different
+              value="204"
               {...register("gender_id", {
                 setValueAs: (v) => (v == null || v === "" ? null : Number(v)),
               })}
@@ -105,9 +123,7 @@ export default function StudentDetailsSection() {
               })}
             />
           </div>
-          {errors?.gender_id?.message && (
-            <p className="mt-1 text-xs text-red-600">{errors.gender_id.message}</p>
-          )}
+          {errors?.gender_id?.message && <p className="mt-1 text-xs text-red-600">{errors.gender_id.message}</p>}
         </div>
 
         {/* ---------- Attending Pre-school ---------- */}
@@ -119,53 +135,40 @@ export default function StudentDetailsSection() {
             <Radio label="Yes" value="yes" {...register("attending_preschool")} />
             <Radio label="No" value="no" {...register("attending_preschool")} />
           </div>
-          <Collapse in={attendingPreschool === "yes"}>
-            <div className="mt-3">
-              <Input
-                label={
-                  <LabelWithIcon icon={BuildingOfficeIcon}>
-                    If yes, name of pre-school
-                  </LabelWithIcon>
-                }
-                {...register("preschool_name")}
-                error={errors?.preschool_name?.message}
-              />
-            </div>
-          </Collapse>
+
+          {/* Always visible; disabled when answer is "no" */}
+          <fieldset
+            disabled={!isOn(attendingPreschool)}
+            className={clsx("mt-3 space-y-0", !isOn(attendingPreschool) && "opacity-60 pointer-events-none")}
+          >
+            <Input
+              label={<LabelWithIcon icon={BuildingOfficeIcon}>If yes, name of pre-school</LabelWithIcon>}
+              {...register("preschool_name")}
+              error={errors?.preschool_name?.message}
+            />
+          </fieldset>
         </div>
 
         {/* ---------- Previously registered for KG ---------- */}
         <div className="col-span-12 md:col-span-6">
           <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
-            <LabelWithIcon icon={AcademicCapIcon}>
-              Previously registered for kindergarten?
-            </LabelWithIcon>
+            <LabelWithIcon icon={AcademicCapIcon}>Previously registered for kindergarten?</LabelWithIcon>
           </label>
           <div className="flex gap-6">
-            <Radio
-              label="Yes"
-              value="yes"
-              {...register("previously_registered_kg")}
-            />
-            <Radio
-              label="No"
-              value="no"
-              {...register("previously_registered_kg")}
-            />
+            <Radio label="Yes" value="yes" {...register("previously_registered_kg")} />
+            <Radio label="No" value="no" {...register("previously_registered_kg")} />
           </div>
-          <Collapse in={previousKG === "yes"}>
-            <div className="mt-3">
-              <Input
-                label={
-                  <LabelWithIcon icon={BuildingOfficeIcon}>
-                    If yes, name of school
-                  </LabelWithIcon>
-                }
-                {...register("previous_kg_school_name")}
-                error={errors?.previous_kg_school_name?.message}
-              />
-            </div>
-          </Collapse>
+
+          <fieldset
+            disabled={!isOn(previousKG)}
+            className={clsx("mt-3", !isOn(previousKG) && "opacity-60 pointer-events-none")}
+          >
+            <Input
+              label={<LabelWithIcon icon={BuildingOfficeIcon}>If yes, name of school</LabelWithIcon>}
+              {...register("previous_kg_school_name")}
+              error={errors?.previous_kg_school_name?.message}
+            />
+          </fieldset>
         </div>
 
         {/* ---------- Siblings in this school ---------- */}
@@ -174,59 +177,48 @@ export default function StudentDetailsSection() {
             <LabelWithIcon icon={UserGroupIcon}>Siblings in this school?</LabelWithIcon>
           </label>
           <div className="flex gap-6">
-            <Radio
-              label="Yes"
-              value="yes"
-              {...register("siblings_in_this_school")}
-            />
+            <Radio label="Yes" value="yes" {...register("siblings_in_this_school")} />
             <Radio label="No" value="no" {...register("siblings_in_this_school")} />
           </div>
-          <Collapse in={hasSiblingsHere === "yes"}>
-            <div className="mt-3">
-              <Input
-                label={<LabelWithIcon icon={UserGroupIcon}>If yes, name</LabelWithIcon>}
-                {...register("siblings_this_school_name")}
-                error={errors?.siblings_this_school_name?.message}
-              />
-            </div>
-          </Collapse>
+
+          <fieldset
+            disabled={!isOn(hasSiblingsHere)}
+            className={clsx("mt-3", !isOn(hasSiblingsHere) && "opacity-60 pointer-events-none")}
+          >
+            <Input
+              label={<LabelWithIcon icon={UserGroupIcon}>If yes, name</LabelWithIcon>}
+              {...register("siblings_this_school_name")}
+              error={errors?.siblings_this_school_name?.message}
+            />
+          </fieldset>
         </div>
 
         {/* ---------- Siblings in other schools ---------- */}
         <div className="col-span-12 md:col-span-6">
           <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
-            <LabelWithIcon icon={UserGroupIcon}>
-              Siblings in other schools?
-            </LabelWithIcon>
+            <LabelWithIcon icon={UserGroupIcon}>Siblings in other schools?</LabelWithIcon>
           </label>
           <div className="flex gap-6">
-            <Radio
-              label="Yes"
-              value="yes"
-              {...register("siblings_in_other_schools")}
-            />
-            <Radio
-              label="No"
-              value="no"
-              {...register("siblings_in_other_schools")}
-            />
+            <Radio label="Yes" value="yes" {...register("siblings_in_other_schools")} />
+            <Radio label="No" value="no" {...register("siblings_in_other_schools")} />
           </div>
-          <Collapse in={hasSiblingsOther === "yes"}>
-            <div className="mt-3">
-              <Input
-                label={<LabelWithIcon icon={UserGroupIcon}>If yes, name</LabelWithIcon>}
-                {...register("siblings_other_school_name")}
-                error={errors?.siblings_other_school_name?.message}
-              />
-            </div>
-          </Collapse>
+
+          <fieldset
+            disabled={!isOn(hasSiblingsOther)}
+            className={clsx("mt-3", !isOn(hasSiblingsOther) && "opacity-60 pointer-events-none")}
+          >
+            <Input
+              label={<LabelWithIcon icon={UserGroupIcon}>If yes, name</LabelWithIcon>}
+              {...register("siblings_other_school_name")}
+              error={errors?.siblings_other_school_name?.message}
+            />
+          </fieldset>
         </div>
 
         {/* ---------- Note ---------- */}
         <div className="col-span-12">
           <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
-            Note: Personal information on registration will be confirmed with
-            parents prior to the start of school in June.
+            Note: Personal information on registration will be confirmed with parents prior to the start of school in June.
           </div>
         </div>
       </div>

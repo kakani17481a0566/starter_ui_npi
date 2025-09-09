@@ -28,18 +28,12 @@ export default function ContactSection() {
     []
   );
 
-  const FIELDS = [
-    { key: "first_name", label: "First Name", icon: UserIcon },
-    { key: "last_name", label: "Last Name", icon: UserIcon },
-    { key: "phone", label: "Phone", icon: DevicePhoneMobileIcon },
-    { key: "alt_phone", label: "Alt. Phone", icon: DevicePhoneMobileIcon },
-    { key: "email", label: "Email", icon: InboxIcon },
-  ];
+  const FIELDS = ["first_name", "last_name", "phone", "alt_phone", "email"];
   const fieldFor = (p, n) => `${p}_${n}`;
 
   const { isSameByPrefix, onFatherBlur } = useContactMirror({
     groups: CONTACT_GROUPS,
-    fields: FIELDS.map((f) => f.key),
+    fields: FIELDS,
   });
 
   const isDisabled = (prefix, enableSame) =>
@@ -60,14 +54,36 @@ export default function ContactSection() {
             <thead>
               <tr className="text-left text-sm text-white bg-primary-600 dark:bg-primary-700">
                 <th className="px-3 py-2">Contact</th>
-                {FIELDS.map(({ key, label, icon: Icon }) => (
-                  <th key={key} className="w-[16%] px-3 py-2">
-                    <div className="flex items-center gap-1">
-                      <Icon className="size-4 text-white" />
-                      {label}
-                    </div>
-                  </th>
-                ))}
+                <th className="w-[16%] px-3 py-2">
+                  <div className="flex items-center gap-1">
+                    <UserIcon className="size-4 text-white" />
+                    First Name
+                  </div>
+                </th>
+                <th className="w-[16%] px-3 py-2">
+                  <div className="flex items-center gap-1">
+                    <UserIcon className="size-4 text-white" />
+                    Last Name
+                  </div>
+                </th>
+                <th className="w-[16%] px-3 py-2">
+                  <div className="flex items-center gap-1">
+                    <DevicePhoneMobileIcon className="size-4 text-white" />
+                    Phone
+                  </div>
+                </th>
+                <th className="w-[16%] px-3 py-2">
+                  <div className="flex items-center gap-1">
+                    <DevicePhoneMobileIcon className="size-4 text-white" />
+                    Alt. Phone
+                  </div>
+                </th>
+                <th className="w-[22%] px-3 py-2">
+                  <div className="flex items-center gap-1">
+                    <InboxIcon className="size-4 text-white" />
+                    Email
+                  </div>
+                </th>
                 <th className="w-[14%] px-3 py-2">
                   <div className="flex items-center gap-1">
                     <CheckCircleIcon className="size-4 text-white" />
@@ -85,13 +101,13 @@ export default function ContactSection() {
                   <tr key={prefix} className="align-top">
                     <td className="px-3 py-2 text-sm font-medium">{title}</td>
 
-                    {FIELDS.map(({ key }) => (
-                      <td key={key} className="px-3 py-2">
+                    {FIELDS.map((field) => (
+                      <td key={field} className="px-3 py-2">
                         <RHFInput
-                          name={fieldFor(prefix, key)}
-                          label={null} // no inline label inside table
-                          inputMode={key.includes("phone") ? "tel" : key === "email" ? "email" : undefined}
-                          autoComplete={key === "email" ? "email" : undefined}
+                          name={fieldFor(prefix, field)}
+                          placeholder={field.replace("_", " ")}
+                          inputMode={field.includes("phone") ? "tel" : field === "email" ? "email" : undefined}
+                          autoComplete={field === "email" ? "email" : undefined}
                           disabled={disabled}
                           onBlur={father ? onFatherBlur : undefined}
                         />
@@ -139,13 +155,13 @@ export default function ContactSection() {
             <Card key={prefix} className="p-4 border border-gray-200 rounded-md shadow-sm">
               <h4 className="text-sm font-semibold text-gray-800 mb-3">{title}</h4>
 
-              {FIELDS.map(({ key, label, icon: Icon }) => (
-                <div key={key} className="mb-3">
+              {FIELDS.map((field) => (
+                <div key={field} className="mb-3">
                   <RHFInput
-                    name={fieldFor(prefix, key)}
-                    label={<LabelWithIcon icon={Icon}>{label}</LabelWithIcon>}
-                    inputMode={key.includes("phone") ? "tel" : key === "email" ? "email" : undefined}
-                    autoComplete={key === "email" ? "email" : undefined}
+                    name={fieldFor(prefix, field)}
+                    placeholder={field.replace("_", " ")}
+                    inputMode={field.includes("phone") ? "tel" : field === "email" ? "email" : undefined}
+                    autoComplete={field === "email" ? "email" : undefined}
                     disabled={disabled}
                     onBlur={father ? onFatherBlur : undefined}
                   />

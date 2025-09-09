@@ -21,6 +21,12 @@ import {
   DocumentPlusIcon,
   CalendarDaysIcon,
   EyeIcon,
+  // step-specific icons
+  UserIcon,
+  HomeIcon,
+  TruckIcon,
+  ShieldCheckIcon,
+  PencilSquareIcon,
 } from "@heroicons/react/24/outline";
 import { DatePicker } from "components/shared/form/Datepicker";
 
@@ -83,6 +89,7 @@ function ChannelDateFields() {
             control={control}
             render={({ field: { onChange, value, ...rest } }) => (
               <DatePicker
+                className="h-8 py-1 text-xs"
                 label={
                   <span className="inline-flex items-center gap-2">
                     <CalendarDaysIcon className="text-primary-600 dark:text-primary-400 size-4" />
@@ -108,12 +115,13 @@ function ChannelDateFields() {
   );
 }
 
-/* ---------- Steps config (5 steps) ---------- */
+/* ---------- Steps config (with per-step icons) ---------- */
 const steps = [
   {
     key: "intro",
     label: "Overview & Student",
     description: "Summary, intake info, and student profile.",
+    icon: UserIcon,
     Component: function Step() {
       return (
         <>
@@ -128,6 +136,7 @@ const steps = [
     key: "addressContacts",
     label: "Address & Contacts",
     description: "Home/alternate address and contacts.",
+    icon: HomeIcon,
     Component: function Step() {
       return (
         <>
@@ -141,6 +150,7 @@ const steps = [
     key: "transportMedical",
     label: "Transport & Medical",
     description: "Pickup/drop, transport, allergies & doctor details.",
+    icon: TruckIcon,
     Component: function Step() {
       return (
         <>
@@ -154,6 +164,7 @@ const steps = [
     key: "otherPrivacy",
     label: "Other & Privacy",
     description: "Additional details, consents, and school-only notes.",
+    icon: ShieldCheckIcon,
     Component: function Step() {
       return (
         <>
@@ -166,25 +177,40 @@ const steps = [
     key: "docsSignature",
     label: "Documents & Signature",
     description: "Waiver, upload required documents, sign, and finish.",
+    icon: PencilSquareIcon,
     Component: function Step() {
       return (
         <>
           {/* Waiver of Liability placed first on this step */}
 
           <DocumentUploadSection
-            title="Student Documents"
+            title="Upload Documents"
+            uploadUrl="/api/uploads/student-docs"
+            extraData={{ category: "admission" }}
             documents={[
-              { name: "StudentPhoto", label: "StudentPhoto" },
-              { name: "birth_cert", label: "Birth Certificate" },
-              { name: "transfer_cert", label: "Transfer Certificate" },
-              { name: "parent_id", label: "Parent ID (Front)" },
+              // 📌 Student documents
+              { name: "student_photo", label: "Student Photo", accept: ".jpg,.jpeg,.png" },
+              { name: "student_birth_certificate", label: "Birth Certificate", accept: ".jpg,.jpeg,.png,.pdf" },
+              { name: "student_transfer_certificate", label: "Transfer Certificate (if applicable)", accept: ".jpg,.jpeg,.png,.pdf" },
+              { name: "student_previous_marksheet", label: "Previous School Marksheet", accept: ".jpg,.jpeg,.png,.pdf" },
+              { name: "student_medical_certificate", label: "Medical Certificate", accept: ".jpg,.jpeg,.png,.pdf" },
+
+              // 📌 Parent documents
+              { name: "parent_photo", label: "Parent Photo", accept: ".jpg,.jpeg,.png" },
+              { name: "parent_id_front", label: "Parent ID (Front)", accept: ".jpg,.jpeg,.png,.pdf" },
+              { name: "parent_id_back", label: "Parent ID (Back)", accept: ".jpg,.jpeg,.png,.pdf" },
+
+              // 📌 Guardian documents
+              { name: "guardian_photo", label: "Guardian Photo", accept: ".jpg,.jpeg,.png" },
+              { name: "guardian_id_front", label: "Guardian ID (Front)", accept: ".jpg,.jpeg,.png,.pdf" },
+              { name: "guardian_id_back", label: "Guardian ID (Back)", accept: ".jpg,.jpeg,.png,.pdf" },
+
+              // 📌 Heir (optional if required in your system)
+              { name: "heir_photo", label: "Heir Photo", accept: ".jpg,.jpeg,.png" },
+              { name: "heir_birth_certificate", label: "Heir Birth Certificate", accept: ".jpg,.jpeg,.png,.pdf" },
             ]}
-            uploadUrl="/api/Files/upload"
-            extraData={{ tenantId: 1 }}
-            method="POST"
-            autoUpload={true}
-            mapResponse={(resp) => resp?.data?.data?.fileUrl}
           />
+
           <SignatureSection />
         </>
       );
@@ -320,6 +346,7 @@ function StudentRegistrationForm() {
   const totalSteps = steps.length;
   const isLast = currentStep === totalSteps - 1;
   const Active = steps[currentStep].Component;
+  const StepIcon = steps[currentStep].icon || DocumentPlusIcon;
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewValues, setPreviewValues] = useState(null);
@@ -458,7 +485,7 @@ function StudentRegistrationForm() {
               <div className="col-span-12 sm:col-span-8 lg:col-span-9">
                 <Card className="h-full p-4 sm:p-5">
                   <div className="mb-4 flex items-center gap-2">
-                    <DocumentPlusIcon className="text-primary-600 dark:text-primary-400 size-6" />
+                    <StepIcon className="text-primary-600 dark:text-primary-400 size-6" />
                     <h2 className="dark:text-dark-50 line-clamp-1 text-xl font-medium text-gray-700">
                       {steps[currentStep].label}
                     </h2>

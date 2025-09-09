@@ -1,3 +1,4 @@
+// src/app/pages/forms/StudentRegistrationForm/sections/TransportationSection.jsx
 import { useFormContext } from "react-hook-form";
 import { Card, Input, Radio, Textarea, Collapse } from "components/ui";
 import {
@@ -19,6 +20,8 @@ export default function TransportationSection() {
   const regOtherTransport = watch("regular_transport");
   const altOtherTransport = watch("alternate_transport");
 
+  const compact = "h-8 py-1 text-xs";
+
   return (
     <Card className="p-4 sm:px-5">
       <div className="flex items-center gap-2">
@@ -36,25 +39,14 @@ export default function TransportationSection() {
           </label>
           <div className="flex flex-wrap gap-6">
             <Radio value="bus" label="Bus" {...register("regular_transport")} />
-            <Radio
-              value="walk"
-              label="Walk"
-              {...register("regular_transport")}
-            />
-            <Radio
-              value="other"
-              label="Other"
-              {...register("regular_transport")}
-            />
+            <Radio value="walk" label="Walk" {...register("regular_transport")} />
+            <Radio value="other" label="Other" {...register("regular_transport")} />
           </div>
           <Collapse in={regOtherTransport === "other"}>
             <div className="mt-3">
               <Input
-                label={
-                  <LabelWithIcon icon={HashtagIcon}>
-                    Other (specify)
-                  </LabelWithIcon>
-                }
+                className={compact}
+                label={<LabelWithIcon icon={HashtagIcon}>Other (specify)</LabelWithIcon>}
                 {...register("regular_transport_other")}
                 error={errors?.regular_transport_other?.message}
               />
@@ -70,30 +62,15 @@ export default function TransportationSection() {
             </LabelWithIcon>
           </label>
           <div className="flex flex-wrap gap-6">
-            <Radio
-              value="bus"
-              label="Bus"
-              {...register("alternate_transport")}
-            />
-            <Radio
-              value="walk"
-              label="Walk"
-              {...register("alternate_transport")}
-            />
-            <Radio
-              value="other"
-              label="Other"
-              {...register("alternate_transport")}
-            />
+            <Radio value="bus" label="Bus" {...register("alternate_transport")} />
+            <Radio value="walk" label="Walk" {...register("alternate_transport")} />
+            <Radio value="other" label="Other" {...register("alternate_transport")} />
           </div>
           <Collapse in={altOtherTransport === "other"}>
             <div className="mt-3">
               <Input
-                label={
-                  <LabelWithIcon icon={HashtagIcon}>
-                    Other (specify)
-                  </LabelWithIcon>
-                }
+                className={compact}
+                label={<LabelWithIcon icon={HashtagIcon}>Other (specify)</LabelWithIcon>}
                 {...register("alternate_transport_other")}
                 error={errors?.alternate_transport_other?.message}
               />
@@ -102,8 +79,10 @@ export default function TransportationSection() {
         </div>
 
         {/* Free-text: Other transportation info */}
-        <div className="col-span-12">
+        <div className="col-span-12 md:col-span-6">
           <Textarea
+            className={compact}
+            rows={2}
             label={
               <LabelWithIcon icon={MapPinIcon}>
                 Other transportation information (if any)
