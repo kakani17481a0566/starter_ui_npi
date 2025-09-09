@@ -22,9 +22,9 @@ export function PrimePanel({ currentSegment, pathname, close }) {
       className={clsx(
         "prime-panel flex h-full flex-col",
         "rounded-tr-sm rounded-br-sm", // ✅ curved top-right & bottom-right
-        "border-r-1 border-[#33CDCD]", // ✅ right-side neon border
-        "shadow-[0_0_15px_#33CDCD]", // ✅ optional neon glow
-        "dark:border-[#33CDCD]", // ✅ ensures neon in dark mode
+        // "border-r-1 border-[#33CDCD]", // ✅ right-side neon border
+        // "shadow-[0_0_15px_#33CDCD]", // ✅ optional neon glow
+        // "dark:border-[#33CDCD]", // ✅ ensures neon in dark mode
         cardSkin === "shadow-sm" ? "shadow-soft dark:shadow-dark-900/60" : "",
       )}
     >

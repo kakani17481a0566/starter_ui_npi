@@ -15,7 +15,7 @@ import {
   CalendarDaysIcon,
 } from "@heroicons/react/24/outline";
 
-export default function PreviousSchoolInfo() {
+export default function PreviousSchoolInfo({ embedded = false }) {
   const {
     control,
     register,
@@ -24,15 +24,24 @@ export default function PreviousSchoolInfo() {
     formState: { errors },
   } = useFormContext();
 
-  // --- Top-level watches (OK for hooks rule) ---
-  const joinedSchool = useWatch({ control, name: "joinedSchool" }); // "yes" | "no" | ""
-  const fromCourseId = useWatch({ control, name: "fromCourseId" });
-  const toCourseId = useWatch({ control, name: "toCourseId" });
-  const fromYear = useWatch({ control, name: "fromYear" });
-  const toYear = useWatch({ control, name: "toYear" });
+  const small = "h-8 py-1 text-xs placeholder:text-xs";
+
+  // Watches
+  const joinedSchool   = useWatch({ control, name: "joinedSchool" }); // "yes" | "no" | ""
+  const from_course_id = useWatch({ control, name: "from_course_id" });
+  const to_course_id   = useWatch({ control, name: "to_course_id" });
+  const from_year      = useWatch({ control, name: "from_year" });
+  const to_year        = useWatch({ control, name: "to_year" });
 
   const [grades, setGrades] = useState([]);
   const tenantId = 1; // TODO: make dynamic
+
+  // --- Default to "yes" if not set by parent defaultValues ---
+  useEffect(() => {
+    if (joinedSchool == null || joinedSchool === "") {
+      setValue("joinedSchool", "yes", { shouldDirty: false, shouldValidate: true });
+    }
+  }, [joinedSchool, setValue]);
 
   // Load grades/courses
   useEffect(() => {
@@ -40,247 +49,248 @@ export default function PreviousSchoolInfo() {
     (async () => {
       try {
         const options = await fetchCourseOptions(tenantId);
-        if (!ignore) setGrades(options);
+        if (!ignore) setGrades(Array.isArray(options) ? options : []);
       } catch {
         if (!ignore) setGrades([]);
       }
     })();
-    return () => {
-      ignore = true;
-    };
+    return () => { ignore = true; };
   }, [tenantId]);
 
-  // Autofill To Grade if empty
+  // Autofill To Grade if empty (only when "yes")
   useEffect(() => {
-    if (fromCourseId && !toCourseId) {
-      setValue("toCourseId", fromCourseId, { shouldValidate: true, shouldDirty: true });
+    if (joinedSchool === "yes" && from_course_id && !to_course_id) {
+      setValue("to_course_id", from_course_id, { shouldValidate: true, shouldDirty: true });
     }
-  }, [fromCourseId, toCourseId, setValue]);
+  }, [joinedSchool, from_course_id, to_course_id, setValue]);
 
-  // Autofill To Year = From Year + 1 if To Year empty
+  // Autofill To Year = From Year + 1 if To Year empty (only when "yes")
   useEffect(() => {
-    const currentToYear = toYear;
-    if (Number.isInteger(fromYear) && !currentToYear) {
-      setValue("toYear", fromYear + 1, { shouldValidate: true, shouldDirty: true });
+    if (joinedSchool === "yes" && Number.isInteger(from_year) && !to_year) {
+      setValue("to_year", from_year + 1, { shouldValidate: true, shouldDirty: true });
     }
-  }, [fromYear, toYear, setValue]);
+  }, [joinedSchool, from_year, to_year, setValue]);
 
-  // When "No" is chosen, clear prev-school fields and validation errors
+  // Clear prev-school fields and errors when "No"
   useEffect(() => {
     if (joinedSchool === "no") {
-      setValue("fromCourseId", null, { shouldValidate: true, shouldDirty: true });
-      setValue("toCourseId", null, { shouldValidate: true, shouldDirty: true });
-      setValue("fromYear", null, { shouldValidate: true, shouldDirty: true });
-      setValue("toYear", null, { shouldValidate: true, shouldDirty: true });
-      clearErrors(["fromCourseId", "toCourseId", "fromYear", "toYear"]);
+      setValue("prev_school_name", "", { shouldValidate: true, shouldDirty: true });
+      setValue("from_course_id", null, { shouldValidate: true, shouldDirty: true });
+      setValue("to_course_id", null,   { shouldValidate: true, shouldDirty: true });
+      setValue("from_year", null,      { shouldValidate: true, shouldDirty: true });
+      setValue("to_year", null,        { shouldValidate: true, shouldDirty: true });
+      clearErrors(["prev_school_name", "from_course_id", "to_course_id", "from_year", "to_year"]);
     }
   }, [joinedSchool, setValue, clearErrors]);
 
   const gradeOptions = useMemo(() => grades, [grades]);
   const showPrevSchoolFields = joinedSchool === "yes";
 
+  // Header radio render (beside title)
+  const JoinedSchoolHeaderRadios = (
+    <Controller
+      name="joinedSchool"
+      control={control}
+      render={({ field }) => {
+        const current = field.value; // "yes" | "no" | ""
+        const setJoined = (val) => {
+          setValue("joinedSchool", val, { shouldValidate: true, shouldDirty: true });
+          if (val === "no") {
+            setValue("prev_school_name", "", { shouldValidate: true, shouldDirty: true });
+            setValue("from_course_id", null, { shouldValidate: true, shouldDirty: true });
+            setValue("to_course_id", null,   { shouldValidate: true, shouldDirty: true });
+            setValue("from_year", null,      { shouldValidate: true, shouldDirty: true });
+            setValue("to_year", null,        { shouldValidate: true, shouldDirty: true });
+            clearErrors(["prev_school_name","from_course_id","to_course_id","from_year","to_year"]);
+          }
+        };
+
+        return (
+          <div
+            role="radiogroup"
+            aria-label="Did the student join the school?"
+            className="flex items-center gap-3"
+          >
+            <span className="text-sm text-gray-700 dark:text-dark-100">Joined?</span>
+            <div className="flex items-center gap-3">
+              <Radio
+                checked={current === "yes"}
+                value="yes"
+                label="Yes"
+                name="joinedSchool"
+                onChange={() => setJoined("yes")}
+              />
+              <Radio
+                checked={current === "no"}
+                value="no"
+                label="No"
+                name="joinedSchool"
+                onChange={() => setJoined("no")}
+              />
+            </div>
+          </div>
+        );
+      }}
+    />
+  );
+
+  // Content grid
+  const ContentGrid = (
+    <div className="mt-4 grid grid-cols-12 gap-4">
+      {/* Helper when No */}
+      {joinedSchool === "no" && (
+        <div className="col-span-12">
+          <div className="text-sm text-gray-600 dark:text-dark-200">
+            Since you selected <strong>No</strong>, grade and year fields are not required.
+          </div>
+        </div>
+      )}
+
+      {/* School Name (only when Yes) */}
+      {showPrevSchoolFields && (
+        <div className="col-span-12">
+          <InputWithIcon
+            icon={BuildingOffice2Icon}
+            label="School Name"
+            placeholder="Enter previous school name"
+            className={small}
+            {...register("prev_school_name")}
+            error={errors?.prev_school_name?.message || errors?.prevSchoolName?.message}
+          />
+        </div>
+      )}
+
+      {/* Row 1: From Grade → To Grade */}
+      {showPrevSchoolFields && (
+        <>
+          <div className="col-span-12 md:col-span-6">
+            <Controller
+              name="from_course_id"
+              control={control}
+              render={({ field }) => (
+                <Listbox
+                  label={<LabelWithIcon icon={AcademicCapIcon}>From Grade</LabelWithIcon>}
+                  data={gradeOptions}
+                  value={gradeOptions.find((g) => g.id === field.value) ?? null}
+                  onChange={(val) => field.onChange(val?.id != null ? Number(val.id) : null)}
+                  displayField="label"
+                  placeholder="Select grade"
+                  error={errors?.from_course_id?.message || errors?.fromCourseId?.message}
+                  inputProps={{ className: small }}
+                />
+              )}
+            />
+          </div>
+
+          <div className="col-span-12 md:col-span-6">
+            <Controller
+              name="to_course_id"
+              control={control}
+              render={({ field }) => (
+                <Listbox
+                  label={<LabelWithIcon icon={AcademicCapIcon}>To Grade</LabelWithIcon>}
+                  data={gradeOptions}
+                  value={gradeOptions.find((g) => g.id === field.value) ?? null}
+                  onChange={(val) => field.onChange(val?.id != null ? Number(val.id) : null)}
+                  displayField="label"
+                  placeholder="Select grade"
+                  error={errors?.to_course_id?.message || errors?.toCourseId?.message}
+                  inputProps={{ className: small }}
+                />
+              )}
+            />
+          </div>
+
+          {/* Row 2: From Year → To Year */}
+          <div className="col-span-12 md:col-span-6">
+            <Controller
+              name="from_year"
+              control={control}
+              render={({ field: { onChange, value, ...rest } }) => (
+                <DatePicker
+                  label={<LabelWithIcon icon={CalendarDaysIcon}>From Year</LabelWithIcon>}
+                  value={Number.isInteger(value) ? new Date(value, 0, 1) : null}
+                  onChange={(date) => {
+                    if (!date) return onChange(null);
+                    const year = new Date(date).getFullYear();
+                    onChange(year);
+                  }}
+                  error={errors?.from_year?.message || errors?.fromYear?.message}
+                  options={{ disableMobile: true, dateFormat: "Y" }}
+                  placeholder="Choose year..."
+                  inputClassName={small}
+                  className={small}
+                  {...rest}
+                />
+              )}
+            />
+          </div>
+
+          <div className="col-span-12 md:col-span-6">
+            <Controller
+              name="to_year"
+              control={control}
+              render={({ field: { onChange, value, ...rest } }) => (
+                <DatePicker
+                  label={<LabelWithIcon icon={CalendarDaysIcon}>To Year</LabelWithIcon>}
+                  value={Number.isInteger(value) ? new Date(value, 0, 1) : null}
+                  onChange={(date) => {
+                    if (!date) return onChange(null);
+                    const year = new Date(date).getFullYear();
+                    onChange(year);
+                  }}
+                  error={errors?.to_year?.message || errors?.toYear?.message}
+                  options={{ disableMobile: true, dateFormat: "Y" }}
+                  placeholder="Choose year..."
+                  inputClassName={small}
+                  className={small}
+                  {...rest}
+                />
+              )}
+            />
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  // Embedded mode (no outer SectionCard)
+  if (embedded) {
+    return (
+      <>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <BuildingOfficeIcon className="size-5 text-primary-600 dark:text-primary-400" />
+            <h3 className="text-base font-medium text-gray-800 dark:text-dark-100">
+              Previous School Info
+            </h3>
+          </div>
+          {JoinedSchoolHeaderRadios}
+        </div>
+        {ContentGrid}
+      </>
+    );
+  }
+
+  // Standalone card
   return (
     <div className="col-span-12">
       <SectionCard>
-        <div className="flex items-center gap-2">
-          <BuildingOfficeIcon className="size-5 text-primary-600 dark:text-primary-400" />
-          <h3 className="dark:text-dark-100 text-base font-medium text-gray-800">
-            Previous School Info
-          </h3>
+        {/* Header with radios on the right */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <BuildingOfficeIcon className="size-5 text-primary-600 dark:text-primary-400" />
+            <h3 className="dark:text-dark-100 text-base font-medium text-gray-800">
+              Previous School Info
+            </h3>
+          </div>
+          {JoinedSchoolHeaderRadios}
         </div>
 
-        <div className="mt-5 grid grid-cols-12 gap-4">
-          {/* Joined School? — moved to the top */}
-          <div className="col-span-12">
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-dark-100">
-              Did the student join the school?
-            </label>
+        {/* Divider */}
+        <div className="mt-3 border-t border-gray-200 dark:border-dark-600" />
 
-            <Controller
-              name="joinedSchool"
-              control={control}
-              render={({ field }) => {
-                const current = field.value; // "yes" | "no" | ""
-                const setJoined = (val) => {
-                  setValue("joinedSchool", val, { shouldValidate: true, shouldDirty: true });
-                  if (val === "no") {
-                    setValue("fromCourseId", null, { shouldValidate: true, shouldDirty: true });
-                    setValue("toCourseId", null, { shouldValidate: true, shouldDirty: true });
-                    setValue("fromYear", null, { shouldValidate: true, shouldDirty: true });
-                    setValue("toYear", null, { shouldValidate: true, shouldDirty: true });
-                    clearErrors(["fromCourseId", "toCourseId", "fromYear", "toYear"]);
-                  }
-                };
-
-                return (
-                  <div role="radiogroup" aria-label="Did the student join the school?">
-                    <div className="flex flex-wrap gap-5">
-                      <Radio
-                        checked={current === "yes"}
-                        value="yes"
-                        label="Yes"
-                        name="joinedSchool"
-                        onChange={() => setJoined("yes")}
-                      />
-                      <Radio
-                        checked={current === "no"}
-                        value="no"
-                        label="No"
-                        name="joinedSchool"
-                        onChange={() => setJoined("no")}
-                      />
-                    </div>
-
-                    {/* Hidden inputs to keep native semantics if your form utils expect them */}
-                    <input
-                      type="radio"
-                      value="yes"
-                      checked={current === "yes"}
-                      onChange={() => setJoined("yes")}
-                      className="sr-only"
-                      tabIndex={-1}
-                    />
-                    <input
-                      type="radio"
-                      value="no"
-                      checked={current === "no"}
-                      onChange={() => setJoined("no")}
-                      className="sr-only"
-                      tabIndex={-1}
-                    />
-                  </div>
-                );
-              }}
-            />
-
-            {errors?.joinedSchool && (
-              <p className="mt-1 text-sm text-red-600">{errors.joinedSchool.message}</p>
-            )}
-          </div>
-
-          {/* Optional divider */}
-          <div className="col-span-12">
-            <div className="mt-2 border-t border-gray-200 dark:border-dark-600" />
-          </div>
-
-          {/* Helper note when No */}
-          {joinedSchool === "no" && (
-            <div className="col-span-12">
-              <div className="text-sm text-gray-600 dark:text-dark-200">
-                Since you selected <strong>No</strong>, grade and year fields are not required.
-              </div>
-            </div>
-          )}
-
-          {/* School Name */}
-          <div className="col-span-12">
-            <InputWithIcon
-              icon={BuildingOffice2Icon}
-              label="School Name"
-              placeholder="Enter previous school name"
-              {...register("prev_school_name")}
-              error={errors?.prevSchoolName?.message}
-            />
-          </div>
-
-          {/* From Grade */}
-          {showPrevSchoolFields && (
-            <div className="col-span-12 md:col-span-3">
-              <Controller
-                name="from_course_id"
-                control={control}
-                render={({ field }) => (
-                  <Listbox
-                    label={<LabelWithIcon icon={AcademicCapIcon}>From Grade</LabelWithIcon>}
-                    data={gradeOptions}
-                    value={gradeOptions.find((g) => g.id === field.value) ?? null}
-                    onChange={(val) => field.onChange(val?.id ?? null)}
-                    displayField="label"
-                    placeholder="Select grade"
-                    error={errors?.fromCourseId?.message}
-                  />
-                )}
-              />
-            </div>
-          )}
-
-          {/* From Year */}
-          {showPrevSchoolFields && (
-            <div className="col-span-12 md:col-span-3">
-              <Controller
-                name="from_year"
-                control={control}
-                render={({ field: { onChange, value, ...rest } }) => (
-                  <DatePicker
-                    label={<LabelWithIcon icon={CalendarDaysIcon}>From Year</LabelWithIcon>}
-                    value={Number.isInteger(value) ? new Date(value, 0, 1) : null}
-                    onChange={(date) => {
-                      if (!date) {
-                        onChange(null);
-                        return;
-                      }
-                      const year = new Date(date).getFullYear();
-                      onChange(year);
-                    }}
-                    error={errors?.fromYear?.message}
-                    options={{ disableMobile: true, dateFormat: "Y" }}
-                    placeholder="Choose year..."
-                    {...rest}
-                  />
-                )}
-              />
-            </div>
-          )}
-
-          {/* To Grade */}
-          {showPrevSchoolFields && (
-            <div className="col-span-12 md:col-span-3">
-              <Controller
-                name="to_course_id"
-                control={control}
-                render={({ field }) => (
-                  <Listbox
-                    label={<LabelWithIcon icon={AcademicCapIcon}>To Grade</LabelWithIcon>}
-                    data={gradeOptions}
-                    value={gradeOptions.find((g) => g.id === field.value) ?? null}
-                    onChange={(val) => field.onChange(val?.id ?? null)}
-                    displayField="label"
-                    placeholder="Select grade"
-                    error={errors?.toCourseId?.message}
-                  />
-                )}
-              />
-            </div>
-          )}
-
-          {/* To Year */}
-          {showPrevSchoolFields && (
-            <div className="col-span-12 md:col-span-3">
-              <Controller
-                name="to_year"
-                control={control}
-                render={({ field: { onChange, value, ...rest } }) => (
-                  <DatePicker
-                    label={<LabelWithIcon icon={CalendarDaysIcon}>To Year</LabelWithIcon>}
-                    value={Number.isInteger(value) ? new Date(value, 0, 1) : null}
-                    onChange={(date) => {
-                      if (!date) {
-                        onChange(null);
-                        return;
-                      }
-                      const year = new Date(date).getFullYear();
-                      onChange(year);
-                    }}
-                    error={errors?.toYear?.message}
-                    options={{ disableMobile: true, dateFormat: "Y" }}
-                    placeholder="Choose year..."
-                    {...rest}
-                  />
-                )}
-              />
-            </div>
-          )}
-        </div>
+        {ContentGrid}
       </SectionCard>
     </div>
   );

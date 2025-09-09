@@ -1,3 +1,4 @@
+// src/app/pages/forms/StudentRegistrationForm/sections/MotherDetails.jsx
 import { useFormContext } from "react-hook-form";
 import { Input } from "components/ui";
 import SectionCard from "../components/SectionCard";
@@ -12,10 +13,12 @@ import {
 
 export default function MotherDetails() {
   const { register, formState: { errors } } = useFormContext();
+  const smallInput = "h-8 py-1 text-xs"; // compact style
 
   return (
     <div className="col-span-12 lg:col-span-6">
-      <SectionCard>
+      <SectionCard >
+        {/* Header */}
         <div className="flex items-center gap-2">
           <UserGroupIcon className="size-5 text-primary-600 dark:text-primary-400" />
           <h3 className="dark:text-dark-100 text-base font-medium text-gray-800">
@@ -23,10 +26,12 @@ export default function MotherDetails() {
           </h3>
         </div>
 
+        {/* Content */}
         <div className="mt-4 grid grid-cols-12 gap-4">
           {/* Name Fields */}
           <div className="col-span-12 md:col-span-4">
             <Input
+              className={smallInput}
               label={<IconLabel Icon={UserIcon} text="First Name" />}
               {...register("mother_first_name")}
               error={errors?.mother_first_name?.message}
@@ -34,6 +39,7 @@ export default function MotherDetails() {
           </div>
           <div className="col-span-12 md:col-span-4">
             <Input
+              className={smallInput}
               label={<IconLabel Icon={UserIcon} text="Middle Name" />}
               {...register("mother_middle_name")}
               error={errors?.mother_middle_name?.message}
@@ -41,6 +47,7 @@ export default function MotherDetails() {
           </div>
           <div className="col-span-12 md:col-span-4">
             <Input
+              className={smallInput}
               label={<IconLabel Icon={UserIcon} text="Last Name" />}
               {...register("mother_last_name")}
               error={errors?.mother_last_name?.message}
@@ -50,6 +57,7 @@ export default function MotherDetails() {
           {/* Qualification & Profession */}
           <div className="col-span-12 md:col-span-6">
             <Input
+              className={smallInput}
               label={<IconLabel Icon={PencilSquareIcon} text="Qualification" />}
               {...register("mother_qualification")}
               error={errors?.mother_qualification?.message}
@@ -57,22 +65,25 @@ export default function MotherDetails() {
           </div>
           <div className="col-span-12 md:col-span-6">
             <Input
+              className={smallInput}
               label={<IconLabel Icon={BriefcaseIcon} text="Profession" />}
               {...register("mother_profession")}
               error={errors?.mother_profession?.message}
             />
           </div>
 
-          {/* Phone */}
-          <PhoneField
-            dialName="mother_dialCode"
-            numberName="mother_phone"
-            label="Mobile Number"
-          />
+          {/* Contact row: Mobile + Email side by side */}
+          <div className="col-span-12 md:col-span-6">
+            <PhoneField
+              dialName="mother_dialCode"
+              numberName="mother_phone"
+              label="Mobile Number"
+            />
+          </div>
 
-          {/* Email */}
           <div className="col-span-12 md:col-span-6">
             <Input
+              className={smallInput}
               label={<IconLabel Icon={EnvelopeIcon} text="Email" />}
               inputMode="email"
               autoComplete="email"

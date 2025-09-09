@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { getSessionData } from "utils/sessionStorage";
 
 import { Page } from "components/shared/Page";
-import { Button } from "components/ui";
+import { Button, Card } from "components/ui";
 import {
   DocumentPlusIcon,
   EyeIcon,
@@ -51,14 +51,13 @@ export default function AdmissionEnquiryForm() {
   const studentDial = watch("student_dialCode");
   const parentDial = watch("parent_dialCode");
   const motherDial = watch("mother_dialCode");
-  const {tenantId,userId}=getSessionData();
+  const { tenantId, userId } = getSessionData();
 
   // --- helpers ---
   const asInt = (v) => (v === "" || v == null ? null : Number(v));
   const toYearNum = (v) =>
     v == null ? null : v instanceof Date ? v.getFullYear() : Number(v);
-  const getId = (v) =>
-    v && typeof v === "object" ? asInt(v.id) : asInt(v);
+  const getId = (v) => (v && typeof v === "object" ? asInt(v.id) : asInt(v));
   const makeE164 = (dial, number) => {
     const d = (dial ?? "").toString().replace(/\D/g, "");
     const n = (number ?? "").toString().replace(/\D/g, "");
@@ -112,7 +111,7 @@ export default function AdmissionEnquiryForm() {
       parentPhone: makeE164(values.parent_dialCode, values.parent_phone),
       parentAlternatePhone: makeE164(
         values.parent_dialCode,
-        values.parent_alternate_phone
+        values.parent_alternate_phone,
       ),
       parentEmail: values.parent_email ?? "",
 
@@ -135,12 +134,13 @@ export default function AdmissionEnquiryForm() {
       parentProfession: values.parent_profession ?? "",
 
       // Marketing & Consent
-      hearAboutUsTypeId:
-        getId(values.heard_about_us_type_id ?? values.hear_about_us_type_id),
+      hearAboutUsTypeId: getId(
+        values.heard_about_us_type_id ?? values.hear_about_us_type_id,
+      ),
       isAgreedToTerms: Boolean(values.is_agreed_to_terms),
       signature: values.signature ?? "",
       // Meta
-      statusId:204,
+      statusId: 204,
       tenantId: tenantId,
       branchId: asInt(values.branch_id),
       createdBy: userId,
@@ -157,26 +157,51 @@ export default function AdmissionEnquiryForm() {
     if (!dial) return;
 
     if (dial !== studentDial) {
-      setValue("student_dialCode", dial, { shouldDirty: true, shouldValidate: true });
+      setValue("student_dialCode", dial, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
       clearErrors("student_dialCode");
     }
     if (!parentDial) {
-      setValue("parent_dialCode", dial, { shouldDirty: true, shouldValidate: true });
+      setValue("parent_dialCode", dial, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
       clearErrors("parent_dialCode");
     }
     if (!motherDial) {
-      setValue("mother_dialCode", dial, { shouldDirty: true, shouldValidate: true });
+      setValue("mother_dialCode", dial, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
       clearErrors("mother_dialCode");
     }
-  }, [selectedCountry, studentDial, parentDial, motherDial, setValue, clearErrors]);
+  }, [
+    selectedCountry,
+    studentDial,
+    parentDial,
+    motherDial,
+    setValue,
+    clearErrors,
+  ]);
 
   // Mirror correspondence address when 'same' is checked
   useEffect(() => {
     if (!isSame) return;
 
-    const fields = ["address_line1", "address_line2", "city", "state", "postal_code", "country"];
+    const fields = [
+      "address_line1",
+      "address_line2",
+      "city",
+      "state",
+      "postal_code",
+      "country",
+    ];
     fields.forEach((f) => {
-      setValue(`correspondence_${f}`, getValues(f) ?? "", { shouldValidate: false });
+      setValue(`correspondence_${f}`, getValues(f) ?? "", {
+        shouldValidate: false,
+      });
     });
 
     clearErrors([
@@ -283,12 +308,16 @@ export default function AdmissionEnquiryForm() {
                 };
 
                 if (!isValid) {
-                  const missingFields = Object.entries(errors).map(([key, val]) => ({
-                    Field: fieldLabels[key] || key,
-                    Reason: val?.message || "Required",
-                  }));
+                  const missingFields = Object.entries(errors).map(
+                    ([key, val]) => ({
+                      Field: fieldLabels[key] || key,
+                      Reason: val?.message || "Required",
+                    }),
+                  );
                   console.clear();
-                  console.warn("🚨 Form submission blocked due to missing fields:");
+                  console.warn(
+                    "🚨 Form submission blocked due to missing fields:",
+                  );
                   console.table(missingFields);
                   toast.error("Please fill all required fields");
                   scrollToFirstError();
@@ -316,11 +345,44 @@ export default function AdmissionEnquiryForm() {
             onSubmit={handleSubmit(onSubmit)}
           >
             <div className="grid grid-cols-12 gap-4 sm:gap-5 lg:gap-6">
-              <StudentDetails />
-              <PreviousSchoolInfo />
+              {/* Student (left) + Previous School (right) */}
+              <div className="col-span-12">
+                <Card className="p-4 sm:px-5">
+                  <h3 className="dark:text-dark-100 mb-4 text-base font-medium text-gray-800">
+                    Student Details &amp; Previous School
+                  </h3>
+                  <div className="grid grid-cols-12 gap-4 sm:gap-5 lg:gap-6">
+                    <div className="col-span-12 lg:col-span-6">
+                      <StudentDetails />
+                    </div>
+                    <div className="col-span-12 lg:col-span-6">
+                      <PreviousSchoolInfo />
+                    </div>
+                  </div>
+                </Card>
+              </div>
+
+              {/* Address stays standalone */}
               <AddressSection />
-              <ParentGuardianDetails />
-              <MotherDetails />
+
+              {/* Parent/Guardian (left) + Mother (right) */}
+              <div className="col-span-12">
+                <Card className="p-4 sm:px-5 border ">
+                  <h3 className="dark:text-dark-100 mb-4 text-base font-medium text-gray-800">
+                    Parent / Guardian &amp; Mother Details
+                  </h3>
+                  <div className="grid grid-cols-12 gap-4 sm:gap-5 lg:gap-6 ">
+                    <div className="col-span-12 lg:col-span-6">
+                      <ParentGuardianDetails />
+                    </div>
+                    <div className="col-span-12 lg:col-span-6">
+                      <MotherDetails />
+                    </div>
+                  </div>
+                </Card>
+              </div>
+
+              {/* Marketing stays standalone */}
               <MarketingConsent />
             </div>
           </form>

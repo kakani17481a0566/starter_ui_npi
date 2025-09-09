@@ -11,13 +11,44 @@ import {
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 
+const smallInput = "h-8 py-1 text-xs";
+
+const IconLabel = ({ Icon, text }) => (
+  <span className="inline-flex items-center gap-2">
+    <Icon className="size-4 text-primary-600 dark:text-primary-400" />
+    <span>{text}</span>
+  </span>
+);
+
+const Field = ({ name, label, error, register }) => (
+  <Input className={smallInput} label={label} {...register(name)} error={error} />
+);
+
 export default function ParentGuardianDetails() {
   const { register, control, formState: { errors } } = useFormContext();
 
+  const nameFields = [
+    {
+      name: "parent_first_name",
+      label: <IconLabel Icon={UserIcon} text="First Name" />,
+      err: errors?.parent_first_name?.message,
+    },
+    {
+      name: "parent_middle_name",
+      label: <IconLabel Icon={UserIcon} text="Middle Name" />,
+      err: errors?.parent_middle_name?.message,
+    },
+    {
+      name: "parent_last_name",
+      label: <IconLabel Icon={UserIcon} text="Last Name" />,
+      err: errors?.parent_last_name?.message,
+    },
+  ];
+
   return (
     <div className="col-span-12 lg:col-span-6">
-      <SectionCard>
-        {/* Header row: icon + title (left), radios (right) */}
+      <SectionCard className="rounded-lg ">
+        {/* Header + radios */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-2">
             <UserGroupIcon className="size-5 text-primary-600 dark:text-primary-400" />
@@ -63,57 +94,55 @@ export default function ParentGuardianDetails() {
           </div>
         </div>
 
-        {/* Validation message for relation_type */}
         {errors?.relation_type && (
-          <p className="mt-1 text-xs text-red-500">{errors.relation_type.message}</p>
+          <p className="mt-1 text-xs text-red-500">
+            {errors.relation_type.message}
+          </p>
         )}
 
+        {/* Body */}
         <div className="mt-4 grid grid-cols-12 gap-4">
-          <div className="col-span-12 md:col-span-4">
-            <Input
-              label={<IconLabel Icon={UserIcon} text="First Name" />}
-              {...register("parent_first_name")}
-              error={errors?.parent_first_name?.message}
-            />
-          </div>
-          <div className="col-span-12 md:col-span-4">
-            <Input
-              label={<IconLabel Icon={UserIcon} text="Middle Name" />}
-              {...register("parent_middle_name")}
-              error={errors?.parent_middle_name?.message}
-            />
-          </div>
-          <div className="col-span-12 md:col-span-4">
-            <Input
-              label={<IconLabel Icon={UserIcon} text="Last Name" />}
-              {...register("parent_last_name")}
-              error={errors?.parent_last_name?.message}
-            />
-          </div>
+          {/* Names */}
+          {nameFields.map(({ name, label, err }) => (
+            <div key={name} className="col-span-12 md:col-span-4">
+              <Field
+                name={name}
+                label={label}
+                error={err}
+                register={register}
+              />
+            </div>
+          ))}
 
+          {/* Qualification / Profession */}
           <div className="col-span-12 md:col-span-6">
-            <Input
+            <Field
+              name="parent_qualification"
               label={<IconLabel Icon={PencilSquareIcon} text="Qualification" />}
-              {...register("parent_qualification")}
               error={errors?.parent_qualification?.message}
+              register={register}
             />
           </div>
           <div className="col-span-12 md:col-span-6">
-            <Input
+            <Field
+              name="parent_profession"
               label={<IconLabel Icon={BriefcaseIcon} text="Profession" />}
-              {...register("parent_profession")}
               error={errors?.parent_profession?.message}
+              register={register}
             />
           </div>
 
-          <PhoneField
-            dialName="parent_dialCode"
-            numberName="parent_phone"
-            label="Mobile Number"
-          />
-
+          {/* Contact row: Mobile | Email */}
+          <div className="col-span-12 md:col-span-6">
+            <PhoneField
+              dialName="parent_dialCode"
+              numberName="parent_phone"
+              label="Mobile Number"
+            />
+          </div>
           <div className="col-span-12 md:col-span-6">
             <Input
+              className={smallInput}
               label={<IconLabel Icon={EnvelopeIcon} text="Email" />}
               inputMode="email"
               autoComplete="email"
@@ -124,14 +153,5 @@ export default function ParentGuardianDetails() {
         </div>
       </SectionCard>
     </div>
-  );
-}
-
-function IconLabel({ Icon, text }) {
-  return (
-    <span className="inline-flex items-center gap-2">
-      <Icon className="size-4 text-primary-600 dark:text-primary-400" />
-      <span>{text}</span>
-    </span>
   );
 }

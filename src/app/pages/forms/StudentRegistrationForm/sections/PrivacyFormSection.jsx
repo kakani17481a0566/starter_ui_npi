@@ -1,6 +1,5 @@
-import { useMemo, useEffect } from "react";
 import { useFormContext, Controller } from "react-hook-form";
-import { Card, Input, Radio, Textarea } from "components/ui";
+import { Card, Input, Radio } from "components/ui";
 import {
   ShieldCheckIcon,
   PhotoIcon,
@@ -10,43 +9,14 @@ import {
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
 import { DatePicker } from "components/shared/form/Datepicker";
+import CircleStamp from "components/shared/CircleStamp"; // adjust path if needed
 
 export default function PrivacyFormSection() {
   const {
     register,
     control,
-    setValue,
-    watch,
     formState: { errors },
   } = useFormContext();
-
-  // watch the selected stamp file
-  const stampFile = watch("school_stamp_file");
-
-  // stable preview URL + cleanup
-  const previewUrl = useMemo(
-    () => (stampFile ? URL.createObjectURL(stampFile) : ""),
-    [stampFile]
-  );
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
-  const handleStampSelect = (file) => {
-    setValue("school_stamp_file", file ?? null, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-  };
-
-  const removeStamp = () => {
-    setValue("school_stamp_file", null, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
-  };
 
   return (
     <>
@@ -184,147 +154,108 @@ export default function PrivacyFormSection() {
         </div>
 
         <div className="grid grid-cols-12 gap-4">
-          {/* School Stamp: square preview */}
-          <div className="col-span-12 md:col-span-6">
+          {/* Left: School Stamp */}
+          <div className="col-span-12 lg:col-span-4">
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-dark-100">
-              School Stamp (image)
+              School Stamp
             </label>
+            <div className="relative size-32 overflow-hidden rounded-md border border-dashed border-gray-300 bg-gray-50 dark:border-dark-500 dark:bg-dark-700 flex items-center justify-center">
+              <CircleStamp
+                size={120}
+                color="#1554c1"
+                topText="★ MY School ITALY ★"
+                bottomText="★ MINDSPACE ★"
+                showInnerCircle
+                title="School circular stamp"
+              />
+            </div>
+          </div>
 
-            <div className="flex items-center gap-4">
-              {/* Square preview area */}
-              <div className="relative size-32 overflow-hidden rounded-md border border-dashed border-gray-300 bg-gray-50 dark:border-dark-500 dark:bg-dark-700">
-                {previewUrl ? (
-                  <img
-                    src={previewUrl}
-                    alt="School stamp preview"
-                    className="size-32 object-cover"
+          {/* Right: details in a nested grid */}
+          <div className="col-span-12 lg:col-span-8">
+            <div className="grid grid-cols-12 gap-4">
+              {/* Row 1: Data entry completed (left) */}
+              <div className="col-span-12 md:col-span-6">
+                <label className="dark:text-dark-100 mb-2 block text-sm font-medium text-gray-700">
+                  Data entry completed
+                </label>
+                <div className="flex flex-wrap gap-6">
+                  <Radio
+                    label="Yes"
+                    value="yes"
+                    {...register("school_data_entry_completed")}
                   />
-                ) : (
-                  <div className="flex size-32 items-center justify-center text-xs text-gray-500 dark:text-dark-300">
-                    1:1 preview
-                  </div>
-                )}
-              </div>
-
-              {/* File input + remove */}
-              <div className="flex flex-col gap-2">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleStampSelect(e.target.files?.[0])}
-                  error={errors?.school_stamp_file?.message}
-                />
-                {stampFile && (
-                  <button
-                    type="button"
-                    onClick={removeStamp}
-                    className="text-left text-sm text-primary-600 hover:underline dark:text-primary-400"
-                  >
-                    Remove image
-                  </button>
-                )}
-                {!stampFile && (
-                  <p className="text-xs text-gray-500 dark:text-dark-300">
-                    PNG or JPG. Shown as a square.
+                  <Radio
+                    label="No"
+                    value="no"
+                    {...register("school_data_entry_completed")}
+                  />
+                </div>
+                {errors?.school_data_entry_completed && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.school_data_entry_completed.message}
                   </p>
                 )}
               </div>
-            </div>
-          </div>
 
-          {/* Stamp applied? */}
-          <div className="col-span-12 md:col-span-6">
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-dark-100">
-              Stamp applied?
-            </label>
-            <div className="flex flex-wrap gap-6">
-              <Radio label="Yes" value="yes" {...register("school_stamp_applied")} />
-              <Radio label="No" value="no" {...register("school_stamp_applied")} />
-            </div>
-            {errors?.school_stamp_applied && (
-              <p className="mt-1 text-xs text-red-500">
-                {errors.school_stamp_applied.message}
-              </p>
-            )}
-          </div>
+              {/* Row 1: Proof of age provided (right) */}
+              <div className="col-span-12 md:col-span-6">
+                <label className="dark:text-dark-100 mb-2 block text-sm font-medium text-gray-700">
+                  Proof of age provided
+                </label>
+                <div className="flex flex-wrap gap-6">
+                  <Radio
+                    label="Yes"
+                    value="yes"
+                    {...register("school_proof_of_age")}
+                  />
+                  <Radio
+                    label="No"
+                    value="no"
+                    {...register("school_proof_of_age")}
+                  />
+                </div>
+                {errors?.school_proof_of_age && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.school_proof_of_age.message}
+                  </p>
+                )}
+              </div>
 
-          {/* Notes */}
-          <div className="col-span-12">
-            <Textarea
-              label="School Stamp / Notes"
-              placeholder="(For office use) e.g., stamp applied, file reference, remarks"
-              {...register("school_stamp_notes")}
-              error={errors?.school_stamp_notes?.message}
-            />
-          </div>
-
-          {/* Proof of age provided */}
-          <div className="col-span-12 md:col-span-6">
-            <label className="dark:text-dark-100 mb-2 block text-sm font-medium text-gray-700">
-              Proof of age provided
-            </label>
-            <div className="flex flex-wrap gap-6">
-              <Radio label="Yes" value="yes" {...register("school_proof_of_age")} />
-              <Radio label="No" value="no" {...register("school_proof_of_age")} />
-            </div>
-            {errors?.school_proof_of_age && (
-              <p className="mt-1 text-xs text-red-500">
-                {errors.school_proof_of_age.message}
-              </p>
-            )}
-          </div>
-
-          {/* Data entry completed */}
-          <div className="col-span-12 md:col-span-6">
-            <label className="dark:text-dark-100 mb-2 block text-sm font-medium text-gray-700">
-              Data entry completed
-            </label>
-            <div className="flex flex-wrap gap-6">
-              <Radio label="Yes" value="yes" {...register("school_data_entry_completed")} />
-              <Radio label="No" value="no" {...register("school_data_entry_completed")} />
-            </div>
-            {errors?.school_data_entry_completed && (
-              <p className="mt-1 text-xs text-red-500">
-                {errors.school_data_entry_completed.message}
-              </p>
-            )}
-          </div>
-
-          {/* School date */}
-          <div className="col-span-12 md:col-span-6">
-            <Controller
-              name="school_section_date"
-              control={control}
-              render={({ field: { onChange, value, ...rest } }) => (
-                <DatePicker
-                  label={
-                    <span className="inline-flex items-center gap-2">
-                      <CalendarDaysIcon className="text-primary-600 dark:text-primary-400 size-4" />
-                      <span>Date</span>
-                    </span>
-                  }
-                  value={value ?? null}
-                  onChange={onChange}
-                  options={{
-                    disableMobile: true,
-                    dateFormat: "d/m/Y",
-                  }}
-                  placeholder="dd/mm/yyyy"
-                  error={errors?.school_section_date?.message}
-                  {...rest}
+              {/* Row 2: Date (left) */}
+              <div className="col-span-12 md:col-span-6">
+                <Controller
+                  name="school_section_date"
+                  control={control}
+                  render={({ field: { onChange, value, ...rest } }) => (
+                    <DatePicker
+                      label={
+                        <span className="inline-flex items-center gap-2">
+                          <CalendarDaysIcon className="text-primary-600 dark:text-primary-400 size-4" />
+                          <span>Date</span>
+                        </span>
+                      }
+                      value={value ?? null}
+                      onChange={onChange}
+                      options={{ disableMobile: true, dateFormat: "d/m/Y" }}
+                      placeholder="dd/mm/yyyy"
+                      error={errors?.school_section_date?.message}
+                      {...rest}
+                    />
+                  )}
                 />
-              )}
-            />
-          </div>
+              </div>
 
-          {/* Authorized signatory */}
-          <div className="col-span-12 md:col-span-6">
-            <Input
-              label="Authorized Signatory"
-              placeholder="Name / Initials"
-              {...register("school_authorized_sign")}
-              error={errors?.school_authorized_sign?.message}
-            />
+              {/* Row 2: Authorized signatory (right) */}
+              <div className="col-span-12 md:col-span-6">
+                <Input
+                  label="Authorized Signatory"
+                  placeholder="Name / Initials"
+                  {...register("school_authorized_sign")}
+                  error={errors?.school_authorized_sign?.message}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </Card>

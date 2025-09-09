@@ -132,7 +132,7 @@ function AddressGroup({ title, prefix = "", syncWithPrimary = false }) {
           />
         </div>
         <div className="col-span-12 md:col-span-2">
-          <Input
+          <Input   className="h-8 py-1 text-xs"
             label={<LabelWithIcon icon={HashtagIcon}>Postal Code (civic)</LabelWithIcon>}
             {...register(f(prefix, "civic_postal"))}
             onBlur={handlePostalBlur(f(prefix, "civic_postal"))}
@@ -142,15 +142,15 @@ function AddressGroup({ title, prefix = "", syncWithPrimary = false }) {
         </div>
 
         <div className="col-span-12 md:col-span-4">
-          <Input
+          <Input   className="h-8 py-1 text-xs"
             label={<LabelWithIcon icon={HomeIcon}>House</LabelWithIcon>}
             {...register(f(prefix, "civic_house"))}
             error={errors?.[f(prefix, "civic_house")]?.message}
             disabled={syncWithPrimary && sameAsPrimaryChecked}
           />
         </div>
-        <div className="col-span-12 md:col-span-4">
-          <Input
+        <div className="col-span-12 md:col-span-4 h-8 py-1 text-xs">
+          <Input  className="h-8 py-1 text-xs"
             label={<LabelWithIcon icon={HomeIcon}>PO Box</LabelWithIcon>}
             {...register(f(prefix, "civic_po_box"))}
             error={errors?.[f(prefix, "civic_po_box")]?.message}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useFormContext, Controller } from "react-hook-form";
 import { Input } from "components/ui";
 import { DatePicker } from "components/shared/form/Datepicker";
@@ -19,6 +19,11 @@ export default function StudentDetails() {
   const [grades, setGrades] = useState([]);
   const [branches, setBranches] = useState([]);
 
+  const smallInput = useMemo(
+    () => "h-8 py-1 text-xs placeholder:text-xs",
+    []
+  );
+
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -29,7 +34,6 @@ export default function StudentDetails() {
           fetchBranchOptions(),
         ]);
         if (!alive) return;
-        // Expecting arrays of { id: number, label: string }
         setGenders(Array.isArray(g) ? g : []);
         setGrades(Array.isArray(c) ? c : []);
         setBranches(Array.isArray(b) ? b : []);
@@ -42,7 +46,8 @@ export default function StudentDetails() {
 
   return (
     <div className="col-span-12">
-      <SectionCard>
+      <SectionCard className="rounded-lg ">
+        {/* Title Row */}
         <div className="flex items-center gap-2">
           <AcademicCapIcon className="size-5 text-primary-600 dark:text-primary-400" />
           <h3 className="dark:text-dark-100 text-base font-medium text-gray-800">
@@ -50,14 +55,19 @@ export default function StudentDetails() {
           </h3>
         </div>
 
-        <div className="mt-5 grid grid-cols-12 gap-4">
+        {/* Top Divider */}
+        <div className="mt-3 border-t border-gray-200 dark:border-dark-600" />
+
+        {/* Form Grid */}
+        <div className="mt-4 grid grid-cols-12 gap-4">
           {/* First Name */}
           <div className="col-span-12 md:col-span-4">
             <Input
               label="First Name"
               placeholder="Enter first name"
+              className={smallInput}
               {...register("student_first_name")}
-              error={errors?.studentFirstName?.message}
+              error={errors?.student_first_name?.message}
             />
           </div>
 
@@ -66,8 +76,9 @@ export default function StudentDetails() {
             <Input
               label="Middle Name"
               placeholder="Enter middle name"
+              className={smallInput}
               {...register("student_middle_name")}
-              error={errors?.studentMiddleName?.message}
+              error={errors?.student_middle_name?.message}
             />
           </div>
 
@@ -76,8 +87,9 @@ export default function StudentDetails() {
             <Input
               label="Last Name"
               placeholder="Enter last name"
+              className={smallInput}
               {...register("student_last_name")}
-              error={errors?.studentLastName?.message}
+              error={errors?.student_last_name?.message}
             />
           </div>
 
@@ -94,8 +106,10 @@ export default function StudentDetails() {
                       <span>DOB</span>
                     </span>
                   }
-                  value={value ?? null}            // RHF holds a Date or null
-                  onChange={onChange}              // You convert to ISO in submit
+                  value={value ?? null}
+                  onChange={onChange}
+                  inputClassName={smallInput}
+                  className={smallInput}
                   error={errors?.dob?.message}
                   options={{ disableMobile: true, maxDate: "today" }}
                   placeholder="Choose date..."
@@ -118,7 +132,8 @@ export default function StudentDetails() {
                   value={genders.find((g) => g.id === field.value) || null}
                   onChange={(val) => field.onChange(val?.id != null ? Number(val.id) : null)}
                   placeholder="Select Gender"
-                  error={errors?.genderId?.message}
+                  error={errors?.gender_id?.message}
+                  inputProps={{ className: smallInput }}
                 />
               )}
             />
@@ -137,7 +152,8 @@ export default function StudentDetails() {
                   value={grades.find((g) => g.id === field.value) || null}
                   onChange={(val) => field.onChange(val?.id != null ? Number(val.id) : null)}
                   placeholder="Select Grade"
-                  error={errors?.admissionCourseId?.message}
+                  error={errors?.admission_course_id?.message}
+                  inputProps={{ className: smallInput }}
                 />
               )}
             />
@@ -156,7 +172,8 @@ export default function StudentDetails() {
                   value={branches.find((b) => b.id === field.value) || null}
                   onChange={(val) => field.onChange(val?.id != null ? Number(val.id) : null)}
                   placeholder="Select Branch"
-                  error={errors?.branchId?.message}
+                  error={errors?.branch_id?.message}
+                  inputProps={{ className: smallInput }}
                 />
               )}
             />

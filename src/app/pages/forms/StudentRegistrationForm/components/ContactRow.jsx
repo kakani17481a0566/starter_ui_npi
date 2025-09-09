@@ -20,7 +20,6 @@ export default function ContactRow({
 }) {
   const { setValue, control, watch } = useFormContext();
 
-  // dynamic label: "Same as Father/Mother/..."
   const primaryLabel = useMemo(
     () => primaryPrefix.charAt(0).toUpperCase() + primaryPrefix.slice(1),
     [primaryPrefix]
@@ -28,44 +27,31 @@ export default function ContactRow({
 
   const sameAsPrimary = watch(`${prefix}_same_as_primary`);
 
+  const FIELD_KEYS = ["first_name", "last_name", "home_phone", "cell_phone", "business_phone"];
+
   const primaryValues = useWatch({
     control,
-    name: [
-      `${primaryPrefix}_first_name`,
-      `${primaryPrefix}_last_name`,
-      `${primaryPrefix}_home_phone`,
-      `${primaryPrefix}_cell_phone`,
-      `${primaryPrefix}_business_phone`,
-    ],
+    name: FIELD_KEYS.map((field) => `${primaryPrefix}_${field}`),
   });
 
+  // Mirror logic
   useEffect(() => {
     if (!sameAsPrimary) return;
 
-    const [
-      primaryFirstName,
-      primaryLastName,
-      primaryHomePhone,
-      primaryCellPhone,
-      primaryBusinessPhone,
-    ] = primaryValues;
-
-    setValue(`${prefix}_first_name`, primaryFirstName ?? "", { shouldValidate: true });
-    setValue(`${prefix}_last_name`, primaryLastName ?? "", { shouldValidate: true });
-    setValue(`${prefix}_home_phone`, primaryHomePhone ?? "", { shouldValidate: true });
-    setValue(`${prefix}_cell_phone`, primaryCellPhone ?? "", { shouldValidate: true });
-    setValue(`${prefix}_business_phone`, primaryBusinessPhone ?? "", { shouldValidate: true });
+    FIELD_KEYS.forEach((field, idx) => {
+      setValue(`${prefix}_${field}`, primaryValues[idx] ?? "", { shouldValidate: true });
+    });
   }, [sameAsPrimary, primaryValues, setValue, prefix]);
 
   const fieldProps = (name) => ({
     ...register(name),
-    disabled: sameAsPrimary,
+    readOnly: sameAsPrimary, // ✅ use readOnly instead of disabled
     error: errors?.[name]?.message,
   });
 
   return (
     <div className="col-span-12">
-      {/* Header stack: title on top; checkbox aligned LEFT just under it */}
+      {/* Header */}
       <div className="mt-6 mb-3 flex flex-col items-start gap-2">
         <div className="flex items-center gap-2">
           <UserIcon className="text-primary-600 dark:text-primary-400 size-5" />
@@ -83,6 +69,7 @@ export default function ContactRow({
         )}
       </div>
 
+      {/* Fields */}
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-12 md:col-span-3">
           <Input

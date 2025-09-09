@@ -35,9 +35,9 @@ export function MainPanel({ nav, setActiveSegment, activeSegment }) {
       <div
         className={clsx(
           "flex h-full w-full flex-col items-center bg-white",
-          "border-r-1 !border-[#33CDCD]",
+          // "border-r-1 !border-[#33CDCD]",
           "rounded-tr-xl rounded-br-xl",
-          "shadow-[0_0_20px_#33CDCD] transition-shadow",
+          // "shadow-[0_0_20px_#33CDCD] transition-shadow",
           cardSkin === "shadow-sm" ? "dark:bg-dark-750" : "dark:bg-dark-900",
         )}
       >
