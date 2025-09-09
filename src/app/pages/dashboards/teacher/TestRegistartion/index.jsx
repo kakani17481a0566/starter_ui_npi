@@ -18,20 +18,22 @@ import {
 } from "@headlessui/react";
 import clsx from "clsx";
 
-import { getBranches } from "./branchData";
+// import { getBranches } from "./branchData";
 import { getCoursesByBranch } from "./courseData";
 import { getStudentsByCourse } from "./StudentData";
 import { getStudentTest } from "./testData";
 import { StudentTestVertical } from "./components/StudentTestVertical/StudentTestVertical";
 import { Button } from "components/ui";
+import { getSessionData } from "utils/sessionStorage";
 
 export default function StudentTest() {
-  const [branches, setBranches] = useState([]);
+  // const [branches, setBranches] = useState([]);
   const [courses, setCourses] = useState([]);
   const [students, setStudents] = useState([]);
   const [tests, setTests] = useState([]);
+   const {branch}=getSessionData();
 
-  const [branchId, setBranchId] = useState("");
+  // const [branchId, setBranchId] = useState("");
   const [courseId, setCourseId] = useState("");
   const [studentId, setStudentId] = useState("");
   const [testId, setTestId] = useState("");
@@ -46,8 +48,8 @@ export default function StudentTest() {
   const [error, setError] = useState("");
 
   const canSubmit = useMemo(
-    () => !!branchId && !!courseId && !!studentId && !!testId,
-    [branchId, courseId, studentId, testId]
+    () =>  !!courseId && !!studentId && !!testId,
+    [ courseId, studentId, testId]
   );
 
   useEffect(() => {
@@ -56,8 +58,8 @@ export default function StudentTest() {
       setLoading((s) => ({ ...s, branches: true }));
       setError("");
       try {
-        const data = await getBranches();
-        if (alive) setBranches(data);
+        // const data = await getBranches();
+        // if (alive) setBranches(data);
       } catch {
         if (alive) setError("Failed to load branches.");
       } finally {
@@ -78,13 +80,13 @@ export default function StudentTest() {
     setTests([]);
     setTestId("");
 
-    if (!branchId) return;
+    // if (!branchId) return;
 
     (async () => {
       setLoading((s) => ({ ...s, courses: true }));
       setError("");
       try {
-        const data = await getCoursesByBranch(branchId);
+        const data = await getCoursesByBranch(branch);
         if (alive) setCourses(data);
       } catch {
         if (alive) setError("Failed to load courses.");
@@ -96,7 +98,7 @@ export default function StudentTest() {
     return () => {
       alive = false;
     };
-  }, [branchId]);
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -109,7 +111,7 @@ export default function StudentTest() {
       setLoading((s) => ({ ...s, students: true }));
       setError("");
       try {
-        const data = await getStudentsByCourse(branchId, courseId);
+        const data = await getStudentsByCourse( branch,courseId);
         if (alive) setStudents(data);
       } catch {
         if (alive) setError("Failed to load students.");
@@ -121,7 +123,7 @@ export default function StudentTest() {
     return () => {
       alive = false;
     };
-  }, [courseId, branchId]);
+  }, [courseId]);
 
   useEffect(() => {
     let alive = true;
@@ -153,13 +155,13 @@ export default function StudentTest() {
     if (!canSubmit) return;
 
     const payload = {
-      branchId: Number(branchId),
+      // branchId: Number(branchId),
       courseId: Number(courseId),
       studentId: Number(studentId),
       testId: Number(testId),
     };
     console.log("Submit payload:", payload);
-    alert(`Submitted:\nBranch: ${branchId}\nCourse: ${courseId}\nStudent: ${studentId}\nTest: ${testId}`);
+    alert(`Submitted:\nBranch: ${branch}\nCourse: ${courseId}\nStudent: ${studentId}\nTest: ${testId}`);
   };
 
   const iconMap = {
@@ -249,8 +251,8 @@ export default function StudentTest() {
 
       <div className="max-w-3xl mx-auto rounded-lg border-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 shadow-md px-6 py-8 space-y-6">
         <form onSubmit={onSubmit} className="space-y-6">
-          {renderDropdown("Branch", branches, branchId, setBranchId, "branches", false)}
-          {renderDropdown("Course", courses, courseId, setCourseId, "courses", !branchId)}
+          {/* {renderDropdown("Branch", branches, branchId, setBranchId, "branches", false)} */}
+          {renderDropdown("Course", courses, courseId, setCourseId, "courses",false)}
           {renderDropdown("Student", students, studentId, setStudentId, "students", !courseId)}
           {renderDropdown("Test", tests, testId, setTestId, "tests", !studentId)}
 

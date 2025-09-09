@@ -42,7 +42,7 @@ export default function MarketingConsent() {
 
   const handleSigEnd = () => {
     if (!sigRef.current) return;
-    const dataUrl = sigRef.current.getTrimmedCanvas().toDataURL("image/png");
+    const dataUrl = sigRef.current.toDataURL("image/png");
     setValue("signature", dataUrl, { shouldDirty: true, shouldValidate: true });
   };
 

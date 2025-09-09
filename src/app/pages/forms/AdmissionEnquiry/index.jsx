@@ -362,10 +362,10 @@ export default function AdmissionEnquiryForm() {
                 </Card>
               </div>
 
-              {/* Address stays standalone */}
+              
               <AddressSection />
 
-              {/* Parent/Guardian (left) + Mother (right) */}
+             
               <div className="col-span-12">
                 <Card className="p-4 sm:px-5 border ">
                   <h3 className="dark:text-dark-100 mb-4 text-base font-medium text-gray-800">
