@@ -3,8 +3,9 @@ import axios from "axios";
 import { BASE_URL } from "constants/apis";
 import { fetchGradesList } from "./GradesList";
 
-export async function fetchAssessmentMatrix({ timeTableId, tenantId, courseId, branch }) {
-  const url = `${BASE_URL}/AssessmentMatrix/timetable/${timeTableId}/tenant/${tenantId}/course/${courseId}/branch/${branch}`;
+export async function fetchAssessmentMatrix({ timeTableId, tenantId, courseId, branchId }) {
+  console.log(timeTableId);
+  const url = `${BASE_URL}/AssessmentMatrix/timetable/${timeTableId}/tenant/${tenantId}/course/${courseId}/branch/${branchId}`;
   const response = await axios.get(url);
   return response.data;
 }

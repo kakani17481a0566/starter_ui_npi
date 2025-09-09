@@ -54,6 +54,7 @@ export function WeekTimeTable({ courseId }) {
           column7: row.column7,
           column8: row.column8,
           column9: row.column9,
+          timeTableId:row.timeTableId
         }));
         setMedia(trimmed);
         setHeaders(data.headers);
