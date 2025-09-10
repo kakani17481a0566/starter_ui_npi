@@ -1,14 +1,17 @@
-import { useState, useRef } from "react";
+// src/app/pages/forms/StudentRegistrationForm/sections/DocumentUploadSection.jsx
+import { useState, useRef, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import {
   PaperClipIcon,
   XCircleIcon,
   CheckCircleIcon,
   ArrowUpTrayIcon,
+  NoSymbolIcon,
 } from "@heroicons/react/24/outline";
-import { Card, Button, Progress } from "components/ui";
+import { Button, Progress } from "components/ui";
 import { FilePond } from "components/shared/form/Filepond";
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
+import SectionCard from "../components/SectionCard";
 import axios from "utils/axios";
 
 export default function DocumentUploadSection({
@@ -27,8 +30,14 @@ export default function DocumentUploadSection({
     formState: { errors },
     watch,
   } = useFormContext();
+
   const { isXs, isMd, lgAndUp } = useBreakpointsContext();
-  const columnCount = (isXs && 1) || (isMd && 2) || (lgAndUp && 3) || 2;
+
+  // Inline grid template to avoid dynamic Tailwind class pitfalls
+  const gridStyle = useMemo(() => {
+    const cols = (isXs && 1) || (isMd && 2) || (lgAndUp && 3) || 2;
+    return { gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` };
+  }, [isXs, isMd, lgAndUp]);
 
   const [progress, setProgress] = useState({});
   const [uploading, setUploading] = useState({});
@@ -45,6 +54,19 @@ export default function DocumentUploadSection({
     if (autoUpload && file) handleUpload(name);
   };
 
+  const handleCancel = (name) => {
+    if (cancelTokensRef.current[name]) {
+      try {
+        cancelTokensRef.current[name].abort();
+      } catch {
+        // ignore
+      }
+      delete cancelTokensRef.current[name];
+    }
+    setUploading((s) => ({ ...s, [name]: false }));
+    setProgress((s) => ({ ...s, [name]: 0 }));
+  };
+
   const handleUpload = async (name) => {
     const file = fileValue(name);
     if (!file || !uploadUrl) {
@@ -58,7 +80,7 @@ export default function DocumentUploadSection({
       try {
         cancelTokensRef.current[name].abort();
       } catch {
-        // ignore abort error (already cancelled or failed silently)
+        // ignore abort error
       }
     }
 
@@ -98,7 +120,11 @@ export default function DocumentUploadSection({
       setUploadedUrl((s) => ({ ...s, [name]: url }));
     } catch (err) {
       console.error("Upload error:", err);
-      setError(name, { message: err?.message || "Upload failed" });
+      if (err?.name === "CanceledError" || err?.message === "canceled") {
+        // canceled by user — keep quiet
+      } else {
+        setError(name, { message: err?.message || "Upload failed" });
+      }
     } finally {
       setUploading((s) => ({ ...s, [name]: false }));
       setProgress((s) => ({ ...s, [name]: 0 }));
@@ -111,7 +137,7 @@ export default function DocumentUploadSection({
       try {
         cancelTokensRef.current[name].abort();
       } catch {
-        // ignore abort error (already cancelled or failed silently)
+        // ignore
       }
       delete cancelTokensRef.current[name];
     }
@@ -125,15 +151,14 @@ export default function DocumentUploadSection({
   };
 
   return (
-    <Card className="mt-4 p-4 sm:px-5">
-      <div className="mb-3 flex items-center gap-2">
-        <PaperClipIcon className="text-primary-600 dark:text-primary-400 size-5" />
-        <h3 className="dark:text-dark-50 text-base font-medium text-gray-800">
-          {title}
-        </h3>
-      </div>
-
-      <div className={`grid grid-cols-1 md:grid-cols-${columnCount} gap-4`}>
+    <SectionCard
+      title={title}
+      icon={PaperClipIcon}
+      variant="outlined"
+      elevation={1}
+      padding="md"
+    >
+      <div className="grid gap-4" style={gridStyle}>
         {documents.map(({ name, label, accept = ".pdf,.jpg,.jpeg,.png" }) => {
           const file = fileValue(name);
           const url = urlValue(name);
@@ -150,13 +175,12 @@ export default function DocumentUploadSection({
               <FilePond
                 allowMultiple={false}
                 acceptedFileTypes={accept.split(",")}
-                onupdatefiles={(files) =>
-                  handleSelectFile(name, files?.[0]?.file)
-                }
+                onupdatefiles={(files) => handleSelectFile(name, files?.[0]?.file)}
                 disabled={isUploading}
                 maxFiles={1}
               />
 
+              {/* Manual upload (if autoUpload=false) */}
               {!autoUpload && (
                 <Button
                   size="sm"
@@ -169,18 +193,33 @@ export default function DocumentUploadSection({
                 </Button>
               )}
 
+              {/* Remove */}
               {(file || hasUrl || isUploading) && (
                 <Button
                   size="sm"
                   variant="twoTone"
                   onClick={() => handleRemove(name)}
-                  className="mt-2"
+                  className="mt-2 ml-2"
                   icon={<XCircleIcon className="size-4" />}
                 >
                   Remove
                 </Button>
               )}
 
+              {/* Cancel while uploading */}
+              {isUploading && (
+                <Button
+                  size="sm"
+                  variant="outlined"
+                  className="mt-2 ml-2"
+                  onClick={() => handleCancel(name)}
+                  icon={<NoSymbolIcon className="size-4" />}
+                >
+                  Cancel
+                </Button>
+              )}
+
+              {/* Progress */}
               {isUploading && (
                 <div className="mt-2">
                   <Progress value={pct} />
@@ -188,29 +227,29 @@ export default function DocumentUploadSection({
                 </div>
               )}
 
-              {hasUrl && (
+              {/* Uploaded link */}
+              {hasUrl && !isUploading && (
                 <div className="mt-2 flex items-center gap-2 text-sm">
                   <CheckCircleIcon className="size-4 text-green-600" />
                   <a
                     href={hasUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-primary-600 break-all hover:underline"
+                    className="break-all text-primary-600 hover:underline"
                   >
                     View uploaded file
                   </a>
                 </div>
               )}
 
+              {/* Field error */}
               {errors?.[name] && (
-                <p className="mt-1 text-sm text-red-500">
-                  {errors[name].message}
-                </p>
+                <p className="mt-1 text-sm text-red-500">{errors[name].message}</p>
               )}
             </div>
           );
         })}
       </div>
-    </Card>
+    </SectionCard>
   );
 }

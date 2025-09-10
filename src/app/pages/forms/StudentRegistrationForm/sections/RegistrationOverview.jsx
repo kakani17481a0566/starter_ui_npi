@@ -3,14 +3,16 @@ import {
   BriefcaseIcon,
   CheckCircleIcon,
   DocumentPlusIcon,
+  CalendarDaysIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/24/outline";
-import { Card } from "components/ui";
+import SectionCard from "../components/SectionCard"; // adjust path if needed
 
 export default function RegistrationOverview() {
   const currentYear = new Date().getFullYear();
   const nextYear = currentYear + 1;
 
-  const academicYearLabel = `${currentYear}–${nextYear.toString().slice(-2)}`; // 2024–25
+  const academicYearLabel = `${currentYear}–${nextYear.toString().slice(-2)}`; // e.g., 2025–26
   const physicalExamDeadline = `June 1, ${currentYear}`;
 
   const eligibilityList = [
@@ -20,7 +22,7 @@ export default function RegistrationOverview() {
   ];
 
   return (
-    <Card className="mb-4 p-4 sm:px-5">
+    <SectionCard className="mb-4" padding="md" radius="xl" variant="outlined" elevation={1}>
       <div className="mb-3 flex items-center gap-2">
         <DocumentPlusIcon className="text-primary-600 dark:text-primary-400 size-5" />
         <h2 className="dark:text-dark-50 text-base font-semibold text-gray-800">
@@ -49,6 +51,39 @@ export default function RegistrationOverview() {
         </ul>
       </div>
 
+      {/* NEW: Important Dates */}
+      <div className="mt-4">
+        <div className="mb-1 flex items-center gap-2">
+          <CalendarDaysIcon className="text-primary-600 dark:text-primary-400 size-4" />
+          <span className="dark:text-dark-100 text-sm font-medium text-gray-800">
+            Important Dates
+          </span>
+        </div>
+
+        <div className="mt-2 grid grid-cols-12 gap-3">
+          <div className="col-span-12 sm:col-span-6">
+            <div className="rounded-lg border border-gray-200 p-3 text-sm dark:border-dark-600">
+              <div className="mb-1 text-xs text-gray-500 dark:text-dark-300">Academic Year</div>
+              <div className="font-medium text-gray-800 dark:text-dark-100">{academicYearLabel}</div>
+            </div>
+          </div>
+          <div className="col-span-12 sm:col-span-6">
+            <div className="rounded-lg border border-gray-200 p-3 text-sm dark:border-dark-600">
+              <div className="mb-1 text-xs text-gray-500 dark:text-dark-300">Physical exam after</div>
+              <div className="font-medium text-gray-800 dark:text-dark-100">{physicalExamDeadline}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-2 flex items-start gap-2 rounded-md bg-blue-50 p-3 text-xs text-blue-900 dark:bg-blue-900/20 dark:text-blue-100">
+          <InformationCircleIcon className="mt-0.5 size-4 shrink-0" />
+          <p>
+            These dates are guidelines. Check your branch’s circulars for any updates to the
+            registration timeline.
+          </p>
+        </div>
+      </div>
+
       {/* Steps to register */}
       <div className="mt-4">
         <div className="mb-1 flex items-center gap-2">
@@ -65,9 +100,7 @@ export default function RegistrationOverview() {
           ].map((step, index) => (
             <li key={index} className="flex items-start gap-2">
               <CheckCircleIcon className="mt-0.5 size-4 text-emerald-600" />
-              <span className="dark:text-dark-100 text-sm text-gray-700">
-                {step}
-              </span>
+              <span className="dark:text-dark-100 text-sm text-gray-700">{step}</span>
             </li>
           ))}
         </ul>
@@ -91,9 +124,7 @@ export default function RegistrationOverview() {
           ].map((form, index) => (
             <li key={index} className="flex items-start gap-2">
               <CheckCircleIcon className="mt-0.5 size-4 text-emerald-600" />
-              <span className="dark:text-dark-100 text-sm text-gray-700">
-                {form}
-              </span>
+              <span className="dark:text-dark-100 text-sm text-gray-700">{form}</span>
             </li>
           ))}
         </ul>
@@ -137,6 +168,6 @@ export default function RegistrationOverview() {
           </li>
         </ul>
       </div>
-    </Card>
+    </SectionCard>
   );
 }

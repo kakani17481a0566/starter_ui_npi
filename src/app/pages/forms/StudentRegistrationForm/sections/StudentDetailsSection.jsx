@@ -2,15 +2,18 @@
 
 import { useEffect } from "react";
 import { useFormContext, Controller } from "react-hook-form";
-import { Card, Input, Radio } from "components/ui";
+import { Input, Radio } from "components/ui";
 import {
   AcademicCapIcon,
   UserGroupIcon,
   BuildingOfficeIcon,
   CalendarDaysIcon,
+  InboxIcon,
+  PhoneIcon,
 } from "@heroicons/react/24/outline";
 import { DatePicker } from "components/shared/form/Datepicker";
 import LabelWithIcon from "../components/LabelWithIcon";
+import SectionCard from "../components/SectionCard";
 import clsx from "clsx";
 
 export default function StudentDetailsSection() {
@@ -23,37 +26,115 @@ export default function StudentDetailsSection() {
     formState: { errors },
   } = useFormContext();
 
-  // Ensure defaults = "yes" if missing (so sections start enabled & visible)
+  // Ensure defaults for radios
   useEffect(() => {
     [
       "attending_preschool",
       "previously_registered_kg",
       "siblings_in_this_school",
       "siblings_in_other_schools",
+      "extra_entry_yesno",
     ].forEach((f) => {
       const v = getValues(f);
       if (v == null || v === "") {
-        setValue(f, "yes", { shouldDirty: false, shouldValidate: true });
+        setValue(f, "no", { shouldDirty: false, shouldValidate: true });
       }
     });
   }, [getValues, setValue]);
 
-  // Values
+  // Watches
   const attendingPreschool = watch("attending_preschool");
   const previousKG = watch("previously_registered_kg");
   const hasSiblingsHere = watch("siblings_in_this_school");
   const hasSiblingsOther = watch("siblings_in_other_schools");
+  const extraEntryYesNo = watch("extra_entry_yesno");
 
-  // Helper to decide enable/disable
   const isOn = (v) => v === "yes";
+  const small = "h-8 py-1 text-xs";
 
   return (
-    <Card className="p-4 sm:px-5">
+    <SectionCard
+      title="Student Details"
+      icon={UserGroupIcon}
+      variant="outlined"
+      elevation={1}
+      padding="md"
+    >
       <div className="grid grid-cols-12 gap-4">
+        {/* ---------- Extra Yes/No with Number INLINE ---------- */}
+        <div className="col-span-12 md:col-span-6">
+          <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+            <LabelWithIcon icon={PhoneIcon}>
+              Extra Entry — Do you have a number?
+            </LabelWithIcon>
+          </label>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <Radio label="Yes" value="yes" {...register("extra_entry_yesno")} />
+              <fieldset
+                disabled={!isOn(extraEntryYesNo)}
+                className={clsx(
+                  "flex items-center gap-2",
+                  !isOn(extraEntryYesNo) && "pointer-events-none opacity-60"
+                )}
+              >
+                <Input
+                  className={`${small} w-28`}
+                  type="number"
+                  placeholder="Number"
+                  {...register("extra_entry_number")}
+                  error={errors?.extra_entry_number?.message}
+                />
+              </fieldset>
+            </div>
+            <Radio label="No" value="no" {...register("extra_entry_yesno")} />
+          </div>
+        </div>
+
+        {/* ---------- Registration Channel ---------- */}
+        <div className="col-span-12 md:col-span-6">
+          <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+            <LabelWithIcon icon={InboxIcon}>Registration Channel</LabelWithIcon>
+          </label>
+          <div className="flex flex-wrap gap-6">
+            <Radio label="By Post" value="post" {...register("registration_channel")} />
+            <Radio label="In Person" value="in_person" {...register("registration_channel")} />
+            <Radio label="Online" value="online" {...register("registration_channel")} />
+          </div>
+          {errors?.registration_channel?.message && (
+            <p className="mt-1 text-xs text-red-600">{errors.registration_channel.message}</p>
+          )}
+        </div>
+
+        {/* ---------- Registration Date ---------- */}
+        <div className="col-span-12 md:col-span-6">
+          <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+            <LabelWithIcon icon={CalendarDaysIcon}>Registration Date</LabelWithIcon>
+          </label>
+          <Controller
+            name="registration_date"
+            control={control}
+            render={({ field }) => (
+              <>
+                <DatePicker
+                  value={field.value ?? null}
+                  onChange={field.onChange}
+                  className={small}
+                />
+                {errors?.registration_date?.message && (
+                  <p className="mt-1 text-xs text-red-600">
+                    {errors.registration_date.message}
+                  </p>
+                )}
+              </>
+            )}
+          />
+        </div>
+
         {/* ---------- Student Name ---------- */}
         <div className="col-span-12 md:col-span-4">
           <Input
-            className="h-8 py-1 text-xs"
+            className={small}
             label={<LabelWithIcon icon={UserGroupIcon}>Student First Name</LabelWithIcon>}
             {...register("student_first_name")}
             error={errors?.student_first_name?.message}
@@ -62,7 +143,7 @@ export default function StudentDetailsSection() {
 
         <div className="col-span-12 md:col-span-4">
           <Input
-            className="h-8 py-1 text-xs"
+            className={small}
             label={<LabelWithIcon icon={UserGroupIcon}>Student Middle Name</LabelWithIcon>}
             {...register("student_middle_name")}
             error={errors?.student_middle_name?.message}
@@ -71,7 +152,7 @@ export default function StudentDetailsSection() {
 
         <div className="col-span-12 md:col-span-4">
           <Input
-            className="h-8 py-1 text-xs"
+            className={small}
             label={<LabelWithIcon icon={UserGroupIcon}>Student Last Name</LabelWithIcon>}
             {...register("student_last_name")}
             error={errors?.student_last_name?.message}
@@ -88,8 +169,14 @@ export default function StudentDetailsSection() {
             control={control}
             render={({ field }) => (
               <>
-                <DatePicker value={field.value ?? null} onChange={field.onChange} className="h-8 py-1 text-xs" />
-                {errors?.dob?.message && <p className="mt-1 text-xs text-red-600">{errors.dob.message}</p>}
+                <DatePicker
+                  value={field.value ?? null}
+                  onChange={field.onChange}
+                  className={small}
+                />
+                {errors?.dob?.message && (
+                  <p className="mt-1 text-xs text-red-600">{errors.dob.message}</p>
+                )}
               </>
             )}
           />
@@ -123,7 +210,9 @@ export default function StudentDetailsSection() {
               })}
             />
           </div>
-          {errors?.gender_id?.message && <p className="mt-1 text-xs text-red-600">{errors.gender_id.message}</p>}
+          {errors?.gender_id?.message && (
+            <p className="mt-1 text-xs text-red-600">{errors.gender_id.message}</p>
+          )}
         </div>
 
         {/* ---------- Attending Pre-school ---------- */}
@@ -136,12 +225,12 @@ export default function StudentDetailsSection() {
             <Radio label="No" value="no" {...register("attending_preschool")} />
           </div>
 
-          {/* Always visible; disabled when answer is "no" */}
           <fieldset
             disabled={!isOn(attendingPreschool)}
-            className={clsx("mt-3 space-y-0", !isOn(attendingPreschool) && "opacity-60 pointer-events-none")}
+            className={clsx("mt-3 space-y-0", !isOn(attendingPreschool) && "pointer-events-none opacity-60")}
           >
             <Input
+              className={small}
               label={<LabelWithIcon icon={BuildingOfficeIcon}>If yes, name of pre-school</LabelWithIcon>}
               {...register("preschool_name")}
               error={errors?.preschool_name?.message}
@@ -161,9 +250,10 @@ export default function StudentDetailsSection() {
 
           <fieldset
             disabled={!isOn(previousKG)}
-            className={clsx("mt-3", !isOn(previousKG) && "opacity-60 pointer-events-none")}
+            className={clsx("mt-3", !isOn(previousKG) && "pointer-events-none opacity-60")}
           >
             <Input
+              className={small}
               label={<LabelWithIcon icon={BuildingOfficeIcon}>If yes, name of school</LabelWithIcon>}
               {...register("previous_kg_school_name")}
               error={errors?.previous_kg_school_name?.message}
@@ -183,9 +273,10 @@ export default function StudentDetailsSection() {
 
           <fieldset
             disabled={!isOn(hasSiblingsHere)}
-            className={clsx("mt-3", !isOn(hasSiblingsHere) && "opacity-60 pointer-events-none")}
+            className={clsx("mt-3", !isOn(hasSiblingsHere) && "pointer-events-none opacity-60")}
           >
             <Input
+              className={small}
               label={<LabelWithIcon icon={UserGroupIcon}>If yes, name</LabelWithIcon>}
               {...register("siblings_this_school_name")}
               error={errors?.siblings_this_school_name?.message}
@@ -205,9 +296,10 @@ export default function StudentDetailsSection() {
 
           <fieldset
             disabled={!isOn(hasSiblingsOther)}
-            className={clsx("mt-3", !isOn(hasSiblingsOther) && "opacity-60 pointer-events-none")}
+            className={clsx("mt-3", !isOn(hasSiblingsOther) && "pointer-events-none opacity-60")}
           >
             <Input
+              className={small}
               label={<LabelWithIcon icon={UserGroupIcon}>If yes, name</LabelWithIcon>}
               {...register("siblings_other_school_name")}
               error={errors?.siblings_other_school_name?.message}
@@ -222,6 +314,6 @@ export default function StudentDetailsSection() {
           </div>
         </div>
       </div>
-    </Card>
+    </SectionCard>
   );
 }

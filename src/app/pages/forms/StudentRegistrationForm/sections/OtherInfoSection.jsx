@@ -1,7 +1,8 @@
 // src/app/pages/forms/StudentRegistrationForm/sections/OtherInfoSection.jsx
 import { useFormContext } from "react-hook-form";
-import { Card, Input, Radio } from "components/ui";
+import { Input, Radio } from "components/ui";
 import { AcademicCapIcon, GlobeAltIcon } from "@heroicons/react/24/outline";
+import SectionCard from "../components/SectionCard";
 import LabelWithIcon from "../components/LabelWithIcon";
 
 export default function OtherInfoSection() {
@@ -14,13 +15,14 @@ export default function OtherInfoSection() {
   const radiosRow = "flex flex-wrap items-center gap-4 text-xs";
 
   return (
-    <Card className="p-4 sm:px-5">
-      <div className="flex items-center gap-2">
-        <AcademicCapIcon className="size-5 text-primary-600 dark:text-primary-400" />
-        <h3 className="text-base font-medium">Other Information</h3>
-      </div>
-
-      <div className="mt-4 grid grid-cols-12 gap-4">
+    <SectionCard
+      title="Other Information"
+      icon={AcademicCapIcon}
+      variant="outlined"
+      elevation={1}
+      padding="md"
+    >
+      <div className="mt-2 grid grid-cols-12 gap-4">
         {/* Languages */}
         <div className="col-span-12 md:col-span-4">
           <Input
@@ -51,11 +53,7 @@ export default function OtherInfoSection() {
         <div className="col-span-12 md:col-span-4">
           <Input
             className={compact}
-            label={
-              <LabelWithIcon icon={GlobeAltIcon}>
-                Language first learned
-              </LabelWithIcon>
-            }
+            label={<LabelWithIcon icon={GlobeAltIcon}>Language first learned</LabelWithIcon>}
             {...register("lang_first_learned")}
             error={errors?.lang_first_learned?.message}
           />
@@ -98,6 +96,6 @@ export default function OtherInfoSection() {
           </div>
         </div>
       </div>
-    </Card>
+    </SectionCard>
   );
 }

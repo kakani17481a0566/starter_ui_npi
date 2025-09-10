@@ -1,11 +1,12 @@
 // src/app/pages/forms/StudentRegistrationForm/sections/AddressSection.jsx
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
-import { Card, Input, Checkbox, Radio } from "components/ui";
+import { Input, Checkbox, Radio } from "components/ui";
 import {
   HomeIcon, UserGroupIcon, MapPinIcon, GlobeAltIcon, HashtagIcon,
 } from "@heroicons/react/24/outline";
 import LabelWithIcon from "../components/LabelWithIcon";
+import SectionCard from "../components/SectionCard";
 import clsx from "clsx";
 
 const f = (p, n) => (p ? `${p}${n}` : n);
@@ -64,22 +65,21 @@ function AddressGroup({ title, prefix = "", syncWithPrimary = false, showRole = 
   const fieldsetCls = clsx(!sameAs ? "" : "opacity-60 pointer-events-none");
 
   return (
-    <Card className="p-3 sm:p-4">
-      {/* Header with right-side Parent/Guardian radios when showRole */}
-      <div className="mb-1 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <HomeIcon className="size-4 text-primary-600 dark:text-primary-400" />
-          <h3 className="text-sm font-medium">{title}</h3>
-        </div>
-
-        {showRole && (
+    <SectionCard
+      title={title}
+      icon={HomeIcon}
+      variant="outlined"
+      elevation={1}
+      padding="md"
+      actions={
+        showRole ? (
           <div className="flex items-center gap-4 text-xs">
             <Radio value="parent" label="Parent" {...register(roleName)} />
             <Radio value="guardian" label="Guardian" {...register(roleName)} />
           </div>
-        )}
-      </div>
-
+        ) : null
+      }
+    >
       {syncWithPrimary && (
         <div className="mb-2 flex items-center justify-between">
           <Checkbox {...register(sameAsName)} label="Same as Primary Address" />
@@ -193,7 +193,7 @@ function AddressGroup({ title, prefix = "", syncWithPrimary = false, showRole = 
           )}
         </div>
       </fieldset>
-    </Card>
+    </SectionCard>
   );
 }
 
