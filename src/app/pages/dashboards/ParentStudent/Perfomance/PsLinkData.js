@@ -13,7 +13,7 @@ export const psLinkData = [
         name: "Kid One",
         gender: "male",
         image:
-          "https://as1.ftcdn.net/v2/jpg/12/24/11/02/1000_F_1224110293_eAwZvkP107TnkF6V8hGkAuI2XvytBXzE.jpg",
+          "https://as1.ftcdn.net/v2/jpg/11/95/11/20/1000_F_1195112017_AULAVR5duzRhPWajV9U3bCia2a03W55p.jpg",
         studentId: "STU201",
         admissionNumber: "A201",
         class: "Grade 2",
