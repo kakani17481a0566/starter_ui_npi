@@ -10,22 +10,11 @@ import {
   CalendarDaysIcon,
 } from "@heroicons/react/24/outline";
 
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
-
 import { Highlight } from "components/shared/Highlight";
-import { Avatar, Card } from "components/ui";
+import { Avatar, Card, Circlebar } from "components/ui"; // ✅ use custom Circlebar
 
 import defaultCover from "./The-Neuroscientific-European-Childcare-PDF_12-x-4-ft_Backside-1.png.bv_resized_desktop.png.bv.webp";
 import defaultAvatar from "./avatar-11.jpg";
-
-const colorHex = {
-  primary: "#6366f1",
-  secondary: "#F000B9",
-  success: "#10B981",
-  warning: "#FF9800",
-  error: "#FF5724",
-};
 
 const formatDate = (value) => {
   if (!value) return "";
@@ -43,7 +32,7 @@ const formatDate = (value) => {
 function MetaPill({ icon, label, title }) {
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white/80 px-2 py-0.5 text-[11px] text-gray-700 shadow-sm backdrop-blur-sm dark:border-dark-500 dark:bg-dark-700/60 dark:text-dark-200"
+      className="dark:border-dark-500 dark:bg-dark-700/60 dark:text-dark-200 inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white/80 px-2 py-0.5 text-[11px] text-gray-700 shadow-sm backdrop-blur-sm"
       title={title || label}
     >
       {icon}
@@ -82,14 +71,12 @@ export function UserCard({
   motherTongue = "",
   addressLine1 = "",
   city = "",
-  // state = "",
-  // pincode = "",
 }) {
-  const pathColor = colorHex[color] || colorHex.primary;
   const progressPct = Math.max(0, Math.min(100, Number(progress) || 0));
 
-  const prettyRole =
-    role ? role.charAt(0).toUpperCase() + role.slice(1).toLowerCase() : "";
+  const prettyRole = role
+    ? role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
+    : "";
 
   const hoursText =
     workingHours?.start && workingHours?.end
@@ -97,12 +84,16 @@ export function UserCard({
       : "";
 
   return (
-    <div className={`h-full flex flex-col justify-between transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 focus-within:shadow-lg ${className}`}>
-      <Card className="flex flex-col h-full">
-        <div className="relative h-24 overflow-hidden rounded-t-lg bg-primary-500">
+    <div
+      className={`flex h-full flex-col justify-between transition-all duration-200 focus-within:shadow-lg hover:-translate-y-0.5 hover:shadow-lg ${className}`}
+    >
+      <Card className="flex h-full flex-col">
+        <div className="bg-primary-500 relative h-24 overflow-hidden rounded-t-lg">
           <img
             src={cover || defaultCover}
-            onError={(e) => { e.currentTarget.style.display = "none"; }}
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
             loading="lazy"
             decoding="async"
             alt={`${name || "User"} cover`}
@@ -111,7 +102,7 @@ export function UserCard({
           <div className="pointer-events-none absolute inset-0 rounded-t-lg bg-gradient-to-t from-black/20 to-transparent" />
         </div>
 
-        <div className="flex flex-col px-4 py-3 sm:px-5 space-y-3">
+        <div className="flex flex-col space-y-3 px-4 py-3 sm:px-5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <Avatar
@@ -121,45 +112,48 @@ export function UserCard({
                 initialColor={color}
                 classNames={{
                   root: "-mt-10 transition-transform duration-200 hover:scale-[1.02]",
-                  display: "border-2 border-white shadow-sm ring-1 ring-black/5 text-2xl dark:border-dark-700",
+                  display:
+                    "dark:border-dark-700 border-2 border-white text-2xl shadow-sm ring-1 ring-black/5",
                 }}
               />
               <div>
-                <h3 className="text-base font-semibold text-gray-800 dark:text-dark-100">
+                <h3 className="dark:text-dark-100 text-base font-semibold text-gray-800">
                   <Highlight query={query}>{name}</Highlight>
                 </h3>
               </div>
             </div>
 
-            <div className="relative h-12 w-12 sm:h-14 sm:w-14" title={`${progressPct}% complete`}>
-              <CircularProgressbar
+            {/* ✅ Use Circlebar */}
+            <div
+              className="relative h-12 w-12 sm:h-14 sm:w-14"
+              title={`${progressPct}% complete`}
+            >
+              <Circlebar
                 value={progressPct}
-                text={`${Math.round(progressPct)}%`}
-                strokeWidth={10}
-                styles={buildStyles({
-                  pathColor,
-                  trailColor: "rgba(148,163,184,0.25)",
-                  textColor: pathColor,
-                  textSize: "24px",
-                  strokeLinecap: "butt",
-                })}
-                aria-label={`${name || "User"} progress ${progressPct}%`}
-              />
+                strokeWidth={4}
+                size={24}
+                color="primary"
+                title={`${progressPct}% complete`}
+              >
+                <span className="dark:text-dark-100 text-[10px] font-semibold text-gray-800">
+                  {Math.round(progressPct)}%
+                </span>
+              </Circlebar>
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 text-sm text-gray-700 dark:text-dark-200">
+          <div className="dark:text-dark-200 flex flex-col gap-2 text-sm text-gray-700">
             {(prettyRole || department) && (
               <div className="flex items-center gap-3">
                 {prettyRole && (
                   <span className="inline-flex items-center gap-1">
-                    <AcademicCapIcon className="size-4 text-primary-500" />
+                    <AcademicCapIcon className="text-primary-500 size-4" />
                     {prettyRole}
                   </span>
                 )}
                 {department && (
                   <span className="inline-flex items-center gap-1">
-                    <BuildingOffice2Icon className="size-4 text-primary-500" />
+                    <BuildingOffice2Icon className="text-primary-500 size-4" />
                     {department}
                   </span>
                 )}
@@ -168,53 +162,88 @@ export function UserCard({
 
             <div className="flex flex-wrap items-center gap-2">
               {admissionNumber && (
-                <MetaPill icon={<IdentificationIcon className="size-4 text-yellow-600" />} label={`Adm: ${admissionNumber}`} />
+                <MetaPill
+                  icon={
+                    <IdentificationIcon className="size-4 text-yellow-600" />
+                  }
+                  label={`Adm: ${admissionNumber}`}
+                />
               )}
               {studentId && (
-                <MetaPill icon={<UserCircleIcon className="size-4 text-indigo-500" />} label={`ID: ${studentId}`} />
+                <MetaPill
+                  icon={<UserCircleIcon className="size-4 text-indigo-500" />}
+                  label={`ID: ${studentId}`}
+                />
               )}
               {branch && (
-                <MetaPill icon={<MapPinIcon className="size-4 text-primary-500" />} label={branch} title={branch} />
+                <MetaPill
+                  icon={<MapPinIcon className="text-primary-500 size-4" />}
+                  label={branch}
+                  title={branch}
+                />
               )}
               {academicYear && (
-                <MetaPill icon={<CalendarDaysIcon className="size-4 text-sky-500" />} label={academicYear} />
+                <MetaPill
+                  icon={<CalendarDaysIcon className="size-4 text-sky-500" />}
+                  label={academicYear}
+                />
               )}
               {dob && (
-                <MetaPill icon={<CalendarDaysIcon className="size-4 text-blue-500" />} label={`DOB: ${formatDate(dob)}`} />
+                <MetaPill
+                  icon={<CalendarDaysIcon className="size-4 text-blue-500" />}
+                  label={`DOB: ${formatDate(dob)}`}
+                />
               )}
               {bloodGroup && (
-                <MetaPill icon={<span className="text-red-500">🩸</span>} label={`Blood: ${bloodGroup}`} />
+                <MetaPill
+                  icon={<span className="text-red-500">🩸</span>}
+                  label={`Blood: ${bloodGroup}`}
+                />
               )}
               {nationality && (
-                <MetaPill icon={<GlobeAltIcon className="size-4 text-green-600" />} label={nationality} />
+                <MetaPill
+                  icon={<GlobeAltIcon className="size-4 text-green-600" />}
+                  label={nationality}
+                />
               )}
               {religion && (
-                <MetaPill icon={<span className="text-purple-600">🕊️</span>} label={religion} />
+                <MetaPill
+                  icon={<span className="text-purple-600">🕊️</span>}
+                  label={religion}
+                />
               )}
               {motherTongue && (
-                <MetaPill icon={<LanguageIcon className="size-4 text-pink-500" />} label={motherTongue} />
+                <MetaPill
+                  icon={<LanguageIcon className="size-4 text-pink-500" />}
+                  label={motherTongue}
+                />
               )}
               {addressLine1 && city && (
-                <MetaPill icon={<MapPinIcon className="size-4 text-emerald-500" />} label={`${addressLine1}, ${city}`} />
+                <MetaPill
+                  icon={<MapPinIcon className="size-4 text-emerald-500" />}
+                  label={`${addressLine1}, ${city}`}
+                />
               )}
             </div>
 
             {hoursText && (
-              <div className="text-xs text-gray-500 dark:text-dark-400">
+              <div className="dark:text-dark-400 text-xs text-gray-500">
                 Hours: {hoursText}
               </div>
             )}
           </div>
 
           {badges?.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-2">
+            <div className="mt-2 flex flex-wrap gap-1.5">
               {badges.map((b, i) => (
                 <span
                   key={`${b}-${i}`}
-                  className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-dark-600 dark:text-dark-200"
+                  className="dark:bg-dark-600 dark:text-dark-200 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
                   title={b}
                 >
-                  <span aria-hidden className="text-primary-500">🏅</span>
+                  <span aria-hidden className="text-primary-500">
+                    🏅
+                  </span>
                   {b}
                 </span>
               ))}
