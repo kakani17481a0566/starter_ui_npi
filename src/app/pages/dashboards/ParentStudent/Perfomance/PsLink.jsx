@@ -1,18 +1,10 @@
 import { psLinkData } from "./PsLinkData";
 import { Avatar } from "components/ui";
 
-const getGradientClassByGender = (gender) => {
-  switch ((gender || "").toLowerCase()) {
-    case "male":
-      return "bg-gradient-to-r from-blue-400 to-blue-600";
-    case "female":
-      return "bg-gradient-to-r from-pink-400 to-rose-500";
-    default:
-      return "bg-gradient-to-r from-gray-400 to-gray-600";
-  }
-};
+// Consistent gradient border using primary color
+const primaryGradient = "bg-gradient-to-r from-primary-400 to-primary-600";
 
-export const PsLink = ({ onKidSelect, selectedKidId }) => {
+export const PsLink = ({ onKidSelect }) => {
   return (
     <div className="flex flex-col gap-6">
       {psLinkData.map((entry) => (
@@ -20,13 +12,10 @@ export const PsLink = ({ onKidSelect, selectedKidId }) => {
           key={entry.id}
           className="flex items-center justify-between gap-4 bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm"
         >
-          {/* Parent Avatar */}
+          {/* Parent Avatar with primary gradient */}
           <div className="flex items-center gap-2">
             <div
-              onClick={() => {}}
-              className={`inline-flex size-16 rounded-full cursor-pointer ${getGradientClassByGender(
-                entry.parent.gender
-              )} p-0.5`}
+              className={`inline-flex size-16 rounded-full p-0.5 ${primaryGradient}`}
               title="Parent"
             >
               <Avatar
@@ -40,23 +29,14 @@ export const PsLink = ({ onKidSelect, selectedKidId }) => {
             </span>
           </div>
 
-          {/* Kids Avatars */}
-          <div className="flex gap-6">
+          {/* Kids Avatars with consistent primary gradient */}
+          <div className="flex gap-4">
             {entry.kids.map((kid) => (
-              <div
-                key={kid.id}
-                className="flex flex-col items-center text-center"
-              >
+              <div key={kid.id} className="flex flex-col items-center text-center">
                 <div
                   onClick={() => onKidSelect(kid.id)}
-                  className={`inline-flex size-14 rounded-full cursor-pointer ${getGradientClassByGender(
-                    kid.gender
-                  )} p-0.5 ${
-                    kid.id === selectedKidId
-                      ? "ring-2 ring-offset-2 ring-primary-500"
-                      : ""
-                  }`}
                   title={`Select ${kid.name}`}
+                  className={`inline-flex size-14 rounded-full p-0.5 cursor-pointer transition-transform hover:scale-105 ${primaryGradient}`}
                 >
                   <Avatar
                     size={15}
@@ -64,7 +44,7 @@ export const PsLink = ({ onKidSelect, selectedKidId }) => {
                     src={kid.image}
                   />
                 </div>
-                <span className="mt-1 text-xs text-gray-700 dark:text-dark-100">
+                <span className="mt-1 text-xs text-gray-700 dark:text-dark-100 text-center w-[56px] truncate">
                   {kid.name}
                 </span>
               </div>

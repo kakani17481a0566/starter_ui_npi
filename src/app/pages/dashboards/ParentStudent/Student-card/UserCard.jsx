@@ -1,3 +1,5 @@
+// Updated UserCard.jsx using CirclebarWithSeparators
+
 import PropTypes from "prop-types";
 import {
   AcademicCapIcon,
@@ -11,7 +13,8 @@ import {
 } from "@heroicons/react/24/outline";
 
 import { Highlight } from "components/shared/Highlight";
-import { Avatar, Card, Circlebar } from "components/ui"; // ✅ use custom Circlebar
+import { Avatar, Card } from "components/ui";
+import CirclebarWithSeparators from "components/shared/CirclebarWithSeparators";
 
 import defaultCover from "./The-Neuroscientific-European-Childcare-PDF_12-x-4-ft_Backside-1.png.bv_resized_desktop.png.bv.webp";
 import defaultAvatar from "./avatar-11.jpg";
@@ -35,7 +38,7 @@ function MetaPill({ icon, label, title }) {
       className="dark:border-dark-500 dark:bg-dark-700/60 dark:text-dark-200 inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white/80 px-2 py-0.5 text-[11px] text-gray-700 shadow-sm backdrop-blur-sm"
       title={title || label}
     >
-      {icon}
+      <span className="text-primary-500">{icon}</span>
       <span className="truncate">{label}</span>
     </span>
   );
@@ -80,7 +83,9 @@ export function UserCard({
 
   const hoursText =
     workingHours?.start && workingHours?.end
-      ? `${workingHours.start}–${workingHours.end}${timezone ? ` (${timezone})` : ""}`
+      ? `${workingHours.start}–${workingHours.end}${
+          timezone ? ` (${timezone})` : ""
+        }`
       : "";
 
   return (
@@ -123,23 +128,18 @@ export function UserCard({
               </div>
             </div>
 
-            {/* ✅ Use Circlebar */}
-            <div
-              className="relative h-12 w-12 sm:h-14 sm:w-14"
-              title={`${progressPct}% complete`}
+            <CirclebarWithSeparators
+              value={progressPct}
+              size={40}
+              strokeWidth={4}
+              separatorCount={12}
+              color="#6366f1"
+              className="mr-1"
             >
-              <Circlebar
-                value={progressPct}
-                strokeWidth={4}
-                size={24}
-                color="primary"
-                title={`${progressPct}% complete`}
-              >
-                <span className="dark:text-dark-100 text-[10px] font-semibold text-gray-800">
-                  {Math.round(progressPct)}%
-                </span>
-              </Circlebar>
-            </div>
+              <span className="dark:text-dark-100 font-semibold text-gray-800">
+                {Math.round(progressPct)}%
+              </span>
+            </CirclebarWithSeparators>
           </div>
 
           <div className="dark:text-dark-200 flex flex-col gap-2 text-sm text-gray-700">
@@ -163,64 +163,62 @@ export function UserCard({
             <div className="flex flex-wrap items-center gap-2">
               {admissionNumber && (
                 <MetaPill
-                  icon={
-                    <IdentificationIcon className="size-4 text-yellow-600" />
-                  }
+                  icon={<IdentificationIcon className="size-4" />}
                   label={`Adm: ${admissionNumber}`}
                 />
               )}
               {studentId && (
                 <MetaPill
-                  icon={<UserCircleIcon className="size-4 text-indigo-500" />}
+                  icon={<UserCircleIcon className="size-4" />}
                   label={`ID: ${studentId}`}
                 />
               )}
               {branch && (
                 <MetaPill
-                  icon={<MapPinIcon className="text-primary-500 size-4" />}
+                  icon={<MapPinIcon className="size-4" />}
                   label={branch}
                   title={branch}
                 />
               )}
               {academicYear && (
                 <MetaPill
-                  icon={<CalendarDaysIcon className="size-4 text-sky-500" />}
+                  icon={<CalendarDaysIcon className="size-4" />}
                   label={academicYear}
                 />
               )}
               {dob && (
                 <MetaPill
-                  icon={<CalendarDaysIcon className="size-4 text-blue-500" />}
+                  icon={<CalendarDaysIcon className="size-4" />}
                   label={`DOB: ${formatDate(dob)}`}
                 />
               )}
               {bloodGroup && (
                 <MetaPill
-                  icon={<span className="text-red-500">🩸</span>}
+                  icon={<span className="size-4">🩸</span>}
                   label={`Blood: ${bloodGroup}`}
                 />
               )}
               {nationality && (
                 <MetaPill
-                  icon={<GlobeAltIcon className="size-4 text-green-600" />}
+                  icon={<GlobeAltIcon className="size-4" />}
                   label={nationality}
                 />
               )}
               {religion && (
                 <MetaPill
-                  icon={<span className="text-purple-600">🕊️</span>}
+                  icon={<span className="size-4">🕊️</span>}
                   label={religion}
                 />
               )}
               {motherTongue && (
                 <MetaPill
-                  icon={<LanguageIcon className="size-4 text-pink-500" />}
+                  icon={<LanguageIcon className="size-4" />}
                   label={motherTongue}
                 />
               )}
               {addressLine1 && city && (
                 <MetaPill
-                  icon={<MapPinIcon className="size-4 text-emerald-500" />}
+                  icon={<MapPinIcon className="size-4" />}
                   label={`${addressLine1}, ${city}`}
                 />
               )}
@@ -282,6 +280,4 @@ UserCard.propTypes = {
   motherTongue: PropTypes.string,
   addressLine1: PropTypes.string,
   city: PropTypes.string,
-  state: PropTypes.string,
-  pincode: PropTypes.string,
 };
