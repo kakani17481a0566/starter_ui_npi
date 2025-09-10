@@ -108,6 +108,12 @@ const protectedRoutes = {
                 Component: (await import("app/pages/forms/RegistrationForm")).default,
               }),
             },
+             {
+              path: "ParentStudent",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/ParentStudent")).default,
+              }),
+            },
           ]
         },
         {

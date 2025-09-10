@@ -12,7 +12,8 @@
     "parent":"Parent Dashboard",
     "dashboard":"Student Performance",
     "ai":"AI",
-    "registrationForm":"Registration Form"
+    "registrationForm":"Registration Form",
+    "ParenntDashbord":"Parennt Dashbord"
   },
   "student":{
     "student":"Student",
