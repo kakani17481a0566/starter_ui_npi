@@ -46,6 +46,7 @@ export default function StudentDetails() {
       alive = false;
     };
   }, []);
+  console.log(genders);
 
   return (
     <div className="col-span-12">

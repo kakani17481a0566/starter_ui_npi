@@ -1,6 +1,6 @@
 // src/api/responseData.js
-export async function fetchResponseData() {
-  const url = "https://localhost:7202/response";
+export async function fetchResponseData({testId,relationId,studentId}) {
+  const url = `https://localhost:7202/result?testId=${testId}&studentId=${studentId}&relationId=${relationId}`;
 
   const res = await fetch(url, {
     method: "GET",

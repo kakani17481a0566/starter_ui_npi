@@ -1,5 +1,9 @@
 
-import { useEffect, useMemo, useState, Fragment } from "react";
+import { useEffect, useMemo, useState, Fragment  } from "react";
+//  import axios from "axios";
+ import { useNavigate } from "react-router-dom";
+
+
 import {
   ChevronDownIcon,
   CheckIcon,
@@ -26,12 +30,15 @@ import { StudentTestVertical } from "./components/StudentTestVertical/StudentTes
 import { Button } from "components/ui";
 import { getSessionData } from "utils/sessionStorage";
 
+
 export default function StudentTest() {
   // const [branches, setBranches] = useState([]);
   const [courses, setCourses] = useState([]);
   const [students, setStudents] = useState([]);
   const [tests, setTests] = useState([]);
-   const {branch}=getSessionData();
+  const {branch}=getSessionData();
+  const navigate = useNavigate();
+
 
   // const [branchId, setBranchId] = useState("");
   const [courseId, setCourseId] = useState("");
@@ -150,18 +157,33 @@ export default function StudentTest() {
     };
   }, [studentId]);
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
 
-    const payload = {
-      // branchId: Number(branchId),
-      courseId: Number(courseId),
-      studentId: Number(studentId),
-      testId: Number(testId),
-    };
-    console.log("Submit payload:", payload);
-    alert(`Submitted:\nBranch: ${branch}\nCourse: ${courseId}\nStudent: ${studentId}\nTest: ${testId}`);
+    // const payload = {
+    //   courseId: Number(courseId),
+    //   studentId: Number(studentId),
+    //   testId: Number(testId),
+    // };
+
+    try {
+      // const res = await axios.get(`https://localhost:7202/${testId}/${studentId}`);
+      // const { relationId, testId: apiTestId } = res.data;
+
+      // console.log("API response:", res.data);
+
+      // 👉 Navigate to AlphabetTutor, passing IDs
+      navigate("/dashboards/ai", {
+        state: { relationId :0,
+          testId: testId,
+          studentId:studentId
+        },
+      });
+    } catch (err) {
+      console.error("Submit failed:", err);
+      alert("Failed to start test");
+    }
   };
 
   const iconMap = {

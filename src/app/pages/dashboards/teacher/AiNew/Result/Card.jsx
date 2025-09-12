@@ -1,11 +1,11 @@
 // src/components/Card.jsx
-import { useMemo, useState } from "react";
-import { driveImageUrl } from "./driveImageUrl";
+// import { useMemo, useState } from "react";
+// import { driveImageUrl } from "./driveImageUrl";
 
 export default function Card({ name, isCorrect, url,onClick }) {
   const badgeClasses = isCorrect ? "bg-green-600 text-white" : "bg-red-600 text-white";
-  const { thumb, view } = useMemo(() => driveImageUrl(url, 512), [url]);
-  const [src, setSrc] = useState(thumb || url);
+  // const { thumb, view } = useMemo(() => driveImageUrl(url, 512), [url]);
+  // const [src, setSrc] = useState( || url);
 
   // background + border (doesn't affect layout)
   const bgRing =
@@ -28,12 +28,14 @@ export default function Card({ name, isCorrect, url,onClick }) {
       <div className="relative flex items-center gap-4">
         <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded overflow-hidden bg-slate-200">
           <img
-            src={src}
+             src={
+                 `data:image/png;base64,${url}`
+                }
             alt={name}
             className="w-full h-full object-cover block"
             loading="lazy"
             referrerPolicy="no-referrer"
-            onError={() => { if (src !== view) setSrc(view); }}
+            // onError={() => { if (src !== view) setSrc(view); }}
           />
         </div>
 

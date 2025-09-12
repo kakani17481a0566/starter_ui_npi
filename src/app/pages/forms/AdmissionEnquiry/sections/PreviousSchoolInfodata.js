@@ -1,8 +1,9 @@
 import axios from "axios";
+import{COURSE_OPTIONS} from "constants/apis";
 
-export async function fetchCourseOptions(tenantId = 1) {
+export async function fetchCourseOptions() {
   const response = await axios.get(
-    `https://localhost:7202/api/Course/dropdown-options-course/${tenantId}`
+    COURSE_OPTIONS
   );
 
   if (response.data?.statusCode === 200 && Array.isArray(response.data?.data)) {
