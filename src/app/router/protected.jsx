@@ -54,9 +54,16 @@ const protectedRoutes = {
               }),
             },
               {
-              path: "ai",
+              path: "test",
               lazy: async () => ({
                 Component: (await import("app/pages/dashboards/teacher/TestRegistartion"))
+                  .default,
+              }),
+            },
+             {
+              path: "ai",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/teacher/AiNew"))
                   .default,
               }),
             },

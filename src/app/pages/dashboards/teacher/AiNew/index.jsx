@@ -3,12 +3,12 @@ import RecordRTC from "recordrtc";
 import { Mic, Square, Volume2 } from "lucide-react";
 import VoiceInputCard from "../Ai/VoiceInputCard";
 import { fetchImageGenerationText } from "../Ai/ImageGeneration/data";
-import { useNavigate } from "react-router";
+import { useNavigate,useLocation  } from "react-router-dom";
 import axios from "axios";
 // import SecurityGuard from "components/security/SecurityGuard";
 import useTextToSpeech from "./useTextToSpeech"; 
 
-export default function AlphabetTutor({ name }) {
+export default function AlphabetTutor() {
   const [index, setIndex] = useState(0);
   const [dataList, setDataList] = useState([]);
   const [imageSrc, setImageSrc] = useState("");
@@ -17,6 +17,9 @@ export default function AlphabetTutor({ name }) {
   const [recordedAudioURL, setRecordedAudioURL] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const navigate = useNavigate();
+    const location = useLocation();
+  const {  testId ,studentId,relationId} = location.state || {};
+    console.log(testId,studentId);
 
   // ✅ fix: proper setter pair (was causing "setSpeakTick is not a function")
   const [ setSpeakTick] = useState(0);
@@ -147,22 +150,24 @@ async function uploadGeneratedImageSimple(base64Image, text) {
   };
 
 useEffect(() => {
-    const init = async () => {
-      var list=[];
-      if(!name){
-      list = await fetchImageGenerationText(1,2);
-      }
-      else{
-        list=await fetchImageGenerationText(1,2);
-      }
+  const init = async () => {
+    // if ( !testId) return;
+    try {
+      const list = await fetchImageGenerationText({relationId:relationId, testId:testId});
       setDataList(list || []);
+      console.log(list);
       if (list && list.length > 0) {
         await handleImageLogic(list[0]);
         setSpeakTick(t => t + 1);
       }
-    };
-    init();
-  }, []);
+    } catch (err) {
+      console.error("Failed to fetch images:", err);
+    }
+  };
+
+  init();
+}, [ testId]); 
+
 
   const handleNext = async () => {
     const nextIndex = index + 1;
@@ -181,9 +186,15 @@ useEffect(() => {
   };
 
   const handleSubmit = async () => {
-    navigate("/dashboards/result");
-  };
-
+  navigate("/dashboards/result", {
+    state: {
+      relationId:relationId,
+      testId:testId,
+      studentId:studentId,
+    },
+  });
+};
+console.log("these are the results",testId,relationId,studentId);
   const currentItem = dataList[index];
   const isProbablyBase64 =
     imageSrc &&
@@ -326,6 +337,11 @@ useEffect(() => {
             text={currentItem?.name || ""}
             audioFile={audioFile}
             isRecording={isRecording}
+            testId={testId}
+            studentId={studentId}
+            testContentId={1}
+            relationId={0}
+
           />
 
           {/* Record buttons */}

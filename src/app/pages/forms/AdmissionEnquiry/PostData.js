@@ -1,8 +1,9 @@
 import axios from "axios";
 import { normalizeCountry } from "./utils";
 import {base64ToBlob} from "components/shared/base64ConversionToBlob.jsx";
+import {ADD_STUDENT_ENQUIRY} from "constants/apis.js"
 
-const API_URL = "https://localhost:7202/api/StudentEnquiry/create";
+//const API_URL = "https://localhost:7202/api/StudentEnquiry/create";
 
 export async function submitAdmissionEnquiry(data) {
   const asInt = (v) => (v === "" || v == null ? null : Number(v));
@@ -31,7 +32,7 @@ export async function submitAdmissionEnquiry(data) {
     ParentMiddleName: data.parentMiddleName ?? "",
     ParentLastName: data.parentLastName?.trim() ?? "",
     ParentPhone: data.parentPhone ?? "",
-    ParentAlternatePhone: "0",
+    ParentAlternatePhone:data.ParentAlternatePhone ?? "",
     parentEmail: data.parentEmail ?? "",
     ParentAddress1: data.parentAddress1 ?? ""+ normalizeCountry(data.country),
     ParentAddress2: data.parentAddress2 ?? "",
@@ -62,7 +63,7 @@ export async function submitAdmissionEnquiry(data) {
     // correspondence_country: normalizeCountry(data.correspondence_country),
   };
 
-  const response = await axios.post(API_URL, payload, {
+  const response = await axios.post(ADD_STUDENT_ENQUIRY, payload, {
     headers: { "Content-Type": "application/json", Accept: "*/*" },
     // withCredentials: true, // uncomment if you need cookies
   });

@@ -50,7 +50,7 @@ else if(role ==='TEACHER'){
     },
     //  {
     //   id: "dashboards.AI",
-    //   path: path(ROOT_DASHBOARDS, "/ai"),
+    //   path: path(ROOT_DASHBOARDS, "/test"),
     //   type: NAV_TYPE_ITEM,
     //   title: "Ai",
     //   transKey: "nav.parent.ai",

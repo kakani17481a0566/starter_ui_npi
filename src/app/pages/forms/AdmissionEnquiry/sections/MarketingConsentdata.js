@@ -1,9 +1,10 @@
 import axios from "axios";
+import {HEARD_ABOUT_US} from 'constants/apis.js';
 
 export async function fetchHeardAboutUsOptions() {
   try {
     const response = await axios.get(
-      "https://localhost:7202/getByMasterTypeId/51/1?isUtilites=false"
+      HEARD_ABOUT_US
     );
 
     if (response.data?.statusCode === 200 && Array.isArray(response.data.data)) {

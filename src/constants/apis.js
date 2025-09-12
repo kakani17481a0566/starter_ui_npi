@@ -56,7 +56,15 @@ export const GET_TRANSACTION_TYPES=`https://neuropi-fhafe3gchabde0gb.canadacentr
 export const GET_ACCOUNT_HEADS=`https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/getByMasterTypeId/3/${tenantId}?isUtilites=false`;
 export const GET_ACCOUNT_BY_TENANT=`${BASE_URL}/Account/tenant/${tenantId}`;
 export const FETCH_ACTIVITIES=`${BASE_URL}/Transaction/table/tenant/${tenantId}`;
-export const FETCH_STUDENTS=`${BASE_URL}/Student/by-tenant-course-branch?tenantId=${tenantId}&courseId=${defaultCourse}&branchId=${branch}`
+export const FETCH_STUDENTS=`${BASE_URL}/Student/by-tenant-course-branch?tenantId=${tenantId}&courseId=${defaultCourse}&branchId=${branch}`;
+export const ADD_STUDENT_ENQUIRY=`${BASE_URL}/StudentEnquiry/create`;
+export const HEARD_ABOUT_US=`https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/getByMasterTypeId/51/1?isUtilites=false`;
+export const COURSE_OPTIONS=`${BASE_URL}/Course/dropdown-options-course/${tenantId}`;
+export const GENDER_OPTIONS=`https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/getByMasterTypeId/49/1?isUtilites=false`;
+export const BRANCH_OPTIONS=`${BASE_URL}/Branch/dropdown-options/${tenantId}`;
+
+
+
 
 // folder  path : src\app\pages\forms
     // file path : src\app\pages\forms\InsertPeriodsForm

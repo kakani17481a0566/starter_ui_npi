@@ -43,6 +43,7 @@ export default function StudentDetails() {
     })();
     return () => { alive = false; };
   }, []);
+  console.log(genders);
 
   return (
     <div className="col-span-12">

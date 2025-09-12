@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchResponseData } from "./ResponseData"; // adjust alias if needed
 import Card from "./Card";
+import { useNavigate ,useLocation} from "react-router-dom";
 // import { useNavigate } from "react-router-dom";  
 import AlphabetTutor from "..";
 // import { useNavigate } from "react-router-dom";
@@ -11,7 +12,11 @@ export default function StatusCards() {
   const [page, setPage] = useState(1);
   const [okMsg, setOkMsg] = useState("");              
   const [activeTutorName, setActiveTutorName] = useState(null);
-  // const navigate=useNavigate();
+  const navigate=useNavigate();
+   const location = useLocation();
+  const { relationId, testId, studentId } = location.state || {};
+  console.log("these are the test result",testId,relationId,studentId);
+
 
 
   // Prevent page scroll while this component is mounted
@@ -27,8 +32,9 @@ export default function StatusCards() {
   const load = async () => {
     setLoading(true);
     try {
-      const data = await fetchResponseData();
+      const data = await fetchResponseData({testId:testId,relationId:relationId,studentId:studentId});
       setRecords(data);
+      setActiveTutorName()
       setPage(1);
     } catch (err) {
       console.error(err);
@@ -50,20 +56,25 @@ export default function StatusCards() {
     const start = (page - 1) * PER_PAGE;
     return records.slice(start, start + PER_PAGE);
   }, [records, page]);
-  const handleOnClick=(item)=>{
+   const handleOnClick = (item) => {
     const isRight =
-    item?.isCorrect === true ||
-    String(item?.isCorrect ?? "")
-      .toLowerCase()
-      .trim() === "correct";
+      item?.isCorrect === true ||
+      String(item?.isCorrect ?? "")
+        .toLowerCase()
+        .trim() === "correct";
 
-  if (isRight) {
-    setOkMsg(`Pronounced "${item.name}" correctly!`);
-    setTimeout(() => setOkMsg(""), 1500);
-  } else {
-    setActiveTutorName(item.name);
-    // navigate("/dashboards/ai")
-  }
+    if (isRight) {
+      setOkMsg(`Pronounced "${item.name}" correctly!`);
+      setTimeout(() => setOkMsg(""), 1500);
+    } else {
+      navigate("/dashboards/ai", {
+        state: {
+          relationId: item.relationId,
+          testId: item.testId,
+          studentId: item.studentId, // if available in API data
+        },
+      });
+    }
   };
 
   return (
