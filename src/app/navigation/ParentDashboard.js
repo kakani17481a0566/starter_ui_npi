@@ -49,6 +49,22 @@ else if(role ==='TEACHER'){
       transKey: "nav.parent.dashboard",
       Icon: HomeIcon,
     },
+    {
+      id: "dashboards.Registration",
+      path: path(ROOT_DASHBOARDS, "/ParentStudent"),
+      type: NAV_TYPE_ITEM,
+      title: "RegistrationForm",
+      transKey: "nav.parent.ParenntDashbord",
+      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
+     {
+      id: "dashboards.Registration",
+      path: path(ROOT_DASHBOARDS, "/Exam"),
+      type: NAV_TYPE_ITEM,
+      title: "Exam",
+      transKey: "nav.parent.Exam",
+      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
   ]
 }
 else if(role.toLowerCase()==="admin"){

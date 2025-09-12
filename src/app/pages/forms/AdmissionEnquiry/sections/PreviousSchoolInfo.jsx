@@ -5,7 +5,7 @@ import { DatePicker } from "components/shared/form/Datepicker";
 import { Listbox } from "components/shared/form/Listbox";
 import { Radio } from "components/ui";
 import { fetchCourseOptions } from "./PreviousSchoolInfodata";
-import SectionCard from "../components/SectionCard";
+// import SectionCard from "../components/SectionCard";
 import LabelWithIcon from "../components/LabelWithIcon";
 import InputWithIcon from "../components/InputWithIcon";
 import {
@@ -261,7 +261,7 @@ export default function PreviousSchoolInfo({ embedded = false }) {
         <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <BuildingOfficeIcon className="size-5 text-primary-600 dark:text-primary-400" />
-            <h3 className="text-base font-medium text-gray-800 dark:text-dark-100">
+            <h3 className="text-base font-bold text-gray-800 dark:text-dark-100">
               Previous School Info
             </h3>
           </div>
@@ -275,12 +275,12 @@ export default function PreviousSchoolInfo({ embedded = false }) {
   // Standalone card
   return (
     <div className="col-span-12">
-      <SectionCard>
+      {/* <SectionCard> */}
         {/* Header with radios on the right */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <BuildingOfficeIcon className="size-5 text-primary-600 dark:text-primary-400" />
-            <h3 className="dark:text-dark-100 text-base font-medium text-gray-800">
+            <h3 className="font-bold  dark:text-dark-100 text-base  text-gray-800">
               Previous School Info
             </h3>
           </div>
@@ -291,7 +291,7 @@ export default function PreviousSchoolInfo({ embedded = false }) {
         <div className="mt-3 border-t border-gray-200 dark:border-dark-600" />
 
         {ContentGrid}
-      </SectionCard>
+      {/* </SectionCard> */}
     </div>
   );
 }

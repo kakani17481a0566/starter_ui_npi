@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+// src/app/pages/forms/StudentRegistrationForm/sections/ContactSection.jsx
+import { useMemo, useEffect } from "react";
 import { useFormContext, Controller } from "react-hook-form";
-import { Card, Textarea, Checkbox } from "components/ui";
+import { Textarea, Checkbox } from "components/ui";
 import {
   EnvelopeIcon,
   MegaphoneIcon,
@@ -9,12 +10,13 @@ import {
   InboxIcon,
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
+import SectionCard from "../components/SectionCard";
 import LabelWithIcon from "../components/LabelWithIcon";
 import RHFInput from "../components/RHFInput";
 import { useContactMirror } from "../components/useContactMirror";
 
 export default function ContactSection() {
-  const { control, register } = useFormContext();
+  const { control, register, setValue, watch } = useFormContext();
 
   const CONTACT_GROUPS = useMemo(
     () => [
@@ -42,85 +44,97 @@ export default function ContactSection() {
     fields: FIELDS.map((f) => f.key),
   });
 
-  const isDisabled = (prefix, enableSame) =>
-    prefix !== "father" && enableSame && isSameByPrefix[prefix];
+  // NEW: single global control to mirror all contacts from Father
+  const MIRROR_ALL_FIELD = "contacts_mirror_all";
+  const mirrorAll = watch(MIRROR_ALL_FIELD);
+
+  // Keep per-group *_same_as_father fields in sync (for useContactMirror internals)
+  useEffect(() => {
+    CONTACT_GROUPS.forEach(({ prefix }) => {
+      if (prefix === "father") return;
+      setValue(fieldFor(prefix, "same_as_father"), !!mirrorAll, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    });
+  }, [mirrorAll, setValue, CONTACT_GROUPS]);
+
+  const isDisabled = (prefix) =>
+    prefix !== "father" && (mirrorAll || isSameByPrefix[prefix]);
 
   return (
-    <Card className="p-4 sm:px-5">
-      {/* Header */}
-      <div className="flex items-center gap-2">
-        <UserIcon className="size-5 text-primary-600 dark:text-primary-400" />
-        <h3 className="text-base font-medium">Demographics — Contact Information</h3>
-      </div>
-
+    <SectionCard
+      title="Demographics — Contact Information"
+      icon={UserIcon}
+      variant="outlined"
+      elevation={1}
+      padding="md"
+      actions={
+        <Controller
+          control={control}
+          name={MIRROR_ALL_FIELD}
+          render={({ field }) => (
+            <div className="flex items-center gap-2">
+              <Checkbox {...field} variant="outlined" color="primary" />
+              <span className="text-xs text-gray-700 dark:text-dark-100">
+                Mirror all from Father
+              </span>
+            </div>
+          )}
+        />
+      }
+    >
       {/* Desktop Table */}
-      <div className="mt-4 hidden md:block">
+      <div className="mt-2 hidden md:block">
         <div className="overflow-x-auto">
           <table className="min-w-full border-separate border-spacing-y-2">
             <thead>
-              <tr className="text-left text-sm text-white bg-primary-600 dark:bg-primary-700">
+              <tr className="bg-primary-600 text-left text-sm text-white dark:bg-primary-700">
                 <th className="px-3 py-2">Contact</th>
                 {FIELDS.map(({ key, label, icon: Icon }) => (
-                  <th key={key} className="w-[16%] px-3 py-2">
+                  <th key={key} className="px-3 py-2">
                     <div className="flex items-center gap-1">
                       <Icon className="size-4 text-white" />
                       {label}
                     </div>
                   </th>
                 ))}
-                <th className="w-[14%] px-3 py-2">
-                  <div className="flex items-center gap-1">
-                    <CheckCircleIcon className="size-4 text-white" />
-                    Same as Father
-                  </div>
-                </th>
               </tr>
             </thead>
             <tbody>
-              {CONTACT_GROUPS.map(({ title, prefix, enableSameAsPrimary }) => {
+              {CONTACT_GROUPS.map(({ title, prefix }) => {
                 const father = prefix === "father";
-                const disabled = isDisabled(prefix, enableSameAsPrimary);
+                const disabled = isDisabled(prefix);
+                const mirrored = !father && (mirrorAll || isSameByPrefix[prefix]);
 
                 return (
                   <tr key={prefix} className="align-top">
-                    <td className="px-3 py-2 text-sm font-medium">{title}</td>
+                    <td className="px-3 py-2 text-sm font-medium">
+                      <div className="flex items-center gap-2">
+                        <span>{title}</span>
+                        {mirrored && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-100">
+                            <CheckCircleIcon className="size-3" />
+                            Mirrored
+                          </span>
+                        )}
+                      </div>
+                    </td>
 
                     {FIELDS.map(({ key }) => (
                       <td key={key} className="px-3 py-2">
                         <RHFInput
                           name={fieldFor(prefix, key)}
                           label={null} // no inline label inside table
-                          inputMode={key.includes("phone") ? "tel" : key === "email" ? "email" : undefined}
+                          inputMode={
+                            key.includes("phone") ? "tel" : key === "email" ? "email" : undefined
+                          }
                           autoComplete={key === "email" ? "email" : undefined}
                           disabled={disabled}
                           onBlur={father ? onFatherBlur : undefined}
                         />
                       </td>
                     ))}
-
-                    <td className="px-3 py-2">
-                      {enableSameAsPrimary ? (
-                        <Controller
-                          control={control}
-                          name={fieldFor(prefix, "same_as_father")}
-                          render={({ field }) => (
-                            <div className="flex justify-center items-center h-full">
-                              <Checkbox
-                                {...field}
-                                variant="outlined"
-                                color="primary"
-                                label=""
-                                className="h-5 w-5"
-                              />
-                            </div>
-                          )}
-                        />
-                      ) : (
-                        <div className="flex justify-center items-center h-full">
-                          <span className="text-xs text-gray-400">—</span>
-                        </div>
-                      )}
-                    </td>
                   </tr>
                 );
               })}
@@ -131,40 +145,42 @@ export default function ContactSection() {
 
       {/* Mobile Layout (Card format) */}
       <div className="mt-4 space-y-6 md:hidden">
-        {CONTACT_GROUPS.map(({ title, prefix, enableSameAsPrimary }) => {
+        {CONTACT_GROUPS.map(({ title, prefix }) => {
           const father = prefix === "father";
-          const disabled = isDisabled(prefix, enableSameAsPrimary);
+          const disabled = isDisabled(prefix);
+          const mirrored = !father && (mirrorAll || isSameByPrefix[prefix]);
 
           return (
-            <Card key={prefix} className="p-4 border border-gray-200 rounded-md shadow-sm">
-              <h4 className="text-sm font-semibold text-gray-800 mb-3">{title}</h4>
-
+            <SectionCard
+              key={prefix}
+              title={title}
+              variant="outlined"
+              elevation={0}
+              padding="md"
+              actions={
+                mirrored ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-100">
+                    <CheckCircleIcon className="size-3" />
+                    Mirrored
+                  </span>
+                ) : null
+              }
+            >
               {FIELDS.map(({ key, label, icon: Icon }) => (
                 <div key={key} className="mb-3">
                   <RHFInput
                     name={fieldFor(prefix, key)}
                     label={<LabelWithIcon icon={Icon}>{label}</LabelWithIcon>}
-                    inputMode={key.includes("phone") ? "tel" : key === "email" ? "email" : undefined}
+                    inputMode={
+                      key.includes("phone") ? "tel" : key === "email" ? "email" : undefined
+                    }
                     autoComplete={key === "email" ? "email" : undefined}
                     disabled={disabled}
                     onBlur={father ? onFatherBlur : undefined}
                   />
                 </div>
               ))}
-
-              {enableSameAsPrimary && (
-                <Controller
-                  control={control}
-                  name={fieldFor(prefix, "same_as_father")}
-                  render={({ field }) => (
-                    <div className="flex items-center gap-2 mt-2">
-                      <Checkbox {...field} variant="outlined" color="primary" />
-                      <span className="text-sm text-gray-700">Same as Father</span>
-                    </div>
-                  )}
-                />
-              )}
-            </Card>
+            </SectionCard>
           );
         })}
       </div>
@@ -174,7 +190,7 @@ export default function ContactSection() {
         <legend className="sr-only">Other contact information</legend>
 
         <div className="col-span-12">
-          <Textarea
+          <Textarea className="h-8 py-1 text-xs"
             label={
               <LabelWithIcon icon={MegaphoneIcon}>
                 Other contact information the school should be aware of (if any)
@@ -197,6 +213,6 @@ export default function ContactSection() {
           />
         </div>
       </fieldset>
-    </Card>
+    </SectionCard>
   );
 }

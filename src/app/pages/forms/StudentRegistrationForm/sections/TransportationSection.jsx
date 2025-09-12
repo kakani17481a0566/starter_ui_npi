@@ -1,6 +1,6 @@
 // src/app/pages/forms/StudentRegistrationForm/sections/TransportationSection.jsx
 import { useFormContext } from "react-hook-form";
-import { Card, Input, Radio, Textarea, Collapse } from "components/ui";
+import { Input, Radio, Textarea, Collapse } from "components/ui";
 import {
   BuildingOfficeIcon,
   BuildingOffice2Icon,
@@ -9,6 +9,7 @@ import {
   MegaphoneIcon,
 } from "@heroicons/react/24/outline";
 import LabelWithIcon from "../components/LabelWithIcon";
+import SectionCard from "../components/SectionCard";
 
 export default function TransportationSection() {
   const {
@@ -23,13 +24,14 @@ export default function TransportationSection() {
   const compact = "h-8 py-1 text-xs";
 
   return (
-    <Card className="p-4 sm:px-5">
-      <div className="flex items-center gap-2">
-        <BuildingOfficeIcon className="text-primary-600 dark:text-primary-400 size-5" />
-        <h3 className="text-base font-medium">Transportation</h3>
-      </div>
-
-      <div className="mt-4 grid grid-cols-12 gap-4">
+    <SectionCard
+      title="Transportation"
+      icon={BuildingOfficeIcon}
+      variant="outlined"
+      elevation={1}
+      padding="md"
+    >
+      <div className="mt-2 grid grid-cols-12 gap-4">
         {/* Regular Transportation */}
         <div className="col-span-12 md:col-span-6">
           <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
@@ -42,6 +44,7 @@ export default function TransportationSection() {
             <Radio value="walk" label="Walk" {...register("regular_transport")} />
             <Radio value="other" label="Other" {...register("regular_transport")} />
           </div>
+
           <Collapse in={regOtherTransport === "other"}>
             <div className="mt-3">
               <Input
@@ -66,6 +69,7 @@ export default function TransportationSection() {
             <Radio value="walk" label="Walk" {...register("alternate_transport")} />
             <Radio value="other" label="Other" {...register("alternate_transport")} />
           </div>
+
           <Collapse in={altOtherTransport === "other"}>
             <div className="mt-3">
               <Input
@@ -106,6 +110,6 @@ export default function TransportationSection() {
           </div>
         </div>
       </div>
-    </Card>
+    </SectionCard>
   );
 }

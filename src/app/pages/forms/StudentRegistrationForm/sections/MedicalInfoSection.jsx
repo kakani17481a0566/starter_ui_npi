@@ -1,14 +1,27 @@
+// src/app/pages/forms/StudentRegistrationForm/sections/MedicalInfoSection.jsx
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
-import { Card, Input, Textarea, Radio } from "components/ui";
+import { Input, Textarea, Radio } from "components/ui";
 import {
   MegaphoneIcon,
   HashtagIcon,
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
 import LabelWithIcon from "../components/LabelWithIcon";
+import SectionCard from "../components/SectionCard";
 
-export default function MedicalInfoSection() {
+export default function MedicalInfoSection({
+  padding = "md",
+  className,
+  // you can optionally override any SectionCard prop below:
+  elevation = 6,
+  variant = "solid",
+  radius = "xl",
+  hoverLift = true,
+  interactive = false,
+  subtitle,
+  ...cardProps
+}) {
   const {
     register,
     watch,
@@ -56,14 +69,21 @@ export default function MedicalInfoSection() {
   });
 
   return (
-    <Card className="p-4 sm:px-5">
-      <div className="flex items-center gap-2">
-        <MegaphoneIcon className="size-5 text-primary-600 dark:text-primary-400" />
-        <h3 className="text-base font-medium">Medical Information</h3>
-      </div>
-
+    <SectionCard
+      title="Medical Information"
+      subtitle={subtitle}
+      icon={MegaphoneIcon}
+      padding={padding}
+      elevation={elevation}
+      variant={variant}
+      radius={radius}
+      hoverLift={hoverLift}
+      interactive={interactive}
+      className={className}
+      {...cardProps}
+    >
       {/* One row on desktop: left = Allergy block, right = Emergency kit block */}
-      <div className="mt-4 grid grid-cols-12 gap-4">
+      <div className="mt-1 grid grid-cols-12 gap-4">
         {/* LEFT: Life-threatening allergy + substances (always visible; disabled when "No") */}
         <div className="col-span-12 md:col-span-6">
           <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-100">
@@ -142,6 +162,6 @@ export default function MedicalInfoSection() {
           />
         </div>
       </div>
-    </Card>
+    </SectionCard>
   );
 }

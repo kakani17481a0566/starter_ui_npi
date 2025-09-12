@@ -1,13 +1,6 @@
-// src/app/pages/forms/StudentRegistrationForm/index.jsx
-
 import { useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  useForm,
-  FormProvider,
-  Controller,
-  useFormContext,
-} from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import clsx from "clsx";
 import { toast } from "sonner";
 
@@ -15,20 +8,17 @@ import { initialState } from "./data";
 import { schema } from "./schema";
 
 import { Page } from "components/shared/Page";
-import { Button, Card, Radio } from "components/ui";
+import { Button, Card } from "components/ui";
 import {
   CheckCircleIcon,
   DocumentPlusIcon,
-  CalendarDaysIcon,
   EyeIcon,
-  // step-specific icons
   UserIcon,
   HomeIcon,
   TruckIcon,
   ShieldCheckIcon,
   PencilSquareIcon,
 } from "@heroicons/react/24/outline";
-import { DatePicker } from "components/shared/form/Datepicker";
 
 import { Stepper } from "./Stepper";
 
@@ -43,79 +33,7 @@ import OtherInfoSection from "./sections/OtherInfoSection";
 import SignatureSection from "./sections/SignatureSection";
 import DocumentUploadSection from "./sections/DocumentUploadSection";
 
-/* ---------- Inline component for overview ---------- */
-function ChannelDateFields() {
-  const {
-    control,
-    register,
-    formState: { errors },
-  } = useFormContext();
-  return (
-    <Card className="p-4 sm:px-5">
-      <div className="grid grid-cols-12 gap-4">
-        {/* Channel */}
-        <div className="col-span-12 md:col-span-6">
-          <label className="dark:text-dark-100 mb-2 block text-sm font-medium text-gray-700">
-            Registration Channel
-          </label>
-          <div className="flex flex-wrap gap-6">
-            <Radio
-              label="By post"
-              value="by_post"
-              {...register("registration_channel")}
-            />
-            <Radio
-              label="In person"
-              value="in_person"
-              {...register("registration_channel")}
-            />
-            <Radio
-              label="Online"
-              value="online"
-              {...register("registration_channel")}
-            />
-          </div>
-          {errors?.registration_channel && (
-            <p className="mt-1 text-xs text-red-500">
-              {errors.registration_channel.message}
-            </p>
-          )}
-        </div>
-
-        {/* Date */}
-        <div className="col-span-12 md:col-span-6">
-          <Controller
-            name="registration_date"
-            control={control}
-            render={({ field: { onChange, value, ...rest } }) => (
-              <DatePicker
-                className="h-8 py-1 text-xs"
-                label={
-                  <span className="inline-flex items-center gap-2">
-                    <CalendarDaysIcon className="text-primary-600 dark:text-primary-400 size-4" />
-                    <span>Date</span>
-                  </span>
-                }
-                value={value ?? null}
-                onChange={onChange}
-                options={{
-                  disableMobile: true,
-                  dateFormat: "d/m/Y",
-                  maxDate: "today",
-                }}
-                placeholder="dd/mm/yyyy"
-                error={errors?.registration_date?.message}
-                {...rest}
-              />
-            )}
-          />
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-/* ---------- Steps config (with per-step icons) ---------- */
+/* ---------- Steps config ---------- */
 const steps = [
   {
     key: "intro",
@@ -124,11 +42,10 @@ const steps = [
     icon: UserIcon,
     Component: function Step() {
       return (
-        <>
+        <div className="space-y-4 sm:space-y-5">
           <RegistrationOverview />
-          <ChannelDateFields />
           <StudentDetailsSection />
-        </>
+        </div>
       );
     },
   },
@@ -139,10 +56,10 @@ const steps = [
     icon: HomeIcon,
     Component: function Step() {
       return (
-        <>
+        <div className="space-y-4 sm:space-y-5">
           <AddressSection />
           <ContactSection />
-        </>
+        </div>
       );
     },
   },
@@ -153,10 +70,10 @@ const steps = [
     icon: TruckIcon,
     Component: function Step() {
       return (
-        <>
+        <div className="space-y-4 sm:space-y-5">
           <TransportationSection />
           <MedicalInfoSection />
-        </>
+        </div>
       );
     },
   },
@@ -167,9 +84,9 @@ const steps = [
     icon: ShieldCheckIcon,
     Component: function Step() {
       return (
-        <>
+        <div className="space-y-4 sm:space-y-5">
           <OtherInfoSection />
-        </>
+        </div>
       );
     },
   },
@@ -180,45 +97,91 @@ const steps = [
     icon: PencilSquareIcon,
     Component: function Step() {
       return (
-        <>
-          {/* Waiver of Liability placed first on this step */}
-
+        <div className="space-y-4 sm:space-y-5">
           <DocumentUploadSection
             title="Upload Documents"
             uploadUrl="/api/uploads/student-docs"
             extraData={{ category: "admission" }}
             documents={[
-              // 📌 Student documents
-              { name: "student_photo", label: "Student Photo", accept: ".jpg,.jpeg,.png" },
-              { name: "student_birth_certificate", label: "Birth Certificate", accept: ".jpg,.jpeg,.png,.pdf" },
-              { name: "student_transfer_certificate", label: "Transfer Certificate (if applicable)", accept: ".jpg,.jpeg,.png,.pdf" },
-              { name: "student_previous_marksheet", label: "Previous School Marksheet", accept: ".jpg,.jpeg,.png,.pdf" },
-              { name: "student_medical_certificate", label: "Medical Certificate", accept: ".jpg,.jpeg,.png,.pdf" },
+              {
+                name: "student_photo",
+                label: "Student Photo",
+                accept: ".jpg,.jpeg,.png",
+              },
+              {
+                name: "student_birth_certificate",
+                label: "Birth Certificate",
+                accept: ".jpg,.jpeg,.png,.pdf",
+              },
+              {
+                name: "student_transfer_certificate",
+                label: "Transfer Certificate (if applicable)",
+                accept: ".jpg,.jpeg,.png,.pdf",
+              },
+              {
+                name: "student_previous_marksheet",
+                label: "Previous School Marksheet",
+                accept: ".jpg,.jpeg,.png,.pdf",
+              },
+              {
+                name: "student_medical_certificate",
+                label: "Medical Certificate",
+                accept: ".jpg,.jpeg,.png,.pdf",
+              },
 
-              // 📌 Parent documents
-              { name: "parent_photo", label: "Parent Photo", accept: ".jpg,.jpeg,.png" },
-              { name: "parent_id_front", label: "Parent ID (Front)", accept: ".jpg,.jpeg,.png,.pdf" },
-              { name: "parent_id_back", label: "Parent ID (Back)", accept: ".jpg,.jpeg,.png,.pdf" },
+              {
+                name: "parent_photo",
+                label: "Parent Photo",
+                accept: ".jpg,.jpeg,.png",
+              },
+              {
+                name: "parent_id_front",
+                label: "Parent ID (Front)",
+                accept: ".jpg,.jpeg,.png,.pdf",
+              },
+              {
+                name: "parent_id_back",
+                label: "Parent ID (Back)",
+                accept: ".jpg,.jpeg,.png,.pdf",
+              },
 
-              // 📌 Guardian documents
-              { name: "guardian_photo", label: "Guardian Photo", accept: ".jpg,.jpeg,.png" },
-              { name: "guardian_id_front", label: "Guardian ID (Front)", accept: ".jpg,.jpeg,.png,.pdf" },
-              { name: "guardian_id_back", label: "Guardian ID (Back)", accept: ".jpg,.jpeg,.png,.pdf" },
+              {
+                name: "guardian_photo",
+                label: "Guardian Photo",
+                accept: ".jpg,.jpeg,.png",
+              },
+              {
+                name: "guardian_id_front",
+                label: "Guardian ID (Front)",
+                accept: ".jpg,.jpeg,.png,.pdf",
+              },
+              {
+                name: "guardian_id_back",
+                label: "Guardian ID (Back)",
+                accept: ".jpg,.jpeg,.png,.pdf",
+              },
 
-              // 📌 Heir (optional if required in your system)
-              { name: "heir_photo", label: "Heir Photo", accept: ".jpg,.jpeg,.png" },
-              { name: "heir_birth_certificate", label: "Heir Birth Certificate", accept: ".jpg,.jpeg,.png,.pdf" },
+              {
+                name: "heir_photo",
+                label: "Heir Photo",
+                accept: ".jpg,.jpeg,.png",
+              },
+              {
+                name: "heir_birth_certificate",
+                label: "Heir Birth Certificate",
+                accept: ".jpg,.jpeg,.png,.pdf",
+              },
             ]}
           />
 
           <SignatureSection />
-        </>
+        </div>
       );
     },
   },
 ];
 
-/* ---------- Fields per step for validation ---------- */
+/* ---------- Validation fields ---------- */
 const stepFieldPaths = {
   intro: ["registration_channel", "registration_date"],
   addressContacts: [],
@@ -233,11 +196,10 @@ const stepFieldPaths = {
     "school_section_date",
     "school_authorized_sign",
   ],
-  // Validate critical waiver fields in the final step
   docsSignature: ["waiver.consent", "waiver.guardian_full_name", "waiver.date"],
 };
 
-/* ---------- Footer actions (inside card) ---------- */
+/* ---------- Footer actions ---------- */
 function StepActions({
   currentStep,
   onBack,
@@ -283,7 +245,7 @@ function StepActions({
   );
 }
 
-/* ---------- Small helpers ---------- */
+/* ---------- Error helper ---------- */
 function scrollToFirstError(errors) {
   const first = Object.keys(errors || {})[0];
   if (!first) return;
@@ -296,7 +258,7 @@ function scrollToFirstError(errors) {
   }
 }
 
-/* ---------- Lightweight Preview Modal ---------- */
+/* ---------- Preview Modal ---------- */
 function PreviewModal({ open, values, onClose }) {
   if (!open) return null;
   return (
@@ -354,7 +316,6 @@ function StudentRegistrationForm() {
   const onSubmit = async (data) => {
     const payload = { ...data };
 
-    // Normalize dates
     payload.registration_date = payload.registration_date
       ? new Date(payload.registration_date).toISOString()
       : null;
@@ -365,7 +326,6 @@ function StudentRegistrationForm() {
       ? new Date(payload.signature_date).toISOString()
       : null;
 
-    // Privacy dates
     payload.privacy_signature_date = payload.privacy_signature_date
       ? new Date(payload.privacy_signature_date).toISOString()
       : null;
@@ -373,7 +333,6 @@ function StudentRegistrationForm() {
       ? new Date(payload.school_section_date).toISOString()
       : null;
 
-    // Waiver date
     if (payload.waiver) {
       payload.waiver.date = payload.waiver.date
         ? new Date(payload.waiver.date).toISOString()
