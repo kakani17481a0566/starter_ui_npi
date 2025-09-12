@@ -13,7 +13,8 @@
     "dashboard":"Student Performance",
     "ai":"AI",
     "registrationForm":"Registration Form",
-    "ParenntDashbord":"Parennt Dashbord"
+    "ParenntDashbord":"Parennt Dashbord",
+    "Exam":"Exam"
   },
   "student":{
     "student":"Student",
