@@ -133,7 +133,14 @@ export function UserCard({
               size={40}
               strokeWidth={4}
               separatorCount={12}
-              color="#6366f1"
+              // ✅ Use Tailwind CSS variable mapping for primary color
+              color={
+                color === "primary"
+                  ? "var(--color-primary-500)" // your primary color
+                  : color === "secondary"
+                    ? "var(--color-secondary-500)"
+                    : "#6366f1" // fallback indigo
+              }
               className="mr-1"
             >
               <span className="dark:text-dark-100 font-semibold text-gray-800">

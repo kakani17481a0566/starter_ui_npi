@@ -15,7 +15,7 @@ import avatar11 from "./users-card/avatar-11.jpg";
 // Dummy data
 const DUMMY_ROLE = "Teacher";
 const DUMMY_USER = {
-  name: "Konnor Guzman",
+  name: "Konnor ssss",
   avatar: avatar11,                    // <-- use imported URL
   // cover intentionally omitted so the card uses its default .webp
   linkedin: "https://www.linkedin.com/in/konnor",

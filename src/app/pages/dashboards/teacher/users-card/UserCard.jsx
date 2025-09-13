@@ -1,6 +1,3 @@
-// src/app/pages/dashboards/teacher/users-card-2/UserCard.jsx
-
-import PropTypes from "prop-types";
 import { FaLinkedin } from "react-icons/fa";
 import { CheckBadgeIcon } from "@heroicons/react/20/solid";
 import {
@@ -12,7 +9,8 @@ import {
 } from "@heroicons/react/24/outline";
 
 import { Highlight } from "components/shared/Highlight";
-import { Avatar, Button, Card, Circlebar } from "components/ui";
+import { Avatar, Button, Card } from "components/ui";
+import CirclebarWithSeparators from "components/shared/CirclebarWithSeparators"; // ✅
 
 import defaultCover from "./The-Neuroscientific-European-Childcare-PDF_12-x-4-ft_Backside-1.png.bv_resized_desktop.png.bv.webp";
 import defaultAvatar from "./avatar-11.jpg";
@@ -75,7 +73,9 @@ export function UserCard({
   const joinedText = joinedAt ? formatDate(joinedAt, timezone) : "";
   const hoursText =
     workingHours?.start && workingHours?.end
-      ? `${workingHours.start}–${workingHours.end}${timezone ? ` (${timezone})` : ""}`
+      ? `${workingHours.start}–${workingHours.end}${
+          timezone ? ` (${timezone})` : ""
+        }`
       : "";
 
   return (
@@ -174,10 +174,7 @@ export function UserCard({
               {(branch || joinedText || hoursText) && (
                 <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-700 dark:text-dark-200">
                   {branch && (
-                    <span
-                      className="inline-flex items-center gap-1"
-                      title={branch}
-                    >
+                    <span className="inline-flex items-center gap-1" title={branch}>
                       <MapPinIcon className="size-4 text-primary-500" />
                       <span className="truncate">{branch}</span>
                     </span>
@@ -192,10 +189,7 @@ export function UserCard({
                     </span>
                   )}
                   {hoursText && (
-                    <span
-                      className="inline-flex items-center gap-1"
-                      title={hoursText}
-                    >
+                    <span className="inline-flex items-center gap-1" title={hoursText}>
                       <ClockIcon className="size-4 text-primary-500" />
                       <span className="truncate">{hoursText}</span>
                     </span>
@@ -204,12 +198,19 @@ export function UserCard({
               )}
             </div>
 
-            {/* Circlebar */}
-            <Circlebar value={progressPct} size={22} color="primary" title={`${progressPct}% complete`}>
+            {/* ✅ CirclebarWithSeparators with primary color */}
+            <CirclebarWithSeparators
+              value={progressPct}
+              size={40}
+              strokeWidth={4}
+              separatorCount={12}
+              className="text-primary-500"
+
+            >
               <span className="text-[10px] font-semibold text-gray-800 dark:text-dark-100">
                 {Math.round(progressPct)}%
               </span>
-            </Circlebar>
+            </CirclebarWithSeparators>
           </div>
 
           {/* Badges */}
@@ -234,27 +235,3 @@ export function UserCard({
     </div>
   );
 }
-
-UserCard.propTypes = {
-  avatar: PropTypes.string,
-  cover: PropTypes.string,
-  color: PropTypes.string,
-  accentHex: PropTypes.string,
-  linkedin: PropTypes.string,
-  name: PropTypes.string,
-  role: PropTypes.string,
-  query: PropTypes.string,
-  progress: PropTypes.number,
-  verified: PropTypes.bool,
-  presenceStatus: PropTypes.oneOf(["available", "busy", "offline"]),
-  badges: PropTypes.arrayOf(PropTypes.string),
-  department: PropTypes.string,
-  branch: PropTypes.string,
-  joinedAt: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
-  workingHours: PropTypes.shape({
-    start: PropTypes.string,
-    end: PropTypes.string,
-  }),
-  timezone: PropTypes.string,
-  className: PropTypes.string,
-};
