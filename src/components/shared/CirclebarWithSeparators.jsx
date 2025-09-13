@@ -1,6 +1,3 @@
-// src/components/shared/CirclebarWithSeparators.jsx
-
-// import React from "react";
 import PropTypes from "prop-types";
 
 const CirclebarWithSeparators = ({
@@ -8,8 +5,9 @@ const CirclebarWithSeparators = ({
   size = 60,
   strokeWidth = 6,
   separatorCount = 12,
-  color = "#6366f1",
-  bgColor = "#e5e7eb",
+  color = "var(--color-primary-500)", // ✅ picks primary from theme
+  bgColor = "var(--color-gray-200)",   // ✅ background uses theme gray
+  separatorColor = "var(--color-primary-200)", // ✅ separators use light primary
   children,
   className = "",
 }) => {
@@ -31,7 +29,7 @@ const CirclebarWithSeparators = ({
         y1={center + inner * Math.sin(radians)}
         x2={center + outer * Math.cos(radians)}
         y2={center + outer * Math.sin(radians)}
-        stroke="#d1d5db"
+        stroke={separatorColor} // ✅ themed separators
         strokeWidth="1"
       />
     );
@@ -43,6 +41,7 @@ const CirclebarWithSeparators = ({
       style={{ width: size, height: size, minWidth: size, minHeight: size }}
     >
       <svg width={size} height={size}>
+        {/* Background track */}
         <circle
           stroke={bgColor}
           fill="transparent"
@@ -51,6 +50,8 @@ const CirclebarWithSeparators = ({
           cx={center}
           cy={center}
         />
+
+        {/* Progress arc */}
         <circle
           stroke={color}
           fill="transparent"
@@ -63,6 +64,8 @@ const CirclebarWithSeparators = ({
           cy={center}
           transform={`rotate(-90 ${center} ${center})`}
         />
+
+        {/* Separators */}
         {separators}
       </svg>
 
@@ -85,6 +88,7 @@ CirclebarWithSeparators.propTypes = {
   separatorCount: PropTypes.number,
   color: PropTypes.string,
   bgColor: PropTypes.string,
+  separatorColor: PropTypes.string,
   children: PropTypes.node,
   className: PropTypes.string,
 };

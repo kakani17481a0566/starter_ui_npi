@@ -1,12 +1,11 @@
-import { Combobox } from "components/shared/form/Combobox";
 import {
-  Gauge,
-  Activity,
-  ListChecks,
-  CheckCircle,
-  Star,
-  Percent,
-} from "lucide-react";
+  ChartBarIcon,
+  ChartPieIcon,
+  ClipboardDocumentCheckIcon,
+  CheckCircleIcon,
+  TrophyIcon,
+  PresentationChartBarIcon,
+} from "@heroicons/react/24/outline";
 
 // ✅ Helper: Compute grade breakdown
 function computeGradeStats(assessmentGrades, studentId) {
@@ -24,13 +23,8 @@ function computeGradeStats(assessmentGrades, studentId) {
 }
 
 // ✅ Main Component
-export function Statistics({
-  students,
-  assessmentGrades,
-  selectedStudent,
-  setSelectedStudent,
-}) {
-  if (!students || !selectedStudent) return null;
+export function Statistics({ assessmentGrades, selectedStudent }) {
+  if (!selectedStudent) return null;
 
   const { gradeMap, totalGraded } = computeGradeStats(
     assessmentGrades,
@@ -43,83 +37,90 @@ export function Statistics({
     : 0;
 
   return (
-    <div className="col-span-12 px-4 sm:col-span-6 sm:px-5 lg:col-span-4">
-      {/* ✅ Student Selector */}
-      <Combobox
-        data={students}
-        displayField="studentName"
-        value={selectedStudent}
-        onChange={setSelectedStudent}
-        placeholder="Select Student"
-        searchFields={["studentName"]}
-      />
-
-      {/* ✅ Statistics Grid */}
-      <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8">
-        <StatItem
-          icon={<Gauge className="h-5 w-5" />}
-          label="Average Score"
+    <div className="col-span-12 px-2 sm:col-span-6 lg:col-span-4 space-y-6">
+      {/* 📊 Performance Metrics */}
+      <Section title="Performance">
+        <StatCard
+          icon={<ChartBarIcon className="h-5 w-5 text-white" />}
+          label="Average"
           value={selectedStudent.averageScore ?? "N/A"}
-          colorCode={true}
+          gradient="from-blue-500 to-indigo-600"
         />
-        <StatItem
-          icon={<Activity className="h-5 w-5" />}
-          label="Std. Deviation"
+        <StatCard
+          icon={<ChartPieIcon className="h-5 w-5 text-white" />}
+          label="Std Dev"
           value={selectedStudent.standardDeviation ?? "N/A"}
-          colorCode={true}
+          gradient="from-purple-500 to-pink-600"
         />
-        <StatItem
-          icon={<ListChecks className="h-5 w-5" />}
-          label="Total Assessments"
+      </Section>
+
+      {/* 📝 Assessment Stats */}
+      <Section title="Assessments">
+        <StatCard
+          icon={<ClipboardDocumentCheckIcon className="h-5 w-5 text-white" />}
+          label="Total"
           value={totalAssessments}
+          gradient="from-emerald-400 to-teal-600"
         />
-        <StatItem
-          icon={<CheckCircle className="h-5 w-5" />}
-          label="Graded Count"
+        <StatCard
+          icon={<CheckCircleIcon className="h-5 w-5 text-white" />}
+          label="Graded"
           value={totalGraded}
+          gradient="from-cyan-500 to-sky-600"
         />
-        <StatItem
-          icon={<Percent className="h-5 w-5" />}
+        <StatCard
+          icon={<PresentationChartBarIcon className="h-5 w-5 text-white" />}
           label="Graded %"
           value={`${gradedPercentage}%`}
+          gradient="from-pink-500 to-rose-600"
         />
+      </Section>
 
-        {/* ✅ Grade Count per Grade */}
-        {Object.entries(gradeMap).map(([grade, count]) => (
-          <StatItem
+      {/* 🏆 Grade Breakdown */}
+      <Section title="Grade Breakdown">
+        {Object.entries(gradeMap).map(([grade, count], idx) => (
+          <StatCard
             key={grade}
-            icon={<Star className="h-5 w-5 text-yellow-500" />}
-            label={`${grade} Count`}
+            icon={<TrophyIcon className="h-5 w-5 text-white" />}
+            label={grade}
             value={count}
+            gradient={
+              idx % 2 === 0
+                ? "from-yellow-400 to-orange-500"
+                : "from-amber-500 to-red-500"
+            }
           />
         ))}
-      </div>
+      </Section>
     </div>
   );
 }
 
-// ✅ Reusable stat item component
-function StatItem({ icon, label, value, colorCode = false }) {
-  const getValueColor = () => {
-    if (!colorCode || isNaN(value)) return "text-gray-800";
-    if (value >= 90) return "text-green-600";
-    if (value >= 75) return "text-yellow-600";
-    return "text-red-600";
-  };
-
+// ✅ Reusable Section Wrapper
+function Section({ title, children }) {
   return (
-    <div className="flex items-start gap-2">
-      <div className="mt-1 text-gray-500 dark:text-dark-300" title={label}>
-        {icon}
-      </div>
-      <div>
-        <p className="text-xs uppercase text-gray-400 dark:text-dark-300">
+    <div>
+      <h3 className="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+        {title}
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{children}</div>
+    </div>
+  );
+}
+
+// ✅ Compact Chip-Style Stat Card
+function StatCard({ icon, label, value, gradient }) {
+  return (
+    <div
+      className={`flex items-center justify-between rounded-md bg-gradient-to-r ${gradient} px-3 py-2 text-white shadow-sm transition hover:shadow-md`}
+    >
+      <div className="flex items-center gap-2">
+        <div className="rounded bg-white/20 p-1">{icon}</div>
+        <span className="text-xs font-semibold uppercase tracking-wide">
           {label}
-        </p>
-        <p className={`mt-1 text-xl font-medium ${getValueColor()} dark:text-dark-100`}>
-          {value}
-        </p>
+        </span>
       </div>
+      <p className="text-sm font-bold">{value}</p>
     </div>
   );
 }

@@ -32,52 +32,54 @@ export function SkillsPerformance({
 
   if (!skills.length) {
     return (
-      <Card className="px-4 py-6 text-center">
-        <h2 className="mb-1 text-base font-semibold text-gray-800 dark:text-dark-100">
+      <Card className="px-6 py-8 text-center">
+        <h2 className="mb-2 text-lg font-semibold text-gray-800 dark:text-dark-100">
           Skills Performance
         </h2>
-        <p className="text-xs text-gray-500 dark:text-dark-300">{selectedStudentName}</p>
-        <div className="mt-3 text-xs text-gray-400 dark:text-dark-300">
+        <p className="text-sm text-gray-500 dark:text-dark-300">{selectedStudentName}</p>
+        <div className="mt-4 text-sm text-gray-400 dark:text-dark-300">
           No skills found for{" "}
           {selectedSubjectCode ? `subject "${selectedSubjectCode}"` : "this student"}.
+          <br />
+          Try selecting a different subject or week.
         </div>
       </Card>
     );
   }
 
   return (
-    <Card className="px-4 py-5">
+    <Card className="px-6 py-6">
       {/* Header */}
-      <div className="mb-4 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+      <div className="mb-6 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
         <div>
-          <h2 className="text-base font-semibold text-gray-800 dark:text-dark-100">
-            Skills
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-dark-100">
+            Skills Performance
           </h2>
-          <p className="text-xs text-gray-500 dark:text-dark-300">{selectedStudentName}</p>
+          <p className="text-sm text-gray-500 dark:text-dark-300">{selectedStudentName}</p>
         </div>
-        <div className="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-dark-600 dark:text-dark-100">
-          {skills.length} skills
+        <div className="rounded-lg bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 dark:bg-dark-600 dark:text-dark-100">
+          {skills.length} Skills
         </div>
       </div>
 
-      {/* Skills Grid */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {/* Skill cards grid */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {sortedSkills.map((item, index) => (
           <div
             key={index}
-            className="rounded-md border border-gray-200 bg-gray-50 p-3 shadow-sm dark:border-dark-500 dark:bg-dark-700"
+            className="rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-sm dark:border-dark-500 dark:bg-dark-700"
           >
-            {/* Skill Name + Grade */}
-            <div className="mb-1 flex items-center justify-between gap-2">
+            {/* Skill Header */}
+            <div className="mb-2 flex items-center justify-between gap-2">
               <p
-                className="truncate text-xs font-medium text-gray-800 dark:text-dark-100"
+                className="truncate text-sm font-medium text-gray-800 dark:text-dark-100"
                 title={item.skillName}
               >
                 {item.skillName}
               </p>
               <div className="flex items-center gap-1">
                 <span
-                  className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                     item.grade === "A+"
                       ? "bg-green-100 text-green-700"
                       : item.grade === "A"
@@ -98,15 +100,15 @@ export function SkillsPerformance({
             </div>
 
             {/* Score Bar */}
-            <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-600">
+            <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-600">
               <div
                 className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600"
                 style={{ width: `${item.score ?? 0}%` }}
-              />
+              ></div>
             </div>
 
-            {/* Score Number */}
-            <p className="mt-1 text-right text-[11px] font-medium text-gray-500 dark:text-dark-300">
+            {/* Score Text */}
+            <p className="mt-2 text-right text-xs font-medium text-gray-500 dark:text-dark-300">
               {item.score} / 100
             </p>
           </div>
