@@ -185,6 +185,23 @@ const protectedRoutes = {
             },
           ],
         },
+            {
+          path: "FrontDesk",
+          children: [
+            {
+              index: true,
+              element: <Navigate to="/FrontDesk" />,
+            },
+            {
+              path: "FrontDesk",
+              lazy: async () => ({
+                Component: (await import("app/pages/FrontDesk"))
+                  .default,
+              }),
+            },
+
+          ],
+        },
       ],
     },
     // The app layout supports only the main layout. Avoid using it for other layouts.
