@@ -10,9 +10,10 @@ import { ViewChart } from "./PageViews/ViewChart";
 import { MonthlyPerformanceChart } from "./PageViews/MonthlyPerformanceChart";
 import { SkillsPerformance } from "./PageViews/SkillsPerformance";
 import { useStudentPerformance } from "./PageViews/PerfomaceApidata";
-
-// 🔹 Week selector (HeadlessUI dropdown)
 import WeekSelector from "./WeekSelector";
+
+// ✅ import session helper
+import { getSessionData } from "utils/sessionStorage";
 
 // 🔹 Reusable Card wrapper for consistent design
 const Card = ({ children, className = "" }) => (
@@ -27,18 +28,24 @@ export default function Home() {
   // -----------------------------
   // 🔹 Local State
   // -----------------------------
-  const [psLinkData, setPsLinkData] = useState([]); // stores parent → linked kids data
-  const [selectedKidId, setSelectedKidId] = useState(null); // currently chosen kid
-  const [selectedSubjectCode, setSelectedSubjectCode] = useState(null); // subject filter
-  const [selectedWeekId, setSelectedWeekId] = useState(-1); // -1 = current week, 0 = all weeks
+  const [psLinkData, setPsLinkData] = useState([]);
+  const [selectedKidId, setSelectedKidId] = useState(null);
+  const [selectedSubjectCode, setSelectedSubjectCode] = useState(null);
+  const [selectedWeekId, setSelectedWeekId] = useState(-1);
 
   // -----------------------------
   // 🔹 Fetch linked kids (once on mount)
   // -----------------------------
   useEffect(() => {
     const loadData = async () => {
-      // TODO: Replace hardcoded userId(139) & tenantId(1) with real session values
-      const data = await fetchPsLinkData(139, 1);
+      const { userId, tenantId } = getSessionData();
+
+      if (!userId || !tenantId) {
+        console.error("⚠️ No session data found");
+        return;
+      }
+
+      const data = await fetchPsLinkData(userId, tenantId);
       setPsLinkData(data);
 
       // Auto-select the first kid if available
@@ -46,6 +53,7 @@ export default function Home() {
         setSelectedKidId(data[0].kids[0].id);
       }
     };
+
     loadData();
   }, []);
 
@@ -53,14 +61,14 @@ export default function Home() {
   // 🔹 Find selected kid object
   // -----------------------------
   const selectedKid = psLinkData
-    .flatMap((e) => e.kids) // flatten all kids into a single array
+    .flatMap((e) => e.kids)
     .find((k) => k.id === selectedKidId);
 
   // -----------------------------
   // 🔹 Fetch performance data for selected kid
   // -----------------------------
   const { performanceData, loading } = useStudentPerformance({
-    tenantId: psLinkData[0]?.tenantId ?? 1,
+    tenantId: psLinkData[0]?.tenantId ?? getSessionData().tenantId,
     courseId: selectedKid?.courseId ?? 1,
     branchId: selectedKid?.branchId ?? 1,
     weekId: selectedWeekId,
@@ -90,11 +98,11 @@ export default function Home() {
             Linked Kids
           </h2>
 
-          {/* 🔹 Kid Selector (PsLink component) */}
+          {/* 🔹 Kid Selector */}
           <PsLink
             selectedKidId={selectedKidId}
             onKidSelect={(id) => {
-              setSelectedKidId(id); // change kid
+              setSelectedKidId(id);
               setSelectedSubjectCode(null); // reset subject filter
             }}
           />
@@ -103,7 +111,7 @@ export default function Home() {
           {selectedKid && (
             <div className="mt-6 space-y-6">
               {/* -----------------------------
-                  Week Selector (HeadlessUI dropdown)
+                  Week Selector
               ------------------------------ */}
               {performanceData?.weekDictionary && (
                 <div className="mb-4 flex items-center gap-2">

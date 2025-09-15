@@ -57,7 +57,7 @@ const protectedRoutes = {
               }),
             },
             {
-        
+
               path: "test",
               lazy: async () => ({
                 Component: (await import("app/pages/dashboards/teacher/TestRegistartion"))
@@ -107,6 +107,13 @@ const protectedRoutes = {
               path: "week",
               lazy: async () => ({
                 Component: (await import("app/pages/academics/weeklyplan"))
+                  .default,
+              }),
+            },
+            {
+              path: "term",
+              lazy: async () => ({
+                Component: (await import("app/pages/academics/termplan"))
                   .default,
               }),
             },

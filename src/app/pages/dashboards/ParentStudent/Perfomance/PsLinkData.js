@@ -7,7 +7,7 @@ import axios from "axios";
 export async function fetchPsLinkData(userId, tenantId) {
   try {
     const res = await axios.get(
-      `https://localhost:7202/api/ParentStudents/user/${userId}/tenant/${tenantId}/full-details`
+      `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/ParentStudents/user/${userId}/tenant/${tenantId}/full-details`
     );
 
     if (res.data.statusCode !== 200) {

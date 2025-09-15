@@ -1,22 +1,34 @@
 import { useEffect, useState } from "react";
 import { Avatar } from "components/ui";
 import { fetchPsLinkData } from "./PsLinkData";
+import { getSessionData } from "utils/sessionStorage"; // ✅ import session helper
 
 const primaryGradient = "bg-gradient-to-r from-primary-400 to-primary-600";
 
-export const PsLink = ({ userId = 139, tenantId = 1, onKidSelect, selectedKidId }) => {
+export const PsLink = ({ onKidSelect, selectedKidId }) => {
   const [psLinkData, setPsLinkData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+
+      // ✅ Get tenantId & userId from session storage
+      const { userId, tenantId } = getSessionData();
+
+      if (!userId || !tenantId) {
+        console.error("⚠️ No session data found for PsLink");
+        setLoading(false);
+        return;
+      }
+
       const data = await fetchPsLinkData(userId, tenantId);
       setPsLinkData(data);
       setLoading(false);
     };
+
     loadData();
-  }, [userId, tenantId]);
+  }, []); // no need to depend on props anymore
 
   if (loading) {
     return <p className="text-sm text-gray-500">Loading linked kids...</p>;
