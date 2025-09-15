@@ -1,9 +1,14 @@
 // src/app/pages/forms/StudentRegistrationForm/sections/AddressSection.jsx
+
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { Input, Checkbox, Radio } from "components/ui";
 import {
-  HomeIcon, UserGroupIcon, MapPinIcon, GlobeAltIcon, HashtagIcon,
+  HomeIcon,
+  UserGroupIcon,
+  MapPinIcon,
+  GlobeAltIcon,
+  HashtagIcon,
 } from "@heroicons/react/24/outline";
 import LabelWithIcon from "../components/LabelWithIcon";
 import SectionCard from "../components/SectionCard";
@@ -26,14 +31,12 @@ function AddressGroup({ title, prefix = "", syncWithPrimary = false, showRole = 
   const sameAsName = f(prefix, "same_as_primary");
   const sameAs = watch(sameAsName);
 
-  // optional toggle to show PO Box
   const usePOBoxName = f(prefix, "use_po_box");
   const usePOBox = watch(usePOBoxName);
 
-  // NEW: Parent/Guardian role (only rendered if showRole)
   const roleName = f(prefix, "pg_role");
 
-  // mirror when checked
+  // Mirror fields when "Same as Primary" is checked
   useEffect(() => {
     if (!syncWithPrimary || !sameAs) return;
     const [
@@ -61,7 +64,6 @@ function AddressGroup({ title, prefix = "", syncWithPrimary = false, showRole = 
       shouldValidate: true,
     });
 
-  // disabled overlay style when mirrored
   const fieldsetCls = clsx(!sameAs ? "" : "opacity-60 pointer-events-none");
 
   return (
@@ -87,10 +89,9 @@ function AddressGroup({ title, prefix = "", syncWithPrimary = false, showRole = 
         </div>
       )}
 
-      {/* Disable all inputs when same-as is on */}
       <fieldset disabled={!!sameAs} className={fieldsetCls}>
         <div className="grid grid-cols-12 gap-2">
-          {/* Row 1: Name(4) | Apt(2) | Street(6) */}
+          {/* Row 1: Name | Apt | Street */}
           <div className="col-span-12 md:col-span-4">
             <Input
               className={COMPACT}
@@ -122,11 +123,10 @@ function AddressGroup({ title, prefix = "", syncWithPrimary = false, showRole = 
             />
           </div>
 
-          {/* Row 2: Mailing City(3) | Mailing Postal(2) | Civic City(3) | Civic Postal(2) | House(2) */}
+          {/* Row 2: Mailing + Civic */}
           <div className="col-span-12 md:col-span-3">
             <Input
               className={COMPACT}
-              autoComplete="address-level2"
               label={<LabelWithIcon icon={GlobeAltIcon}>City (mailing)</LabelWithIcon>}
               {...register(f(prefix, "mailing_city"))}
               error={errors?.[f(prefix, "mailing_city")]?.message}
@@ -149,7 +149,6 @@ function AddressGroup({ title, prefix = "", syncWithPrimary = false, showRole = 
           <div className="col-span-12 md:col-span-3">
             <Input
               className={COMPACT}
-              autoComplete="address-level2"
               label={<LabelWithIcon icon={GlobeAltIcon}>City (civic)</LabelWithIcon>}
               {...register(f(prefix, "civic_city"))}
               error={errors?.[f(prefix, "civic_city")]?.message}
@@ -179,7 +178,7 @@ function AddressGroup({ title, prefix = "", syncWithPrimary = false, showRole = 
             />
           </div>
 
-          {/* Optional PO Box (hidden unless toggled) */}
+          {/* Optional PO Box */}
           {usePOBox && (
             <div className="col-span-6 md:col-span-3">
               <Input
@@ -204,7 +203,7 @@ export default function AddressSection() {
         title="Demographics — Home Address (Civic + Mailing)"
         prefix=""
         syncWithPrimary={false}
-        showRole={true}   // <- Parent/Guardian radio on the right
+        showRole={true}
       />
       <AddressGroup
         title="Demographics — Alternate Home Address (Shared Custody)"

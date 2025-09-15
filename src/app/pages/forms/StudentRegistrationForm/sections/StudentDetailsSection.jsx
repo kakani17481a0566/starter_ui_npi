@@ -26,7 +26,7 @@ export default function StudentDetailsSection() {
     formState: { errors },
   } = useFormContext();
 
-  // Ensure defaults for radios
+  // 🔹 Ensure defaults for radio fields (set to "no" if not provided)
   useEffect(() => {
     [
       "attending_preschool",
@@ -42,7 +42,7 @@ export default function StudentDetailsSection() {
     });
   }, [getValues, setValue]);
 
-  // Watches
+  // 🔹 Watches for dependent conditional fields
   const attendingPreschool = watch("attending_preschool");
   const previousKG = watch("previously_registered_kg");
   const hasSiblingsHere = watch("siblings_in_this_school");
@@ -50,7 +50,7 @@ export default function StudentDetailsSection() {
   const extraEntryYesNo = watch("extra_entry_yesno");
 
   const isOn = (v) => v === "yes";
-  const small = "h-8 py-1 text-xs";
+  const compact = "h-8 py-1 text-xs";
 
   return (
     <SectionCard
@@ -61,9 +61,9 @@ export default function StudentDetailsSection() {
       padding="md"
     >
       <div className="grid grid-cols-12 gap-4">
-        {/* ---------- Extra Yes/No with Number INLINE ---------- */}
+        {/* ---------- Extra Entry ---------- */}
         <div className="col-span-12 md:col-span-6">
-          <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-100">
             <LabelWithIcon icon={PhoneIcon}>
               Extra Entry — Do you have a number?
             </LabelWithIcon>
@@ -79,7 +79,7 @@ export default function StudentDetailsSection() {
                 )}
               >
                 <Input
-                  className={`${small} w-28`}
+                  className={`${compact} w-28`}
                   type="number"
                   placeholder="Number"
                   {...register("extra_entry_number")}
@@ -93,7 +93,7 @@ export default function StudentDetailsSection() {
 
         {/* ---------- Registration Channel ---------- */}
         <div className="col-span-12 md:col-span-6">
-          <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-100">
             <LabelWithIcon icon={InboxIcon}>Registration Channel</LabelWithIcon>
           </label>
           <div className="flex flex-wrap gap-6">
@@ -108,7 +108,7 @@ export default function StudentDetailsSection() {
 
         {/* ---------- Registration Date ---------- */}
         <div className="col-span-12 md:col-span-6">
-          <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-100">
             <LabelWithIcon icon={CalendarDaysIcon}>Registration Date</LabelWithIcon>
           </label>
           <Controller
@@ -119,7 +119,7 @@ export default function StudentDetailsSection() {
                 <DatePicker
                   value={field.value ?? null}
                   onChange={field.onChange}
-                  className={small}
+                  className={compact}
                 />
                 {errors?.registration_date?.message && (
                   <p className="mt-1 text-xs text-red-600">
@@ -134,7 +134,7 @@ export default function StudentDetailsSection() {
         {/* ---------- Student Name ---------- */}
         <div className="col-span-12 md:col-span-4">
           <Input
-            className={small}
+            className={compact}
             label={<LabelWithIcon icon={UserGroupIcon}>Student First Name</LabelWithIcon>}
             {...register("student_first_name")}
             error={errors?.student_first_name?.message}
@@ -143,7 +143,7 @@ export default function StudentDetailsSection() {
 
         <div className="col-span-12 md:col-span-4">
           <Input
-            className={small}
+            className={compact}
             label={<LabelWithIcon icon={UserGroupIcon}>Student Middle Name</LabelWithIcon>}
             {...register("student_middle_name")}
             error={errors?.student_middle_name?.message}
@@ -152,7 +152,7 @@ export default function StudentDetailsSection() {
 
         <div className="col-span-12 md:col-span-4">
           <Input
-            className={small}
+            className={compact}
             label={<LabelWithIcon icon={UserGroupIcon}>Student Last Name</LabelWithIcon>}
             {...register("student_last_name")}
             error={errors?.student_last_name?.message}
@@ -161,7 +161,7 @@ export default function StudentDetailsSection() {
 
         {/* ---------- DOB ---------- */}
         <div className="col-span-12 md:col-span-4">
-          <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-100">
             <LabelWithIcon icon={CalendarDaysIcon}>Date of Birth</LabelWithIcon>
           </label>
           <Controller
@@ -172,7 +172,7 @@ export default function StudentDetailsSection() {
                 <DatePicker
                   value={field.value ?? null}
                   onChange={field.onChange}
-                  className={small}
+                  className={compact}
                 />
                 {errors?.dob?.message && (
                   <p className="mt-1 text-xs text-red-600">{errors.dob.message}</p>
@@ -184,7 +184,7 @@ export default function StudentDetailsSection() {
 
         {/* ---------- Gender ---------- */}
         <div className="col-span-12 md:col-span-4">
-          <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-100">
             <LabelWithIcon icon={AcademicCapIcon}>Gender</LabelWithIcon>
           </label>
           <div className="flex flex-wrap gap-6">
@@ -217,7 +217,7 @@ export default function StudentDetailsSection() {
 
         {/* ---------- Attending Pre-school ---------- */}
         <div className="col-span-12 md:col-span-6">
-          <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-100">
             <LabelWithIcon icon={AcademicCapIcon}>Attending Pre-school?</LabelWithIcon>
           </label>
           <div className="flex gap-6">
@@ -227,10 +227,13 @@ export default function StudentDetailsSection() {
 
           <fieldset
             disabled={!isOn(attendingPreschool)}
-            className={clsx("mt-3 space-y-0", !isOn(attendingPreschool) && "pointer-events-none opacity-60")}
+            className={clsx(
+              "mt-3 space-y-0",
+              !isOn(attendingPreschool) && "pointer-events-none opacity-60"
+            )}
           >
             <Input
-              className={small}
+              className={compact}
               label={<LabelWithIcon icon={BuildingOfficeIcon}>If yes, name of pre-school</LabelWithIcon>}
               {...register("preschool_name")}
               error={errors?.preschool_name?.message}
@@ -238,9 +241,9 @@ export default function StudentDetailsSection() {
           </fieldset>
         </div>
 
-        {/* ---------- Previously registered for KG ---------- */}
+        {/* ---------- Previously Registered for KG ---------- */}
         <div className="col-span-12 md:col-span-6">
-          <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-100">
             <LabelWithIcon icon={AcademicCapIcon}>Previously registered for kindergarten?</LabelWithIcon>
           </label>
           <div className="flex gap-6">
@@ -253,7 +256,7 @@ export default function StudentDetailsSection() {
             className={clsx("mt-3", !isOn(previousKG) && "pointer-events-none opacity-60")}
           >
             <Input
-              className={small}
+              className={compact}
               label={<LabelWithIcon icon={BuildingOfficeIcon}>If yes, name of school</LabelWithIcon>}
               {...register("previous_kg_school_name")}
               error={errors?.previous_kg_school_name?.message}
@@ -263,7 +266,7 @@ export default function StudentDetailsSection() {
 
         {/* ---------- Siblings in this school ---------- */}
         <div className="col-span-12 md:col-span-6">
-          <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-100">
             <LabelWithIcon icon={UserGroupIcon}>Siblings in this school?</LabelWithIcon>
           </label>
           <div className="flex gap-6">
@@ -276,7 +279,7 @@ export default function StudentDetailsSection() {
             className={clsx("mt-3", !isOn(hasSiblingsHere) && "pointer-events-none opacity-60")}
           >
             <Input
-              className={small}
+              className={compact}
               label={<LabelWithIcon icon={UserGroupIcon}>If yes, name</LabelWithIcon>}
               {...register("siblings_this_school_name")}
               error={errors?.siblings_this_school_name?.message}
@@ -286,7 +289,7 @@ export default function StudentDetailsSection() {
 
         {/* ---------- Siblings in other schools ---------- */}
         <div className="col-span-12 md:col-span-6">
-          <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-100">
             <LabelWithIcon icon={UserGroupIcon}>Siblings in other schools?</LabelWithIcon>
           </label>
           <div className="flex gap-6">
@@ -299,7 +302,7 @@ export default function StudentDetailsSection() {
             className={clsx("mt-3", !isOn(hasSiblingsOther) && "pointer-events-none opacity-60")}
           >
             <Input
-              className={small}
+              className={compact}
               label={<LabelWithIcon icon={UserGroupIcon}>If yes, name</LabelWithIcon>}
               {...register("siblings_other_school_name")}
               error={errors?.siblings_other_school_name?.message}
