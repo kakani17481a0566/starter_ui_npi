@@ -110,5 +110,5 @@ export const schema = Yup.object().shape({
 
   // --- Documents ---
   student_photo: Yup.mixed().required("Student photo required"),
-  birth_certificate: Yup.mixed().required("Birth certificate required"),
+  student_birth_certificate: Yup.mixed().required("Birth certificate required"),
 });
