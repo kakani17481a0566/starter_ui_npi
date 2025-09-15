@@ -4,111 +4,117 @@ import {
   PhoneIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-// import Chart from "react-apexcharts";
 import PropTypes from "prop-types";
 
 // Local Imports
 import { Avatar, Box, Button } from "components/ui";
 
-// Chart Config
-// const chartConfig = {
-//   colors: ["#4467EF"],
-//   chart: {
-//     parentHeightOffset: 0,
-//     toolbar: { show: false },
-//   },
-//   dataLabels: { enabled: false },
-//   stroke: { curve: "smooth", width: 3 },
-//   grid: {
-//     padding: { left: 0, right: 0, top: -10, bottom: 0 },
-//   },
-//   xaxis: { show: false },
-//   yaxis: { show: false },
-// };
-
+// Status → colors
 const statusColorMap = {
-  "Checked-In": "text-green-600",
-  "Checked-Out": "text-blue-600",
-  "Not Marked": "text-yellow-600",
-  "Unknown": "text-gray-500",
+  "Checked-In": "text-emerald-600 bg-emerald-50",
+  "Checked-Out": "text-indigo-600 bg-indigo-50",
+  "Not Marked": "text-amber-600 bg-amber-50",
+  Unknown: "text-gray-500 bg-gray-100",
 };
-// export function SellerCard({ avatar, name, attendanceStatus, chartData, mobileNumber, className }) {
 
-export function SellerCard({ avatar, name, attendanceStatus, mobileNumber, className }) {
-
-  const statusColor = statusColorMap[attendanceStatus] || "text-gray-500";
-
+export function SellerCard({
+  avatar,
+  name,
+  attendanceStatus,
+  mobileNumber,
+  className,
+}) {
+  const statusColor =
+    statusColorMap[attendanceStatus] || statusColorMap.Unknown;
   const isValidNumber = mobileNumber && /^[0-9+\-() ]{6,}$/.test(mobileNumber);
 
   return (
-    <Box className="w-56 shrink-0 rounded-xl bg-gray-50 p-4 dark:bg-surface-3">
-      <div className="flex flex-col items-center space-y-3 text-center">
+    <Box
+      className={clsx(
+        "group relative w-64 shrink-0 overflow-hidden rounded-2xl",
+        "bg-gradient-to-br from-primary-50 to-white shadow-md",
+        "hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out",
+        "dark:from-dark-800 dark:to-dark-900",
+        className
+      )}
+    >
+      {/* Top bar gradient */}
+      <div className="absolute top-0 left-0 h-2 w-full bg-gradient-to-r from-sky-400 to-primary-500" />
+
+      {/* Avatar + Info */}
+      <div className="flex flex-col items-center px-5 pt-6 pb-4 text-center">
         <Avatar
-          size={16}
+          size={18}
           classNames={{
-            root: "rounded-full bg-gradient-to-r from-sky-400 to-blue-600 p-0.5",
-            display: "border-2 border-white text-lg dark:border-dark-700",
+            root: "rounded-full bg-gradient-to-r from-sky-400 to-primary-500 p-0.5 ring-2 ring-white dark:ring-dark-700",
+            display: "border border-gray-200 dark:border-dark-600",
           }}
           name={name}
           src={avatar}
           initialColor="auto"
         />
-        <div>
-          <p className="text-base font-medium text-gray-800 dark:text-dark-100">{name}</p>
-          <p className="text-xs-plus text-gray-400 dark:text-dark-300">Student</p>
-            <p className="text-xs text-gray-400 dark:text-dark-300">{className}</p> {/* ✅ className */}
-
-        </div>
+        <h3 className="mt-3 text-base font-semibold text-gray-800 dark:text-dark-100">
+          {name}
+        </h3>
+        <p className="text-xs text-gray-500 dark:text-dark-300">Student</p>
+        {className && (
+          <p className="mt-0.5 text-xs font-medium text-primary-600 dark:text-primary-400">
+            Class {className}
+          </p>
+        )}
       </div>
 
-      <div className="mt-5">
-        <p className="text-sm font-medium text-gray-500">Status</p>
-        <p className={clsx("mt-1 text-lg font-semibold", statusColor)}>
+      {/* Status */}
+      <div className="px-5 pb-4 text-center">
+        <span
+          className={clsx(
+            "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium",
+            statusColor
+          )}
+        >
           {attendanceStatus || "Unknown"}
-        </p>
-
-        {/* <div className="mt-2 ax-transparent-gridline">
-          <Chart
-            type="line"
-            height={100}
-            options={chartConfig}
-            series={[
-              {
-                name: "Attendance Trend",
-                data: chartData || [],
-              },
-            ]}
-          />
-        </div> */}
+        </span>
       </div>
 
-      <div className="mt-5 flex justify-center gap-2">
-        <Button color="primary" variant="soft" isIcon className="size-8 rounded-full">
-          <ChatBubbleOvalLeftEllipsisIcon className="w-4 h-4" />
+      {/* Action Links */}
+      <div className="flex justify-around border-t border-gray-200 px-5 py-3 dark:border-dark-600">
+        <Button
+          as="a"
+          href="#"
+          color="primary"
+          variant="ghost"
+          isIcon
+          className="rounded-full hover:bg-primary-100 dark:hover:bg-dark-700"
+          title="Chat"
+        >
+          <ChatBubbleOvalLeftEllipsisIcon className="w-5 h-5" />
         </Button>
-        <Button color="primary" variant="soft" isIcon className="size-8 rounded-full">
-          <EnvelopeIcon className="w-4 h-4" />
+        <Button
+          as="a"
+          href={`mailto:${name}@school.com`}
+          color="primary"
+          variant="ghost"
+          isIcon
+          className="rounded-full hover:bg-primary-100 dark:hover:bg-dark-700"
+          title="Email"
+        >
+          <EnvelopeIcon className="w-5 h-5" />
         </Button>
-
         {isValidNumber ? (
           <a
             href={`tel:${mobileNumber}`}
-            className="size-8 rounded-full flex items-center justify-center bg-primary-100 hover:bg-primary-200 text-primary-700 dark:bg-dark-700 dark:hover:bg-dark-600"
+            className="flex size-10 items-center justify-center rounded-full bg-primary-100 text-primary-700 hover:bg-primary-200 dark:bg-dark-700 dark:hover:bg-dark-600"
             title={`Call ${mobileNumber}`}
           >
-            <PhoneIcon className="w-4 h-4" />
+            <PhoneIcon className="w-5 h-5" />
           </a>
         ) : (
-          <Button
-            color="primary"
-            variant="soft"
-            isIcon
-            className="size-8 rounded-full opacity-50 cursor-not-allowed"
-            disabled
+          <span
+            className="flex size-10 items-center justify-center rounded-full bg-gray-200 text-gray-400 cursor-not-allowed"
             title="No valid number"
           >
-            <PhoneIcon className="w-4 h-4" />
-          </Button>
+            <PhoneIcon className="w-5 h-5" />
+          </span>
         )}
       </div>
     </Box>
@@ -118,7 +124,7 @@ export function SellerCard({ avatar, name, attendanceStatus, mobileNumber, class
 SellerCard.propTypes = {
   avatar: PropTypes.string,
   name: PropTypes.string.isRequired,
-  attendanceStatus: PropTypes.string.isRequired,
-  chartData: PropTypes.arrayOf(PropTypes.number).isRequired,
+  attendanceStatus: PropTypes.string,
   mobileNumber: PropTypes.string,
+  className: PropTypes.string,
 };

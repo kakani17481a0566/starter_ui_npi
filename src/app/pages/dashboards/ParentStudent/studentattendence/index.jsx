@@ -38,10 +38,10 @@ export default function StudentAttendanceGraph({
   studentId,
   tenantId = 1,
   branchId = 1,
+  days = 7,
 }) {
   const [attendanceData, setAttendanceData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [ setDisplayedId] = useState(studentId);
 
   const previousData = useRef([]);
 
@@ -50,14 +50,13 @@ export default function StudentAttendanceGraph({
 
     setLoading(true);
 
-    fetchAttendanceGraph({ studentId, tenantId, branchId })
+    fetchAttendanceGraph({ studentId, tenantId, branchId, days })
       .then((res) => {
         previousData.current = res ?? [];
         setAttendanceData(res ?? []);
-        setDisplayedId(studentId);
       })
       .finally(() => setLoading(false));
-  }, [studentId, tenantId, branchId]);
+  }, [studentId, tenantId, branchId, days]);
 
   const maxHour =
     Math.max(...(attendanceData?.flatMap((d) => [d.inTime, d.outTime]) || [0]), 0) + 1;
@@ -73,7 +72,7 @@ export default function StudentAttendanceGraph({
         <p className="text-xs text-gray-500 dark:text-dark-300">Daily time overview</p>
       </div>
 
-      {/* Loader overlay (optional) */}
+      {/* Loader overlay */}
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-dark-700/60 z-10 rounded-lg">
           <span className="text-gray-500 text-sm dark:text-dark-200">Loading...</span>

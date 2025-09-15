@@ -13,13 +13,14 @@ import Chart from "react-apexcharts";
 
 // Subject → consistent color mapping (colorblind-safe palette)
 const subjectColors = {
-  CLL: "#3B82F6",  // Blue 500
-  PSRN: "#EF4444", // Red 500
-  KUW: "#F59E0B",  // Amber 500
-  PD: "#10B981",   // Emerald 500
-  EAD: "#8B5CF6",  // Violet 500
-  PSED: "#EC4899", // Pink 500
+  CLL: "#93C5FD",  // Blue 300
+  PSRN: "#FCA5A5", // Red 300
+  KUW: "#FCD34D",  // Amber 300
+  PD: "#6EE7B7",   // Emerald 300
+  EAD: "#C4B5FD",  // Violet 300
+  PSED: "#F9A8D4", // Pink 300
 };
+
 
 // Helper: Transform assessments → weekly scores
 function getWeeklySubjectPerformance(subjectWiseAssessments, studentId) {

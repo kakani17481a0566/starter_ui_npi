@@ -24,7 +24,7 @@ import { fetchAttendanceSummary } from "./data";
 import { generateAttendanceColumns } from "./columns";
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
 import { ColumnFilter } from "components/shared/table/ColumnFilter";
-import { Card, Table, THead, TBody, Th, Tr, Td, Spinner } from "components/ui";
+import { Card, Table, THead, TBody, Th, Tr, Td } from "components/ui";
 import { SelectedRowsActions } from "./SelectedRowsActions";
 import { Toolbar } from "./Toolbar";
 import { AttendanceHeaderBox } from "./VerticalWithoutText";
@@ -35,7 +35,7 @@ import { fuzzyFilter } from "utils/react-table/fuzzyFilter";
 function SubRowComponent({ row }) {
   const { parentName, mobileNumber, alternateNumber } = row.original;
   return (
-    <div className="space-y-1 p-4 text-sm">
+    <div className="space-y-2 p-4 text-sm bg-gray-50 dark:bg-dark-700 rounded-md border border-gray-200 dark:border-dark-500">
       <p><strong>Parent:</strong> {parentName}</p>
       <p><strong>Mobile:</strong> {mobileNumber}</p>
       <p><strong>Alternate:</strong> {alternateNumber}</p>
@@ -71,20 +71,18 @@ export default function AttendanceTable() {
   const checkedOutCount = useMemo(() => data.filter((d) => d.attendanceStatus === "Checked-Out").length, [data]);
 
   const cardRef = useRef();
-  // Refs for the header and toolbar to calculate their heights
   const headerRef = useRef();
   const toolbarRef = useRef();
   const [headerOffset, setHeaderOffset] = useState(0);
 
   useEffect(() => {
-    // Calculate the combined height of the header and toolbar
     if (tableSettings.enableFullScreen && headerRef.current && toolbarRef.current) {
       const combinedHeight = headerRef.current.offsetHeight + toolbarRef.current.offsetHeight;
       setHeaderOffset(combinedHeight);
     } else {
-      setHeaderOffset(0); // Reset when not in full screen
+      setHeaderOffset(0);
     }
-  }, [tableSettings.enableFullScreen, data, selectedCourseId]); // Recalculate if full screen state changes or content (which might affect layout)
+  }, [tableSettings.enableFullScreen, data, selectedCourseId]);
 
   const fetchData = useCallback(async () => {
     if (!selectedCourseId) return;
@@ -115,14 +113,7 @@ export default function AttendanceTable() {
   const table = useReactTable({
     data,
     columns,
-    state: {
-      globalFilter,
-      sorting,
-      pagination,
-      columnVisibility,
-      columnPinning,
-      tableSettings,
-    },
+    state: { globalFilter, sorting, pagination, columnVisibility, columnPinning, tableSettings },
     onPaginationChange: setPagination,
     meta: { setTableSettings, fetchData },
     filterFns: { fuzzy: fuzzyFilter },
@@ -151,26 +142,23 @@ export default function AttendanceTable() {
 
   return (
     <div className="col-span-12 flex flex-col gap-4">
-      {/* Header with Dropdown and Summary */}
       <AttendanceHeaderBox
         date={formattedDate}
         checkedIn={checkedInCount}
         checkedOut={checkedOutCount}
         selectedCourseId={selectedCourseId}
         onCourseChange={setSelectedCourseId}
-        ref={headerRef} // Assign ref here
+        ref={headerRef}
       />
 
-      {/* Toolbar Actions */}
-      <Toolbar table={table} ref={toolbarRef} /> {/* Assign ref here */}
+      <Toolbar table={table} ref={toolbarRef} />
 
-      {/* Main Table Card */}
       <Card
         className={clsx(
           "relative flex flex-col overflow-visible",
           tableSettings.enableFullScreen && "fixed inset-0 z-50 dark:bg-dark-900 bg-white"
         )}
-        style={tableSettings.enableFullScreen ? { top: `${headerOffset}px`, paddingLeft: '1rem', paddingRight: '1rem' } : {}} // Apply dynamic top offset and padding
+        style={tableSettings.enableFullScreen ? { top: `${headerOffset}px`, paddingInline: '1rem' } : {}}
         ref={cardRef}
       >
         <div className="w-full overflow-x-auto">
@@ -183,15 +171,15 @@ export default function AttendanceTable() {
             >
               <THead>
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <Tr key={headerGroup.id}>
+                  <Tr key={headerGroup.id} className="bg-gradient-to-r from-primary-50 to-primary-100 dark:from-dark-800 dark:to-dark-700">
                     {headerGroup.headers.map((header) => (
                       <Th
                         key={header.id}
-                        className="bg-neutral-100 dark:bg-dark-800 px-2 py-3 text-xs font-semibold text-gray-700 dark:text-gray-200"
+                        className="px-2 py-3 text-xs font-semibold text-gray-700 dark:text-gray-200 rounded-sm"
                       >
                         {header.column.getCanSort() ? (
                           <div
-                            className="flex cursor-pointer items-center space-x-3"
+                            className="flex cursor-pointer items-center gap-2 hover:text-primary-600 transition"
                             onClick={header.column.getToggleSortingHandler()}
                           >
                             <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
@@ -209,12 +197,15 @@ export default function AttendanceTable() {
 
               <TBody>
                 {loading ? (
-                  <Tr>
-                    <Td colSpan={columns.length} className="py-10 text-center text-gray-500 dark:text-dark-300">
-                      <Spinner color="primary" className="size-10 border-4 mx-auto" />
-                      <div className="mt-2 text-sm">Loading attendance data…</div>
-                    </Td>
-                  </Tr>
+                  [...Array(5)].map((_, i) => (
+                    <Tr key={i} className="animate-pulse">
+                      {columns.map((_, j) => (
+                        <Td key={j} className="px-2 py-3">
+                          <div className="h-4 w-3/4 bg-gray-200 dark:bg-dark-600 rounded" />
+                        </Td>
+                      ))}
+                    </Tr>
+                  ))
                 ) : table.getRowModel().rows.length === 0 ? (
                   <Tr>
                     <Td colSpan={columns.length} className="py-10 text-center text-sm text-gray-500 dark:text-dark-300">
@@ -222,9 +213,14 @@ export default function AttendanceTable() {
                     </Td>
                   </Tr>
                 ) : (
-                  table.getRowModel().rows.map((row) => (
+                  table.getRowModel().rows.map((row, i) => (
                     <Fragment key={row.id}>
-                      <Tr className="border-b border-neutral-200 hover:bg-neutral-100 dark:border-dark-500 dark:hover:bg-dark-700">
+                      <Tr
+                        className={clsx(
+                          i % 2 === 0 ? "bg-gray-50 dark:bg-dark-800/40" : "bg-white dark:bg-dark-900",
+                          "border-b border-neutral-200 hover:bg-primary-50/70 dark:border-dark-500 dark:hover:bg-dark-700"
+                        )}
+                      >
                         {row.getVisibleCells().map((cell) => (
                           <Td key={cell.id} className="px-2 py-2 text-sm text-gray-900 dark:text-gray-100">
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -248,7 +244,6 @@ export default function AttendanceTable() {
 
         <SelectedRowsActions table={table} className="mt-4" />
 
-        {/* Pagination Controls */}
         <div className="mt-4 flex flex-col items-center justify-between gap-4 px-4 pb-4 sm:flex-row">
           <div className="text-sm text-gray-600 dark:text-dark-300">
             Showing{" "}
@@ -264,7 +259,7 @@ export default function AttendanceTable() {
             <button
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              className="bg-primary-600 dark:bg-dark-700 dark:hover:bg-dark-600 flex items-center justify-center gap-1 rounded px-3 py-1.5 text-sm font-medium transition disabled:opacity-50"
+              className="bg-primary-600 text-white flex items-center justify-center gap-1 rounded px-3 py-1.5 text-sm font-medium transition hover:shadow-md hover:brightness-105 disabled:opacity-50"
             >
               <ChevronLeftIcon className="h-4 w-4" />
               <span>Previous</span>
@@ -272,7 +267,7 @@ export default function AttendanceTable() {
             <button
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
-              className="bg-primary-600 dark:bg-dark-700 dark:hover:bg-dark-600 flex items-center justify-center gap-1 rounded px-3 py-1.5 text-sm font-medium transition disabled:opacity-50"
+              className="bg-primary-600 text-white flex items-center justify-center gap-1 rounded px-3 py-1.5 text-sm font-medium transition hover:shadow-md hover:brightness-105 disabled:opacity-50"
             >
               <span>Next</span>
               <ChevronRightIcon className="h-4 w-4" />

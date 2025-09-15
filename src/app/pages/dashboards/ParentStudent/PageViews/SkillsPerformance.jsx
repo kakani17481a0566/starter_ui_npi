@@ -53,7 +53,7 @@ export function SkillsPerformance({
       <div className="mb-6 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-lg font-semibold text-gray-800 dark:text-dark-100">
-            Skills Performance
+            Skills Performance demo
           </h2>
           <p className="text-sm text-gray-500 dark:text-dark-300">{selectedStudentName}</p>
         </div>

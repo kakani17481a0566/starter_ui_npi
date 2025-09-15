@@ -180,7 +180,7 @@ export function AuthProvider({ children }) {
       if (roleName === "PARENT") {
         console.log("[Auth] Fetching parent profile...");
         const res = await axios.get(
-          `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/parent/${userId}/tenant/${tenantId}`
+          `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/ParentStudents/user/${userId}/tenant/${tenantId}/courses`
         );
         ({ branchId, weekId, termId, courses, userProfile } = res.data.data);
       } else {
