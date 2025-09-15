@@ -1,69 +1,58 @@
-export const psLinkData = [
-  {
-    id: 1,
-    parent: {
-      id: 100,
-      name: "Kiran Nune",
-      gender: "male",
-      image: "https://tailux.piniastudio.com/images/avatar/avatar-16.jpg",
-    },
-    kids: [
+import axios from "axios";
+
+/**
+ * Fetches parent and linked students from API and normalizes
+ * into psLinkData shape that PsLink expects.
+ */
+export async function fetchPsLinkData(userId, tenantId) {
+  try {
+    const res = await axios.get(
+      `https://localhost:7202/api/ParentStudents/user/${userId}/tenant/${tenantId}/full-details`
+    );
+
+    if (res.data.statusCode !== 200) {
+      throw new Error(res.data.message || "Failed to fetch parent-student data");
+    }
+
+    const { parent, students } = res.data.data;
+
+    // 🔄 Normalize API response to match PsLinkData.js shape
+    return [
       {
-        id: 201,
-        name: "Kid One",
-        gender: "male",
-        image:
-          "https://as1.ftcdn.net/v2/jpg/11/95/11/20/1000_F_1195112017_AULAVR5duzRhPWajV9U3bCia2a03W55p.jpg",
-        studentId: "STU201",
-        admissionNumber: "A201",
-        class: "Grade 2",
-        section: "A",
-        academicYear: "2025-2026",
-        courseId: 12,
-        dob: "2017-06-10",
-        age: 8,
-        bloodGroup: "O+",
-        nationality: "Indian",
-        religion: "Hindu",
-        motherTongue: "Telugu",
-        addressLine1: "Plot 12, Teachers Colony",
-        city: "Hyderabad",
-        state: "Telangana",
-        pincode: "500059",
-        branch: "Madhapur Branch",   // ✅ added branch
-        progress: 75,
-        presenceStatus: "available",
-        badges: ["Top Performer", "Math Star"],
-        workingHours: { start: "09:00", end: "15:00" },
+        id: parent.parentId,
+        parent: {
+          id: parent.parentId,
+          name: parent.firstName ?? parent.parentName,
+          gender: parent.gender ?? "unknown",
+          image: parent.userImageUrl ?? "/default-avatar.png",
+        },
+        kids: students.map((s) => ({
+          id: s.studentId,
+          name: s.name,
+          gender: s.gender === "M" ? "male" : "female",
+          image: s.studentImageUrl ?? "/default-student.png",
+          studentId: s.studentId,
+          admissionNumber: s.admissionNumber,
+          class: s.courseName,
+          section: s.section ?? null, // API doesn’t give section yet
+          academicYear: "2025-2026", // 🔹 fallback if API doesn’t provide
+          courseId: null, // API doesn’t return courseId
+          dob: s.dob,
+          age: s.age,
+          bloodGroup: s.bloodGroup,
+          branch: s.branchName,
+          nationality: s.nationality ?? null,
+          religion: s.religion ?? null,
+          motherTongue: s.motherTongue ?? null,
+          progress: 0, // UI-only placeholder
+          presenceStatus: "offline", // default
+          badges: [],
+          workingHours: { start: null, end: null },
+        })),
       },
-      {
-        id: 202,
-        name: "Kid Two",
-        gender: "female",
-        image:
-          "https://as1.ftcdn.net/v2/jpg/15/63/04/46/1000_F_1563044689_TFzh6QGMErEODT01Yc4cs6c1K8jy1fWL.jpg",
-        studentId: "STU202",
-        admissionNumber: "A202",
-        class: "Grade 5",
-        section: "B",
-        academicYear: "2025-2026",
-        courseId: 15,
-        dob: "2014-09-23",
-        age: 11,
-        bloodGroup: "A+",
-        nationality: "Indian",
-        religion: "Hindu",
-        motherTongue: "Telugu",
-        addressLine1: "Plot 12, Teachers Colony",
-        city: "Hyderabad",
-        state: "Telangana",
-        pincode: "500059",
-        branch: "Kukatpally Branch", // ✅ added branch
-        progress: 68,
-        presenceStatus: "offline",
-        badges: ["Science Whiz"],
-        workingHours: { start: "08:30", end: "14:30" },
-      },
-    ],
-  },
-];
+    ];
+  } catch (err) {
+    console.error("❌ Error fetching psLinkData:", err.message);
+    return [];
+  }
+}

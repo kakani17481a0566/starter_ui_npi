@@ -16,7 +16,12 @@ import { TableSortIcon } from "components/shared/table/TableSortIcon";
 import { ColumnFilter } from "components/shared/table/ColumnFilter";
 import { PaginationSection } from "components/shared/table/PaginationSection";
 import { Card, Table, THead, TBody, Th, Tr, Td, Spinner } from "components/ui";
-import { useBoxSize, useLockScrollbar, useDidUpdate, useLocalStorage } from "hooks";
+import {
+  useBoxSize,
+  useLockScrollbar,
+  useDidUpdate,
+  useLocalStorage,
+} from "hooks";
 import { fuzzyFilter } from "utils/react-table/fuzzyFilter";
 import { useSkipper } from "utils/react-table/useSkipper";
 import { SelectedRowsActions } from "./SelectedRowsActions";
@@ -42,8 +47,14 @@ export default function AttendanceStatusDisplayTable({ data }) {
   });
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
-  const [columnVisibility, setColumnVisibility] = useLocalStorage("column-visibility-attendance", {});
-  const [columnPinning, setColumnPinning] = useLocalStorage("column-pinning-attendance", {});
+  const [columnVisibility, setColumnVisibility] = useLocalStorage(
+    "column-visibility-attendance",
+    {}
+  );
+  const [columnPinning, setColumnPinning] = useLocalStorage(
+    "column-pinning-attendance",
+    {}
+  );
 
   const cardRef = useRef();
   const { width: cardWidth } = useBoxSize({ ref: cardRef });
@@ -51,7 +62,13 @@ export default function AttendanceStatusDisplayTable({ data }) {
   const table = useReactTable({
     data: records,
     columns,
-    state: { globalFilter, sorting, columnVisibility, columnPinning, tableSettings },
+    state: {
+      globalFilter,
+      sorting,
+      columnVisibility,
+      columnPinning,
+      tableSettings,
+    },
     meta: { setTableSettings, deleteRow: () => {}, deleteRows: () => {} },
     filterFns: { fuzzy: fuzzyFilter },
     globalFilterFn: fuzzyFilter,
@@ -83,10 +100,22 @@ export default function AttendanceStatusDisplayTable({ data }) {
 
   return (
     <div className="col-span-12">
-      <div className={clsx("flex flex-col", tableSettings.enableFullScreen && "fixed inset-0 z-61 h-full w-full bg-white pt-3 dark:bg-dark-900")}>        
+      <div
+        className={clsx(
+          "flex flex-col",
+          tableSettings.enableFullScreen &&
+            "fixed inset-0 z-61 h-full w-full bg-white pt-3 dark:bg-dark-900"
+        )}
+      >
         <Toolbar table={table} />
 
-        <Card ref={cardRef} className={clsx("relative mt-3 flex grow flex-col", tableSettings.enableFullScreen && "overflow-hidden")}>          
+        <Card
+          ref={cardRef}
+          className={clsx(
+            "relative mt-3 flex grow flex-col",
+            tableSettings.enableFullScreen && "overflow-hidden"
+          )}
+        >
           <div className="table-wrapper min-w-full grow overflow-x-auto">
             <Table
               hoverable
@@ -94,6 +123,7 @@ export default function AttendanceStatusDisplayTable({ data }) {
               sticky={tableSettings.enableFullScreen}
               className="w-full text-left rtl:text-right"
             >
+              {/* ---------- TABLE HEADER ---------- */}
               <THead>
                 {table.getHeaderGroups().map((group) => (
                   <Tr key={group.id}>
@@ -101,10 +131,13 @@ export default function AttendanceStatusDisplayTable({ data }) {
                       <Th
                         key={header.id}
                         className={clsx(
-                          "bg-gray-200 font-semibold uppercase text-gray-800 dark:bg-dark-800 dark:text-dark-100",
+                          "bg-primary-50 font-semibold uppercase text-primary-700",
+                          "dark:bg-dark-800 dark:text-primary-300",
                           header.column.getCanPin() && [
-                            header.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
-                            header.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
+                            header.column.getIsPinned() === "left" &&
+                              "sticky z-2 ltr:left-0 rtl:right-0",
+                            header.column.getIsPinned() === "right" &&
+                              "sticky z-2 ltr:right-0 rtl:left-0",
                           ]
                         )}
                       >
@@ -117,24 +150,36 @@ export default function AttendanceStatusDisplayTable({ data }) {
                                 onClick={header.column.getToggleSortingHandler()}
                               >
                                 <span className="flex-1">
-                                  {flexRender(header.column.columnDef.header, header.getContext())}
+                                  {flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext()
+                                  )}
                                 </span>
-                                <TableSortIcon sorted={header.column.getIsSorted()} />
+                                <TableSortIcon
+                                  sorted={header.column.getIsSorted()}
+                                />
                               </div>
                             )
-                          : flexRender(header.column.columnDef.header, header.getContext())}
-                        {header.column.getCanFilter() && <ColumnFilter column={header.column} />}
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                        {header.column.getCanFilter() && (
+                          <ColumnFilter column={header.column} />
+                        )}
                       </Th>
                     ))}
                   </Tr>
                 ))}
               </THead>
+
+              {/* ---------- TABLE BODY ---------- */}
               <TBody>
                 {table.getRowModel().rows.map((row) => (
                   <Fragment key={row.id}>
                     <Tr
                       className={clsx(
-                        "relative border-y border-transparent border-b-gray-200 dark:border-b-dark-500",
+                        "relative border-y border-transparent border-b-primary-200 dark:border-b-dark-500",
                         row.getIsExpanded() && "border-dashed",
                         row.getIsSelected() &&
                           !isSafari &&
@@ -146,30 +191,42 @@ export default function AttendanceStatusDisplayTable({ data }) {
                           key={cell.id}
                           className={clsx(
                             "relative",
-                            cardSkin === "shadow-sm" ? "dark:bg-dark-700" : "dark:bg-dark-900",
+                            cardSkin === "shadow-sm"
+                              ? "dark:bg-dark-700"
+                              : "dark:bg-dark-900",
                             cell.column.getCanPin() && [
-                              cell.column.getIsPinned() === "left" && "sticky z-2 ltr:left-0 rtl:right-0",
-                              cell.column.getIsPinned() === "right" && "sticky z-2 ltr:right-0 rtl:left-0",
+                              cell.column.getIsPinned() === "left" &&
+                                "sticky z-2 ltr:left-0 rtl:right-0",
+                              cell.column.getIsPinned() === "right" &&
+                                "sticky z-2 ltr:right-0 rtl:left-0",
                             ]
                           )}
                         >
                           {cell.column.getIsPinned() && (
                             <div
                               className={clsx(
-                                "pointer-events-none absolute inset-0 border-gray-200 dark:border-dark-500",
+                                "pointer-events-none absolute inset-0 border-primary-200 dark:border-dark-500",
                                 cell.column.getIsPinned() === "left"
                                   ? "ltr:border-r rtl:border-l"
                                   : "ltr:border-l rtl:border-r"
                               )}
                             ></div>
                           )}
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
                         </Td>
                       ))}
                     </Tr>
+
+                    {/* Expanded Row */}
                     {row.getIsExpanded() && (
                       <tr>
-                        <td colSpan={row.getVisibleCells().length} className="p-0">
+                        <td
+                          colSpan={row.getVisibleCells().length}
+                          className="p-0"
+                        >
                           <SubRowComponent row={row} cardWidth={cardWidth} />
                         </td>
                       </tr>
@@ -180,14 +237,18 @@ export default function AttendanceStatusDisplayTable({ data }) {
             </Table>
           </div>
 
+          {/* ---------- BULK ACTIONS ---------- */}
           <SelectedRowsActions table={table} />
 
+          {/* ---------- PAGINATION ---------- */}
           {table.getCoreRowModel().rows.length > 0 && (
             <div
               className={clsx(
                 "px-4 pb-4 sm:px-5 sm:pt-4",
-                tableSettings.enableFullScreen && "bg-gray-50 dark:bg-dark-800",
-                !(table.getIsSomeRowsSelected() || table.getIsAllRowsSelected()) && "pt-4"
+                tableSettings.enableFullScreen &&
+                  "bg-primary-50 dark:bg-dark-800",
+                !(table.getIsSomeRowsSelected() ||
+                  table.getIsAllRowsSelected()) && "pt-4"
               )}
             >
               <PaginationSection table={table} />

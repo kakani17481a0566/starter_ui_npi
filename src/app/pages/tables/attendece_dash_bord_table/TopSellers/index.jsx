@@ -5,7 +5,10 @@ import {
   MenuItems,
   Transition,
 } from "@headlessui/react";
-import { EllipsisHorizontalIcon } from "@heroicons/react/20/solid";
+import {
+  EllipsisHorizontalIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import { Fragment, useState } from "react";
 
@@ -36,26 +39,43 @@ export function TopSellers({ data }) {
     );
 
   return (
-    <Card className="col-span-12 pb-2 lg:col-span-12 xl:col-span-12">
-      <div className="flex min-w-0 items-center justify-between px-4 py-3 sm:px-5">
-        <div className="dark:text-dark-100 truncate font-medium tracking-wide text-gray-800">
+    <Card
+      className={clsx(
+        "col-span-12 pb-2 lg:col-span-12 xl:col-span-12 overflow-hidden",
+        "transition-all duration-300 ease-out transform hover:-translate-y-1 hover:shadow-xl"
+      )}
+    >
+      {/* Vibrant Header + Search inline */}
+      <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 rounded-t-xl bg-gradient-to-r from-primary-50/80 to-primary-100/60 dark:from-dark-800 dark:to-dark-700">
+        <div className="truncate font-medium tracking-wide text-primary-700 dark:text-primary-300">
           Student Not Attended Today
         </div>
+
+        {/* Search Field */}
+        <div className="relative w-full sm:w-64">
+          <MagnifyingGlassIcon className="pointer-events-none absolute left-2 top-1.5 h-3.5 w-3.5 text-gray-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search..."
+            className={clsx(
+              "w-full h-7 rounded-md border text-xs pl-7 pr-2",
+              "bg-white dark:bg-dark-700", // ✅ solid background
+              "outline-none shadow-sm",
+              "border-gray-300 focus:border-primary-400 focus:ring-1 focus:ring-primary-400",
+              "placeholder:text-gray-400 dark:placeholder:text-dark-300",
+              "dark:border-dark-500 dark:text-white"
+            )}
+          />
+        </div>
+
         <ActionMenu />
       </div>
 
-      <div className="px-4 pb-2 sm:px-5">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="🔍 Search name..."
-          className="dark:border-dark-500 dark:bg-dark-700 w-full rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs shadow-sm placeholder:text-gray-400 focus:border-orange-400 focus:ring-1 focus:ring-orange-400 dark:text-white"
-        />
-      </div>
-
+      {/* Sellers List */}
       <div
-        className="custom-scrollbar flex space-x-3 overflow-x-auto px-4 pb-3 sm:px-5"
+        className="custom-scrollbar flex space-x-3 overflow-x-auto px-4 pt-2 pb-3 sm:px-5"
         style={{ "--margin-scroll": "1.25rem" }}
       >
         {data === null ? (

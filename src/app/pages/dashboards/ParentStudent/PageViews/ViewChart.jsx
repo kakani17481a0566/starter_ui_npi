@@ -1,17 +1,17 @@
 import { useMemo } from "react";
 import Chart from "react-apexcharts";
 
-// Domain color mapping
+// ✅ Subject color mapping (light fill, dark stroke)
 const domainColorMap = {
-  CLL: "#465C8A",
-  PSRN: "#D2486E",
-  KUW: "#E27257",
-  PD: "#713427",
-  EAD: "#DA973A",
-  PSED: "#475468",
+  CLL: { fill: "#BFDBFE", stroke: "#3B82F6" },  // Blue
+  PSRN: { fill: "#FECACA", stroke: "#EF4444" }, // Red
+  KUW: { fill: "#FDE68A", stroke: "#F59E0B" },  // Amber
+  PD: { fill: "#A7F3D0", stroke: "#10B981" },   // Emerald
+  EAD: { fill: "#DDD6FE", stroke: "#8B5CF6" },  // Violet
+  PSED: { fill: "#FBCFE8", stroke: "#EC4899" }, // Pink
 };
 
-// Helper: Calculate average scores for each subject
+// 🔹 Compute averages
 function getSubjectVsScores(subjectWiseAssessments, studentId) {
   const subjects = [];
   const scores = [];
@@ -37,7 +37,7 @@ function getSubjectVsScores(subjectWiseAssessments, studentId) {
   return { subjects, scores };
 }
 
-// Main component
+// 🔹 Chart Component
 export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubjectSelect }) {
   const { subjects, scores } = useMemo(() => {
     if (!subjectWiseAssessments || !selectedStudentId)
@@ -55,9 +55,9 @@ export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubject
     );
   }
 
-  const barColors = subjects.map(
-    (code) => domainColorMap[code] || "#A5B4FC" // fallback indigo-300
-  );
+  // 🎨 Map fills & strokes
+  const fillColors = subjects.map((code) => domainColorMap[code]?.fill || "#E5E7EB");
+  const strokeColors = subjects.map((code) => domainColorMap[code]?.stroke || "#374151");
 
   const series = [{ name: "Average Score", data: scores }];
 
@@ -66,11 +66,7 @@ export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubject
       type: "bar",
       toolbar: { show: false },
       parentHeightOffset: 0,
-      animations: {
-        enabled: true,
-        easing: "easeinout",
-        speed: 400,
-      },
+      animations: { enabled: true, easing: "easeinout", speed: 400 },
       events: {
         dataPointSelection: (event, chartContext, config) => {
           const subjectCode = subjects[config.dataPointIndex];
@@ -81,16 +77,23 @@ export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubject
     plotOptions: {
       bar: {
         borderRadius: 6,
-        columnWidth: "30%",
+        columnWidth: "40%",
         distributed: true,
       },
     },
-    colors: barColors,
-    dataLabels: { enabled: false },
+    colors: fillColors,
     stroke: {
       show: true,
       width: 2,
-      colors: ["#111827"], // gray-900 for outline
+      colors: strokeColors,
+    },
+    dataLabels: { enabled: false },
+    tooltip: {
+      y: {
+        formatter: (val, { dataPointIndex }) =>
+          `${subjects[dataPointIndex]}: ${val}%`,
+      },
+      style: { fontSize: "12px" },
     },
     xaxis: {
       categories: subjects,
@@ -106,29 +109,29 @@ export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubject
         style: { fontSize: "12px" },
       },
       labels: {
-        style: { fontSize: "12px", colors: "#6B7280" }, // gray-500
+        style: { fontSize: "12px", colors: "#6B7280" },
       },
     },
-    legend: { show: false },
     grid: {
-      padding: { top: 10, bottom: -10, left: 0, right: 0 },
-      borderColor: "#E5E7EB",
+      borderColor: "#F3F4F6", // lighter grid
+      strokeDashArray: 4,
     },
+    legend: { show: false },
     responsive: [
       {
         breakpoint: 1024,
         options: {
-          plotOptions: {
-            bar: { columnWidth: "60%" },
-          },
+          plotOptions: { bar: { columnWidth: "60%" } },
         },
       },
     ],
   };
 
   return (
-    <div className="ax-transparent-gridline col-span-12 px-2 sm:col-span-6 lg:col-span-8">
-      <Chart options={chartOptions} series={series} type="bar" height={280} />
+    <div className="col-span-12 px-2 sm:col-span-6 lg:col-span-8">
+      <div className="rounded-xl bg-white shadow-sm dark:bg-dark-700 p-4">
+        <Chart options={chartOptions} series={series} type="bar" height={280} />
+      </div>
     </div>
   );
 }

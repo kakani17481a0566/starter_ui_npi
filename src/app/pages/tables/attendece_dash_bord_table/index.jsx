@@ -8,7 +8,7 @@ import AttendanceStatusDisplayTable from "./attendecedisplaytable";
 import { fetchAttendanceSummary } from "./attendecedisplaytable/data";
 import { Spinner } from "components/ui";
 
-// Get today's date in yyyy-mm-dd format
+// ✅ Get today's date in yyyy-mm-dd format
 const getToday = () => new Date().toISOString().split("T")[0];
 
 export default function Orders() {
@@ -18,6 +18,9 @@ export default function Orders() {
 
   const didFetch = useRef(false); // ✅ Prevent double-fetch
 
+  // -------------------------
+  // Data Fetching
+  // -------------------------
   useEffect(() => {
     if (didFetch.current) return;
 
@@ -46,32 +49,35 @@ export default function Orders() {
     didFetch.current = false; // ✅ Allow new fetch
   };
 
+  // -------------------------
+  // Render
+  // -------------------------
   return (
     <Page title="Orders Dashboard">
       <div className="transition-content mt-5 px-[--margin-x] pb-8 lg:mt-6">
-        <div className="grid grid-cols-12 gap-4 sm:gap-5 lg:gap-6">
-          {loading ? (
-            <div className="col-span-12 flex justify-center items-center py-20">
-              <Spinner color="primary" className="size-10 border-4" />
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <Spinner color="primary" className="size-10 border-4" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-12 gap-4 sm:gap-5 lg:gap-6">
+            {/* Overview Summary */}
+            <Overview data={summaryData} />
+
+            {/* Calendar */}
+            <div className="col-span-12 sm:col-span-6 lg:col-span-4">
+              <Calendar onChange={handleDateChange} />
             </div>
-          ) : (
-            <>
-              {/* Overview Summary */}
-              <Overview data={summaryData} />
 
-              {/* Calendar */}
-              <div className="col-span-12 sm:col-span-6 lg:col-span-4">
-                <Calendar onChange={handleDateChange} />
-              </div>
+            {/* Not Marked Students */}
+            <TopSellers data={summaryData} />
 
-              {/* Not Marked Students */}
-              <TopSellers data={summaryData} />
-
-              {/* Attendance Table */}
+            {/* Attendance Table */}
+            <div className="col-span-12">
               <AttendanceStatusDisplayTable data={summaryData} />
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
       </div>
     </Page>
   );
