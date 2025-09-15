@@ -11,7 +11,7 @@ export async function fetchStudentPerformance({
 }) {
   try {
     const response = await axios.get(
-      `https://localhost:7202/api/DailyAssessment/performance-summary/student`,
+      `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/DailyAssessment/performance-summary/student`,
       { params: { tenantId, courseId, branchId, weekId, studentId } }
     );
 

@@ -112,6 +112,38 @@ else if(role.toLowerCase()==="admin"){
   ]
 }
 
+
+else if(role.toLowerCase()==="parent"){
+  dynamicChilds=[
+    {
+      id: "dashboards.home",
+      path: path(ROOT_DASHBOARDS, "/week"),
+      type: NAV_TYPE_ITEM,
+      title: "Week Plan",
+      transKey: "nav.dashboards.week",
+      Icon: HomeIcon,
+    },
+
+    {
+      id: "dashboards.Term",
+      path: path(ROOT_DASHBOARDS, "/term"),
+      type: NAV_TYPE_ITEM,
+      title: "Term",
+      transKey: "nav.dashboards.term",
+      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
+    {
+      id: "dashboards.Registration",
+      path: path(ROOT_DASHBOARDS, "/ParentStudent"),
+      type: NAV_TYPE_ITEM,
+      title: "RegistrationForm",
+      transKey: "nav.parent.ParenntDashbord",
+      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
+
+  ]
+}
+
 export const ParentDashboards = {
   id: "parentDashboards",
   type: NAV_TYPE_ROOT,

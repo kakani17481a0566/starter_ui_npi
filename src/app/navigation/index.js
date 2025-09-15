@@ -5,6 +5,8 @@ import {StudentEnquiry} from "./student";
 const TEACHER='teacher';
 const NANNY='nanny';
 const ADMIN='admin';
+const PARENT='parent';
+
 
 const {role}=getSessionData();
 let navigation=[];
@@ -13,6 +15,9 @@ navigation=[dashboards];
 }
 else if(role.toLowerCase() ===TEACHER  || role.toLowerCase() ===ADMIN){
     navigation=[dashboards,ParentDashboards,StudentEnquiry]
+}
+else if( role.toLowerCase() ===PARENT){
+    navigation=[ParentDashboards]
 }
 
 export {navigation}
