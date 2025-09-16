@@ -42,17 +42,22 @@ function formatHeader(header) {
 
 const skipHeaders = [
   "studentId",
-  "parentId",
   "courseId",
   "attendanceId",
+  "parentId",
+  "parentName",
+  "mobileNumber",
+  "alternateNumber",
+  "attendanceDate",
   "fromTime",
   "toTime",
   "markedBy",
   "markedOn",
   "updatedBy",
   "updatedOn",
+  "bloodGroup",
   "imageUrl",
-  "attendanceDate",
+  "gender",
 ];
 
 // 🎨 Map ALL possible column headers → icons

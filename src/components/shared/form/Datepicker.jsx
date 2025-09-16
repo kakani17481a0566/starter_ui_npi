@@ -93,19 +93,31 @@ const DatePicker = forwardRef(
 
     return (
       <Flatpickr
-        className={clsx("cursor-pointer", isCalendar && "hidden", className)}
+        className={clsx(
+          "cursor-pointer text-primary-500 focus:text-primary-500 hover:text-primary-500",
+          isCalendar && "hidden",
+          className
+        )}
         options={options}
         ref={mergedRef}
         {...props}
         render={({ ...props }, ref) => {
           return isCalendar ? (
-            <input ref={ref} readOnly {...props} />
+            <input
+              ref={ref}
+              className="text-primary-500 focus:text-primary-500 hover:text-primary-500"
+              readOnly
+              {...props}
+            />
           ) : (
             <Input
               ref={ref}
+              className="text-primary-500 focus:text-primary-500 hover:text-primary-500"
               prefix={
                 !userOptions?.inline &&
-                hasCalenderIcon && <CalendarIcon className="size-5" />
+                hasCalenderIcon && (
+                  <CalendarIcon className="size-5 text-primary-500" />
+                )
               }
               readOnly
               {...props}

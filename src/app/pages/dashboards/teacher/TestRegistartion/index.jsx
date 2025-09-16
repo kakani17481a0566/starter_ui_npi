@@ -1,8 +1,5 @@
-
-import { useEffect, useMemo, useState, Fragment  } from "react";
-//  import axios from "axios";
- import { useNavigate } from "react-router-dom";
-
+import { useEffect, useMemo, useState, Fragment } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   ChevronDownIcon,
@@ -11,6 +8,7 @@ import {
   BookOpenIcon,
   UserIcon,
   ClipboardDocumentIcon,
+  ClipboardIcon, // ✅ for Exam Type
 } from "@heroicons/react/24/outline";
 
 import {
@@ -22,7 +20,6 @@ import {
 } from "@headlessui/react";
 import clsx from "clsx";
 
-// import { getBranches } from "./branchData";
 import { getCoursesByBranch } from "./courseData";
 import { getStudentsByCourse } from "./StudentData";
 import { getStudentTest } from "./testData";
@@ -30,23 +27,22 @@ import { StudentTestVertical } from "./components/StudentTestVertical/StudentTes
 import { Button } from "components/ui";
 import { getSessionData } from "utils/sessionStorage";
 
+// ✅ Import exam types
+import { examTypes } from "app/pages/dashboards/teacher/TestRegistartion/Exam";
 
 export default function StudentTest() {
-  // const [branches, setBranches] = useState([]);
   const [courses, setCourses] = useState([]);
   const [students, setStudents] = useState([]);
   const [tests, setTests] = useState([]);
-  const {branch}=getSessionData();
+  const { branch } = getSessionData();
   const navigate = useNavigate();
 
-
-  // const [branchId, setBranchId] = useState("");
   const [courseId, setCourseId] = useState("");
   const [studentId, setStudentId] = useState("");
+  const [examType, setExamType] = useState("");
   const [testId, setTestId] = useState("");
 
   const [loading, setLoading] = useState({
-    branches: false,
     courses: false,
     students: false,
     tests: false,
@@ -55,28 +51,9 @@ export default function StudentTest() {
   const [error, setError] = useState("");
 
   const canSubmit = useMemo(
-    () =>  !!courseId && !!studentId && !!testId,
-    [ courseId, studentId, testId]
+    () => !!courseId && !!studentId && !!examType && !!testId,
+    [courseId, studentId, examType, testId],
   );
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      setLoading((s) => ({ ...s, branches: true }));
-      setError("");
-      try {
-        // const data = await getBranches();
-        // if (alive) setBranches(data);
-      } catch {
-        if (alive) setError("Failed to load branches.");
-      } finally {
-        if (alive) setLoading((s) => ({ ...s, branches: false }));
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -84,10 +61,9 @@ export default function StudentTest() {
     setCourseId("");
     setStudents([]);
     setStudentId("");
+    setExamType("");
     setTests([]);
     setTestId("");
-
-    // if (!branchId) return;
 
     (async () => {
       setLoading((s) => ({ ...s, courses: true }));
@@ -111,6 +87,9 @@ export default function StudentTest() {
     let alive = true;
     setStudents([]);
     setStudentId("");
+    setExamType("");
+    setTests([]);
+    setTestId("");
 
     if (!courseId) return;
 
@@ -118,7 +97,7 @@ export default function StudentTest() {
       setLoading((s) => ({ ...s, students: true }));
       setError("");
       try {
-        const data = await getStudentsByCourse( branch,courseId);
+        const data = await getStudentsByCourse(branch, courseId);
         if (alive) setStudents(data);
       } catch {
         if (alive) setError("Failed to load students.");
@@ -137,7 +116,7 @@ export default function StudentTest() {
     setTests([]);
     setTestId("");
 
-    if (!studentId) return;
+    if (!studentId || !examType) return;
 
     (async () => {
       setLoading((s) => ({ ...s, tests: true }));
@@ -155,29 +134,19 @@ export default function StudentTest() {
     return () => {
       alive = false;
     };
-  }, [studentId]);
+  }, [studentId, examType]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
 
-    // const payload = {
-    //   courseId: Number(courseId),
-    //   studentId: Number(studentId),
-    //   testId: Number(testId),
-    // };
-
     try {
-      // const res = await axios.get(`https://localhost:7202/${testId}/${studentId}`);
-      // const { relationId, testId: apiTestId } = res.data;
-
-      // console.log("API response:", res.data);
-
-      // 👉 Navigate to AlphabetTutor, passing IDs
       navigate("/dashboards/ai", {
-        state: { relationId :0,
-          testId: testId,
-          studentId:studentId
+        state: {
+          relationId: 0,
+          testId,
+          studentId,
+          examType,
         },
       });
     } catch (err) {
@@ -190,6 +159,7 @@ export default function StudentTest() {
     Branch: BuildingLibraryIcon,
     Course: BookOpenIcon,
     Student: UserIcon,
+    Exam: ClipboardIcon,
     Test: ClipboardDocumentIcon,
   };
 
@@ -199,7 +169,7 @@ export default function StudentTest() {
     selectedId,
     setSelectedId,
     loadingKey,
-    disabled
+    disabled,
   ) => {
     const Icon = iconMap[label];
     return (
@@ -215,11 +185,12 @@ export default function StudentTest() {
             className={clsx(
               "w-full flex justify-between items-center px-4 py-2 text-sm rounded-md border shadow-sm",
               "border-primary-500 bg-white dark:bg-gray-900 text-black dark:text-white",
-              disabled && "opacity-50 cursor-not-allowed"
+              disabled && "opacity-50 cursor-not-allowed",
             )}
           >
             <span className="truncate">
-              {data.find((item) => item.id === selectedId)?.name || `Select ${label}`}
+              {data.find((item) => item.id === selectedId)?.name ||
+                `Select ${label}`}
             </span>
             <ChevronDownIcon className="w-4 h-4" />
           </MenuButton>
@@ -243,7 +214,7 @@ export default function StudentTest() {
                         "w-full px-4 py-2 text-left flex justify-between items-center",
                         selectedId === item.id
                           ? "bg-primary-500 text-white"
-                          : "bg-white dark:bg-gray-900 text-black dark:text-white"
+                          : "bg-white dark:bg-gray-900 text-black dark:text-white",
                       )}
                     >
                       {item.name}
@@ -258,7 +229,7 @@ export default function StudentTest() {
           </Transition>
         </Menu>
 
-        {loading[loadingKey] && (
+        {loadingKey && loading[loadingKey] && (
           <p className="text-xs text-gray-500 dark:text-gray-400">
             Loading {label.toLowerCase()}…
           </p>
@@ -273,10 +244,10 @@ export default function StudentTest() {
 
       <div className="max-w-3xl mx-auto rounded-lg border-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 shadow-md px-6 py-8 space-y-6">
         <form onSubmit={onSubmit} className="space-y-6">
-          {/* {renderDropdown("Branch", branches, branchId, setBranchId, "branches", false)} */}
-          {renderDropdown("Course", courses, courseId, setCourseId, "courses",false)}
+          {renderDropdown("Course", courses, courseId, setCourseId, "courses", false)}
           {renderDropdown("Student", students, studentId, setStudentId, "students", !courseId)}
-          {renderDropdown("Test", tests, testId, setTestId, "tests", !studentId)}
+          {renderDropdown("Exam", examTypes, examType, setExamType, null, !studentId)}
+          {renderDropdown("Test", tests, testId, setTestId, "tests", !examType)}
 
           {!!error && <p className="text-sm text-red-600">{error}</p>}
 
