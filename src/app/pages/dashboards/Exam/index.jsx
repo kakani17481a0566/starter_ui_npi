@@ -15,7 +15,6 @@ const questions = [
 { label: "Enso", shape: "⭕", count: 5 },
 { label: "Seigaiha", shape: "〰", count: 6 },
 { label: "Black Rectangle", shape: "\u25AC", count: 6 }
-
 ];
 
 // Drop area

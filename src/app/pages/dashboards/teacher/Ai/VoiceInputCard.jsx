@@ -14,7 +14,7 @@ export default function VoiceInputCard({ text, audioFile ,studentId, testContent
     try {
       // 1️⃣ Upload audio for pronunciation analysis
       const response = await axios.post(
-        `https://localhost:7202/api/Audio/upload/${text}`,
+        `https://localhost:7202/${text}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -32,8 +32,8 @@ export default function VoiceInputCard({ text, audioFile ,studentId, testContent
       setResponseAudioURL(audioURL);
 
       // 2️⃣ Decide result for next API
-      const result =
-        misPronouncedWords.length > 0 ? "incorrect" : "correct";
+      // const result =
+      //   misPronouncedWords.length > 0 ? "incorrect" : "correct";
 
       if (misPronouncedWords.length > 0) {
         setTextResult(`❌ Mispronounced or missing: ${misPronouncedWords.join(", ")}`);
@@ -45,11 +45,11 @@ export default function VoiceInputCard({ text, audioFile ,studentId, testContent
 
       // 3️⃣ Send result to `/result` API
       await axios.post("https://localhost:7202/result", {
-        studentId,       // from AlphabetTutor props/state
-        testContentId,   // from AlphabetTutor props/state
-        testId,          // from AlphabetTutor props/state
-        relationId,      // from AlphabetTutor props/state
-        result      
+        studentId:studentId,       // from AlphabetTutor props/state
+        testContentId:testContentId,   // from AlphabetTutor props/state
+        testId:testId,          // from AlphabetTutor props/state
+        relationId:relationId,      // from AlphabetTutor props/state
+        result:response      
       }, {
         headers: { "Content-Type": "application/json" }
       });
