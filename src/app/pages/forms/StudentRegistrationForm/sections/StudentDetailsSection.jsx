@@ -51,8 +51,8 @@ export default function StudentDetailsSection() {
   // 🔹 Load branches on mount
   useEffect(() => {
     fetchBranchOptions().then((data) => {
-      console.log("✅ Branch API Response:", data);
-      setBranches(data.map((b) => ({ value: b.id, label: b.name })));
+      // console.log("✅ Branch API Response:", data);
+      setBranches(data);
     });
   }, []);
 
@@ -63,8 +63,8 @@ export default function StudentDetailsSection() {
 
     if (selectedBranch) {
       fetchCourseOptions().then((data) => {
-        console.log("✅ Course API Response:", data);
-        setCourses(data.map((c) => ({ value: c.id, label: c.name })));
+        // console.log("✅ Course API Response:", data);
+        setCourses(data);
       });
     } else {
       setCourses([]);
@@ -171,7 +171,7 @@ export default function StudentDetailsSection() {
                 {...field}
                 className={compact}
                 label={<LabelWithIcon icon={BuildingLibraryIcon}>Branch</LabelWithIcon>}
-                data={branches} // ✅ Correct prop
+                data={branches}
                 placeholder="Select Branch"
                 error={errors?.branch_id?.message}
               />
