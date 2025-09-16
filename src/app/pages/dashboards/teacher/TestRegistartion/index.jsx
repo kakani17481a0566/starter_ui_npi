@@ -23,17 +23,17 @@ import clsx from "clsx";
 import { getCoursesByBranch } from "./courseData";
 import { getStudentsByCourse } from "./StudentData";
 import { getStudentTest } from "./testData";
+import { getExamTypes } from "./Exam"; // ✅ use helper
 import { StudentTestVertical } from "./components/StudentTestVertical/StudentTestVertical";
 import { Button } from "components/ui";
 import { getSessionData } from "utils/sessionStorage";
-
-// ✅ Import exam types
-import { examTypes } from "app/pages/dashboards/teacher/TestRegistartion/Exam";
 
 export default function StudentTest() {
   const [courses, setCourses] = useState([]);
   const [students, setStudents] = useState([]);
   const [tests, setTests] = useState([]);
+  const [examTypes, setExamTypes] = useState([]);
+
   const { branch } = getSessionData();
   const navigate = useNavigate();
 
@@ -46,6 +46,7 @@ export default function StudentTest() {
     courses: false,
     students: false,
     tests: false,
+    exams: false,
   });
 
   const [error, setError] = useState("");
@@ -55,6 +56,7 @@ export default function StudentTest() {
     [courseId, studentId, examType, testId],
   );
 
+  // 🔹 Fetch Courses
   useEffect(() => {
     let alive = true;
     setCourses([]);
@@ -83,6 +85,7 @@ export default function StudentTest() {
     };
   }, []);
 
+  // 🔹 Fetch Students
   useEffect(() => {
     let alive = true;
     setStudents([]);
@@ -111,6 +114,33 @@ export default function StudentTest() {
     };
   }, [courseId]);
 
+  // 🔹 Fetch Exam Types
+  useEffect(() => {
+    let alive = true;
+    setExamTypes([]);
+    setExamType("");
+
+    (async () => {
+      setLoading((s) => ({ ...s, exams: true }));
+      try {
+        const tenantId = branch?.tenantId || 1;
+        const data = await getExamTypes(tenantId);
+        if (alive) {
+          setExamTypes(data.map((item) => ({ id: item.id, name: item.name })));
+        }
+      } catch {
+        if (alive) setError("Failed to load exam types.");
+      } finally {
+        if (alive) setLoading((s) => ({ ...s, exams: false }));
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [branch]);
+
+  // 🔹 Fetch Tests
   useEffect(() => {
     let alive = true;
     setTests([]);
@@ -146,7 +176,7 @@ export default function StudentTest() {
           relationId: 0,
           testId,
           studentId,
-          examType,
+          examType, // stores the exam type id
         },
       });
     } catch (err) {
@@ -246,7 +276,7 @@ export default function StudentTest() {
         <form onSubmit={onSubmit} className="space-y-6">
           {renderDropdown("Course", courses, courseId, setCourseId, "courses", false)}
           {renderDropdown("Student", students, studentId, setStudentId, "students", !courseId)}
-          {renderDropdown("Exam", examTypes, examType, setExamType, null, !studentId)}
+          {renderDropdown("Exam", examTypes, examType, setExamType, "exams", !studentId)}
           {renderDropdown("Test", tests, testId, setTestId, "tests", !examType)}
 
           {!!error && <p className="text-sm text-red-600">{error}</p>}
