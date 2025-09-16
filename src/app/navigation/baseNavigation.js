@@ -2,6 +2,7 @@ import { NAV_TYPE_ITEM } from "constants/app.constant";
 import {
   UsersIcon,
   ClipboardDocumentListIcon,
+  BuildingOfficeIcon,
 } from "@heroicons/react/24/outline";
 import DashboardsIcon from "assets/dualicons/dashboards.svg?react";
 
@@ -30,4 +31,14 @@ export const baseNavigation = [
     transKey: "nav.student.student",
     Icon: ClipboardDocumentListIcon, // semantic for enquiry/form
   },
+    {
+    id: "FrontDesk",
+    type: NAV_TYPE_ITEM,
+    path: "/student",
+    title: "Front Desk",
+    transKey: "nav.FrontDesk.FrontDesk",
+    Icon: BuildingOfficeIcon, // semantic for enquiry/form
+  },
+
+
 ];

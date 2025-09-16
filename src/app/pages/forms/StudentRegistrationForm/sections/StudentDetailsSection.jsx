@@ -1,8 +1,8 @@
 // src/app/pages/forms/StudentRegistrationForm/sections/StudentDetailsSection.jsx
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFormContext, Controller } from "react-hook-form";
-import { Input, Radio } from "components/ui";
+import { Input, Radio, Select } from "components/ui";
 import {
   AcademicCapIcon,
   UserGroupIcon,
@@ -10,23 +10,29 @@ import {
   CalendarDaysIcon,
   InboxIcon,
   PhoneIcon,
+  BuildingLibraryIcon,
+  BookOpenIcon,
 } from "@heroicons/react/24/outline";
 import { DatePicker } from "components/shared/form/Datepicker";
 import LabelWithIcon from "../components/LabelWithIcon";
 import SectionCard from "../components/SectionCard";
 import clsx from "clsx";
+import { fetchBranchOptions, fetchCourseOptions } from "../dropdown";
 
 export default function StudentDetailsSection() {
   const {
-    register,
     control,
+    register,
     watch,
     setValue,
     getValues,
     formState: { errors },
   } = useFormContext();
 
-  // 🔹 Ensure defaults for radio fields (set to "no" if not provided)
+  const [branches, setBranches] = useState([]);
+  const [courses, setCourses] = useState([]);
+
+  // 🔹 Ensure defaults for radio fields
   useEffect(() => {
     [
       "attending_preschool",
@@ -42,6 +48,30 @@ export default function StudentDetailsSection() {
     });
   }, [getValues, setValue]);
 
+  // 🔹 Load branches on mount
+  useEffect(() => {
+    fetchBranchOptions().then((data) => {
+      console.log("✅ Branch API Response:", data);
+      setBranches(data.map((b) => ({ value: b.id, label: b.name })));
+    });
+  }, []);
+
+  // 🔹 Load courses when branch changes
+  const selectedBranch = watch("branch_id");
+  useEffect(() => {
+    console.log("🔍 Selected Branch:", selectedBranch);
+
+    if (selectedBranch) {
+      fetchCourseOptions().then((data) => {
+        console.log("✅ Course API Response:", data);
+        setCourses(data.map((c) => ({ value: c.id, label: c.name })));
+      });
+    } else {
+      setCourses([]);
+      console.log("⚠️ No branch selected, clearing courses");
+    }
+  }, [selectedBranch]);
+
   // 🔹 Watches for dependent conditional fields
   const attendingPreschool = watch("attending_preschool");
   const previousKG = watch("previously_registered_kg");
@@ -50,7 +80,7 @@ export default function StudentDetailsSection() {
   const extraEntryYesNo = watch("extra_entry_yesno");
 
   const isOn = (v) => v === "yes";
-  const compact = "h-8 py-1 text-xs";
+  const compact = "h-9 py-2 text-sm";
 
   return (
     <SectionCard
@@ -58,9 +88,9 @@ export default function StudentDetailsSection() {
       icon={UserGroupIcon}
       variant="outlined"
       elevation={1}
-      padding="md"
+      padding="lg"
     >
-      <div className="grid grid-cols-12 gap-4">
+      <div className="grid grid-cols-12 gap-6">
         {/* ---------- Extra Entry ---------- */}
         <div className="col-span-12 md:col-span-6">
           <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-100">
@@ -131,6 +161,42 @@ export default function StudentDetailsSection() {
           />
         </div>
 
+        {/* ---------- Branch ---------- */}
+        <div className="col-span-12 md:col-span-6">
+          <Controller
+            name="branch_id"
+            control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                className={compact}
+                label={<LabelWithIcon icon={BuildingLibraryIcon}>Branch</LabelWithIcon>}
+                data={branches} // ✅ Correct prop
+                placeholder="Select Branch"
+                error={errors?.branch_id?.message}
+              />
+            )}
+          />
+        </div>
+
+        {/* ---------- Course ---------- */}
+        <div className="col-span-12 md:col-span-6">
+          <Controller
+            name="course_id"
+            control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                className={compact}
+                label={<LabelWithIcon icon={BookOpenIcon}>Course</LabelWithIcon>}
+                data={courses} // ✅ FIXED (was options)
+                placeholder="Select Course"
+                error={errors?.course_id?.message}
+              />
+            )}
+          />
+        </div>
+
         {/* ---------- Student Name ---------- */}
         <div className="col-span-12 md:col-span-4">
           <Input
@@ -140,7 +206,6 @@ export default function StudentDetailsSection() {
             error={errors?.student_first_name?.message}
           />
         </div>
-
         <div className="col-span-12 md:col-span-4">
           <Input
             className={compact}
@@ -149,7 +214,6 @@ export default function StudentDetailsSection() {
             error={errors?.student_middle_name?.message}
           />
         </div>
-
         <div className="col-span-12 md:col-span-4">
           <Input
             className={compact}
@@ -224,7 +288,6 @@ export default function StudentDetailsSection() {
             <Radio label="Yes" value="yes" {...register("attending_preschool")} />
             <Radio label="No" value="no" {...register("attending_preschool")} />
           </div>
-
           <fieldset
             disabled={!isOn(attendingPreschool)}
             className={clsx(
@@ -250,7 +313,6 @@ export default function StudentDetailsSection() {
             <Radio label="Yes" value="yes" {...register("previously_registered_kg")} />
             <Radio label="No" value="no" {...register("previously_registered_kg")} />
           </div>
-
           <fieldset
             disabled={!isOn(previousKG)}
             className={clsx("mt-3", !isOn(previousKG) && "pointer-events-none opacity-60")}
@@ -273,7 +335,6 @@ export default function StudentDetailsSection() {
             <Radio label="Yes" value="yes" {...register("siblings_in_this_school")} />
             <Radio label="No" value="no" {...register("siblings_in_this_school")} />
           </div>
-
           <fieldset
             disabled={!isOn(hasSiblingsHere)}
             className={clsx("mt-3", !isOn(hasSiblingsHere) && "pointer-events-none opacity-60")}
@@ -296,7 +357,6 @@ export default function StudentDetailsSection() {
             <Radio label="Yes" value="yes" {...register("siblings_in_other_schools")} />
             <Radio label="No" value="no" {...register("siblings_in_other_schools")} />
           </div>
-
           <fieldset
             disabled={!isOn(hasSiblingsOther)}
             className={clsx("mt-3", !isOn(hasSiblingsOther) && "pointer-events-none opacity-60")}

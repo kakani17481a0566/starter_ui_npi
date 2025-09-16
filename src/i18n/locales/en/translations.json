@@ -23,6 +23,12 @@
     "admissionForm":"Admission Form",
     "StudentRegistrationForm":"Student Registration Form"
   },
+   "FrontDesk":{
+    "FrontDesk":"FrontDesk",
+    "frontdeskmain":"Front Desk Main"
+
+  },
+
     "settings": {
       "settings": "Settings",
       "general": "General",
