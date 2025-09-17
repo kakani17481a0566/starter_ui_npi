@@ -11,29 +11,29 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { Button,} from "components/ui";
 import { randomId } from "utils/randomId";
 
-import StudentsTable from "./StudentsTable";
-import TeacherTable from "./TeacherTable";
-
+// import StudentsTable from "./StudentsTable";
+import { Exchange } from "./Exchange";
+import { SendFlow } from "./SendFlow";
 // ----------------------------------------------------------------------
 
 const tabs = [
   {
     id: randomId(),
-    title: "Students",
+    title: "Exchange",
     icon: AcademicCapIcon,
     content: (
       <div>
-        <StudentsTable />
+        <Exchange />
       </div>
     ),
   },
   {
     id: randomId(),
-    title: "Teachers",
+    title: "Transctions",
     icon: UserGroupIcon,
     content: (
       <div>
-        <TeacherTable />
+        <SendFlow />
       </div>
     ),
   },
@@ -41,7 +41,7 @@ const tabs = [
 
 ];
 
-const StudentTeacherAttendenceTracking = () => {
+const MoneyControl = () => {
   return (
     <div className="w-full"> {/* ✅ Full width */}
       <TabGroup>
@@ -80,4 +80,4 @@ const StudentTeacherAttendenceTracking = () => {
   );
 };
 
-export { StudentTeacherAttendenceTracking };
+export { MoneyControl };

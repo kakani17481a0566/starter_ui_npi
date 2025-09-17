@@ -7,6 +7,7 @@ import {
   Transition,
 } from "@headlessui/react";
 import {
+  ArrowUpRightIcon,
   EllipsisHorizontalIcon,
   EyeIcon,
   PencilIcon,
@@ -19,16 +20,18 @@ import PropTypes from "prop-types";
 // Local Imports
 import { ConfirmModal } from "components/shared/ConfirmModal";
 import { Button } from "components/ui";
+import { OrdersDrawer } from "./OrdersDrawer";
+import { useDisclosure } from "hooks";
 
 // ----------------------------------------------------------------------
 
 const confirmMessages = {
   pending: {
     description:
-      "Are you sure you want to delete this product? Once deleted, it cannot be restored.",
+      "Are you sure you want to delete this order? Once deleted, it cannot be restored.",
   },
   success: {
-    title: "Product Deleted",
+    title: "Order Deleted",
   },
 };
 
@@ -37,6 +40,9 @@ export function RowActions({ row, table }) {
   const [confirmDeleteLoading, setConfirmDeleteLoading] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
+
+  const [isDrawerOpen, { close: closeDrawer, open: openDrawer }] =
+    useDisclosure(false);
 
   const closeModal = () => {
     setDeleteModalOpen(false);
@@ -62,14 +68,17 @@ export function RowActions({ row, table }) {
 
   return (
     <>
-      <div className="flex justify-center">
+      <div className="flex justify-center space-x-1.5 ">
+        <Button
+          isIcon
+          className="size-8 rounded-full"
+          onClick={() => openDrawer()}
+        >
+          <ArrowUpRightIcon className="size-4" />
+        </Button>
+
         <Menu as="div" className="relative inline-block text-left">
-          <MenuButton
-            as={Button}
-            variant="flat"
-            isIcon
-            className="size-7 rounded-full"
-          >
+          <MenuButton as={Button} isIcon className="size-8 rounded-full">
             <EllipsisHorizontalIcon className="size-4.5" />
           </MenuButton>
           <Transition
@@ -81,7 +90,10 @@ export function RowActions({ row, table }) {
             leaveFrom="opacity-100 translate-y-0"
             leaveTo="opacity-0 translate-y-2"
           >
-            <MenuItems className="absolute z-100 mt-1.5 min-w-[10rem] rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-hidden focus-visible:outline-hidden dark:border-dark-500 dark:bg-dark-750 dark:shadow-none ltr:right-0 rtl:left-0">
+            <MenuItems
+              anchor={{ to: "bottom end", gap: 12 }}
+              className="absolute z-100 w-[10rem] rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-hidden focus-visible:outline-hidden dark:border-dark-500 dark:bg-dark-750 dark:shadow-none ltr:right-0 rtl:left-0"
+            >
               <MenuItem>
                 {({ focus }) => (
                   <button
@@ -137,11 +149,13 @@ export function RowActions({ row, table }) {
         confirmLoading={confirmDeleteLoading}
         state={state}
       />
+
+      <OrdersDrawer row={row} close={closeDrawer} isOpen={isDrawerOpen} />
     </>
   );
 }
 
 RowActions.propTypes = {
-  table: PropTypes.object,
   row: PropTypes.object,
+  table: PropTypes.object,
 };
