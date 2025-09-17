@@ -41,7 +41,7 @@
     const [courseId, setCourseId] = useState("");
     const [studentId, setStudentId] = useState("");
     const [examType, setExamType] = useState(null);
-    const [testId, setTestId] = useState("");
+    const [testId, setTestId] = useState(null);
 
     const [loading, setLoading] = useState({
       courses: false,
@@ -173,7 +173,7 @@
   console.log(examType)
 
   // Find selected test by ID
-  const selectedTest = tests.find((t) => t.id === testId);
+const selectedTest = tests.find((t) => t.id === Number(testId));
 
   if (!selectedTest) {
     alert("Please select a valid test");
@@ -197,7 +197,7 @@
       navigate("/parent/Exam", {
         state: {
           relationId: selectedTest.relationId || 0,
-          testId: selectedTest.id,
+          testId:selectedTest.id,
           studentId,
           examType,
         },
