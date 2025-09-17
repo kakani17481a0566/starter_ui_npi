@@ -50,7 +50,7 @@ export default function WaiverOfLiabilityForm({ schoolName = "My School ITALY" }
   const handleGuardianCapture = () => {
     if (!guardianSigRef.current) return;
     if (guardianSigRef.current.isEmpty()) return setValue("waiver.signature_data", "");
-    const dataUrl = guardianSigRef.current.getTrimmedCanvas().toDataURL("image/png");
+    const dataUrl = guardianSigRef.current.toDataURL("image/png");
     setValue("waiver.signature_data", dataUrl, { shouldValidate: true });
   };
 
