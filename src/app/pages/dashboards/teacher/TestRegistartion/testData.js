@@ -2,9 +2,11 @@ import axios from "axios";
 
 
 
-export async function getStudentTest() {
+export async function getStudentTest(examTypeId) {
   // if (!courseId) return [];
-  const { data } = await axios.get(`https://localhost:7202/api/Test`);
+  // console.log(examTypeId);
+  const { data } = await axios.get(`https://localhost:7202/api/Test`,{
+    params:{masterId:examTypeId}});
   const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
   return list.map(s => ({
     id: s.id ?? s.Id ?? s.id,

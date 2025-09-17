@@ -48,14 +48,14 @@ else if(role ==='TEACHER'){
       transKey: "nav.dashboards.term",
       Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
     },
-    //  {
-    //   id: "dashboards.AI",
-    //   path: path(ROOT_DASHBOARDS, "/test"),
-    //   type: NAV_TYPE_ITEM,
-    //   title: "Ai",
-    //   transKey: "nav.parent.ai",
-    //   Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
-    // },
+     {
+      id: "dashboards.AI",
+      path: path(ROOT_DASHBOARDS, "/test"),
+      type: NAV_TYPE_ITEM,
+      title: "Ai",
+      transKey: "nav.parent.ai",
+      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
     {
       id: "dashboards.mark-attendance",
       path: "dashboards/mark-attendance",
