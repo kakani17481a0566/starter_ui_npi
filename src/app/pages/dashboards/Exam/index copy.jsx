@@ -102,7 +102,7 @@ export default function Exam() {
       <DndContext onDragEnd={handleDragEnd}>
         <div className="w-full px-4 py-6 bg-white rounded-xl shadow-sm border">
           <h2 className="text-xl font-semibold text-center text-primary-700 mb-6">
-            Match the Shape Name & Count
+            Match the Shape  & Count
           </h2>
 
           {/* Shape Rows */}

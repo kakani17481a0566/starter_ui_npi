@@ -1,185 +1,229 @@
+// src/app/pages/dashboards/Exam/ExamMCQ.jsx
 import { Page } from "components/shared/Page";
-import { useMemo, useState } from "react";
-import { DndContext, useDroppable, useDraggable } from "@dnd-kit/core";
-import { HashtagIcon, TagIcon } from "@heroicons/react/24/outline";
+import { useEffect, useState } from "react";
+import { CheckCircleIcon, XCircleIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { questions } from "./ExamVales";
+import { DividerWithText } from "./DividerWithText"; // ✅ import divider
 
-// Shape questions
-const questions = [
-  { label: "Circle", shape: "\u26AB", count: 8 },
-  { label: "Star", shape: "\u2B50", count: 1 },
-  { label: "Heart", shape: "\u2764", count: 9 },
-  { label: "Triangle", shape: "\u25B2", count: 1 },
-  { label: "Square", shape: "\u25A0", count: 2 },
-  { label: "Shindenfu", shape: "\u262F", count: 9 },
-  { label: "Kamon", shape: "✦", count: 7 },
-{ label: "Enso", shape: "⭕", count: 5 },
-{ label: "Seigaiha", shape: "〰", count: 6 },
-{ label: "Black Rectangle", shape: "\u25AC", count: 6 }
-];
+// Utils
+const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
+const pickDistractors = (all, correct, n = 2) => {
+  const pool = all.filter((v) => v !== correct);
+  const picked = shuffle(pool).slice(0, n);
+  const withCorrect = [correct, ...picked];
+  // Ensure unique & then shuffle for final display
+  return shuffle([...new Set(withCorrect)]);
+};
 
-// Drop area
-function DroppableBox({ id, children, label, Icon }) {
-  const { setNodeRef, isOver } = useDroppable({ id });
-  return (
-    <div className="w-full text-center">
-      <div className="flex items-center justify-center text-xs font-semibold text-primary-600 mb-1 uppercase tracking-wide gap-1">
-        {Icon && <Icon className="w-4 h-4" />}
-        {label}
-      </div>
-      <div
-        ref={setNodeRef}
-        className={`transition-all border-2 border-dashed rounded min-h-[36px] font-semibold flex items-center justify-center p-1 text-sm ${
-          isOver ? "bg-primary-50 border-primary-500 scale-[1.02]" : "bg-white"
-        }`}
-      >
-        {children || <span className="text-gray-300">⬇ Drop Here</span>}
-      </div>
-    </div>
-  );
-}
+export default function ExamMCQ() {
+  // answers: { [idx]: { label: "Circle", count: 13 } }
+  const [answers, setAnswers] = useState({});
+  // options: { [idx]: { labelOptions: [...], countOptions: [...] } }
+  const [options, setOptions] = useState({});
+  const [showResults, setShowResults] = useState(false);
 
-// Drag item
-function DraggableItem({ id, content }) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
-  const style = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-      : undefined,
-    zIndex: 999,
-  };
-  return (
-    <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      style={style}
-      className="inline-block border rounded-md px-3 py-1.5 text-sm bg-primary-500 text-white font-medium cursor-grab m-1 shadow-sm hover:bg-primary-600"
-    >
-      {content}
-    </div>
-  );
-}
+  // Build stable options once
+  useEffect(() => {
+    const opts = {};
+    const allLabels = questions.map((q) => q.label);
+    const allCounts = [...new Set(questions.map((q) => q.count))];
 
-// Main Component
-export default function Exam() {
-  const [labelTargets, setLabelTargets] = useState({});
-  const [numberTargets, setNumberTargets] = useState({});
-  const [validationResults, setValidationResults] = useState({});
-
-  const shuffledLabels = useMemo(() => {
-    return [...questions].map((q) => q.label).sort(() => Math.random() - 0.5);
-  }, []);
-
-  const shuffledNumbers = useMemo(() => {
-    return [...questions].map((q) => q.count).sort(() => Math.random() - 0.5);
-  }, []);
-
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-    if (!over) return;
-
-    if (over.id.startsWith("label-box-")) {
-      setLabelTargets((prev) => ({ ...prev, [over.id]: active.id }));
-    }
-    if (over.id.startsWith("number-box-")) {
-      setNumberTargets((prev) => ({ ...prev, [over.id]: active.id }));
-    }
-  };
-
-  const validateAnswers = () => {
-    const results = {};
     questions.forEach((q, idx) => {
-      const labelBoxId = `label-box-${idx}`;
-      const numberBoxId = `number-box-${idx}`;
-      const droppedLabel = labelTargets[labelBoxId]?.replace("label-", "");
-      const droppedNumber = parseInt(
-        numberTargets[numberBoxId]?.replace("number-", "")
-      );
-      results[idx] =
-        droppedLabel === q.label && droppedNumber === q.count ? "correct" : "wrong";
+      const labelOptions = pickDistractors(allLabels, q.label, 2);
+
+      // Prefer real counts as distractors; if not enough, add neighbors
+      const distractorCounts = allCounts.filter((c) => c !== q.count);
+      let countOptions =
+        distractorCounts.length >= 2
+          ? [q.count, ...shuffle(distractorCounts).slice(0, 2)]
+          : [q.count, ...[q.count + 1, q.count - 1].filter((n) => n > 0)].slice(0, 3);
+
+      countOptions = shuffle([...new Set(countOptions)]);
+      opts[idx] = { labelOptions, countOptions };
     });
-    setValidationResults(results);
+
+    setOptions(opts);
+  }, []);
+
+  const setAnswer = (idx, type, value) => {
+    if (showResults) return;
+    setAnswers((prev) => {
+      const next = { ...prev, [idx]: { ...(prev[idx] || {}), [type]: value } };
+      return next;
+    });
+  };
+
+  // All answered?
+  const allAnswered = questions.every((_, idx) => {
+    const a = answers[idx];
+    return a?.label && (a.count ?? a.count === 0);
+  });
+
+  // Results after check
+  const results = {};
+  if (showResults) {
+    questions.forEach((q, idx) => {
+      const user = answers[idx] || {};
+      results[idx] = {
+        labelCorrect: user.label === q.label,
+        countCorrect: user.count === q.count,
+      };
+    });
+  }
+
+  const correctCount = Object.values(results).filter(
+    (r) => r.labelCorrect && r.countCorrect
+  ).length;
+
+  const resetQuiz = () => {
+    setAnswers({});
+    setShowResults(false);
+    // keep same options for fairness; if you want new random options, also re-run setOptions here
   };
 
   return (
-    <Page title="Shape Match Showdown">
-      <DndContext onDragEnd={handleDragEnd}>
-        <div className="w-full px-4 py-6 bg-white rounded-xl shadow-sm border">
-          <h2 className="text-xl font-semibold text-center text-primary-700 mb-6">
-            Match the Shape Name & Count
+    <Page title="Shape Match MCQ">
+      <div className="w-full px-4 py-6 bg-white rounded-xl shadow-md border">
+        {/* Header with right-aligned actions */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-primary-700">
+            Choose the correct Shape Name & Count
           </h2>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowResults(true)}
+              disabled={!allAnswered}
+              className={`flex items-center gap-1 px-4 py-2 rounded-md text-sm font-semibold shadow
+                ${
+                  allAnswered
+                    ? "bg-primary-600 text-white hover:bg-primary-700"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+            >
+              <CheckCircleIcon className="w-4 h-4" />
+              Check Answers
+            </button>
+            {showResults && (
+              <button
+                onClick={resetQuiz}
+                className="flex items-center gap-1 px-4 py-2 rounded-md text-sm font-semibold bg-gray-200 hover:bg-gray-300 text-gray-700 shadow"
+              >
+                <ArrowPathIcon className="w-4 h-4" />
+                Reset
+              </button>
+            )}
+          </div>
+        </div>
 
-          {/* Shape Rows */}
-          <div className="flex flex-wrap gap-4 justify-center mb-10">
-            {questions.map((q, idx) => (
+        {/* Score */}
+        {showResults && (
+          <p className="text-center text-sm mb-6">
+            Score:{" "}
+            <span
+              className={`font-semibold ${
+                correctCount > questions.length / 2 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {correctCount} / {questions.length}
+            </span>
+          </p>
+        )}
+
+        {/* Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {questions.map((q, idx) => {
+            const labelOptions = options[idx]?.labelOptions || [];
+            const countOptions = options[idx]?.countOptions || [];
+
+            const labelSelected = answers[idx]?.label;
+            const countSelected = answers[idx]?.count;
+
+            const labelCorrect = results[idx]?.labelCorrect;
+            const countCorrect = results[idx]?.countCorrect;
+
+            return (
               <div
                 key={idx}
-                className="flex flex-col md:flex-row items-center border rounded-lg p-3 gap-4 w-full md:w-[48%] lg:w-[32%] bg-gray-50 shadow-sm"
+                className="rounded-lg p-3 w-full bg-gray-50 border border-gray-200 shadow-sm"
               >
                 {/* Shape display */}
-                <div className="w-full text-center">
-                  <div className="grid grid-cols-5 gap-1 text-xl text-primary-800 justify-center">
+                <div className="w-full text-center mb-2">
+                  <div className="grid grid-cols-5 gap-[2px] text-base md:text-lg text-primary-800 justify-center">
                     {Array.from({ length: q.count }).map((_, i) => (
                       <span key={i}>{q.shape}</span>
                     ))}
                   </div>
                 </div>
 
-                {/* Drop targets */}
-                <div className="flex flex-col gap-2 w-full">
-                  <DroppableBox id={`label-box-${idx}`} label="Shape Name" Icon={TagIcon}>
-                    {labelTargets[`label-box-${idx}`]}
-                  </DroppableBox>
-                  <DroppableBox
-                    id={`number-box-${idx}`}
-                    label="Shape Count"
-                    Icon={HashtagIcon}
-                  >
-                    {numberTargets[`number-box-${idx}`]}
-                  </DroppableBox>
+                {/* Q1: Shape Name */}
+                <p className="text-[12px] font-semibold mb-1 text-gray-700">What shape is this?</p>
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {labelOptions.map((opt) => {
+                    const selected = labelSelected === opt;
+                    const showWrong = showResults && selected && !labelCorrect;
+                    const showRight = showResults && q.label === opt; // highlight the correct option
+                    return (
+                      <button
+                        key={opt}
+                        onClick={() => setAnswer(idx, "label", opt)}
+                        disabled={showResults}
+                        aria-pressed={selected}
+                        className={`px-2 py-1.5 rounded-md border text-xs font-medium transition
+                          ${selected ? "bg-primary-100 border-primary-400" : "bg-white hover:bg-gray-100"}
+                          ${showWrong ? "bg-red-100 text-red-700 border-red-400" : ""}
+                          ${showRight ? "bg-green-100 text-green-700 border-green-400" : ""}
+                        `}
+                      >
+                        {opt}
+                        {showResults && selected && labelCorrect && (
+                          <CheckCircleIcon className="w-3.5 h-3.5 inline ml-1" />
+                        )}
+                        {showResults && selected && !labelCorrect && (
+                          <XCircleIcon className="w-3.5 h-3.5 inline ml-1" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
 
-                  {validationResults[idx] === "correct" && (
-                    <p className="text-green-600 text-xs font-semibold mt-1">✅ Correct!</p>
-                  )}
-                  {validationResults[idx] === "wrong" && (
-                    <p className="text-red-500 text-xs font-semibold mt-1">❌ Incorrect</p>
-                  )}
+                {/* Divider between shape & count */}
+                <DividerWithText text="AND" /> {/* ✅ Added divider */}
+
+                {/* Q2: Count */}
+                <p className="text-[12px] font-semibold mb-1 text-gray-700 mt-2">How many are there?</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {countOptions.map((opt) => {
+                    const selected = countSelected === opt;
+                    const showWrong = showResults && selected && !countCorrect;
+                    const showRight = showResults && q.count === opt;
+                    return (
+                      <button
+                        key={opt}
+                        onClick={() => setAnswer(idx, "count", opt)}
+                        disabled={showResults}
+                        aria-pressed={selected}
+                        className={`px-2 py-1.5 rounded-md border text-xs font-medium transition
+                          ${selected ? "bg-primary-100 border-primary-400" : "bg-white hover:bg-gray-100"}
+                          ${showWrong ? "bg-red-100 text-red-700 border-red-400" : ""}
+                          ${showRight ? "bg-green-100 text-green-700 border-green-400" : ""}
+                        `}
+                      >
+                        {opt}
+                        {showResults && selected && countCorrect && (
+                          <CheckCircleIcon className="w-3.5 h-3.5 inline ml-1" />
+                        )}
+                        {showResults && selected && !countCorrect && (
+                          <XCircleIcon className="w-3.5 h-3.5 inline ml-1" />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Drag Items - Labels */}
-          <h3 className="text-sm font-medium mb-1 text-center text-primary-700">
-            Drag Shape Names
-          </h3>
-          <div className="flex flex-wrap justify-center mb-6">
-            {shuffledLabels.map((label, idx) => (
-              <DraggableItem key={idx} id={`label-${label}`} content={label} />
-            ))}
-          </div>
-
-          {/* Drag Items - Numbers */}
-          <h3 className="text-sm font-medium mb-1 text-center text-primary-700">
-            Drag Shape Counts
-          </h3>
-          <div className="flex flex-wrap justify-center mb-8">
-            {shuffledNumbers.map((num, idx) => (
-              <DraggableItem key={idx} id={`number-${num}`} content={num} />
-            ))}
-          </div>
-
-          {/* Action Button */}
-          <div className="text-center">
-            <button
-              onClick={validateAnswers}
-              className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-1.5 px-5 rounded shadow-md text-sm"
-            >
-              Check Answers
-            </button>
-          </div>
+            );
+          })}
         </div>
-      </DndContext>
+      </div>
     </Page>
   );
 }
