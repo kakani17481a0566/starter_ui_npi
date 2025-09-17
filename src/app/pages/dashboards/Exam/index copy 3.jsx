@@ -2,10 +2,8 @@
 import { Page } from "components/shared/Page";
 import { useEffect, useState } from "react";
 import { CheckCircleIcon, XCircleIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
-import { fetchQuestions } from "./ExamVales"; // ✅ now using API fetch
-import { DividerWithText } from "./DividerWithText";
-import { useLocation } from "react-router-dom"; // ✅ import divider
-
+import { questions } from "./ExamVales";
+import { DividerWithText } from "./DividerWithText"; // ✅ import divider
 
 // Utils
 const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
@@ -18,46 +16,33 @@ const pickDistractors = (all, correct, n = 2) => {
 };
 
 export default function ExamMCQ() {
-  const [questions, setQuestions] = useState([]);
-      const location = useLocation();
-
-
-  const { testId } = location.state || {};
-  console.log("this is testId for exam ",testId);
-// ✅ dynamic
+  // answers: { [idx]: { label: "Circle", count: 13 } }
   const [answers, setAnswers] = useState({});
+  // options: { [idx]: { labelOptions: [...], countOptions: [...] } }
   const [options, setOptions] = useState({});
   const [showResults, setShowResults] = useState(false);
 
-  // Load questions from API
+  // Build stable options once
   useEffect(() => {
-    const loadQuestions = async () => {
-      const data = await fetchQuestions(testId); // pass testId (hardcoded 3 for now)
-      setQuestions(data);
+    const opts = {};
+    const allLabels = questions.map((q) => q.label);
+    const allCounts = [...new Set(questions.map((q) => q.count))];
 
-      // Build options once after loading
-      const opts = {};
-      const allLabels = data.map((q) => q.label);
-      const allCounts = [...new Set(data.map((q) => q.count))];
+    questions.forEach((q, idx) => {
+      const labelOptions = pickDistractors(allLabels, q.label, 2);
 
-      data.forEach((q, idx) => {
-        const labelOptions = pickDistractors(allLabels, q.label, 2);
+      // Prefer real counts as distractors; if not enough, add neighbors
+      const distractorCounts = allCounts.filter((c) => c !== q.count);
+      let countOptions =
+        distractorCounts.length >= 2
+          ? [q.count, ...shuffle(distractorCounts).slice(0, 2)]
+          : [q.count, ...[q.count + 1, q.count - 1].filter((n) => n > 0)].slice(0, 3);
 
-        // Prefer real counts as distractors; if not enough, add neighbors
-        const distractorCounts = allCounts.filter((c) => c !== q.count);
-        let countOptions =
-          distractorCounts.length >= 2
-            ? [q.count, ...shuffle(distractorCounts).slice(0, 2)]
-            : [q.count, ...[q.count + 1, q.count - 1].filter((n) => n > 0)].slice(0, 3);
+      countOptions = shuffle([...new Set(countOptions)]);
+      opts[idx] = { labelOptions, countOptions };
+    });
 
-        countOptions = shuffle([...new Set(countOptions)]);
-        opts[idx] = { labelOptions, countOptions };
-      });
-
-      setOptions(opts);
-    };
-
-    loadQuestions();
+    setOptions(opts);
   }, []);
 
   const setAnswer = (idx, type, value) => {
@@ -69,12 +54,10 @@ export default function ExamMCQ() {
   };
 
   // All answered?
-  const allAnswered =
-    questions.length > 0 &&
-    questions.every((_, idx) => {
-      const a = answers[idx];
-      return a?.label && (a.count ?? a.count === 0);
-    });
+  const allAnswered = questions.every((_, idx) => {
+    const a = answers[idx];
+    return a?.label && (a.count ?? a.count === 0);
+  });
 
   // Results after check
   const results = {};
@@ -95,6 +78,7 @@ export default function ExamMCQ() {
   const resetQuiz = () => {
     setAnswers({});
     setShowResults(false);
+    // keep same options for fairness; if you want new random options, also re-run setOptions here
   };
 
   return (
@@ -137,9 +121,7 @@ export default function ExamMCQ() {
             Score:{" "}
             <span
               className={`font-semibold ${
-                correctCount > questions.length / 2
-                  ? "text-green-600"
-                  : "text-red-600"
+                correctCount > questions.length / 2 ? "text-green-600" : "text-red-600"
               }`}
             >
               {correctCount} / {questions.length}
@@ -161,7 +143,7 @@ export default function ExamMCQ() {
 
             return (
               <div
-                key={q.id}
+                key={idx}
                 className="rounded-lg p-3 w-full bg-gray-50 border border-gray-200 shadow-sm"
               >
                 {/* Shape display */}
@@ -174,14 +156,12 @@ export default function ExamMCQ() {
                 </div>
 
                 {/* Q1: Shape Name */}
-                <p className="text-[12px] font-semibold mb-1 text-gray-700">
-                  What shape is this?
-                </p>
+                <p className="text-[12px] font-semibold mb-1 text-gray-700">What shape is this?</p>
                 <div className="grid grid-cols-3 gap-2 mb-3">
                   {labelOptions.map((opt) => {
                     const selected = labelSelected === opt;
                     const showWrong = showResults && selected && !labelCorrect;
-                    const showRight = showResults && q.label === opt;
+                    const showRight = showResults && q.label === opt; // highlight the correct option
                     return (
                       <button
                         key={opt}
@@ -189,11 +169,7 @@ export default function ExamMCQ() {
                         disabled={showResults}
                         aria-pressed={selected}
                         className={`px-2 py-1.5 rounded-md border text-xs font-medium transition
-                          ${
-                            selected
-                              ? "bg-primary-100 border-primary-400"
-                              : "bg-white hover:bg-gray-100"
-                          }
+                          ${selected ? "bg-primary-100 border-primary-400" : "bg-white hover:bg-gray-100"}
                           ${showWrong ? "bg-red-100 text-red-700 border-red-400" : ""}
                           ${showRight ? "bg-green-100 text-green-700 border-green-400" : ""}
                         `}
@@ -210,13 +186,11 @@ export default function ExamMCQ() {
                   })}
                 </div>
 
-                {/* Divider */}
-                <DividerWithText text="AND" />
+                {/* Divider between shape & count */}
+                <DividerWithText text="AND" /> {/* ✅ Added divider */}
 
                 {/* Q2: Count */}
-                <p className="text-[12px] font-semibold mb-1 text-gray-700 mt-2">
-                  How many are there?
-                </p>
+                <p className="text-[12px] font-semibold mb-1 text-gray-700 mt-2">How many are there?</p>
                 <div className="grid grid-cols-3 gap-2">
                   {countOptions.map((opt) => {
                     const selected = countSelected === opt;
@@ -229,11 +203,7 @@ export default function ExamMCQ() {
                         disabled={showResults}
                         aria-pressed={selected}
                         className={`px-2 py-1.5 rounded-md border text-xs font-medium transition
-                          ${
-                            selected
-                              ? "bg-primary-100 border-primary-400"
-                              : "bg-white hover:bg-gray-100"
-                          }
+                          ${selected ? "bg-primary-100 border-primary-400" : "bg-white hover:bg-gray-100"}
                           ${showWrong ? "bg-red-100 text-red-700 border-red-400" : ""}
                           ${showRight ? "bg-green-100 text-green-700 border-green-400" : ""}
                         `}
