@@ -15,7 +15,7 @@ export default function StatusCards() {
   const navigate=useNavigate();
    const location = useLocation();
   const { relationId, testId, studentId } = location.state || {};
-  console.log("these are the test result",testId,relationId,studentId);
+  // console.log("these are the test result",testId,relationId,studentId);
 
 
 
@@ -69,9 +69,9 @@ export default function StatusCards() {
     } else {
       navigate("/dashboards/ai", {
         state: {
-          relationId: item.relationId,
-          testId: item.testId,
-          studentId: item.studentId, // if available in API data
+          relationId: relationId,
+          testId: testId,
+          studentId:studentId, // if available in API data
         },
       });
     }

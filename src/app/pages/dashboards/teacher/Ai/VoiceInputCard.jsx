@@ -1,63 +1,54 @@
 import axios from "axios";
 import { useState,useEffect } from "react";
 export default function VoiceInputCard({ text, audioFile ,studentId, testContentId, testId, relationId}) {
-  const [responseAudioURL, setResponseAudioURL] = useState(null);
+  // const [responseAudioURL, setResponseAudioURL] = useState(null);
   const [textResult, setTextResult] = useState("");
 
   useEffect(() => {
   if (!audioFile || !text?.trim()) return;
 
-  const sendToAPI = async () => {
-    const formData = new FormData();
-    formData.append("audioFile", audioFile);
+const sendToAPI = async () => {
+  const formData = new FormData();
+  formData.append("audioFile", audioFile);
 
-    try {
-      // 1️⃣ Upload audio for pronunciation analysis
-      const response = await axios.post(
-        `https://localhost:7202/${text}`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+  try {
+    // 1️⃣ Hit the first API (returns plain text: "correct" or "incorrect")
+    const response = await axios.post(
+      `https://localhost:7202/${text}`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
 
-      const { misPronouncedWords, rhymses } = response.data;
+    // response.data is just "correct" or "incorrect"
+    const finalResult = response.data.trim().toLowerCase();
 
-      // Convert base64 back to playable audio
-      const binaryString = atob(rhymses);
-      const byteArray = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        byteArray[i] = binaryString.charCodeAt(i);
-      }
-      const audioBlob = new Blob([byteArray], { type: "audio/wav" });
-      const audioURL = URL.createObjectURL(audioBlob);
-      setResponseAudioURL(audioURL);
+    console.log("First API result:", finalResult);
 
-      // 2️⃣ Decide result for next API
-      // const result =
-      //   misPronouncedWords.length > 0 ? "incorrect" : "correct";
+    // 2️⃣ Send result to the second API
+    await axios.post(
+      "https://localhost:7202/api/TestResult",
+      {
+        studentId,
+        testContentId,
+        testId,
+        relationId,
+        result: finalResult,
+      },
+      { headers: { "Content-Type": "application/json" } }
+    );
 
-      if (misPronouncedWords.length > 0) {
-        setTextResult(`❌ Mispronounced or missing: ${misPronouncedWords.join(", ")}`);
-      } else {
-        setTextResult("✅ All words were pronounced correctly!");
-      }
+    // 3️⃣ Show user-friendly text
+    setTextResult(
+      finalResult === "incorrect"
+        ? "❌ Some words were mispronounced."
+        : "✅ All words were pronounced correctly!"
+    );
+  } catch (error) {
+    console.error("Upload failed:", error);
+    setTextResult("❌ Upload failed: " + error.message);
+  }
+};
 
-      new Audio(audioURL).play();
-
-      // 3️⃣ Send result to `/result` API
-      await axios.post("https://localhost:7202/result", {
-        studentId:studentId,       // from AlphabetTutor props/state
-        testContentId:testContentId,   // from AlphabetTutor props/state
-        testId:testId,          // from AlphabetTutor props/state
-        relationId:relationId,      // from AlphabetTutor props/state
-        result:response      
-      }, {
-        headers: { "Content-Type": "application/json" }
-      });
-
-    } catch (error) {
-      setTextResult("❌ Upload failed: " + error.message);
-    }
-  };
 
   sendToAPI();
 }, [audioFile, text, studentId, testContentId, testId, relationId]);
@@ -69,9 +60,9 @@ export default function VoiceInputCard({ text, audioFile ,studentId, testContent
 
       {textResult && <p className="mt-2 text-sm">{textResult}</p>}
 
-      {responseAudioURL && (
+      {/* {responseAudioURL && (
         <audio controls src={responseAudioURL} autoPlay className="mt-2" />
-      )}
+      )} */}
     </div>
   );
 }
