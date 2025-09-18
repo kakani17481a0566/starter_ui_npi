@@ -183,6 +183,9 @@ export default function StudentDetailsSection() {
         <div className="col-span-12 md:col-span-6">
           <Controller
             name="course_id"
+            rules={{
+              setValueAs: (v) => (v == null || v === "" ? null : Number(v)),
+            }}
             control={control}
             render={({ field }) => (
               <Select

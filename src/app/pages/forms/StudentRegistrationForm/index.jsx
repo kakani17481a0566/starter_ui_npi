@@ -317,6 +317,8 @@ function StudentRegistrationForm() {
 
 // Put this in StudentRegistrationForm/index.jsx (or move into PostData.js if you prefer)
 function mapFormToApi(values) {
+    const formData = new FormData();
+
   const asInt = (v) => (v === "" || v == null ? null : Number(v));
   const toISO = (v) => (v ? new Date(v).toISOString() : null);
   const yesNo = (v) => v === "yes";
@@ -334,20 +336,20 @@ function mapFormToApi(values) {
 
   // Helper to build a contact from contactGroupSchema prefixes
   const makeContact = (prefix, relationshipId, address = primaryAddress) => ({
-    name: [values[`${prefix}_first_name`] ?? "", values[`${prefix}_last_name`] ?? ""]
+    Name: [values[`${prefix}_first_name`] ?? "", values[`${prefix}_last_name`] ?? ""]
       .join(" ")
       .trim(),
-    priNumber: values[`${prefix}_phone`] ?? "",
-    secNumber: values[`${prefix}_alt_phone`] ?? "",
-    email: values[`${prefix}_email`] ?? "",
-    address1: address.homeStreet,
-    address2: address.homeApt,
-    city: address.mailingCity,
+    PriNumber: values[`${prefix}_phone`] ?? "",
+    SecNumber: values[`${prefix}_alt_phone`] ?? "",
+    Email: values[`${prefix}_email`] ?? "",
+    Address1: address.homeStreet,
+    Address2: address.homeApt,
+    City: address.mailingCity,
     state: "", // not in current AddressSection; keep empty or add if you introduce it
-    pincode: address.mailingPostal,
-    qualification: values[`${prefix}_qualification`] ?? "", // if present in your form
-    profession: values[`${prefix}_profession`] ?? "",       // if present in your form
-    relationshipId, // 1=father, 2=mother, 3=guardian, 4=emergency (example ids)
+    Pincode: address.mailingPostal,
+    Qualification: values[`${prefix}_qualification`] ?? "", // if present in your form
+    Profession: values[`${prefix}_profession`] ?? "",       // if present in your form
+    RelationshipId:relationshipId, // 1=father, 2=mother, 3=guardian, 4=emergency (example ids)
   });
 
   // Build contacts array from the groups you actually collect
@@ -375,104 +377,104 @@ function mapFormToApi(values) {
     tenantId: 1,
 
     // ----- User (Parent Login) -----
-    user: {
-      username: parentFirst,
-      firstName: parentFirst,
-      lastName: parentLast,
-      email: parentEmail,
-      password: values.parent_password || "Temp@123",
-      mobileNumber: parentPhone,
-      roleTypeId: 2,
-      userImageUrl: values.parent_photo || "",
-      dob: toISO(values.dob), // if you want parent's DOB, replace with a parent_dob field
+    User: {
+      Username: parentFirst,
+      FirstName: parentFirst,
+      LastName: parentLast,
+      Email: parentEmail,
+      Password: values.parent_password || "Temp@123",
+      MobileNumber: parentPhone,
+      RoleTypeId: 192,
+      UserImageUrl: formData.append("UserImageUrl", values.userImageUrl),
+      Dob: toISO(values.dob), // if you want parent's DOB, replace with a parent_dob field
     },
 
     // ----- Student -----
-    student: {
-      firstName: values.student_first_name,
-      lastName: values.student_last_name,
-      middleName: values.student_middle_name ?? "",
-      dob: toISO(values.dob),
+    Student: {
+      FirstName: values.student_first_name,
+      LastName: values.student_last_name,
+      MiddleName: values.student_middle_name ?? "",
+      Dob: toISO(values.dob),
       // schema has gender_id (number); backend expects string. Send id as string or map via your dictionary.
-      gender: String(values.gender_id ?? ""),
-      bloodGroup: values.blood_group ?? "",
-      admissionGrade: values.admission_grade ?? "",
-      dateOfJoining: toISO(values.registration_date),
-      courseId: asInt(values.course_id),
-      branchId: asInt(values.branch_id),
-      registrationChannel: values.registration_channel ?? "",
+      Gender: String(values.gender_id ?? ""),
+      BloodGroup: values.blood_group ?? "",
+      AdmissionGrade: values.admission_grade ?? "",
+      DateOfJoining: toISO(values.registration_date),
+      CourseId:values.course_id ? Number(values.course_id) : null,
+      BranchId:values.branch_id ? Number(values.branch_id) : null,
+      RegistrationChannel: values.registration_channel ?? "",
 
-      studentImageUrl: values.student_photo || "",
-      studentImage: values.student_photo || "",
-      motherPhoto: values.mother_photo || "",
-      fatherPhoto: values.father_photo || "",
-      jointPhoto: values.joint_photo || "",
+      StudentImageUrl: formData.append("StudentImageUrl", values.student_photo) || "",
+      StudentImage: formData.append("StudentImageUrl", values.student_photo) || "",
+      MotherPhoto:formData.append("StudentImageUrl", values.mother_photo ) || "",
+      FatherPhoto: formData.append("StudentImageUrl", values.father_photo)  || "",
+      JointPhoto: formData.append("StudentImageUrl", values.joint_photo) || "",
 
       // ----- Transport -----
-      transport: {
-        regular: {
-          isEnabled: notNone(values.regular_transport),
-          transportId: asInt(values.regular_transport_id) || 0,
-          freeText: values.regular_transport_other || "",
+      Transport: {
+        Regular: {
+          IsEnabled: notNone(values.regular_transport),
+          TransportId: asInt(values.regular_transport_id) || 0,
+          FreeText: values.regular_transport_other || "",
         },
-        alternate: {
-          isEnabled: notNone(values.alternate_transport),
-          transportId: asInt(values.alternate_transport_id) || 0,
-          freeText: values.alternate_transport_other || "",
+        Alternate: {
+          IsEnabled: notNone(values.alternate_transport),
+          TransportId: asInt(values.alternate_transport_id) || 0,
+          FreeText: values.alternate_transport_other || "",
         },
-        otherTransportText: values.transport_other_info || "",
+        OtherTransportText: values.transport_other_info || "",
       },
 
       // ----- Custody/Family (only what exists now) -----
-      custodyFamily: {
-        speechTherapy: yesNo(values.speech_therapy),
+      CustodyFamily: {
+        SpeechTherapy: yesNo(values.speech_therapy),
         // The following exist only if you have these fields in your form:
-        custody: yesNo(values.custody),
-        custodyOfId: asInt(values.custody_of_id) || 0,
-        livesWithId: asInt(values.lives_with_id) || 0,
-        siblingsInThisSchool: yesNo(values.siblings_this_school),
-        siblingsThisNames: values.siblings_this_names || "",
-        siblingsInOtherSchool: yesNo(values.siblings_other_school),
-        siblingsOtherNames: values.siblings_other_names || "",
+        Custody: yesNo(values.custody),
+        CustodyOfId: asInt(values.custody_of_id) || 0,
+        LivesWithId: asInt(values.lives_with_id) || 0,
+        SiblingsInThisSchool: yesNo(values.siblings_this_school),
+        SiblingsThisNames: values.siblings_this_names || "",
+        SiblingsInOtherSchool: yesNo(values.siblings_other_school),
+        SiblingsOtherNames: values.siblings_other_names || "",
       },
 
       // ----- Medical -----
-      medicalInfo: {
-        anyAllergy: yesNo(values.life_threat_allergy),
-        whatAllergyId: asInt(values.allergy_id) || 0,
-        otherAllergyText: values.allergy_substances || "",
-        medicalKit: yesNo(values.emergency_kit_recommended),
-        seriousMedicalConditions: values.serious_medical_conditions || "",
-        seriousConditionsInfo: values.serious_medical_info || "",
-        otherMedicalInfo: values.other_medical_info || "",
+      MedicalInfo: {
+        AnyAllergy: yesNo(values.life_threat_allergy),
+        WhatAllergyId: asInt(values.allergy_id) || 0,
+        OtherAllergyText: values.allergy_substances || "",
+        MedicalKit: yesNo(values.emergency_kit_recommended),
+        SeriousMedicalConditions: values.serious_medical_conditions || "",
+        SeriousConditionsInfo: values.serious_medical_info || "",
+        OtherMedicalInfo: values.other_medical_info || "",
       },
 
       // ----- Languages -----
-      languages: {
-        languageAdultsHome: values.lang_adults_home,
-        languageMostUsedWithChild: values.lang_with_child,
-        languageFirstLearned: values.lang_first_learned,
+      Languages: {
+        LanguageAdultsHome: values.lang_adults_home,
+        LanguageMostUsedWithChild: values.lang_with_child,
+        LanguageFirstLearned: values.lang_first_learned,
       },
 
       // ----- English Skills -----
-      englishSkills: {
-        canReadEnglish: notNone(values.read_english),  // schema: "none" | "little" | "well"
-        readSkillId: asInt(values.read_english_id) || 0,
-        canWriteEnglish: notNone(values.write_english),
-        writeSkillId: asInt(values.write_english_id) || 0,
+      EnglishSkills: {
+        CanReadEnglish: notNone(values.read_english),  // schema: "none" | "little" | "well"
+        ReadSkillId: asInt(values.read_english_id) || 0,
+        CanWriteEnglish: notNone(values.write_english),
+        WriteSkillId: asInt(values.write_english_id) || 0,
       },
 
       // ----- Documents (matches your schema: student_photo + birth_certificate + signature_data) -----
-      documents: {
-        signature: values.signature_data,
-        birthCertificate: values.birth_certificate,
-        kidPassport: values.kid_passport || "",
-        adhar: values.student_adhar || "",
-        parentAdhar: values.parent_adhar || "",
-        motherAdhar: values.mother_adhar || "",
-        healthForm: values.health_form || "",
-        privacyForm: values.privacy_form || "",
-        liabilityForm: values.liability_form || "",
+      Documents: {
+        Signature: formData.append("StudentImageUrl", values.signature_data) || "" ,
+        BirthCertificate:  formData.append("StudentImageUrl", values.birth_certificate) || "",
+        KidPassport: formData.append("StudentImageUrl", values.kid_passport)  || "",
+        Adhar:  formData.append("StudentImageUrl", values.student_adhar) || "",
+        ParentAdhar: formData.append("StudentImageUrl", values.parent_adhar) || "",
+        MotherAdhar: formData.append("StudentImageUrl", values.mother_adhar) || "",
+        HealthForm: formData.append("StudentImageUrl", values.health_form ) || "",
+        PrivacyForm: formData.append("StudentImageUrl",values.privacy_form ) || "",
+        LiabilityForm:  formData.append("StudentImageUrl", values.liability_form) || "",
       },
     },
 
