@@ -51,14 +51,44 @@ export const schema = yup.object().shape({
   dob: yup.date().typeError("Date of Birth is required").required("Date of Birth is required"),
   gender_id: idField("Gender"),
   admission_course_id: idField("Grade Applying For"),
-  branch_id:idField("Branch Field is required"),
+  branch_id: idField("Branch Field is required"),
 
-  // Previous School Info
-  prev_school_name: yup.string().trim().optional(),
-  from_course_id: idField("From Grade"),
-  from_year: yearField("From Year"),
-  to_course_id: idField("To Grade"),
-  to_year: yearField("To Year"),
+  // Joined School toggle
+  joinedSchool: yup
+    .string()
+    .oneOf(["yes", "no"])
+    .required("Please select Yes or No"),
+
+  // Previous School Info (conditionally required)
+  prev_school_name: yup.string().trim().when("joinedSchool", {
+    is: "yes",
+    then: (s) => s.required("Previous School Name is required"),
+    otherwise: (s) => s.nullable().optional(),
+  }),
+
+  from_course_id: yup.mixed().when("joinedSchool", {
+    is: "yes",
+    then: () => idField("From Grade"),
+    otherwise: (s) => s.nullable().optional(),
+  }),
+
+  to_course_id: yup.mixed().when("joinedSchool", {
+    is: "yes",
+    then: () => idField("To Grade"),
+    otherwise: (s) => s.nullable().optional(),
+  }),
+
+  from_year: yup.mixed().when("joinedSchool", {
+    is: "yes",
+    then: () => yearField("From Year"),
+    otherwise: (s) => s.nullable().optional(),
+  }),
+
+  to_year: yup.mixed().when("joinedSchool", {
+    is: "yes",
+    then: () => yearField("To Year"),
+    otherwise: (s) => s.nullable().optional(),
+  }),
 
   // Address
   address_line1: yup.string().trim().required("Address Line 1 is required"),
@@ -68,7 +98,7 @@ export const schema = yup.object().shape({
   postal_code: yup.string().trim().required("Postal Code is required"),
   country: countryField("Country"),
 
-  // Correspondence Address (you mirror values when 'same' is checked)
+  // Correspondence Address
   correspondence_address_line1: yup.string().trim().required("Correspondence Address Line 1 is required"),
   correspondence_address_line2: yup.string().trim().transform(emptyToUndefined).optional(),
   correspondence_city: yup.string().trim().required("Correspondence City is required"),
@@ -106,16 +136,12 @@ export const schema = yup.object().shape({
   parent_dialCode: yup.string().transform(emptyToUndefined).optional(),
   mother_dialCode: yup.string().transform(emptyToUndefined).optional(),
 
-  // Flags (match your actual field name; you watch "isSameCorrespondenceAddress" in code)
+  // Flags
   is_guardian: yup.boolean().optional(),
   is_same_correspondence_address: yup.boolean().optional(),
 
   // Marketing & Consent
   hear_about_us_type_id: idField("This field"),
 
-signature: yup
-  .mixed()
-  .required("Signature is required"),
-
-
+  signature: yup.mixed().required("Signature is required"),
 });
