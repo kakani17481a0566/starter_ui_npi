@@ -11,7 +11,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import clsx from "clsx";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 
 // Local Imports
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
@@ -29,7 +29,9 @@ import { useSkipper } from "utils/react-table/useSkipper";
 import { SelectedRowsActions } from "./SelectedRowsActions";
 import { SubRowComponent } from "./SubRowComponent";
 import { columns } from "./columns";
+
 import { Toolbar } from "./Toolbar";
+// import { useThemeContext } from "app/contexts/theme/context";
 import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 
 // ----------------------------------------------------------------------
@@ -37,15 +39,12 @@ import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 const isSafari = getUserAgentBrowser() === "Safari";
 
 export default function AttendanceStatusDisplayTable({ data }) {
+  // const { cardSkin } = useThemeContext();
+
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
 
-  // ✅ Use data from props (filtered in dashboard)
+  // ✅ Use data from props (filtered by date in dashboard)
   const [orders, setOrders] = useState([...data]);
-
-  // ✅ Sync orders whenever `data` changes
-  useEffect(() => {
-    setOrders([...data]);
-  }, [data]);
 
   const [tableSettings, setTableSettings] = useState({
     enableSorting: true,
@@ -59,11 +58,11 @@ export default function AttendanceStatusDisplayTable({ data }) {
 
   const [columnVisibility, setColumnVisibility] = useLocalStorage(
     "column-visibility-orders-3",
-    {}
+    {},
   );
   const [columnPinning, setColumnPinning] = useLocalStorage(
     "column-pinning-orders-3",
-    {}
+    {},
   );
 
   const cardRef = useRef();
@@ -84,19 +83,16 @@ export default function AttendanceStatusDisplayTable({ data }) {
       deleteRow: (row) => {
         skipAutoResetPageIndex();
         setOrders((old) =>
-          old.filter(
-            (oldRow) => oldRow.studentName !== row.original.studentName
-          )
+          old.filter((oldRow) => oldRow.studentName !== row.original.studentName),
         );
       },
       deleteRows: (rows) => {
         skipAutoResetPageIndex();
         const rowIds = rows.map((row) => row.original.studentName);
-        setOrders((old) =>
-          old.filter((row) => !rowIds.includes(row.studentName))
-        );
+        setOrders((old) => old.filter((row) => !rowIds.includes(row.studentName)));
       },
     },
+
     filterFns: { fuzzy: fuzzyFilter },
     enableSorting: tableSettings.enableSorting,
     enableColumnFilters: tableSettings.enableColumnFilters,
@@ -125,14 +121,14 @@ export default function AttendanceStatusDisplayTable({ data }) {
         className={clsx(
           "flex flex-col",
           tableSettings.enableFullScreen &&
-            "fixed inset-0 z-61 h-full w-full bg-white pt-3 dark:bg-dark-900"
+            "fixed inset-0 z-61 h-full w-full bg-white pt-3 dark:bg-dark-900",
         )}
       >
         <Toolbar table={table} />
         <Card
           className={clsx(
             "relative mt-3 flex grow flex-col",
-            tableSettings.enableFullScreen && "overflow-hidden"
+            tableSettings.enableFullScreen && "overflow-hidden",
           )}
           ref={cardRef}
         >
@@ -158,7 +154,7 @@ export default function AttendanceStatusDisplayTable({ data }) {
                                 ? null
                                 : flexRender(
                                     header.column.columnDef.header,
-                                    header.getContext()
+                                    header.getContext(),
                                   )}
                             </span>
                             <TableSortIcon
@@ -168,7 +164,7 @@ export default function AttendanceStatusDisplayTable({ data }) {
                         ) : header.isPlaceholder ? null : (
                           flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )
                         )}
                         {header.column.getCanFilter() ? (
@@ -191,14 +187,14 @@ export default function AttendanceStatusDisplayTable({ data }) {
                         row.getIsExpanded() && "border-dashed",
                         row.getIsSelected() &&
                           !isSafari &&
-                          "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:h-full after:w-full after:border-3 after:border-transparent after:bg-primary-500/10 ltr:after:border-l-primary-500 rtl:after:border-r-primary-500"
+                          "row-selected after:pointer-events-none after:absolute after:inset-0 after:z-2 after:h-full after:w-full after:border-3 after:border-transparent after:bg-primary-500/10 ltr:after:border-l-primary-500 rtl:after:border-r-primary-500",
                       )}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <Td key={cell.id}>
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </Td>
                       ))}

@@ -1,3 +1,5 @@
+// src/app/pages/dashboards/teacher/index.jsx
+
 import { useMemo, useState } from "react";
 import { Page } from "components/shared/Page";
 import { Welcome } from "./Welcome";
@@ -16,8 +18,7 @@ import avatar11 from "./users-card/avatar-11.jpg";
 const DUMMY_ROLE = "Teacher";
 const DUMMY_USER = {
   name: "Konnor ssss",
-  avatar: avatar11,                    // <-- use imported URL
-  // cover intentionally omitted so the card uses its default .webp
+  avatar: avatar11, // <-- use imported URL
   linkedin: "https://www.linkedin.com/in/konnor",
   color: "primary",
   progress: 72, // 0–100
@@ -62,7 +63,6 @@ export default function Teacher() {
     return {
       // identity & visuals
       avatar: DUMMY_USER.avatar,
-      // cover omitted -> will use UserCard's default cover
       color: colorByRole[role] || DUMMY_USER.color,
 
       // socials
@@ -92,9 +92,22 @@ export default function Teacher() {
     <Page title={`${role} Dashboard`}>
       <div className="transition-content mt-4 grid w-full grid-cols-12 gap-4 px-[var(--margin-x)] pb-8 sm:mt-5 sm:gap-5 lg:mt-6 lg:gap-6">
         {/* Left column */}
-        <div className={`col-span-12 ${isParent ? "" : "lg:col-span-8 xl:col-span-9"}`}>
+        <div
+          className={`col-span-12 ${
+            isParent ? "" : "lg:col-span-8 xl:col-span-9"
+          }`}
+        >
           <Welcome />
+
+          {/* 👇 UserCard below Welcome ONLY on mobile/tablet */}
+          {!isParent && (
+            <div className="block lg:hidden mt-4 sm:mt-5">
+              <UserCard {...userCardData} />
+            </div>
+          )}
+
           <Classes courseId={selectedCourse?.id} />
+
           {!isParent && (
             <VerticalDividerCard
               onCourseSelect={(course) => {
@@ -102,12 +115,13 @@ export default function Teacher() {
               }}
             />
           )}
+
           <WeekTimeTable courseId={selectedCourse?.id} />
         </div>
 
-        {/* Right sidebar */}
+        {/* Right sidebar - visible only on desktop */}
         {!isParent && (
-          <div className="col-span-12 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:sticky lg:top-20 lg:col-span-4 lg:grid-cols-1 lg:gap-6 lg:self-start xl:col-span-3">
+          <div className="col-span-12 hidden grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:sticky lg:top-20 lg:col-span-4 lg:grid-cols-1 lg:gap-6 lg:self-start xl:col-span-3 lg:grid">
             <UserCard {...userCardData} />
             <Students />
             <Calendar />

@@ -9,6 +9,20 @@ export const visitors = [
     status: "Waiting",
     date: "2025-09-16",
   },
+    {
+    visitor: "Sarah Lee",
+    person: "Mr. Davis",
+    time: "10:00 AM",
+    status: "Waiting",
+    date: "2025-09-16",
+  },
+    {
+    visitor: "Sarah Lee",
+    person: "Mr. Davis",
+    time: "10:00 AM",
+    status: "Waiting",
+    date: "2025-09-16",
+  },
   {
     visitor: "Robert Kim",
     person: "Ms. Chen",

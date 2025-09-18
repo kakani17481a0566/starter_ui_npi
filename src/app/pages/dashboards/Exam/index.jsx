@@ -18,12 +18,12 @@ const pickDistractors = (all, correct, n = 2) => {
 };
 
 export default function ExamMCQ() {
-  const [questions, setQuestions] = useState([]); 
+  const [questions, setQuestions] = useState([]);
       const location = useLocation();
-  
+
 
   const { testId } = location.state || {};
-  console.log("this is testId for exam ",testId); 
+  console.log("this is testId for exam ",testId);
 // ✅ dynamic
   const [answers, setAnswers] = useState({});
   const [options, setOptions] = useState({});

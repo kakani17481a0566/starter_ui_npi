@@ -57,14 +57,14 @@ const protectedRoutes = {
               }),
             },
             {
-
               path: "test",
               lazy: async () => ({
-                Component: (await import("app/pages/dashboards/teacher/TestRegistartion"))
-                  .default,
+                Component: (
+                  await import("app/pages/dashboards/teacher/TestRegistartion")
+                ).default,
               }),
             },
-             {
+            {
               path: "ai",
               lazy: async () => ({
                 Component: (await import("app/pages/dashboards/teacher/AiNew"))
@@ -141,8 +141,7 @@ const protectedRoutes = {
             {
               path: "Exam",
               lazy: async () => ({
-                Component: (await import("app/pages/dashboards/Exam"))
-                  .default,
+                Component: (await import("app/pages/dashboards/Exam")).default,
               }),
             },
           ],
@@ -185,7 +184,20 @@ const protectedRoutes = {
             },
           ],
         },
+
+        {
+          path: "apps",
+          children: [
             {
+              index: true,
+              lazy: async () => ({
+                Component: (await import("app/pages/apps/list")).default,
+              }),
+            },
+          ],
+        },
+
+        {
           path: "FrontDesk",
           children: [
             {
@@ -195,11 +207,9 @@ const protectedRoutes = {
             {
               path: "FrontDesk",
               lazy: async () => ({
-                Component: (await import("app/pages/FrontDesk"))
-                  .default,
+                Component: (await import("app/pages/FrontDesk")).default,
               }),
             },
-
           ],
         },
       ],
@@ -208,6 +218,29 @@ const protectedRoutes = {
     {
       Component: AppLayout,
       children: [
+        {
+          path: "apps",
+          children: [
+            {
+              path: "pos",
+              lazy: async () => ({
+                Component: (await import("app/pages/apps/pos")).default,
+              }),
+            },
+            {
+              path: "library",
+              lazy: async () => ({
+                Component: (await import("app/pages/apps/library")).default,
+              }),
+            },
+            {
+              path: "filemanager",
+              lazy: async () => ({
+                Component: (await import("app/pages/apps/filemanager")).default,
+              }),
+            },
+          ],
+        },
         {
           path: "settings",
           lazy: async () => ({

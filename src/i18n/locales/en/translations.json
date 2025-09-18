@@ -28,6 +28,20 @@
     "frontdeskmain":"Front Desk Main"
 
   },
+   "apps": {
+      "apps": "Apps",
+      "chat": "Chat",
+      "ai-chat": "AI Chat",
+      "kanban": "Kanban Board",
+      "mail": "Mail",
+      "todo": "Todo",
+      "nft-1": "NFT v1",
+      "nft-2": "NFT v2",
+      "filemanager": "File Manager",
+      "pos": "POS App",
+      "travel": "Travel",
+      "library": "library"
+    },
 
     "settings": {
       "settings": "Settings",

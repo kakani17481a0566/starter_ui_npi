@@ -1,6 +1,6 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormProvider, useForm } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { getSessionData } from "utils/sessionStorage";
 
@@ -8,14 +8,13 @@ import { Page } from "components/shared/Page";
 import { Button, Card } from "components/ui";
 import {
   DocumentPlusIcon,
-  EyeIcon,
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 
 import { schema } from "./schema";
 import { initialState } from "./data";
 import { getDialFromCountry, normalizeCountry } from "./utils";
-import { submitAdmissionEnquiry } from "./PostData"; // <-- ensure path is correct
+import { submitAdmissionEnquiry } from "./PostData";
 
 // Sections
 import StudentDetails from "./sections/StudentDetails";
@@ -24,7 +23,6 @@ import AddressSection from "./sections/AddressSection";
 import ParentGuardianDetails from "./sections/ParentGuardianDetails";
 import MotherDetails from "./sections/MotherDetails";
 import MarketingConsent from "./sections/MarketingConsent";
-import PreviewModal from "./components/PreviewModal";
 
 export default function AdmissionEnquiryForm() {
   const methods = useForm({
@@ -42,9 +40,6 @@ export default function AdmissionEnquiryForm() {
     clearErrors,
     getValues,
   } = methods;
-
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewValues, setPreviewValues] = useState(null);
 
   const selectedCountry = watch("country");
   const isSame = watch("isSameCorrespondenceAddress");
@@ -64,7 +59,7 @@ export default function AdmissionEnquiryForm() {
     return d || n ? `+${d}${n}` : "";
   };
 
-  // Map RHF values (mostly snake_case) -> API payload (camelCase)
+  // Map RHF values -> API payload
   function mapFormToApi(values) {
     const dobIso = values?.dob ? new Date(values.dob).toISOString() : null;
 
@@ -115,7 +110,7 @@ export default function AdmissionEnquiryForm() {
       ),
       parentEmail: values.parent_email ?? "",
 
-      // Address (API expects a single "parent" address block)
+      // Address
       parentAddress1: values.address_line1 ?? "",
       parentAddress2: values.address_line2 ?? "",
       parentCity: values.city ?? "",
@@ -145,13 +140,13 @@ export default function AdmissionEnquiryForm() {
       branchId: asInt(values.branch_id),
       createdBy: userId,
 
-      // Countries (normalized for API)
+      // Countries
       country: normalizeCountry(values.country),
       correspondence_country: normalizeCountry(corr.country),
     };
   }
 
-  // Autofill dial codes from Country
+  // Autofill dial codes
   useEffect(() => {
     const dial = getDialFromCountry(selectedCountry);
     if (!dial) return;
@@ -177,27 +172,13 @@ export default function AdmissionEnquiryForm() {
       });
       clearErrors("mother_dialCode");
     }
-  }, [
-    selectedCountry,
-    studentDial,
-    parentDial,
-    motherDial,
-    setValue,
-    clearErrors,
-  ]);
+  }, [selectedCountry, studentDial, parentDial, motherDial, setValue, clearErrors]);
 
-  // Mirror correspondence address when 'same' is checked
+  // Mirror correspondence
   useEffect(() => {
     if (!isSame) return;
 
-    const fields = [
-      "address_line1",
-      "address_line2",
-      "city",
-      "state",
-      "postal_code",
-      "country",
-    ];
+    const fields = ["address_line1", "address_line2", "city", "state", "postal_code", "country"];
     fields.forEach((f) => {
       setValue(`correspondence_${f}`, getValues(f) ?? "", {
         shouldValidate: false,
@@ -218,7 +199,7 @@ export default function AdmissionEnquiryForm() {
     try {
       const apiPayload = mapFormToApi(values);
       console.log("📦 API Payload:", apiPayload);
-      const result = await submitAdmissionEnquiry(apiPayload); // <-- real POST
+      const result = await submitAdmissionEnquiry(apiPayload);
       console.log("✅ API Response:", result);
       toast.success("Enquiry saved successfully");
       reset(initialState);
@@ -248,18 +229,13 @@ export default function AdmissionEnquiryForm() {
             </h2>
           </div>
           <div className="flex gap-2">
+            {/* Cancel button */}
             <Button
               className="min-w-[7rem]"
               variant="outlined"
-              onClick={() => {
-                setPreviewValues(getValues());
-                setPreviewOpen(true);
-              }}
+              onClick={() => reset(initialState)}
             >
-              <span className="inline-flex items-center gap-2">
-                <EyeIcon className="size-4" />
-                Preview
-              </span>
+              Cancel
             </Button>
 
             <Button
@@ -270,55 +246,9 @@ export default function AdmissionEnquiryForm() {
               onClick={async () => {
                 const isValid = await methods.trigger();
                 const errors = methods.formState.errors;
-
-                const fieldLabels = {
-                  student_first_name: "Student First Name",
-                  student_middle_name: "Student Middle Name",
-                  student_last_name: "Student Last Name",
-                  dob: "Date of Birth",
-                  gender_id: "Gender",
-                  admission_course_id: "Grade Applying For",
-                  prev_school_name: "Previous School Name",
-                  from_course_id: "From Grade",
-                  from_year: "From Year",
-                  to_course_id: "To Grade",
-                  to_year: "To Year",
-                  address_line1: "Address Line 1",
-                  city: "City",
-                  state: "State",
-                  postal_code: "Postal Code",
-                  country: "Country",
-                  correspondence_address_line1: "Correspondence Address Line 1",
-                  correspondence_city: "Correspondence City",
-                  correspondence_state: "Correspondence State",
-                  correspondence_postal_code: "Correspondence Postal Code",
-                  correspondence_country: "Correspondence Country",
-                  parent_first_name: "Parent First Name",
-                  parent_phone: "Parent Mobile Number",
-                  parent_email: "Parent Email",
-                  parent_qualification: "Parent Qualification",
-                  parent_profession: "Parent Profession",
-                  mother_first_name: "Mother First Name",
-                  mother_phone: "Mother Mobile Number",
-                  mother_email: "Mother Email",
-                  mother_qualification: "Mother Qualification",
-                  mother_profession: "Mother Profession",
-                  heard_about_us_type_id: "Heard About Us",
-                  signature: "E-Signature",
-                };
+                console.log(errors)
 
                 if (!isValid) {
-                  const missingFields = Object.entries(errors).map(
-                    ([key, val]) => ({
-                      Field: fieldLabels[key] || key,
-                      Reason: val?.message || "Required",
-                    }),
-                  );
-                  console.clear();
-                  console.warn(
-                    "🚨 Form submission blocked due to missing fields:",
-                  );
-                  console.table(missingFields);
                   toast.error("Please fill all required fields");
                   scrollToFirstError();
                 } else {
@@ -362,10 +292,8 @@ export default function AdmissionEnquiryForm() {
                 </Card>
               </div>
 
-              
               <AddressSection />
 
-             
               <div className="col-span-12">
                 <Card className="p-4 sm:px-5 border ">
                   <h3 className="dark:text-dark-100 mb-4 text-base font-medium text-gray-800">
@@ -388,13 +316,6 @@ export default function AdmissionEnquiryForm() {
           </form>
         </FormProvider>
       </div>
-
-      {/* Preview Modal */}
-      <PreviewModal
-        open={previewOpen}
-        values={previewValues}
-        onClose={() => setPreviewOpen(false)}
-      />
     </Page>
   );
 }

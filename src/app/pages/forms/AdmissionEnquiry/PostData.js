@@ -1,6 +1,6 @@
 import axios from "axios";
 import { normalizeCountry } from "./utils";
-import {base64ToBlob} from "components/shared/base64ConversionToBlob.jsx";
+// import {base64ToBlob} from "components/shared/base64ConversionToBlob.jsx";
 import {ADD_STUDENT_ENQUIRY} from "constants/apis.js"
 
 //const API_URL = "https://localhost:7202/api/StudentEnquiry/create";
@@ -8,7 +8,12 @@ import {ADD_STUDENT_ENQUIRY} from "constants/apis.js"
 export async function submitAdmissionEnquiry(data) {
   const asInt = (v) => (v === "" || v == null ? null : Number(v));
   const asBool = (v) => Boolean(v);
-  const byteArray=base64ToBlob(data.signature);
+
+
+  // const byteArray=await blobToByteArray(base64ToBlob(data.signature));
+  //   console.log("byteArray",byteArray);
+
+
 
   const dobIso = data?.dob ? new Date(data.dob).toISOString() : null;
 
@@ -52,7 +57,7 @@ export async function submitAdmissionEnquiry(data) {
 
     HearAboutUsTypeId: asInt(data.hearAboutUsTypeId),
     IsAgreedToTerms: asBool(data.isAgreedToTerms),
-    Signature: byteArray?? "",
+    Signature: data.signature?? "",
 
     StatusId: asInt(data.statusId),
     TenantId: asInt(data.tenantId),
