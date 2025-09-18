@@ -114,7 +114,7 @@ export const schema = yup.object().shape({
   hear_about_us_type_id: idField("This field"),
 
 signature: yup
-  .string()
+  .mixed()
   .required("Signature is required"),
 
 
