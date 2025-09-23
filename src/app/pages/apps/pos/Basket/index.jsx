@@ -14,27 +14,20 @@ import { Button, Card } from "components/ui";
 
 // ----------------------------------------------------------------------
 
-export function Basket() {
+export function Basket({ items }) {
   const { smAndUp } = useBreakpointsContext();
 
-  return smAndUp ? <DesktopView /> : <MobileView />;
+  return smAndUp ? <DesktopView items={items} /> : <MobileView items={items} />;
 }
 
-function MobileView() {
-  const [isBasketOpen, { open, close }] = useDisclosure(false);
+function MobileView(items) {
+  const [isBasketOpen, { close }] = useDisclosure(false);
 
   return (
     <>
-      <div className="fixed bottom-3 right-3 rounded-full bg-white dark:bg-dark-700">
-        <Button
-          onClick={open}
-          isIcon
-          color="secondary"
-          className="size-14 rounded-full"
-        >
-          $88
-        </Button>
-      </div>
+      <div className="flex grow flex-col overflow-y-auto pt-4">
+        <Items items={items} /> {/* ✅ dynamic */}
+      </div>;
       <Transition appear show={isBasketOpen} as={Fragment}>
         <Dialog as="div" className="relative z-100" onClose={close}>
           <TransitionChild
@@ -85,7 +78,7 @@ function MobileView() {
   );
 }
 
-function DesktopView() {
+function DesktopView({ items }) {
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -93,8 +86,8 @@ function DesktopView() {
         <BasketActions />
       </div>
       <Card className="mt-3 p-4 sm:p-5">
-        <Items />
-        <Checkout />
+        <Items items={items} /> {/* ✅ dynamic */}
+        {/* <Checkout /> */}
       </Card>
     </div>
   );

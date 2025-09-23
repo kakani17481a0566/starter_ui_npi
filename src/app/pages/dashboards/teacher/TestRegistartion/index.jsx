@@ -188,8 +188,7 @@ const selectedTest = tests.find((t) => t.id === Number(testId));
         state: {
           relationId: selectedTest.relationId || 0,
           testId: selectedTest.id,
-          studentId,
-          examType, // exam type string (from dropdown)
+          studentId, // exam type string (from dropdown)
         },
       });
     } else {

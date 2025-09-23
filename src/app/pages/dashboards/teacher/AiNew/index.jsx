@@ -18,8 +18,8 @@ export default function AlphabetTutor() {
   const [isRecording, setIsRecording] = useState(false);
   const navigate = useNavigate();
     const location = useLocation();
-  const {  testId ,studentId,relationId} = location.state || {};
-    console.log(testId,studentId);
+  const {  testId ,studentId,relationId,testContentId} = location.state || {};
+    console.log("In ai new : ",relationId,testContentId);
 
   // ✅ fix: proper setter pair (was causing "setSpeakTick is not a function")
   const [ setSpeakTick] = useState(0);
@@ -191,6 +191,7 @@ useEffect(() => {
       relationId:relationId,
       testId:testId,
       studentId:studentId,
+      testContentId:testContentId,
     },
   });
 };
