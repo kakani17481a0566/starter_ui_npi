@@ -4,43 +4,56 @@ import { fetchStudentsData } from "./studentdata";
 import { getSessionData } from "utils/sessionStorage";
 import { UsersIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 
-export function Students() {
+export function Students({ courseId, courseName }) {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!courseId && !courseName) {
+      setStudents([]);
+      setError("❌ No course selected.");
+      setLoading(false);
+      return;
+    }
+
     const loadStudents = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
-        const { tenantId, course, branch } = getSessionData();
-        const courseId = Array.isArray(course) ? course[0]?.id || -1 : -1;
+        const { tenantId, branch } = getSessionData();
         const branchId = parseInt(branch, 10);
 
-        if (!tenantId || !courseId || !branchId) {
-          setError("❌ Missing session data.");
+        if (!tenantId || !branchId) {
+          setError("❌ Missing tenantId / branchId.");
+          setStudents([]);
           return;
         }
 
         const res = await fetchStudentsData({
           tenantId: parseInt(tenantId, 10),
           courseId,
+          courseName,
           branchId,
         });
 
         setStudents(res.students);
       } catch (err) {
+        console.error("❌ Failed to load students", err);
         setError("❌ Failed to load students.");
-        console.error(err);
+        setStudents([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadStudents();
-  }, []);
+  }, [courseId, courseName]);
 
   return (
     <div className="sm:col-span-2 lg:col-span-1">
+      {/* Header */}
       <div className="flex h-8 items-center justify-between">
         <h2 className="flex items-center gap-2 font-medium tracking-wide text-gray-800 dark:text-dark-100">
           <UsersIcon className="size-5 text-primary-500" />
@@ -55,23 +68,28 @@ export function Students() {
         </a>
       </div>
 
+      {/* Content */}
       <div className="mt-3">
         {loading ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">Loading students...</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Loading students...
+          </p>
         ) : error ? (
           <p className="text-sm text-red-500">{error}</p>
         ) : students.length === 0 ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">No students found.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            No students found.
+          </p>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-x-5 lg:grid-cols-1">
             {students.map((student) => (
               <StudentCard
                 key={student.id}
                 name={student.name}
-                avatar={null} // Replace with image if available
-                isOnline={true} // Placeholder
-                progress={Math.floor(Math.random() * 100)} // Placeholder
-                messagesCount={null}
+                avatar={student.avatar ?? null}
+                isOnline={student.isOnline ?? true}
+                progress={student.progress ?? Math.floor(Math.random() * 100)}
+                messagesCount={student.messagesCount ?? null}
               />
             ))}
           </div>

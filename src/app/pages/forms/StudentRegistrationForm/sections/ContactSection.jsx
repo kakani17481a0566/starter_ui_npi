@@ -1,6 +1,6 @@
 // src/app/pages/forms/StudentRegistrationForm/sections/ContactSection.jsx
 import { useMemo, useEffect } from "react";
-import { useFormContext, Controller } from "react-hook-form";
+import { useFormContext, Controller, useWatch } from "react-hook-form";
 import { Textarea, Checkbox } from "components/ui";
 import {
   EnvelopeIcon,
@@ -8,24 +8,22 @@ import {
   UserIcon,
   DevicePhoneMobileIcon,
   InboxIcon,
-  CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import SectionCard from "../components/SectionCard";
 import LabelWithIcon from "../components/LabelWithIcon";
 import RHFInput from "../components/RHFInput";
-import { useContactMirror } from "../components/useContactMirror";
 
 export default function ContactSection() {
-  const { control, register, setValue, watch } = useFormContext();
+  const { control, register, setValue, getValues, watch } = useFormContext();
 
+  // 🔹 Relationship IDs from masters table
   const CONTACT_GROUPS = useMemo(
     () => [
-      { title: "Father", prefix: "father" },
-      { title: "Mother", prefix: "mother", enableSameAsPrimary: true },
-      { title: "Guardian", prefix: "guardian", enableSameAsPrimary: true },
-      { title: "After school", prefix: "after_school", enableSameAsPrimary: true },
-      { title: "Early Closure", prefix: "ec", enableSameAsPrimary: true },
-      { title: "Emergency", prefix: "emergency", enableSameAsPrimary: true },
+      { title: "Father", prefix: "father", relationshipId: 209 },
+      { title: "Mother", prefix: "mother", relationshipId: 210 },
+      { title: "Guardian", prefix: "guardian", relationshipId: 211 },
+      { title: "After school", prefix: "after_school", relationshipId: 212 },
+      { title: "Emergency", prefix: "emergency", relationshipId: 213 },
     ],
     []
   );
@@ -39,28 +37,24 @@ export default function ContactSection() {
   ];
   const fieldFor = (p, n) => `${p}_${n}`;
 
-  const { isSameByPrefix, onFatherBlur } = useContactMirror({
-    groups: CONTACT_GROUPS,
-    fields: FIELDS.map((f) => f.key),
+  // 🔹 Watch Father’s values
+  const fatherValues = useWatch({
+    control,
+    name: FIELDS.map((f) => `father_${f.key}`),
   });
 
-  // NEW: single global control to mirror all contacts from Father
-  const MIRROR_ALL_FIELD = "contacts_mirror_all";
-  const mirrorAll = watch(MIRROR_ALL_FIELD);
-
-  // Keep per-group *_same_as_father fields in sync (for useContactMirror internals)
+  // 🔹 Mirror Father → Others when active
   useEffect(() => {
     CONTACT_GROUPS.forEach(({ prefix }) => {
       if (prefix === "father") return;
-      setValue(fieldFor(prefix, "same_as_father"), !!mirrorAll, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
+      const active = getValues(`${prefix}_active`);
+      if (active) {
+        FIELDS.forEach((f, idx) => {
+          setValue(`${prefix}_${f.key}`, fatherValues[idx] || "");
+        });
+      }
     });
-  }, [mirrorAll, setValue, CONTACT_GROUPS]);
-
-  const isDisabled = (prefix) =>
-    prefix !== "father" && (mirrorAll || isSameByPrefix[prefix]);
+  }, [fatherValues, CONTACT_GROUPS, FIELDS, getValues, setValue]);
 
   return (
     <SectionCard
@@ -69,27 +63,14 @@ export default function ContactSection() {
       variant="outlined"
       elevation={1}
       padding="md"
-      actions={
-        <Controller
-          control={control}
-          name={MIRROR_ALL_FIELD}
-          render={({ field }) => (
-            <div className="flex items-center gap-2">
-              <Checkbox {...field} variant="outlined" color="primary" />
-              <span className="text-xs text-gray-700 dark:text-dark-100">
-                Mirror all from Father
-              </span>
-            </div>
-          )}
-        />
-      }
     >
-      {/* Desktop Table */}
+      {/* Table layout for desktop */}
       <div className="mt-2 hidden md:block">
         <div className="overflow-x-auto">
           <table className="min-w-full border-separate border-spacing-y-2">
             <thead>
               <tr className="bg-primary-600 text-left text-sm text-white dark:bg-primary-700">
+                <th className="px-3 py-2">Include</th>
                 <th className="px-3 py-2">Contact</th>
                 {FIELDS.map(({ key, label, icon: Icon }) => (
                   <th key={key} className="px-3 py-2">
@@ -103,35 +84,34 @@ export default function ContactSection() {
             </thead>
             <tbody>
               {CONTACT_GROUPS.map(({ title, prefix }) => {
-                const father = prefix === "father";
-                const disabled = isDisabled(prefix);
-                const mirrored = !father && (mirrorAll || isSameByPrefix[prefix]);
-
+                const isFather = prefix === "father";
+                const isActive = watch(`${prefix}_active`);
                 return (
                   <tr key={prefix} className="align-top">
-                    <td className="px-3 py-2 text-sm font-medium">
-                      <div className="flex items-center gap-2">
-                        <span>{title}</span>
-                        {mirrored && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-100">
-                            <CheckCircleIcon className="size-3" />
-                            Mirrored
-                          </span>
+                    <td className="px-3 py-2">
+                      <Controller
+                        control={control}
+                        name={fieldFor(prefix, "active")}
+                        render={({ field }) => (
+                          <Checkbox {...field} color="primary" variant="outlined" />
                         )}
-                      </div>
+                      />
                     </td>
-
+                    <td className="px-3 py-2 text-sm font-medium">{title}</td>
                     {FIELDS.map(({ key }) => (
                       <td key={key} className="px-3 py-2">
                         <RHFInput
                           name={fieldFor(prefix, key)}
-                          label={null} // no inline label inside table
+                          label={null}
                           inputMode={
-                            key.includes("phone") ? "tel" : key === "email" ? "email" : undefined
+                            key.includes("phone")
+                              ? "tel"
+                              : key === "email"
+                              ? "email"
+                              : undefined
                           }
                           autoComplete={key === "email" ? "email" : undefined}
-                          disabled={disabled}
-                          onBlur={father ? onFatherBlur : undefined}
+                          disabled={!isFather && isActive}
                         />
                       </td>
                     ))}
@@ -143,13 +123,11 @@ export default function ContactSection() {
         </div>
       </div>
 
-      {/* Mobile Layout (Card format) */}
+      {/* Mobile layout */}
       <div className="mt-4 space-y-6 md:hidden">
         {CONTACT_GROUPS.map(({ title, prefix }) => {
-          const father = prefix === "father";
-          const disabled = isDisabled(prefix);
-          const mirrored = !father && (mirrorAll || isSameByPrefix[prefix]);
-
+          const isFather = prefix === "father";
+          const isActive = watch(`${prefix}_active`);
           return (
             <SectionCard
               key={prefix}
@@ -158,12 +136,13 @@ export default function ContactSection() {
               elevation={0}
               padding="md"
               actions={
-                mirrored ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-100">
-                    <CheckCircleIcon className="size-3" />
-                    Mirrored
-                  </span>
-                ) : null
+                <Controller
+                  control={control}
+                  name={fieldFor(prefix, "active")}
+                  render={({ field }) => (
+                    <Checkbox {...field} color="primary" variant="outlined" />
+                  )}
+                />
               }
             >
               {FIELDS.map(({ key, label, icon: Icon }) => (
@@ -172,11 +151,14 @@ export default function ContactSection() {
                     name={fieldFor(prefix, key)}
                     label={<LabelWithIcon icon={Icon}>{label}</LabelWithIcon>}
                     inputMode={
-                      key.includes("phone") ? "tel" : key === "email" ? "email" : undefined
+                      key.includes("phone")
+                        ? "tel"
+                        : key === "email"
+                        ? "email"
+                        : undefined
                     }
                     autoComplete={key === "email" ? "email" : undefined}
-                    disabled={disabled}
-                    onBlur={father ? onFatherBlur : undefined}
+                    disabled={!isFather && isActive}
                   />
                 </div>
               ))}
@@ -188,9 +170,9 @@ export default function ContactSection() {
       {/* Notes + Communication Email */}
       <fieldset className="mt-5 grid grid-cols-12 gap-4">
         <legend className="sr-only">Other contact information</legend>
-
         <div className="col-span-12">
-          <Textarea className="h-8 py-1 text-xs"
+          <Textarea
+            className="h-8 py-1 text-xs"
             label={
               <LabelWithIcon icon={MegaphoneIcon}>
                 Other contact information the school should be aware of (if any)
@@ -199,7 +181,6 @@ export default function ContactSection() {
             {...register("other_contact_info")}
           />
         </div>
-
         <div className="col-span-12 md:col-span-6">
           <RHFInput
             name="parent_comm_email"
@@ -215,4 +196,25 @@ export default function ContactSection() {
       </fieldset>
     </SectionCard>
   );
+}
+
+// 🔹 Helper: build contacts payload for API
+export function buildContactsPayload(getValues, groups) {
+  return groups
+    .map(({ prefix, relationshipId }) => {
+      const active = getValues(`${prefix}_active`);
+      if (!active) return null; // skip inactive rows
+      return {
+        Name: getValues(`${prefix}_first_name`),
+        PriNumber: getValues(`${prefix}_phone`),
+        SecNumber: getValues(`${prefix}_alt_phone`),
+        Email: getValues(`${prefix}_email`),
+        Address1: "",
+        City: "",
+        State: "",
+        Pincode: "",
+        RelationshipId: relationshipId,
+      };
+    })
+    .filter(Boolean);
 }

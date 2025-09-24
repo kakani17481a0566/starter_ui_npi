@@ -1,8 +1,8 @@
 // src/app/pages/forms/StudentRegistrationForm/sections/AddressSection.jsx
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { Input, Checkbox, Radio } from "components/ui";
+import { Input, Checkbox, Radio, Card } from "components/ui";
 import {
   HomeIcon,
   UserGroupIcon,
@@ -13,6 +13,7 @@ import {
 import LabelWithIcon from "../components/LabelWithIcon";
 import SectionCard from "../components/SectionCard";
 import clsx from "clsx";
+import { fetchCustodyOptions, fetchLivesWithOptions } from "../dropdown"; // ✅ added
 
 const f = (p, n) => (p ? `${p}${n}` : n);
 const COMPACT = "h-8 py-1 text-xs";
@@ -22,10 +23,10 @@ function AddressGroup({ title, prefix = "", syncWithPrimary = false, showRole = 
 
   // primary values for mirroring
   const primaryVals = watch([
-    "pg_names","home_apt","home_street",
-    "mailing_city","mailing_postal",
-    "civic_city","civic_postal",
-    "civic_house","civic_po_box",
+    "pg_names", "home_apt", "home_street",
+    "mailing_city", "mailing_postal",
+    "civic_city", "civic_postal",
+    "civic_house", "civic_po_box",
   ]);
 
   const sameAsName = f(prefix, "same_as_primary");
@@ -196,7 +197,31 @@ function AddressGroup({ title, prefix = "", syncWithPrimary = false, showRole = 
   );
 }
 
-export default function AddressSection() {
+export default function AddressSection({ tenantId = 1 }) {
+  const { register, formState: { errors } } = useFormContext();
+  const [custodyOptions, setCustodyOptions] = useState([]);
+  const [livesWithOptions, setLivesWithOptions] = useState([]); // ✅ new state
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadMasters() {
+      try {
+        const [custody, livesWith] = await Promise.all([
+          fetchCustodyOptions(tenantId),
+          fetchLivesWithOptions(tenantId),
+        ]);
+        if (mounted) {
+          setCustodyOptions(custody);
+          setLivesWithOptions(livesWith);
+        }
+      } catch (err) {
+        console.error("Failed to load custody/livesWith options", err);
+      }
+    }
+    loadMasters();
+    return () => { mounted = false };
+  }, [tenantId]);
+
   return (
     <>
       <AddressGroup
@@ -215,6 +240,57 @@ export default function AddressSection() {
         prefix="ec_"
         syncWithPrimary={true}
       />
+
+      {/* 🔹 Custody & Lives With */}
+      <div className="col-span-12">
+        <Card className="p-4 sm:px-5 mt-4">
+          <div className="grid grid-cols-12 gap-6">
+            {/* Custody */}
+            <div className="col-span-12 md:col-span-6">
+              <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+                <LabelWithIcon icon={UserGroupIcon}>
+                  Custody (check one)
+                </LabelWithIcon>
+              </label>
+              <div className="flex flex-wrap gap-6">
+                {custodyOptions.map((opt) => (
+                  <Radio
+                    key={opt.id}
+                    value={opt.id}     // ✅ numeric ID
+                    label={opt.name}
+                    {...register("custody_of_id")}
+                  />
+                ))}
+              </div>
+              {errors?.custody_of_id && (
+                <p className="mt-1 text-xs text-red-500">{errors.custody_of_id.message}</p>
+              )}
+            </div>
+
+            {/* Lives With */}
+            <div className="col-span-12 md:col-span-6">
+              <label className="dark:text-dark-100 mb-1 block text-sm font-medium text-gray-700">
+                <LabelWithIcon icon={UserGroupIcon}>
+                  Lives With (check one)
+                </LabelWithIcon>
+              </label>
+              <div className="flex flex-wrap gap-6">
+                {livesWithOptions.map((opt) => (
+                  <Radio
+                    key={opt.id}
+                    value={opt.id}     // ✅ numeric ID
+                    label={opt.name}
+                    {...register("lives_with_id")}
+                  />
+                ))}
+              </div>
+              {errors?.lives_with_id && (
+                <p className="mt-1 text-xs text-red-500">{errors.lives_with_id.message}</p>
+              )}
+            </div>
+          </div>
+        </Card>
+      </div>
     </>
   );
 }

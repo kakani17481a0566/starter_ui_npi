@@ -1,6 +1,6 @@
 // src/app/pages/forms/StudentRegistrationForm/sections/MedicalInfoSection.jsx
-import { useEffect } from "react";
-import { useFormContext } from "react-hook-form";
+import { useEffect, useState, useMemo } from "react";
+import { useFormContext, Controller } from "react-hook-form";
 import { Input, Textarea, Radio } from "components/ui";
 import {
   MegaphoneIcon,
@@ -9,20 +9,22 @@ import {
 } from "@heroicons/react/24/outline";
 import LabelWithIcon from "../components/LabelWithIcon";
 import SectionCard from "../components/SectionCard";
+import { fetchAllergyOptions } from "../dropdown"; // masters_type_id = 50
 
 export default function MedicalInfoSection({
   padding = "md",
   className,
-  // you can optionally override any SectionCard prop below:
   elevation = 6,
   variant = "solid",
   radius = "xl",
   hoverLift = true,
   interactive = false,
   subtitle,
+  tenantId = 1,
   ...cardProps
 }) {
   const {
+    control,
     register,
     watch,
     setValue,
@@ -30,11 +32,31 @@ export default function MedicalInfoSection({
     formState: { errors },
   } = useFormContext();
 
-  // Compact control styles
   const compact = "h-8 py-1 text-xs";
   const radiosRow = "flex flex-wrap items-center gap-4 text-xs";
 
-  // --- Defaults: set to "yes" to keep inputs enabled initially ---
+  const [allergyOptions, setAllergyOptions] = useState([]);
+
+  // Fetch allergy options
+  useEffect(() => {
+    async function loadOptions() {
+      try {
+        const opts = await fetchAllergyOptions(tenantId);
+        setAllergyOptions(opts || []);
+      } catch (err) {
+        console.error("Failed to load allergy options", err);
+      }
+    }
+    loadOptions();
+  }, [tenantId]);
+
+  // Get OTHER id
+  const otherAllergyId = useMemo(
+    () => allergyOptions.find((a) => a.code === "OTHER")?.id,
+    [allergyOptions]
+  );
+
+  // Defaults
   useEffect(() => {
     const init = (name, fallback) => {
       const v = getValues(name);
@@ -48,11 +70,13 @@ export default function MedicalInfoSection({
 
   const lifeThreatAllergy = watch("life_threat_allergy");
   const emergencyKit = watch("emergency_kit_recommended");
+  const selectedAllergy = watch("WhatAllergyId");
 
-  // --- When toggled to "No", clear the dependent values but keep the field visible (disabled) ---
+  // Clear dependent fields
   useEffect(() => {
     if (lifeThreatAllergy !== "yes") {
-      setValue("allergy_substances", "", { shouldDirty: true, shouldValidate: true });
+      setValue("WhatAllergyId", null, { shouldDirty: true, shouldValidate: true });
+      setValue("OtherAllergyText", "", { shouldDirty: true, shouldValidate: true });
     }
   }, [lifeThreatAllergy, setValue]);
 
@@ -61,12 +85,6 @@ export default function MedicalInfoSection({
       setValue("emergency_kit_details", "", { shouldDirty: true, shouldValidate: true });
     }
   }, [emergencyKit, setValue]);
-
-  // Required only when controlling radio is "yes"
-  const requiredIfYes = (dep) => ({
-    validate: (val) =>
-      dep === "yes" ? (val && String(val).trim().length > 0) || "This field is required." : true,
-  });
 
   return (
     <SectionCard
@@ -82,9 +100,8 @@ export default function MedicalInfoSection({
       className={className}
       {...cardProps}
     >
-      {/* One row on desktop: left = Allergy block, right = Emergency kit block */}
       <div className="mt-1 grid grid-cols-12 gap-4">
-        {/* LEFT: Life-threatening allergy + substances (always visible; disabled when "No") */}
+        {/* LEFT: Life-threatening allergy + substances */}
         <div className="col-span-12 md:col-span-6">
           <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-100">
             <LabelWithIcon icon={MegaphoneIcon}>
@@ -96,19 +113,47 @@ export default function MedicalInfoSection({
             <Radio label="No" value="no" {...register("life_threat_allergy")} />
           </div>
 
-          <div className="mt-3">
-            <Textarea
-              className={compact}
-              rows={1}
-              label={<LabelWithIcon icon={HashtagIcon}>Indicate the substance(s)</LabelWithIcon>}
-              disabled={lifeThreatAllergy !== "yes"}
-              {...register("allergy_substances", requiredIfYes(lifeThreatAllergy))}
-              error={errors?.allergy_substances?.message}
-            />
-          </div>
+          {lifeThreatAllergy === "yes" && (
+            <div className="mt-3 space-y-2">
+              {/* Render allergy options as radio buttons */}
+              <div className={radiosRow}>
+                <Controller
+                  name="allergy_id"
+                  control={control}
+                  render={({ field }) => (
+                    <>
+                      {allergyOptions.map((opt) => (
+                        <Radio
+                          key={opt.id}
+                          value={opt.id}
+                          checked={Number(field.value) === opt.id}
+                          onChange={() => field.onChange(opt.id)} // force number
+                          label={opt.name}
+                        />
+                      ))}
+                    </>
+                  )}
+                />
+              </div>
+
+              {/* Show extra input if OTHER is selected */}
+              {Number(selectedAllergy) === Number(otherAllergyId) && (
+                <Input
+                  className={compact}
+                  label={
+                    <LabelWithIcon icon={HashtagIcon}>
+                      Other allergy (specify)
+                    </LabelWithIcon>
+                  }
+                  {...register("OtherAllergyText")}
+                  error={errors?.OtherAllergyText?.message}
+                />
+              )}
+            </div>
+          )}
         </div>
 
-        {/* RIGHT: Emergency kit recommended + details (always visible; disabled when "No") */}
+        {/* RIGHT: Emergency kit recommended */}
         <div className="col-span-12 md:col-span-6">
           <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-dark-100">
             <LabelWithIcon icon={MegaphoneIcon}>
@@ -125,7 +170,7 @@ export default function MedicalInfoSection({
               className={compact}
               label={<LabelWithIcon icon={PencilSquareIcon}>Kit details (if any)</LabelWithIcon>}
               disabled={emergencyKit !== "yes"}
-              {...register("emergency_kit_details", requiredIfYes(emergencyKit))}
+              {...register("emergency_kit_details")}
               error={errors?.emergency_kit_details?.message}
             />
           </div>
@@ -135,7 +180,7 @@ export default function MedicalInfoSection({
         <div className="col-span-12 md:col-span-6">
           <Textarea
             className={compact}
-            rows={1}
+            rows={2}
             label={<LabelWithIcon icon={MegaphoneIcon}>Serious medical condition(s)</LabelWithIcon>}
             {...register("serious_medical_conditions")}
             error={errors?.serious_medical_conditions?.message}
@@ -145,8 +190,12 @@ export default function MedicalInfoSection({
         <div className="col-span-12 md:col-span-6">
           <Textarea
             className={compact}
-            rows={1}
-            label={<LabelWithIcon icon={MegaphoneIcon}>Information pertaining to serious condition(s)</LabelWithIcon>}
+            rows={2}
+            label={
+              <LabelWithIcon icon={MegaphoneIcon}>
+                Information pertaining to serious condition(s)
+              </LabelWithIcon>
+            }
             {...register("serious_medical_info")}
             error={errors?.serious_medical_info?.message}
           />
@@ -155,8 +204,12 @@ export default function MedicalInfoSection({
         <div className="col-span-12">
           <Textarea
             className={compact}
-            rows={1}
-            label={<LabelWithIcon icon={MegaphoneIcon}>Other medical information the school should be aware of</LabelWithIcon>}
+            rows={2}
+            label={
+              <LabelWithIcon icon={MegaphoneIcon}>
+                Other medical information the school should be aware of
+              </LabelWithIcon>
+            }
             {...register("other_medical_info")}
             error={errors?.other_medical_info?.message}
           />

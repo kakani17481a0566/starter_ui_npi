@@ -20,7 +20,7 @@ import PropTypes from "prop-types";
 // Local Imports
 import { ConfirmModal } from "components/shared/ConfirmModal";
 import { Button } from "components/ui";
-import { AttendanceDrawer } from "./OrdersDrawer"; // ✅ fixed import
+import { LibraryDrawer } from "./OrdersDrawer";
 import { useDisclosure } from "hooks";
 
 // ----------------------------------------------------------------------
@@ -28,10 +28,10 @@ import { useDisclosure } from "hooks";
 const confirmMessages = {
   pending: {
     description:
-      "Are you sure you want to delete this record? Once deleted, it cannot be restored.",
+      "Are you sure you want to delete this order? Once deleted, it cannot be restored.",
   },
   success: {
-    title: "Record Deleted",
+    title: "Order Deleted",
   },
 };
 
@@ -150,8 +150,7 @@ export function RowActions({ row, table }) {
         state={state}
       />
 
-      {/* ✅ Changed to AttendanceDrawer */}
-      <AttendanceDrawer row={row} close={closeDrawer} isOpen={isDrawerOpen} />
+      <LibraryDrawer row={row} close={closeDrawer} isOpen={isDrawerOpen} />
     </>
   );
 }

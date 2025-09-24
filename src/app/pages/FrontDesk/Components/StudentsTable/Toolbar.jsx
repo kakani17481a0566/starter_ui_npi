@@ -1,3 +1,5 @@
+// src/app/pages/tables/attendece_dash_bord_table/attendecedisplaytable/Toolbar.jsx
+
 // Import Dependencies
 import {
   ChevronUpDownIcon,
@@ -15,17 +17,16 @@ import {
   Transition,
 } from "@headlessui/react";
 import { EllipsisHorizontalIcon } from "@heroicons/react/20/solid";
-import { TbCurrencyDollar } from "react-icons/tb";
 import PropTypes from "prop-types";
+import dayjs from "dayjs"; // ⬅️ added for time-based logic
 
 // Local Imports
 import { DateFilter } from "components/shared/table/DateFilter";
 import { FacedtedFilter } from "components/shared/table/FacedtedFilter";
-import { RangeFilter } from "components/shared/table/RangeFilter";
 import { Button, Input } from "components/ui";
 import { TableConfig } from "./TableConfig";
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
-import { orderStatusOptions } from "./data";
+import { attendanceStatusOptions } from "./data"; // ✅ fixed import
 
 // ----------------------------------------------------------------------
 
@@ -35,6 +36,7 @@ export function Toolbar({ table }) {
 
   return (
     <div className="table-toolbar">
+      {/* Header row */}
       <div
         className={clsx(
           "transition-content flex items-center justify-between gap-4",
@@ -43,9 +45,11 @@ export function Toolbar({ table }) {
       >
         <div className="min-w-0">
           <h2 className="truncate text-xl font-medium tracking-wide text-gray-800 dark:text-dark-50">
-            StudentsTable
+            Attendance Table
           </h2>
         </div>
+
+        {/* Actions */}
         {isXs ? (
           <Menu as="div" className="relative inline-block text-left">
             <MenuButton
@@ -69,33 +73,7 @@ export function Toolbar({ table }) {
                 {({ focus }) => (
                   <button
                     className={clsx(
-                      "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
-                      focus &&
-                        "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
-                    )}
-                  >
-                    <span>New Order</span>
-                  </button>
-                )}
-              </MenuItem>
-              <MenuItem>
-                {({ focus }) => (
-                  <button
-                    className={clsx(
-                      "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
-                      focus &&
-                        "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
-                    )}
-                  >
-                    <span>Share</span>
-                  </button>
-                )}
-              </MenuItem>
-              <MenuItem>
-                {({ focus }) => (
-                  <button
-                    className={clsx(
-                      "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
+                      "flex h-9 w-full items-center px-3 tracking-wide",
                       focus &&
                         "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                     )}
@@ -104,26 +82,11 @@ export function Toolbar({ table }) {
                   </button>
                 )}
               </MenuItem>
-              <hr className="mx-3 my-1.5 h-px border-gray-150 dark:border-dark-500" />
               <MenuItem>
                 {({ focus }) => (
                   <button
                     className={clsx(
-                      "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
-                      focus &&
-                        "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
-                    )}
-                  >
-                    <span>Import Orders</span>
-                  </button>
-                )}
-              </MenuItem>
-              <hr className="mx-3 my-1.5 h-px border-gray-150 dark:border-dark-500" />
-              <MenuItem>
-                {({ focus }) => (
-                  <button
-                    className={clsx(
-                      "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
+                      "flex h-9 w-full items-center px-3 tracking-wide",
                       focus &&
                         "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                     )}
@@ -136,7 +99,7 @@ export function Toolbar({ table }) {
                 {({ focus }) => (
                   <button
                     className={clsx(
-                      "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
+                      "flex h-9 w-full items-center px-3 tracking-wide",
                       focus &&
                         "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                     )}
@@ -145,39 +108,23 @@ export function Toolbar({ table }) {
                   </button>
                 )}
               </MenuItem>
-              <MenuItem>
-                {({ focus }) => (
-                  <button
-                    className={clsx(
-                      "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
-                      focus &&
-                        "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
-                    )}
-                  >
-                    <span>Save Table as View</span>
-                  </button>
-                )}
-              </MenuItem>
             </Transition>
           </Menu>
         ) : (
-          <div className="flex space-x-2 ">
+          <div className="flex space-x-2">
             <Button
               variant="outlined"
-              className="h-8 space-x-2 rounded-md px-3 text-xs "
+              className="h-8 space-x-2 rounded-md px-3 text-xs"
             >
               <PrinterIcon className="size-4" />
               <span>Print</span>
             </Button>
 
-            <Menu
-              as="div"
-              className="relative inline-block whitespace-nowrap text-left"
-            >
+            <Menu as="div" className="relative inline-block text-left">
               <MenuButton
                 as={Button}
                 variant="outlined"
-                className="h-8 space-x-2 rounded-md px-3 text-xs "
+                className="h-8 space-x-2 rounded-md px-3 text-xs"
               >
                 <TbUpload className="size-4" />
                 <span>Export</span>
@@ -191,13 +138,13 @@ export function Toolbar({ table }) {
                 leave="transition ease-in"
                 leaveFrom="opacity-100 translate-y-0"
                 leaveTo="opacity-0 translate-y-2"
-                className="absolute z-100 mt-1.5 min-w-[10rem] rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-hidden focus-visible:outline-hidden dark:border-dark-500 dark:bg-dark-700 dark:shadow-none ltr:right-0 rtl:left-0"
+                className="absolute z-100 mt-1.5 min-w-[10rem] rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 dark:border-dark-500 dark:bg-dark-700"
               >
                 <MenuItem>
                   {({ focus }) => (
                     <button
                       className={clsx(
-                        "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
+                        "flex h-9 w-full items-center px-3 tracking-wide",
                         focus &&
                           "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                       )}
@@ -210,7 +157,7 @@ export function Toolbar({ table }) {
                   {({ focus }) => (
                     <button
                       className={clsx(
-                        "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
+                        "flex h-9 w-full items-center px-3 tracking-wide",
                         focus &&
                           "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
                       )}
@@ -221,93 +168,16 @@ export function Toolbar({ table }) {
                 </MenuItem>
               </Transition>
             </Menu>
-
-            <Menu
-              as="div"
-              className="relative inline-block whitespace-nowrap text-left"
-            >
-              <MenuButton
-                as={Button}
-                variant="outlined"
-                className="h-8 shrink-0 rounded-md px-2.5"
-              >
-                <EllipsisHorizontalIcon className="size-4.5" />
-              </MenuButton>
-              <Transition
-                as={MenuItems}
-                enter="transition ease-out"
-                enterFrom="opacity-0 translate-y-2"
-                enterTo="opacity-100 translate-y-0"
-                leave="transition ease-in"
-                leaveFrom="opacity-100 translate-y-0"
-                leaveTo="opacity-0 translate-y-2"
-                className="absolute z-100 mt-1.5 min-w-[10rem] whitespace-nowrap rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-hidden focus-visible:outline-hidden dark:border-dark-500 dark:bg-dark-700 dark:shadow-none ltr:right-0 rtl:left-0"
-              >
-                <MenuItem>
-                  {({ focus }) => (
-                    <button
-                      className={clsx(
-                        "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
-                        focus &&
-                          "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
-                      )}
-                    >
-                      <span>New Order</span>
-                    </button>
-                  )}
-                </MenuItem>
-                <MenuItem>
-                  {({ focus }) => (
-                    <button
-                      className={clsx(
-                        "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
-                        focus &&
-                          "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
-                      )}
-                    >
-                      <span>Share Orders</span>
-                    </button>
-                  )}
-                </MenuItem>
-                <hr className="mx-3 my-1.5 h-px border-gray-150 dark:border-dark-500" />
-                <MenuItem>
-                  {({ focus }) => (
-                    <button
-                      className={clsx(
-                        "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
-                        focus &&
-                          "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
-                      )}
-                    >
-                      <span>Import Orders</span>
-                    </button>
-                  )}
-                </MenuItem>
-                <hr className="mx-3 my-1.5 h-px border-gray-150 dark:border-dark-500" />
-                <MenuItem>
-                  {({ focus }) => (
-                    <button
-                      className={clsx(
-                        "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
-                        focus &&
-                          "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
-                      )}
-                    >
-                      <span>Save Table as View</span>
-                    </button>
-                  )}
-                </MenuItem>
-              </Transition>
-            </Menu>
           </div>
         )}
       </div>
 
+      {/* Search + Filters */}
       {isXs ? (
         <>
           <div
             className={clsx(
-              "flex space-x-2 pt-4  [&_.input-root]:flex-1",
+              "flex space-x-2 pt-4 [&_.input-root]:flex-1",
               isFullScreenEnabled ? "px-4 sm:px-5" : "px-(--margin-x)",
             )}
           >
@@ -316,7 +186,7 @@ export function Toolbar({ table }) {
           </div>
           <div
             className={clsx(
-              "hide-scrollbar flex shrink-0 space-x-2 overflow-x-auto pb-1 pt-4 ",
+              "hide-scrollbar flex shrink-0 space-x-2 overflow-x-auto pb-1 pt-4",
               isFullScreenEnabled ? "px-4 sm:px-5" : "px-(--margin-x)",
             )}
           >
@@ -326,20 +196,14 @@ export function Toolbar({ table }) {
       ) : (
         <div
           className={clsx(
-            "custom-scrollbar transition-content flex justify-between space-x-4 overflow-x-auto pb-1 pt-4 ",
+            "custom-scrollbar flex justify-between space-x-4 overflow-x-auto pb-1 pt-4",
             isFullScreenEnabled ? "px-4 sm:px-5" : "px-(--margin-x)",
           )}
-          style={{
-            "--margin-scroll": isFullScreenEnabled
-              ? "1.25rem"
-              : "var(--margin-x)",
-          }}
         >
-          <div className="flex shrink-0 space-x-2 ">
+          <div className="flex shrink-0 space-x-2">
             <SearchInput table={table} />
             <Filters table={table} />
           </div>
-
           <TableConfig table={table} />
         </div>
       )}
@@ -357,49 +221,59 @@ function SearchInput({ table }) {
         input: "h-8 text-xs ring-primary-500/50 focus:ring-3",
         root: "shrink-0",
       }}
-      placeholder="Search ID, Customer..."
+      placeholder="Search Student ID, Name, or Class..."
     />
   );
 }
 
+// 🔑 Patched Filters → applies same "Not Marked → Absent after 12pm" logic
 function Filters({ table }) {
   const isFiltered = table.getState().columnFilters.length > 0;
+  const now = dayjs();
+
+  const normalize = (s) =>
+    s?.toString().trim().toLowerCase().replace(/[\s-_]/g, "");
+
   return (
     <>
-      {table.getColumn("order_status") && (
+      {table.getColumn("attendanceStatus") && (
         <FacedtedFilter
-          options={orderStatusOptions}
-          column={table.getColumn("order_status")}
-          title="Status"
+          options={(attendanceStatusOptions || []).map((opt) => {
+            const rawValues = table
+              .getRowModel()
+              .rows.map((row) => row.getValue("attendanceStatus"));
+
+            // apply same override: Not Marked → Absent after 12pm
+            const adjustedValues = rawValues.map((val) => {
+              if (normalize(val) === normalize("Not Marked") && now.hour() >= 12) {
+                return "Absent";
+              }
+              return val;
+            });
+
+            const matched = adjustedValues.find(
+              (val) => normalize(val) === normalize(opt.value)
+            );
+
+            return {
+              ...opt,
+              value: matched || opt.value,
+            };
+          })}
+          column={table.getColumn("attendanceStatus")}
+          title="Attendance Status"
           Icon={MapPinIcon}
         />
       )}
 
-      {table.getColumn("created_at") && (
+      {table.getColumn("markedOn") && (
         <DateFilter
-          column={table.getColumn("created_at")}
-          title="Order Date Range"
+          column={table.getColumn("markedOn")}
+          title="Attendance Date Range"
           config={{
             maxDate: new Date().fp_incr(1),
             mode: "range",
           }}
-        />
-      )}
-
-      {table.getColumn("total") && (
-        <RangeFilter
-          column={table.getColumn("total")}
-          title="Total Amount"
-          Icon={TbCurrencyDollar}
-          MinPrefixIcon={TbCurrencyDollar}
-          MaxPrefixIcon={TbCurrencyDollar}
-          buttonText={({ min, max }) => (
-            <>
-              {min && <>From ${min}</>}
-              {min && max && " - "}
-              {max && <>To ${max}</>}
-            </>
-          )}
         />
       )}
 
@@ -414,6 +288,8 @@ function Filters({ table }) {
     </>
   );
 }
+
+// ----------------------------------------------------------------------
 
 Toolbar.propTypes = {
   table: PropTypes.object,

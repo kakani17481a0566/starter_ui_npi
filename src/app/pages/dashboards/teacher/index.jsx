@@ -1,57 +1,132 @@
 // src/app/pages/dashboards/teacher/index.jsx
-
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Page } from "components/shared/Page";
 import { Welcome } from "./Welcome";
-import { UserCard } from "./users-card/UserCard"; // named export
+import { UserCard } from "./users-card/UserCard";
 import { Students } from "./Students";
 import { Calendar } from "./Calendar";
 import { WeekTimeTable } from "./WeekTimeTable";
 import { Classes } from "./Classes";
 import { VerticalDividerCard } from "./VerticalDividerCard";
 
-// ✅ Import the avatar asset from src so Vite bundles it correctly
 import avatar11 from "./users-card/avatar-11.jpg";
+import { getSessionData } from "utils/sessionStorage";
 
-// ------------------------------------------------------------
-// Dummy data
-const DUMMY_ROLE = "Teacher";
-const DUMMY_USER = {
-  name: "Konnor ssss",
-  avatar: avatar11, // <-- use imported URL
-  linkedin: "https://www.linkedin.com/in/konnor",
-  color: "primary",
-  progress: 72, // 0–100
-  verified: true,
-  presenceStatus: "available", // "available" | "busy" | "offline"
-  badges: ["Top Instructor"],
-  department: "Mathematics",
-
-  // Extra fields your UserCard supports
-  branch: "Downtown Campus",
-  joinedAt: "2023-02-01",
-  workingHours: { start: "09:00", end: "17:00" },
-  timezone: "America/New_York",
-};
-
-const DUMMY_COURSES = [
-  { id: 1, title: "Algebra I" },
-  { id: 2, title: "Geometry" },
-];
-
-// Utils
 const clamp = (n, min = 0, max = 100) =>
   Math.max(min, Math.min(max, Number(n) || 0));
-// ------------------------------------------------------------
+
+const API_BASE = "https://localhost:7202";
+
+const mapProfileToCamelCase = (apiData) => {
+  if (!apiData) return null;
+  return {
+    userId: apiData.userId,
+    username: apiData.username,
+    fullName: apiData.fullName,
+    email: apiData.email,
+    mobileNumber: apiData.mobileNumber,
+    roleName: apiData.roleName,
+    totalCourses: apiData.totalCourses,
+    coursesTaught: apiData.coursesTaught,
+    totalBranches: apiData.totalBranches,
+    branches: apiData.branches,
+    joiningDate: apiData.joiningDate,
+    workingStartTime: apiData.workingStartTime,
+    workingEndTime: apiData.workingEndTime,
+    userStatus: apiData.userStatus,
+    userCreatedOn: apiData.userCreatedOn,
+    userLastUpdated: apiData.userLastUpdated,
+    roleAssignedOn: apiData.roleAssignedOn,
+  };
+};
 
 export default function Teacher() {
-  const role = DUMMY_ROLE; // "Teacher" | "Parent" | ...
+  const session = getSessionData();
+  const userId = session?.userId;
+  const tenantId = session?.tenantId;
+
+  const [profile, setProfile] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+
+  useEffect(() => {
+    if (!userId || !tenantId) return;
+
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch(
+          `${API_BASE}/api/User/${userId}/profile-summary?tenantId=${tenantId}`
+        );
+        if (!res.ok) throw new Error("Failed to fetch profile");
+        const data = await res.json();
+
+        const summary = mapProfileToCamelCase(data.data);
+        setProfile(summary);
+
+        if (summary?.coursesTaught) {
+          const courseArray = summary.coursesTaught
+            .split(",")
+            .map((name, index) => ({
+              id: index + 1, // ✅ ensures unique id
+              title: name.trim(),
+            }));
+          setCourses(courseArray);
+          setSelectedCourse(courseArray[0] ?? null);
+        }
+      } catch (err) {
+        console.error("Error fetching user profile summary:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [userId, tenantId]);
+
+  const USER = useMemo(() => {
+    if (profile) {
+      return {
+        name: profile.fullName,
+        avatar: session.imageUrl || avatar11,
+        linkedin: session.userProfile?.linkedin || "",
+        color: "primary",
+        progress: 0,
+        verified: false,
+        presenceStatus: "available",
+        badges: [],
+        department: profile.roleName,
+        branch: profile.branches,
+        joinedAt: profile.joiningDate,
+        workingHours:
+          profile.workingStartTime !== "N/A" &&
+          profile.workingEndTime !== "N/A"
+            ? {
+                start: profile.workingStartTime,
+                end: profile.workingEndTime,
+              }
+            : null,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      };
+    }
+
+    return {
+      name: session.user ?? "Guest",
+      avatar: session.imageUrl || avatar11,
+      linkedin: session.userProfile?.linkedin || "",
+      color: "primary",
+      progress: session.userProfile?.progress ?? 0,
+      verified: session.userProfile?.verified ?? false,
+      presenceStatus: session.userProfile?.presenceStatus ?? "offline",
+      badges: session.userProfile?.badges ?? [],
+      department: session.department || "N/A",
+      branch: session.branch || "N/A",
+      joinedAt: session.userProfile?.joinedAt ?? null,
+      workingHours: session.userProfile?.workingHours ?? null,
+      timezone: session.userProfile?.timezone ?? null,
+    };
+  }, [profile, session]);
+
+  const role = profile?.roleName || session.role || "Teacher";
   const isParent = role?.toUpperCase() === "PARENT";
 
-  // Initialize with first dummy course (no effect needed)
-  const [selectedCourse, setSelectedCourse] = useState(DUMMY_COURSES[0] ?? null);
-
-  // Build props for <UserCard />
   const userCardData = useMemo(() => {
     const colorByRole = {
       Teacher: "primary",
@@ -61,32 +136,24 @@ export default function Teacher() {
     };
 
     return {
-      // identity & visuals
-      avatar: DUMMY_USER.avatar,
-      color: colorByRole[role] || DUMMY_USER.color,
-
-      // socials
-      linkedin: DUMMY_USER.linkedin,
-
-      // meta
-      name: DUMMY_USER.name,
+      avatar: USER.avatar,
+      color: colorByRole[role] || USER.color,
+      linkedin: USER.linkedin,
+      name: USER.name,
       role,
       query: "",
-
-      // progress
-      progress: clamp(DUMMY_USER.progress, 0, 100),
-
-      // extras supported by UserCard
-      verified: !!DUMMY_USER.verified,
-      presenceStatus: DUMMY_USER.presenceStatus,
-      badges: DUMMY_USER.badges,
-      department: DUMMY_USER.department,
-      branch: DUMMY_USER.branch,
-      joinedAt: DUMMY_USER.joinedAt,
-      workingHours: DUMMY_USER.workingHours,
-      timezone: DUMMY_USER.timezone,
+      progress: clamp(USER.progress, 0, 100),
+      verified: USER.verified,
+      presenceStatus: USER.presenceStatus,
+      badges: USER.badges,
+      department: USER.department,
+      branch: USER.branch,
+      joinedAt: USER.joinedAt,
+      workingHours: USER.workingHours,
+      timezone: USER.timezone,
+      profileSummary: profile,
     };
-  }, [role]);
+  }, [USER, role, profile]);
 
   return (
     <Page title={`${role} Dashboard`}>
@@ -99,7 +166,6 @@ export default function Teacher() {
         >
           <Welcome />
 
-          {/* 👇 UserCard below Welcome ONLY on mobile/tablet */}
           {!isParent && (
             <div className="block lg:hidden mt-4 sm:mt-5">
               <UserCard {...userCardData} />
@@ -110,20 +176,22 @@ export default function Teacher() {
 
           {!isParent && (
             <VerticalDividerCard
-              onCourseSelect={(course) => {
-                setSelectedCourse(course);
-              }}
+              courses={courses}
+              onCourseSelect={(course) => setSelectedCourse(course)}
             />
           )}
 
           <WeekTimeTable courseId={selectedCourse?.id} />
         </div>
 
-        {/* Right sidebar - visible only on desktop */}
+        {/* Right sidebar */}
         {!isParent && (
           <div className="col-span-12 hidden grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:sticky lg:top-20 lg:col-span-4 lg:grid-cols-1 lg:gap-6 lg:self-start xl:col-span-3 lg:grid">
             <UserCard {...userCardData} />
-            <Students />
+            <Students
+              courseId={selectedCourse?.id}
+              courseName={selectedCourse?.title}
+            />
             <Calendar />
           </div>
         )}

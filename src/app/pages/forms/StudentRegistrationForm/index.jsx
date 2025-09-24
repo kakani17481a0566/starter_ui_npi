@@ -323,6 +323,7 @@ function mapFormToApi(values) {
   const toISO = (v) => (v ? new Date(v).toISOString() : null);
   const yesNo = (v) => v === "yes";
   const notNone = (v) => v && v !== "none";
+  console.log("vslues",values.allergy_id);
 
   // ----- Primary address (used for default contact address) -----
   const primaryAddress = {
@@ -355,16 +356,16 @@ function mapFormToApi(values) {
   // Build contacts array from the groups you actually collect
   const contacts = [];
   if (values.father_first_name || values.father_phone || values.father_email) {
-    contacts.push(makeContact("father", 1));
+    contacts.push(makeContact("father", 209));
   }
   if (values.mother_first_name || values.mother_phone || values.mother_email) {
-    contacts.push(makeContact("mother", 2));
+    contacts.push(makeContact("mother", 210));
   }
   if (values.guardian_first_name || values.guardian_phone || values.guardian_email) {
-    contacts.push(makeContact("guardian", 3));
+    contacts.push(makeContact("guardian", 211));
   }
   if (values.emergency_first_name || values.emergency_phone || values.emergency_email) {
-    contacts.push(makeContact("emergency", 4));
+    contacts.push(makeContact("emergency", 212));
   }
 
   // Choose a “parent login” user source (prefer father_*, then mother_*)
@@ -547,7 +548,7 @@ const onSubmit = async (data) => {
                          onClick={async () => {
                            const isValid = await methods.trigger();
                            const errors = methods.formState.errors;
-           
+
                            const fieldLabels = {
                              pg_names: "Student First Name",
                              student_middle_name: "Student Middle Name",
@@ -583,7 +584,7 @@ const onSubmit = async (data) => {
                              heard_about_us_type_id: "Heard About Us",
                              signature: "E-Signature",
                            };
-           
+
                            if (!isValid) {
                              const missingFields = Object.entries(errors).map(
                                ([key, val]) => ({

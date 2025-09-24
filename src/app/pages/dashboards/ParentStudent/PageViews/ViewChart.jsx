@@ -11,37 +11,40 @@ const domainColorMap = {
   PSED: { fill: "#FBCFE8", stroke: "#EC4899" }, // Pink
 };
 
-// 🔹 Compute averages
+// 🔹 Compute averages + SD per subject
 function getSubjectVsScores(subjectWiseAssessments, studentId) {
   const subjects = [];
   const scores = [];
+  const sds = [];
 
   for (const subject of subjectWiseAssessments) {
-    let total = 0;
-    let count = 0;
+    const values = subject.skills
+      .map((skill) =>
+        skill.studentScores.find((s) => s.studentId === studentId)?.score ?? null
+      )
+      .filter((v) => v != null);
 
-    for (const skill of subject.skills) {
-      const studentScore = skill.studentScores.find((s) => s.studentId === studentId);
-      if (studentScore?.score != null) {
-        total += studentScore.score;
-        count++;
-      }
-    }
+    if (values.length > 0) {
+      const avg =
+        values.reduce((sum, v) => sum + v, 0) / values.length;
+      const variance =
+        values.reduce((sum, v) => sum + (v - avg) ** 2, 0) / values.length;
+      const sd = Math.sqrt(variance);
 
-    if (count > 0) {
       subjects.push(subject.subjectCode);
-      scores.push(Number((total / count).toFixed(2)));
+      scores.push(Number(avg.toFixed(2)));
+      sds.push(Number(sd.toFixed(2)));
     }
   }
 
-  return { subjects, scores };
+  return { subjects, scores, sds };
 }
 
 // 🔹 Chart Component
 export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubjectSelect }) {
-  const { subjects, scores } = useMemo(() => {
+  const { subjects, scores, sds } = useMemo(() => {
     if (!subjectWiseAssessments || !selectedStudentId)
-      return { subjects: [], scores: [] };
+      return { subjects: [], scores: [], sds: [] };
     return getSubjectVsScores(subjectWiseAssessments, selectedStudentId);
   }, [subjectWiseAssessments, selectedStudentId]);
 
@@ -55,15 +58,19 @@ export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubject
     );
   }
 
-  // 🎨 Map fills & strokes
+  // 🎨 Map fills
   const fillColors = subjects.map((code) => domainColorMap[code]?.fill || "#E5E7EB");
-  const strokeColors = subjects.map((code) => domainColorMap[code]?.stroke || "#374151");
 
-  const series = [{ name: "Average Score", data: scores }];
+  // 🔹 Two series: Bars (avg), Line (SD)
+  const series = [
+    { name: "Average Score", type: "bar", data: scores },
+    { name: "Std Dev", type: "line", data: sds },
+  ];
 
   const chartOptions = {
     chart: {
-      type: "bar",
+      type: "line",   // allows mixed bar + line
+      stacked: false,
       toolbar: { show: false },
       parentHeightOffset: 0,
       animations: { enabled: true, easing: "easeinout", speed: 400 },
@@ -81,48 +88,57 @@ export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubject
         distributed: true,
       },
     },
-    colors: fillColors,
+    colors: [
+      ...fillColors, // bar colors
+      "#111827",     // SD line (dark gray/black)
+    ],
     stroke: {
       show: true,
-      width: 2,
-      colors: strokeColors,
+      width: [2, 3], // bar border, line thickness
+      curve: "smooth",
+    },
+    markers: {
+      size: [0, 5],  // no markers for bars, dots for SD line
+      colors: ["#fff"],
+      strokeColors: ["#111827"],
+      strokeWidth: 2,
     },
     dataLabels: { enabled: false },
     tooltip: {
+      shared: true,
+      intersect: false,
       y: {
-        formatter: (val, { dataPointIndex }) =>
-          `${subjects[dataPointIndex]}: ${val}%`,
+        formatter: (val, { seriesIndex, dataPointIndex }) => {
+          return seriesIndex === 0
+            ? `${subjects[dataPointIndex]} Avg: ${val}%`
+            : `SD: ${val}`;
+        },
       },
       style: { fontSize: "12px" },
     },
     xaxis: {
       categories: subjects,
-      labels: {
-        style: { fontSize: "13px", colors: "#374151" },
-      },
+      labels: { style: { fontSize: "13px", colors: "#374151" } },
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
-    yaxis: {
-      title: {
-        text: "Average Marks (%)",
-        style: { fontSize: "12px" },
+    yaxis: [
+      {
+        title: { text: "Average Marks (%)", style: { fontSize: "12px" } },
+        labels: { style: { fontSize: "12px", colors: "#6B7280" } },
       },
-      labels: {
-        style: { fontSize: "12px", colors: "#6B7280" },
+      {
+        opposite: true,
+        title: { text: "Std Dev", style: { fontSize: "12px" } },
+        labels: { style: { fontSize: "12px", colors: "#374151" } },
       },
-    },
-    grid: {
-      borderColor: "#F3F4F6", // lighter grid
-      strokeDashArray: 4,
-    },
-    legend: { show: false },
+    ],
+    grid: { borderColor: "#F3F4F6", strokeDashArray: 4 },
+    legend: { show: true, position: "top" },
     responsive: [
       {
         breakpoint: 1024,
-        options: {
-          plotOptions: { bar: { columnWidth: "60%" } },
-        },
+        options: { plotOptions: { bar: { columnWidth: "60%" } } },
       },
     ],
   };
@@ -130,7 +146,7 @@ export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubject
   return (
     <div className="col-span-12 px-2 sm:col-span-6 lg:col-span-8">
       <div className="rounded-xl bg-white shadow-sm dark:bg-dark-700 p-4">
-        <Chart options={chartOptions} series={series} type="bar" height={280} />
+        <Chart options={chartOptions} series={series} height={280} />
       </div>
     </div>
   );
