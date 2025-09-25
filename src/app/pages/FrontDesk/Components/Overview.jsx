@@ -112,24 +112,7 @@ export function Overview() {
         </div>
       </Card>
 
-      {/* <Card className="flex justify-between p-5">
-        <div>
-          <p>Postal</p>
-          <p className="this:secondary text-this dark:text-this-lighter mt-0.5 text-2xl font-medium">
-            $128k
-          </p>
-        </div>
-        <Avatar
-          size={12}
-          classNames={{
-            display: "mask is-squircle rounded-none",
-          }}
-          initialVariant="soft"
-          initialColor="secondary"
-        >
-          <CurrencyDollarIcon className="size-6" />
-        </Avatar>
-      </Card> */}
+
     </div>
   );
 }

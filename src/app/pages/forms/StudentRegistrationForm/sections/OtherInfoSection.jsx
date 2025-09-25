@@ -1,18 +1,51 @@
 // src/app/pages/forms/StudentRegistrationForm/sections/OtherInfoSection.jsx
+import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Input, Radio } from "components/ui";
 import { AcademicCapIcon, GlobeAltIcon } from "@heroicons/react/24/outline";
 import SectionCard from "../components/SectionCard";
 import LabelWithIcon from "../components/LabelWithIcon";
+import { fetchReadAbilityOptions, fetchWriteAbilityOptions } from "../dropdown";
 
-export default function OtherInfoSection() {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext();
+export default function OtherInfoSection({ tenantId = 1 }) {
+  const { register, formState: { errors } } = useFormContext();
+
+  const [readOptions, setReadOptions] = useState([]);
+  const [writeOptions, setWriteOptions] = useState([]);
 
   const compact = "h-8 py-1 text-xs";
   const radiosRow = "flex flex-wrap items-center gap-4 text-xs";
+
+  // 🔹 Friendly label mapper
+  const friendlyLabel = (code) => {
+    switch (code) {
+      case "READ_LITTLE": return "Reads a little";
+      case "READ_WELL": return "Reads well";
+      case "WRITE_LITTLE": return "Writes a little";
+      case "WRITE_WELL": return "Writes well";
+      default: return code; // fallback
+    }
+  };
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadOptions() {
+      try {
+        const [read, write] = await Promise.all([
+          fetchReadAbilityOptions(tenantId),
+          fetchWriteAbilityOptions(tenantId),
+        ]);
+        if (mounted) {
+          setReadOptions(read);
+          setWriteOptions(write);
+        }
+      } catch (err) {
+        console.error("Failed to load read/write ability options", err);
+      }
+    }
+    loadOptions();
+    return () => { mounted = false };
+  }, [tenantId]);
 
   return (
     <SectionCard
@@ -78,9 +111,14 @@ export default function OtherInfoSection() {
             <LabelWithIcon icon={AcademicCapIcon}>Reading ability in English</LabelWithIcon>
           </label>
           <div className={radiosRow}>
-            <Radio value="none" label="Does not read it" {...register("read_english")} />
-            <Radio value="little" label="Reads it a little" {...register("read_english")} />
-            <Radio value="well" label="Reads it well" {...register("read_english")} />
+            {readOptions.map((opt) => (
+              <Radio
+                key={opt.id}
+                value={opt.id}               // ✅ backend gets ID
+                label={friendlyLabel(opt.code)} // ✅ UI shows friendly text
+                {...register("read_english_id")}
+              />
+            ))}
           </div>
         </div>
 
@@ -90,9 +128,14 @@ export default function OtherInfoSection() {
             <LabelWithIcon icon={AcademicCapIcon}>Writing ability in English</LabelWithIcon>
           </label>
           <div className={radiosRow}>
-            <Radio value="none" label="Does not write it" {...register("write_english")} />
-            <Radio value="little" label="Writes it a little" {...register("write_english")} />
-            <Radio value="well" label="Writes it well" {...register("write_english")} />
+            {writeOptions.map((opt) => (
+              <Radio
+                key={opt.id}
+                value={opt.id}
+                label={friendlyLabel(opt.code)}
+                {...register("write_english_id")}
+              />
+            ))}
           </div>
         </div>
       </div>

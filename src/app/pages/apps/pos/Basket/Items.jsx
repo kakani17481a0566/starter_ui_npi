@@ -1,19 +1,10 @@
-// Items.jsx
-import { PlusIcon, MinusIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, MinusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Button } from "components/ui";
-import { Checkout } from "./Checkout";
 
 export function Items({ items, onIncrease, onDecrease, onRemove }) {
   if (!items.length) {
     return <p className="text-sm text-gray-400">No items in basket</p>;
   }
-
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.count * Number(item.price),
-    0
-  );
-  const gst = subtotal * 0.05;
-  const total = subtotal + gst;
 
   return (
     <div className="flex flex-col space-y-6">
@@ -27,6 +18,7 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
               <th className="border px-3 py-2 text-right">Price</th>
               <th className="border px-3 py-2 text-right">GST (5%)</th>
               <th className="border px-3 py-2 text-right">Overall Price</th>
+              <th className="border px-3 py-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -34,7 +26,7 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
               const itemSubtotal = item.count * Number(item.price);
               const itemGst = itemSubtotal * 0.05;
               const itemTotal = itemSubtotal + itemGst;
-// -
+
               return (
                 <tr
                   key={item.uid}
@@ -64,16 +56,20 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
                   {/* Quantity controls */}
                   <td className="border px-3 py-2 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      {/* Decrease / Remove button */}
                       <Button
                         isIcon
                         size="sm"
                         variant="outline"
+                        aria-label="Decrease quantity"
                         onClick={() => {
                           if (item.count > 1) {
                             onDecrease(item.uid);
                           } else {
-                            if (window.confirm(`Remove ${item.name} from cart?`)) {
+                            if (
+                              window.confirm(
+                                `Remove ${item.name} from cart?`
+                              )
+                            ) {
                               onRemove(item.uid);
                             }
                           }
@@ -82,20 +78,20 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
                         <MinusIcon className="size-4" />
                       </Button>
 
-                      {/* Quantity */}
                       <span>{item.count}</span>
 
-                      {/* Increase button */}
                       <Button
                         isIcon
                         size="sm"
                         variant="outline"
+                        aria-label="Increase quantity"
                         onClick={() => onIncrease(item.uid)}
                       >
                         <PlusIcon className="size-4" />
                       </Button>
                     </div>
                   </td>
+
                   {/* Prices */}
                   <td className="border px-3 py-2 text-right">
                     ${Number(item.price).toFixed(2)}
@@ -106,15 +102,29 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
                   <td className="border px-3 py-2 text-right">
                     ${itemTotal.toFixed(2)}
                   </td>
+
+                  {/* Remove button */}
+                  <td className="border px-3 py-2 text-center">
+                    <Button
+                      isIcon
+                      size="sm"
+                      variant="danger"
+                      aria-label={`Remove ${item.name}`}
+                      onClick={() => {
+                        if (window.confirm(`Remove ${item.name} from cart?`)) {
+                          onRemove(item.uid);
+                        }
+                      }}
+                    >
+                      <TrashIcon className="size-4" />
+                    </Button>
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
-
-      {/* Checkout Summary */}
-      <Checkout subtotal={subtotal} gst={gst} total={total} />
     </div>
   );
 }
