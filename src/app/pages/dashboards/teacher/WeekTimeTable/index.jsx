@@ -76,6 +76,12 @@ export function WeekTimeTable({ courseId }) {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     autoResetPageIndex,
+    // ✅ Show 7 rows per page
+    initialState: {
+      pagination: {
+        pageSize: 15,
+      },
+    },
   });
 
   useDidUpdate(() => table.resetRowSelection(), [media.length]);

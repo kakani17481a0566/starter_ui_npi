@@ -14,6 +14,8 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Spinner, Table, THead, TBody, Th, Tr, Td, Avatar } from "components/ui";
 import { toast } from "sonner";
+import { getSessionData }  from "utils/sessionStorage";
+
 // import { getSessionData } from "utils/sessionStorage";
 import {
   fetchAssessmentMatrix,
@@ -22,6 +24,10 @@ import {
 } from "./data";
 
 export default function Grades({ timeTableId, assessmentStatusCode }) {
+  const{tenantId,branch,course}=getSessionData();
+  const courseId=course[0].id;
+  // const branchId=parseInt(branch);
+console.log(`Tenant ID: ${tenantId}, Branch: ${branch}, Course ID: ${courseId}`);
   const [students, setStudents] = useState([]);
   const [originalStudents, setOriginalStudents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,9 +42,9 @@ export default function Grades({ timeTableId, assessmentStatusCode }) {
   // const courseId = course[0].id;
   // const conductedById = 1;
   // const branchId = parseInt(branch);
-const tenantId = 1;
-const branchId = 1;
-const courseId = 5;
+// const tenantId = 1;
+// const branchId = 1;
+// const courseId = 5;
 const conductedById = 1;
 
 
@@ -79,7 +85,7 @@ const conductedById = 1;
       const payload = {
         timeTableId,
         tenantId,
-        branchId,
+        branch,
         conductedById,
         courseId,
         overrideStatusCode,
@@ -168,7 +174,7 @@ const conductedById = 1;
         setIsLoading(true);
         const [data, grades] = await Promise.all([
           // fetchAssessmentMatrix({ timeTableId, tenantId, courseId, branch }),
-          fetchAssessmentMatrix({ timeTableId, tenantId, courseId, branchId }),
+          fetchAssessmentMatrix({ timeTableId, tenantId, courseId, branchId:branch }),
 
           fetchGradeList(),
         ]);
@@ -187,7 +193,7 @@ const conductedById = 1;
     };
     fetchData();
   // }, [timeTableId, tenantId, courseId, branch]);
-  }, [timeTableId, tenantId, courseId, branchId]);
+  }, [courseId]);
 
 
   const columns = useMemo(() => {

@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, useMemo } from "react";
 import { ChevronDownIcon, CheckIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import {
@@ -13,30 +13,28 @@ import { Button } from "components/ui";
 import { getSessionData } from "utils/sessionStorage";
 
 export function CourseDropDown({ onSelect }) {
-  const { course: courses } = getSessionData();
+  const courses = useMemo(() => getSessionData().course || [], []);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
-  // Select from localStorage or default to lowest ID
+  // Initial selection (only once)
   useEffect(() => {
-    if (courses?.length > 0) {
+    if (courses.length > 0) {
       const storedId = Number(localStorage.getItem("selectedCourseId"));
       const initial =
         courses.find((c) => c.id === storedId) ||
         courses.reduce((min, c) => (c.id < min.id ? c : min), courses[0]);
-
       setSelectedCourse(initial);
     }
   }, [courses]);
 
-  // Trigger onSelect and store selection
-  useEffect(() => {
-    if (selectedCourse) {
-      onSelect?.(selectedCourse);
-      localStorage.setItem("selectedCourseId", selectedCourse.id);
-    }
-  }, [selectedCourse]);
+  // Handle user picking a course
+  const handleSelect = (c) => {
+    setSelectedCourse(c);
+    localStorage.setItem("selectedCourseId", c.id);
+    onSelect?.(c);
+  };
 
-  if (!courses?.length) {
+  if (!courses.length) {
     return (
       <div className="text-sm text-gray-500 dark:text-dark-200">
         No courses available
@@ -52,7 +50,10 @@ export function CourseDropDown({ onSelect }) {
             <MenuButton as={Button} className="space-x-2 flex items-center">
               <span>{selectedCourse?.name || "Select Course"}</span>
               <ChevronDownIcon
-                className={clsx("size-4 transition-transform", open && "rotate-180")}
+                className={clsx(
+                  "size-4 transition-transform",
+                  open && "rotate-180"
+                )}
               />
             </MenuButton>
 
@@ -70,7 +71,7 @@ export function CourseDropDown({ onSelect }) {
                   <MenuItem key={c.id} as={Fragment}>
                     {({ focus }) => (
                       <button
-                        onClick={() => setSelectedCourse(c)}
+                        onClick={() => handleSelect(c)}
                         className={clsx(
                           "flex h-9 w-full items-center justify-between px-3 tracking-wide outline-none transition-colors",
                           focus &&
