@@ -174,7 +174,7 @@ const conductedById = 1;
         setIsLoading(true);
         const [data, grades] = await Promise.all([
           // fetchAssessmentMatrix({ timeTableId, tenantId, courseId, branch }),
-          fetchAssessmentMatrix({ timeTableId, tenantId, defaultCourse, branchId:branch }),
+          fetchAssessmentMatrix({ timeTableId, tenantId, courseId:defaultCourse, branchId:branch }),
 
           fetchGradeList(),
         ]);
