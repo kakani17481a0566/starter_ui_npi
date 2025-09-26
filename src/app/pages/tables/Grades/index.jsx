@@ -23,9 +23,9 @@ import {
   saveGradesMatrix,
 } from "./data";
 
-export default function Grades({ timeTableId, assessmentStatusCode }) {
+export default function Grades({ timeTableId, assessmentStatusCode ,courseId}) {
   const{tenantId,branch,course}=getSessionData();
-  const courseId=course[0].id;
+  const defaultCourse=courseId!=null ?courseId :course[0].id;
   // const branchId=parseInt(branch);
 console.log(`Tenant ID: ${tenantId}, Branch: ${branch}, Course ID: ${courseId}`);
   const [students, setStudents] = useState([]);
@@ -174,7 +174,7 @@ const conductedById = 1;
         setIsLoading(true);
         const [data, grades] = await Promise.all([
           // fetchAssessmentMatrix({ timeTableId, tenantId, courseId, branch }),
-          fetchAssessmentMatrix({ timeTableId, tenantId, courseId, branchId:branch }),
+          fetchAssessmentMatrix({ timeTableId, tenantId, courseId:defaultCourse, branchId:branch }),
 
           fetchGradeList(),
         ]);

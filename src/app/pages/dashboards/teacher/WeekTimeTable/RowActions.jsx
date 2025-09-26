@@ -484,6 +484,7 @@
                 <Grades
                   timeTableId={row.original.timeTableId}
                   assessmentStatusCode={row.original.assessmentStausCodeId}
+                  courseId={row.original.courseId}
                 />
               </div>
             </div>

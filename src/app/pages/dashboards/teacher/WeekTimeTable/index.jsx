@@ -51,6 +51,7 @@ export function WeekTimeTable({ courseId }) {
             mapped[`column${idx + 1}`] = row[`column${idx + 1}`];
           });
           mapped.timeTableId = row.timeTableId;
+          mapped.courseId=courseId;
           return mapped;
         });
 
