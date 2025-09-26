@@ -83,9 +83,9 @@ const conductedById = 1;
       }
 
       const payload = {
-        timeTableId,
-        tenantId,
-        branch,
+        TimeTableId: timeTableId,
+        TenantId: tenantId,
+        BranchId:branch,
         conductedById,
         courseId,
         overrideStatusCode,
@@ -229,6 +229,7 @@ const conductedById = 1;
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
+    autoResetPageIndex: false,
   });
 
   const handleCompleted = async () => {
