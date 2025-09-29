@@ -1,3 +1,5 @@
+// src/app/pages/dashboards/teacher/users-card/UserCard.jsx
+
 import { FaLinkedin } from "react-icons/fa";
 import { CheckBadgeIcon } from "@heroicons/react/20/solid";
 import {
@@ -6,11 +8,14 @@ import {
   MapPinIcon,
   CalendarDaysIcon,
   ClockIcon,
+  BookOpenIcon,
+  BuildingLibraryIcon,
+  UserCircleIcon,
 } from "@heroicons/react/24/outline";
 
 import { Highlight } from "components/shared/Highlight";
 import { Avatar, Button, Card } from "components/ui";
-import CirclebarWithSeparators from "components/shared/CirclebarWithSeparators"; // ✅
+import CirclebarWithSeparators from "components/shared/CirclebarWithSeparators";
 
 import defaultCover from "./The-Neuroscientific-European-Childcare-PDF_12-x-4-ft_Backside-1.png.bv_resized_desktop.png.bv.webp";
 import defaultAvatar from "./avatar-11.jpg";
@@ -61,6 +66,7 @@ export function UserCard({
   joinedAt = "",
   workingHours,
   timezone = "",
+  profileSummary = null, // 🔹 new prop for profile-summary API response
   className = "",
 }) {
   const progressPct = Math.max(0, Math.min(100, Number(progress) || 0));
@@ -205,7 +211,6 @@ export function UserCard({
               strokeWidth={4}
               separatorCount={12}
               className="text-primary-500"
-
             >
               <span className="text-[10px] font-semibold text-gray-800 dark:text-dark-100">
                 {Math.round(progressPct)}%
@@ -228,6 +233,30 @@ export function UserCard({
                   {b}
                 </span>
               ))}
+            </div>
+          )}
+
+          {/* 🔹 Profile Summary Section */}
+          {profileSummary && (
+            <div className="mt-3 space-y-1 text-xs text-gray-700 dark:text-dark-200">
+              <div className="flex items-center gap-2">
+                <BookOpenIcon className="size-4 text-primary-500" />
+                <span>
+                  Courses ({profileSummary.totalCourses}):{" "}
+                  {profileSummary.coursesTaught}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <BuildingLibraryIcon className="size-4 text-primary-500" />
+                <span>
+                  Branches ({profileSummary.totalBranches}):{" "}
+                  {profileSummary.branches}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <UserCircleIcon className="size-4 text-primary-500" />
+                <span>Status: {profileSummary.userStatus}</span>
+              </div>
             </div>
           )}
         </div>

@@ -17,9 +17,9 @@ export default function AlphabetTutor() {
   const [recordedAudioURL, setRecordedAudioURL] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const navigate = useNavigate();
-    const location = useLocation();
-  const {  testId ,studentId,relationId} = location.state || {};
-    console.log(testId,studentId);
+  const location = useLocation();
+  const {  testId ,studentId,relationId,testContentId} = location.state || {};
+    // console.log("In ai new : ",relationId,testId);
 
   // ✅ fix: proper setter pair (was causing "setSpeakTick is not a function")
   const [ setSpeakTick] = useState(0);
@@ -88,7 +88,7 @@ async function uploadGeneratedImageSimple(base64Image, text) {
      const blob = base64ToBlob(base64Image);
     formData.append("file", blob);
     // formData.append("test", text || "unknown");
-    console.log(formData);
+    // console.log(formData);
 
    try {
   const res = await axios.post(
@@ -191,6 +191,7 @@ useEffect(() => {
       relationId:relationId,
       testId:testId,
       studentId:studentId,
+      testContentId:testContentId,
     },
   });
 };

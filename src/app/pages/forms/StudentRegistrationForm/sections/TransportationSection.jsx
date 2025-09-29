@@ -1,4 +1,3 @@
-// src/app/pages/forms/StudentRegistrationForm/sections/TransportationSection.jsx
 import { useFormContext } from "react-hook-form";
 import { Input, Radio, Textarea, Collapse } from "components/ui";
 import {
@@ -8,20 +7,38 @@ import {
   MapPinIcon,
   MegaphoneIcon,
 } from "@heroicons/react/24/outline";
+import { useEffect, useState, useMemo } from "react";
 import LabelWithIcon from "../components/LabelWithIcon";
 import SectionCard from "../components/SectionCard";
+import { fetchTransportOptions } from "../dropdown";
 
-export default function TransportationSection() {
-  const {
-    register,
-    watch,
-    formState: { errors },
-  } = useFormContext();
+export default function TransportationSection({ tenantId = 1 }) {
+  const { register, watch, formState: { errors } } = useFormContext();
 
-  const regOtherTransport = watch("regular_transport");
-  const altOtherTransport = watch("alternate_transport");
+  const regTransport = watch("regular_transport");
+  const altTransport = watch("alternate_transport");
 
+  const [transportOptions, setTransportOptions] = useState([]);
   const compact = "h-8 py-1 text-xs";
+
+  // Find the "OTHER" option IDs (if present)
+  const otherRegularId = useMemo(
+    () => transportOptions.find((t) => t.code === "OTHER")?.id,
+    [transportOptions]
+  );
+  const otherAlternateId = otherRegularId; // same list, same id
+
+  useEffect(() => {
+    async function loadOptions() {
+      try {
+        const opts = await fetchTransportOptions(tenantId);
+        setTransportOptions(opts);
+      } catch (err) {
+        console.error("Failed to load transport options", err);
+      }
+    }
+    loadOptions();
+  }, [tenantId]);
 
   return (
     <SectionCard
@@ -40,16 +57,25 @@ export default function TransportationSection() {
             </LabelWithIcon>
           </label>
           <div className="flex flex-wrap gap-6">
-            <Radio value="bus" label="Bus" {...register("regular_transport")} />
-            <Radio value="walk" label="Walk" {...register("regular_transport")} />
-            <Radio value="other" label="Other" {...register("regular_transport")} />
+            {transportOptions.map((opt) => (
+              <Radio
+                key={opt.id}
+                value={opt.id}             // ✅ send ID to backend
+                label={opt.name}           // ✅ show name in UI
+                {...register("regular_transport_id")}
+              />
+            ))}
           </div>
 
-          <Collapse in={regOtherTransport === "other"}>
+          <Collapse in={Number(regTransport) === otherRegularId}>
             <div className="mt-3">
               <Input
                 className={compact}
-                label={<LabelWithIcon icon={HashtagIcon}>Other (specify)</LabelWithIcon>}
+                label={
+                  <LabelWithIcon icon={HashtagIcon}>
+                    Other (specify)
+                  </LabelWithIcon>
+                }
                 {...register("regular_transport_other")}
                 error={errors?.regular_transport_other?.message}
               />
@@ -65,16 +91,25 @@ export default function TransportationSection() {
             </LabelWithIcon>
           </label>
           <div className="flex flex-wrap gap-6">
-            <Radio value="bus" label="Bus" {...register("alternate_transport")} />
-            <Radio value="walk" label="Walk" {...register("alternate_transport")} />
-            <Radio value="other" label="Other" {...register("alternate_transport")} />
+            {transportOptions.map((opt) => (
+              <Radio
+                key={opt.id}
+                value={opt.id}
+                label={opt.name}
+                {...register("alternate_transport_id")}
+              />
+            ))}
           </div>
 
-          <Collapse in={altOtherTransport === "other"}>
+          <Collapse in={Number(altTransport) === otherAlternateId}>
             <div className="mt-3">
               <Input
                 className={compact}
-                label={<LabelWithIcon icon={HashtagIcon}>Other (specify)</LabelWithIcon>}
+                label={
+                  <LabelWithIcon icon={HashtagIcon}>
+                    Other (specify)
+                  </LabelWithIcon>
+                }
                 {...register("alternate_transport_other")}
                 error={errors?.alternate_transport_other?.message}
               />

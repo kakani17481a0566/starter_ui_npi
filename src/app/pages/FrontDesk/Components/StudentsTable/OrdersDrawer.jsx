@@ -1,3 +1,5 @@
+// src/app/pages/tables/attendece_dash_bord_table/attendecedisplaytable/AttendanceDrawer.jsx
+
 // Import Dependencies
 import {
   Dialog,
@@ -11,38 +13,36 @@ import dayjs from "dayjs";
 import PropTypes from "prop-types";
 
 // Local Imports
-import {
-  Avatar,
-  Badge,
-  Button,
-  Table,
-  Tag,
-  THead,
-  TBody,
-  Th,
-  Tr,
-  Td,
-} from "components/ui";
-import { orderStatusOptions } from "./data";
+import { Avatar, Badge, Button, Table, TBody, Th, Tr, Td } from "components/ui";
 import { useLocaleContext } from "app/contexts/locale/context";
+import { fetchAttendanceSummary } from "./data"; // ✅ pulls dynamic status options
 
 // ----------------------------------------------------------------------
 
-const cols = ["Name", "SKU", "Price", "Quantity", "Discount", "Total"];
-
-export function OrdersDrawer({ isOpen, close, row }) {
-  const statusOption = orderStatusOptions.find(
-    (item) => item.value === row.original.order_status,
-  );
-
+export function AttendanceDrawer({ isOpen, close, row }) {
   const { locale } = useLocaleContext();
-  const timestapms = +row.original.created_at;
-  const date = dayjs(timestapms).locale(locale).format("DD MMM YYYY");
-  const time = dayjs(timestapms).locale(locale).format("hh:mm A");
+
+  // ✅ Format date/time from `markedOn`
+  const date =
+    row.original.markedOn != null
+      ? dayjs(row.original.markedOn).locale(locale).format("DD MMM YYYY")
+      : "Not marked";
+  const time =
+    row.original.markedOn != null
+      ? dayjs(row.original.markedOn).locale(locale).format("hh:mm A")
+      : "";
+
+  // ✅ Status badge color/label
+  const statusOption =
+    row.original.attendanceStatus &&
+    fetchAttendanceSummary.attendanceStatusOptions?.find(
+      (item) => item.value === row.original.attendanceStatus
+    );
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-100" onClose={close}>
+        {/* Overlay */}
         <TransitionChild
           as="div"
           enter="ease-out duration-300"
@@ -51,27 +51,31 @@ export function OrdersDrawer({ isOpen, close, row }) {
           leave="ease-in duration-200"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
-          className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity dark:bg-black/40"
+          className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm dark:bg-black/40"
         />
 
+        {/* Drawer panel */}
         <TransitionChild
           as={DialogPanel}
-          enter="ease-out transform-gpu transition-transform duration-200"
+          enter="ease-out transform-gpu duration-200"
           enterFrom="translate-x-full"
           enterTo="translate-x-0"
-          leave="ease-in transform-gpu transition-transform duration-200"
+          leave="ease-in transform-gpu duration-200"
           leaveFrom="translate-x-0"
           leaveTo="translate-x-full"
-          className="fixed right-0 top-0 flex h-full w-full max-w-xl transform-gpu flex-col bg-white py-4 transition-transform duration-200 dark:bg-dark-700"
+          className="fixed right-0 top-0 flex h-full w-full max-w-lg flex-col bg-white py-4 dark:bg-dark-700"
         >
+          {/* Header */}
           <div className="flex justify-between px-4 sm:px-5">
             <div>
-              <div className="font-semibold">Order ID:</div>
+              <div className="font-semibold">Student ID:</div>
               <div className="text-xl font-medium text-primary-600 dark:text-primary-400">
-                {row.original.order_id} &nbsp;
-                <Badge className="align-text-bottom" color={statusOption.color}>
-                  {statusOption.label}
-                </Badge>
+                {row.original.studentId} &nbsp;
+                {statusOption && (
+                  <Badge className="align-text-bottom" color={statusOption.color}>
+                    {statusOption.label}
+                  </Badge>
+                )}
               </div>
             </div>
 
@@ -79,154 +83,73 @@ export function OrdersDrawer({ isOpen, close, row }) {
               onClick={close}
               variant="flat"
               isIcon
-              className="size-6 rounded-full ltr:-mr-1.5 rtl:-ml-1.5"
+              className="size-6 rounded-full"
             >
               <XMarkIcon className="size-4.5" />
             </Button>
           </div>
 
+          {/* Student Info */}
           <div className="mt-3 flex w-full justify-between px-4 sm:px-5">
             <div className="flex flex-col">
-              <div className="mb-1.5 font-semibold">Customer:</div>
-
+              <div className="mb-1.5 font-semibold">Student:</div>
               <Avatar
                 size={16}
-                name={row.original.customer.name}
-                src={row.original.customer.avatar_img}
+                name={row.original.studentName}
+                src={row.original.imageUrl}
                 initialColor="auto"
-                classNames={{
-                  display: "mask is-squircle rounded-none text-xl",
-                }}
+                classNames={{ display: "mask is-squircle rounded-none text-xl" }}
               />
-
               <div className="mt-1.5 text-lg font-medium text-gray-800 dark:text-dark-50">
-                {row.original.customer.name}
+                {row.original.studentName}
               </div>
+              <p className="text-sm text-gray-500 dark:text-dark-300">
+                Class: {row.original.className}
+              </p>
             </div>
             <div className="text-end">
-              <div className="font-semibold">Date:</div>
+              <div className="font-semibold">Marked On:</div>
               <div className="mt-1.5">
                 <p className="font-medium">{date}</p>
-                <p className="mt-0.5 text-xs text-gray-400 dark:text-dark-300">
-                  {time}
-                </p>
+                {time && (
+                  <p className="mt-0.5 text-xs text-gray-400 dark:text-dark-300">
+                    {time}
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
-          <div className="mt-1 px-4 sm:px-5">
-            <div className="font-semibold">Shipping Address:</div>
+          {/* Parent Info */}
+          <div className="mt-3 px-4 sm:px-5">
+            <div className="font-semibold">Parent / Guardian:</div>
             <p className="mt-1">
-              {`${row.original.shipping_address?.street}, ${row.original.shipping_address?.line}`}
+              {row.original.parentName} &nbsp; | &nbsp; {row.original.mobileNumber}
             </p>
           </div>
 
-          <hr
-            className="mx-4 my-4 h-px border-gray-150 dark:border-dark-500 sm:mx-5"
-            role="none"
-          />
-
-          <p className="px-4 font-medium text-gray-800 dark:text-dark-100 sm:px-5">
-            Customer orders:
-          </p>
-
-          <div className="mt-1 grow overflow-x-auto overscroll-x-contain px-4 sm:px-5">
-            <Table
-              hoverable
-              className="w-full text-left text-xs-plus rtl:text-right [&_.table-td]:py-2"
-            >
-              <THead>
-                <Tr className="border-y border-transparent border-b-gray-200 dark:border-b-dark-500">
-                  {cols.map((title, index) => (
-                    <Th
-                      key={index}
-                      className="py-2 font-semibold uppercase text-gray-800 first:px-0 last:px-0 dark:text-dark-100"
-                    >
-                      {title}
-                    </Th>
-                  ))}
-                </Tr>
-              </THead>
+          {/* Attendance Details */}
+          <div className="mt-4 px-4 sm:px-5">
+            <Table className="w-full text-sm [&_.table-td]:py-2">
               <TBody>
-                {row.original.products.map((tr) => (
-                  <Tr
-                    key={tr.sku}
-                    className="border-y border-transparent border-b-gray-200 dark:border-b-dark-500"
-                  >
-                    <Td className="px-0 font-medium ltr:rounded-l-lg rtl:rounded-r-lg">
-                      <div className="flex items-center space-x-2 ">
-                        <div className="size-8">
-                          <img
-                            src={tr.image}
-                            alt={tr.name}
-                            className="h-full w-full rounded-sm object-cover object-center"
-                          />
-                        </div>
-                        <span>{tr.name}</span>
-                      </div>
-                    </Td>
-                    <Td>{tr.sku}</Td>
-                    <Td>{tr.price}</Td>
-                    <Td>{tr.qty}</Td>
-                    <Td>{tr.discount}</Td>
-                    <Td className="px-0 font-medium text-gray-800 dark:text-dark-100 ltr:rounded-r-lg rtl:rounded-l-lg">
-                      {tr.total}
-                    </Td>
-                  </Tr>
-                ))}
+                <Tr>
+                  <Th>Status</Th>
+                  <Td>{row.original.attendanceStatus}</Td>
+                </Tr>
+                <Tr>
+                  <Th>From Time</Th>
+                  <Td>{row.original.fromTime}</Td>
+                </Tr>
+                <Tr>
+                  <Th>To Time</Th>
+                  <Td>{row.original.toTime}</Td>
+                </Tr>
+                <Tr>
+                  <Th>Marked By</Th>
+                  <Td>{row.original.markedBy}</Td>
+                </Tr>
               </TBody>
             </Table>
-          </div>
-
-          <div className="flex justify-end px-4 sm:px-5">
-            <div className="mt-4 w-full max-w-xs text-end">
-              <Table className="w-full [&_.table-td]:px-0 [&_.table-td]:py-1">
-                <TBody>
-                  <Tr>
-                    <Td>Summary :</Td>
-                    <Td>
-                      <span className="font-medium text-gray-800 dark:text-dark-100">
-                        ${row.original.subtotal}
-                      </span>
-                    </Td>
-                  </Tr>
-                  <Tr>
-                    <Td>Delivery fee :</Td>
-                    <Td>
-                      <span className="font-medium text-gray-800 dark:text-dark-100">
-                        ${row.original.delivery_fee}
-                      </span>
-                    </Td>
-                  </Tr>
-                  <Tr>
-                    <Td>Tax :</Td>
-                    <Td>
-                      <span className="font-medium text-gray-800 dark:text-dark-100">
-                        ${row.original.tax}
-                      </span>
-                    </Td>
-                  </Tr>
-                  <Tr className="text-lg text-primary-600 dark:text-primary-400">
-                    <Td>Total :</Td>
-                    <Td>
-                      <span className="font-medium">${row.original.total}</span>
-                    </Td>
-                  </Tr>
-                </TBody>
-              </Table>
-              <div className="mt-2 flex justify-end space-x-1.5">
-                <Tag component="button" className="min-w-[4rem]">
-                  Invoice
-                </Tag>
-                <Tag
-                  component="button"
-                  color="primary"
-                  className="min-w-[4rem]"
-                >
-                  View
-                </Tag>
-              </div>
-            </div>
           </div>
         </TransitionChild>
       </Dialog>
@@ -234,7 +157,7 @@ export function OrdersDrawer({ isOpen, close, row }) {
   );
 }
 
-OrdersDrawer.propTypes = {
+AttendanceDrawer.propTypes = {
   isOpen: PropTypes.bool,
   close: PropTypes.func,
   row: PropTypes.object,

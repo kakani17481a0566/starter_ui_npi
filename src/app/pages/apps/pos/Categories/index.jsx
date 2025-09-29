@@ -8,60 +8,32 @@ import invariant from "tiny-invariant";
 import { useLocaleContext } from "app/contexts/locale/context";
 import { Button, Card } from "components/ui";
 import { useIsomorphicEffect } from "hooks";
+// import UserCard from "/app/pages/dashboards/ParentStudent/Student-card/UserCard.jsx"; // 🔹 adjust path as needed
+import { UserCard } from "app/pages/dashboards/ParentStudent/Student-card/UserCard";
 
 // ----------------------------------------------------------------------
 
 const items = [
   {
     uid: "1",
-    name: "Burger",
-    image: "/images/100x100.png",
+    name: "Books",
+    image: "/images/categories/books",
   },
   {
     uid: "2",
-    name: "Hot Dog",
-    image: "/images/100x100.png",
+    name: "Uniform",
+    image: "/images/categories/uniform.jpg",
   },
   {
     uid: "3",
-    name: "Pizza",
-    image: "/images/100x100.png",
-  },
-  {
-    uid: "4",
-    name: "Sandwich",
-    image: "/images/100x100.png",
-  },
-  {
-    uid: "5",
-    name: "Popcorn",
-    image: "/images/100x100.png",
-  },
-  {
-    uid: "6",
-    name: "Taco",
-    image: "/images/100x100.png",
-  },
-  {
-    uid: "7",
-    name: "Burrito",
-    image: "/images/100x100.png",
-  },
-  {
-    uid: "8",
-    name: "Pizza",
-    image: "/images/100x100.png",
-  },
-  {
-    uid: "9",
-    name: "Burrito",
-    image: "/images/100x100.png",
+    name: "Accessories",
+    image: "/images/categories/accessories",
   },
 ];
 
 register();
 
-export function Categories() {
+export function Categories({ onCategorySelect, selectedKid }) {
   const { direction } = useLocaleContext();
   const carouselRef = useRef(null);
 
@@ -95,37 +67,46 @@ export function Categories() {
             Categories
           </p>
           <div className="flex">
-            <Button
-              isIcon
-              className="prev-btn size-7 rounded-full"
-              variant="flat"
-            >
+            <Button isIcon className="prev-btn size-7 rounded-full" variant="flat">
               <ChevronLeftIcon className="size-5 rtl:rotate-180" />
             </Button>
-            <Button
-              isIcon
-              className="next-btn size-7 rounded-full"
-              variant="flat"
-            >
+            <Button isIcon className="next-btn size-7 rounded-full" variant="flat">
               <ChevronRightIcon className="size-5 rtl:rotate-180" />
             </Button>
           </div>
         </div>
       </span>
 
+      {/* 🔹 Student Card Slide */}
+
+
+      {/* 🔹 Category Items */}
       {items.map(({ uid, name, image }) => (
         <swiper-slide key={uid} class="w-24">
-          <Card className="w-full shrink-0 cursor-pointer px-2 py-4 text-center text-gray-800 dark:text-dark-100">
+          <Card
+            className="w-full shrink-0 cursor-pointer px-2 py-4 text-center text-gray-800 dark:text-dark-100 hover:bg-gray-100 dark:hover:bg-dark-700"
+            onClick={() => onCategorySelect?.(uid)} // send uid back
+          >
             <img
               alt={name}
               src={image}
               loading="lazy"
-              className="mx-auto w-12"
+              className="mx-auto w-24 h-12"
             />
             <p className="truncate pt-2 font-medium tracking-wide">{name}</p>
           </Card>
         </swiper-slide>
       ))}
+            {selectedKid && (
+  <swiper-slide class="w=140"> {/* smaller width */}
+    <Card className="p-2">
+      <UserCard
+        {...selectedKid}
+        className="scale-90 transform origin-top" // shrink proportionally
+      />
+    </Card>
+  </swiper-slide>
+)}
     </swiper-container>
   );
 }

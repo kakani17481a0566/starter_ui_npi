@@ -51,6 +51,7 @@ export function WeekTimeTable({ courseId }) {
             mapped[`column${idx + 1}`] = row[`column${idx + 1}`];
           });
           mapped.timeTableId = row.timeTableId;
+          mapped.courseId=courseId;
           return mapped;
         });
 
@@ -76,6 +77,12 @@ export function WeekTimeTable({ courseId }) {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     autoResetPageIndex,
+    // ✅ Show 7 rows per page
+    initialState: {
+      pagination: {
+        pageSize: 5,
+      },
+    },
   });
 
   useDidUpdate(() => table.resetRowSelection(), [media.length]);

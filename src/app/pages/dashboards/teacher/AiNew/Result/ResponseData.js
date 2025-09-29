@@ -17,6 +17,8 @@ export async function fetchResponseData({testId,relationId,studentId}) {
     const result = String(item?.result ?? "").trim().toLowerCase();
     return {
       id: idx + 1,
+      testId:item.testId,
+      testContentId:item.testContentId,
       name: String(item?.name ?? `Item ${idx + 1}`),
       isCorrect: result === "correct", 
       url:item.url// case-insensitive match

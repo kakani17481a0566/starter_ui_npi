@@ -23,6 +23,9 @@ export async function fetchWeekTimeTableData(courseId) {
 
   try {
     const endpoint = `${ACTIVE_API_BASE_URL}/TimeTable/weekId/${week}/tenantId/${tenantId}/courseId/${courseId}`;
+    // const endpoint = `${ACTIVE_API_BASE_URL}/TimeTable/weekId/1/tenantId/${tenantId}/courseId/1`;
+
+
     const response = await axiosInstance.get(endpoint);
 
     const data = response.data?.data ?? {};

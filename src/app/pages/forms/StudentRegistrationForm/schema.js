@@ -69,7 +69,7 @@ export const schema = Yup.object().shape({
   ...addressGroupSchema("ec_"),      // Early Closure
 
   // --- Transportation ---
-  regular_transport: Yup.string().required("Select regular transport"),
+  regular_transport_id: Yup.number().required("Select regular transport"),
   regular_transport_other: Yup.string().when("regular_transport", {
     is: "other",
     then: (s) => s.required("Please specify"),
@@ -94,27 +94,62 @@ export const schema = Yup.object().shape({
   other_contact_info: Yup.string().nullable(),
 
   // --- Medical ---
-  life_threat_allergy: Yup.string().oneOf(["yes", "no"]).required(),
-  allergy_substances: Yup.string().when("life_threat_allergy", {
+// --- Medical ---
+life_threat_allergy: Yup.string()
+  .oneOf(["yes", "no"])
+  .required("Required"),
+
+// ✅ Radio will send string, convert to number
+WhatAllergyId: Yup.mixed()
+  .transform((v, o) => {
+    if (o === "" || o == null) return null;
+    return Number(o);
+  })
+  .nullable()
+  .when("life_threat_allergy", {
     is: "yes",
-    then: (s) => s.required("Substances are required"),
+    then: (s) => s.required("Please select an allergy type"),
   }),
-  emergency_kit_recommended: Yup.string().oneOf(["yes", "no"]).required(),
-  emergency_kit_details: Yup.string().when("emergency_kit_recommended", {
-    is: "yes",
-    then: (s) => s.required("Kit details are required"),
+
+// ✅ Free text required only if OTHER allergy chosen
+OtherAllergyText: Yup.string()
+  .nullable()
+  .when("WhatAllergyId", (val, schema, context) => {
+    // 👇 dynamic otherAllergyId injection from context
+    const otherAllergyId =
+      context?.options?.context?.otherAllergyId ?? 230; // fallback
+    if (val != null && Number(val) === Number(otherAllergyId)) {
+      return schema.required("Please specify the allergy");
+    }
+    return schema;
   }),
-  serious_medical_conditions: Yup.string().nullable(),
-  serious_medical_info: Yup.string().nullable(),
-  other_medical_info: Yup.string().nullable(),
+
+emergency_kit_recommended: Yup.string()
+  .oneOf(["yes", "no"])
+  .required("Required"),
+
+emergency_kit_details: Yup.string().when("emergency_kit_recommended", {
+  is: "yes",
+  then: (s) => s.required("Kit details are required"),
+}),
+
+serious_medical_conditions: Yup.string().nullable(),
+serious_medical_info: Yup.string().nullable(),
+other_medical_info: Yup.string().nullable(),
+
 
   // --- Other Info ---
   lang_adults_home: Yup.string().required("Required"),
   lang_with_child: Yup.string().required("Required"),
   lang_first_learned: Yup.string().required("Required"),
   home_lang_understand: Yup.string().oneOf(["yes", "no"]).required(),
-  read_english: Yup.string().oneOf(["none", "little", "well"]).required(),
-  write_english: Yup.string().oneOf(["none", "little", "well"]).required(),
+  //  read_english: Yup.number()
+  //   .typeError("Reading ability is required")
+  //   .required("Reading ability is required"),
+  // write_english: Yup.number()
+  //   .typeError("Writing ability is required")
+  //   .required("Writing ability is required"),
+
 
   // --- Signature ---
   signature_data: Yup.string().required("Signature is required"),
