@@ -15,7 +15,7 @@ import { getSessionData } from "utils/sessionStorage";
 const clamp = (n, min = 0, max = 100) =>
   Math.max(min, Math.min(max, Number(n) || 0));
 
-// const API_BASE = "https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/";
+const API_BASE = "https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/";
 
 const mapProfileToCamelCase = (apiData) => {
   if (!apiData) return null;
@@ -55,7 +55,7 @@ export default function Teacher() {
     const fetchProfile = async () => {
       try {
         const res = await fetch(
-          `https://localhost:7202/api/User/${userId}/profile-summary?tenantId=${tenantId}`
+          `${API_BASE}/api/User/${userId}/profile-summary?tenantId=${tenantId}`
         );
         if (!res.ok) throw new Error("Failed to fetch profile");
         const data = await res.json();
