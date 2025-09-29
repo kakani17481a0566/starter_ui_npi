@@ -33,6 +33,7 @@ import MedicalInfoSection from "./sections/MedicalInfoSection";
 import OtherInfoSection from "./sections/OtherInfoSection";
 import SignatureSection from "./sections/SignatureSection";
 import DocumentUploadSection from "./sections/DocumentUploadSection";
+import FeeStructure from "./sections/FeeStructure"
 
 /* ---------- Steps config ---------- */
 const steps = [
@@ -60,6 +61,20 @@ const steps = [
         <div className="space-y-4 sm:space-y-5">
           <AddressSection />
           <ContactSection />
+        </div>
+      );
+    },
+  },
+   {
+    key: "FeeStructure",
+    label: "Fee Structure",
+    description: "Details about the fee structure.",
+    icon: DocumentPlusIcon,
+    Component: function Step() {
+      return (
+        <div className="space-y-4 sm:space-y-5">
+          <FeeStructure />
+          {/* <ContactSection /> */}
         </div>
       );
     },

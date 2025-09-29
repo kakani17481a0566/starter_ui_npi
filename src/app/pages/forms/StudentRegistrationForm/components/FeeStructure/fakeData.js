@@ -1,0 +1,51 @@
+export const collectionList = [
+    {
+        collection_id: 1,
+        name: "Kit Fee",
+        monthly_fee: 7711,
+        term_fee: 5198,
+        annual_fee: 780,
+        discount: -12,
+    },
+    {
+        collection_id: 2,
+        name: "Monthly Tuition Fee",
+        monthly_fee: 7711,
+        term_fee: 5198,
+        annual_fee: 780,
+        discount: -12,
+    },
+    {
+        collection_id: 3,
+        name: "Term Activity Fee",
+        monthly_fee: 7711,
+        term_fee: 5198,
+        annual_fee: 780,
+        discount: -12,
+    },
+    {
+        collection_id: 4,
+        name: "Day Care Fee",
+        monthly_fee: 7711,
+        term_fee: 5198,
+        annual_fee: 780,
+        discount: -12,
+    },
+    {
+        collection_id: 5,
+        name: "Meals Fee",
+        monthly_fee: 7711,
+        term_fee: 5198,
+        annual_fee: 780,
+        discount: -12,
+    },
+    {
+        collection_id: 6,
+        name: "Transportation Fee",
+        monthly_fee: 7711,
+        term_fee: 5198,
+        annual_fee: 780,
+        discount: -12,
+    },
+  
+];
