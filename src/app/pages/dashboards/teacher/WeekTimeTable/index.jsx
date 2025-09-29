@@ -80,7 +80,7 @@ export function WeekTimeTable({ courseId }) {
     // ✅ Show 7 rows per page
     initialState: {
       pagination: {
-        pageSize: 15,
+        pageSize: 5,
       },
     },
   });
