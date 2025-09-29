@@ -204,17 +204,16 @@ export default function Home() {
               )}
 
               {/* -----------------------------
-                  Row 3: Monthly Performance
+                  Row 3: Weekly Performance (Chart)
               ------------------------------ */}
               {performanceData && (
                 <div className="grid grid-cols-1">
                   <Card>
-                    <MonthlyPerformanceChart
-                      subjectWiseAssessments={
-                        performanceData.subjectWiseAssessments
-                      }
-                      selectedStudentId={selectedKid.id}
-                    />
+<MonthlyPerformanceChart
+  weeklyAnalysis={performanceData.weeklyAnalysis}
+  selectedStudentId={selectedKid.id}
+/>
+
                   </Card>
                 </div>
               )}

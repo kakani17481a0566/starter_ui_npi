@@ -1,17 +1,7 @@
 import { useMemo } from "react";
 import Chart from "react-apexcharts";
 
-// Subject → consistent color mapping
-// const subjectColors = {
-//   CLL: "#465C8A",
-//   PSRN: "#D2486E",
-//   KUW: "#E27257",
-//   PD: "#713427",
-//   EAD: "#DA973A",
-//   PSED: "#475468",
-// };
-
-// Subject → consistent color mapping (colorblind-safe palette)
+// ✅ Subject → consistent color mapping (colorblind-safe palette)
 const subjectColors = {
   CLL: "#93C5FD",  // Blue 300
   PSRN: "#FCA5A5", // Red 300
@@ -21,42 +11,43 @@ const subjectColors = {
   PSED: "#F9A8D4", // Pink 300
 };
 
+// 🔹 Transform weeklyAnalysis → chart data
+function getWeeklySubjectPerformance(weeklyAnalysis, studentId) {
+  if (!weeklyAnalysis) return { weeks: [], seriesMap: {} };
 
-// Helper: Transform assessments → weekly scores
-function getWeeklySubjectPerformance(subjectWiseAssessments, studentId) {
-  const weeks = ["Week 1", "Week 2", "Week 3", "Week 4"];
+  const weeks = weeklyAnalysis.map((w) => w.weekName); // e.g., "Week 12 (10 Sep - 16 Sep)"
   const seriesMap = {};
 
-  for (const subject of subjectWiseAssessments) {
-    const weeklyScores = [0, 0, 0, 0]; // 4 weeks
-    const weeklyCounts = [0, 0, 0, 0];
+  for (const week of weeklyAnalysis) {
+    for (const subject of week.subjectWiseAssessments) {
+      if (!seriesMap[subject.subjectCode]) {
+        seriesMap[subject.subjectCode] = [];
+      }
 
-    for (const skill of subject.skills) {
-      for (const scoreEntry of skill.studentScores) {
-        if (scoreEntry.studentId === studentId) {
-          const weekIdx = (scoreEntry.week || 1) - 1;
-          weeklyScores[weekIdx] += scoreEntry.score;
-          weeklyCounts[weekIdx] += 1;
+      let sum = 0, count = 0;
+      for (const skill of subject.skills) {
+        for (const scoreEntry of skill.studentScores) {
+          if (scoreEntry.studentId === studentId && scoreEntry.score != null) {
+            sum += scoreEntry.score;
+            count++;
+          }
         }
       }
+
+      seriesMap[subject.subjectCode].push(count > 0 ? Number((sum / count).toFixed(2)) : null);
     }
-
-    // average per week
-    const avgScores = weeklyScores.map((sum, i) =>
-      weeklyCounts[i] > 0 ? Number((sum / weeklyCounts[i]).toFixed(2)) : null
-    );
-
-    seriesMap[subject.subjectCode] = avgScores;
   }
 
   return { weeks, seriesMap };
 }
 
-export function MonthlyPerformanceChart({ subjectWiseAssessments, selectedStudentId }) {
+export function MonthlyPerformanceChart({ weeklyAnalysis, selectedStudentId }) {
   const { weeks, seriesMap } = useMemo(() => {
-    if (!subjectWiseAssessments || !selectedStudentId) return { weeks: [], seriesMap: {} };
-    return getWeeklySubjectPerformance(subjectWiseAssessments, selectedStudentId);
-  }, [subjectWiseAssessments, selectedStudentId]);
+    if (!weeklyAnalysis || !selectedStudentId) {
+      return { weeks: [], seriesMap: {} };
+    }
+    return getWeeklySubjectPerformance(weeklyAnalysis, selectedStudentId);
+  }, [weeklyAnalysis, selectedStudentId]);
 
   if (!weeks.length) {
     return (
@@ -68,11 +59,11 @@ export function MonthlyPerformanceChart({ subjectWiseAssessments, selectedStuden
     );
   }
 
-  // Build Apex series (each subject is one colored series)
+  // ✅ Build Apex series (one per subject)
   const series = Object.entries(seriesMap).map(([subjectCode, scores]) => ({
     name: subjectCode,
     data: scores,
-    color: subjectColors[subjectCode] || "#A5B4FC", // ✅ ensure same subject always same color
+    color: subjectColors[subjectCode] || "#A5B4FC",
   }));
 
   const options = {
