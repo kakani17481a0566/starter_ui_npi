@@ -35,6 +35,18 @@ const contactGroupSchema = (prefix, required = false) => {
   };
 };
 
+export const personalInfoSchema = Yup.object().shape({
+  fees: Yup.array().of(
+    Yup.object().shape({
+      monthly_fee: Yup.number().required("Monthly fee is required"),
+      term_fee: Yup.number().required("Term fee is required"),
+      annual_fee: Yup.number().required("Annual fee is required"),
+      discount: Yup.number().required("Discount is required"),
+    })
+  ),
+});
+
+
 export const schema = Yup.object().shape({
   // --- Student Details ---
   student_first_name: Yup.string().trim().required("First name is required"),
@@ -147,3 +159,5 @@ other_medical_info: Yup.string().nullable(),
   student_photo: Yup.mixed().required("Student photo required"),
   student_birth_certificate: Yup.mixed().required("Birth certificate required"),
 });
+
+

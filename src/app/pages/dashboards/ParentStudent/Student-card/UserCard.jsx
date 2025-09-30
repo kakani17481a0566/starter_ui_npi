@@ -16,8 +16,10 @@ import { Highlight } from "components/shared/Highlight";
 import { Avatar, Card } from "components/ui";
 import CirclebarWithSeparators from "components/shared/CirclebarWithSeparators";
 
+// ✅ Imports for cover and kid fallback avatars
 import defaultCover from "./The-Neuroscientific-European-Childcare-PDF_12-x-4-ft_Backside-1.png.bv_resized_desktop.png.bv.webp";
-import defaultAvatar from "./avatar-11.jpg";
+import kidBoyAvatar from "assets/kidav.jpg";
+import kidGirlAvatar from "assets/kidav2.jpg";
 
 const formatDate = (value) => {
   if (!value) return "";
@@ -74,6 +76,7 @@ export function UserCard({
   motherTongue = "",
   addressLine1 = "",
   city = "",
+  gender = "", // ✅ add gender prop to decide fallback avatar
 }) {
   const progressPct = Math.max(0, Math.min(100, Number(progress) || 0));
 
@@ -87,6 +90,14 @@ export function UserCard({
           timezone ? ` (${timezone})` : ""
         }`
       : "";
+
+  // ✅ pick correct fallback based on gender
+  const fallbackAvatar =
+    gender === "male"
+      ? kidBoyAvatar
+      : gender === "female"
+      ? kidGirlAvatar
+      : kidBoyAvatar; // default to boy if unknown
 
   return (
     <div
@@ -110,10 +121,11 @@ export function UserCard({
         <div className="flex flex-col space-y-3 px-4 py-3 sm:px-5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
+              {/* ✅ Avatar uses gender-based kid fallback */}
               <Avatar
                 size={20}
                 name={name}
-                src={avatar || defaultAvatar}
+                src={avatar || fallbackAvatar}
                 initialColor={color}
                 classNames={{
                   root: "-mt-10 transition-transform duration-200 hover:scale-[1.02]",
@@ -133,13 +145,12 @@ export function UserCard({
               size={40}
               strokeWidth={4}
               separatorCount={12}
-              // ✅ Use Tailwind CSS variable mapping for primary color
               color={
                 color === "primary"
-                  ? "var(--color-primary-500)" // your primary color
+                  ? "var(--color-primary-500)"
                   : color === "secondary"
-                    ? "var(--color-secondary-500)"
-                    : "#6366f1" // fallback indigo
+                  ? "var(--color-secondary-500)"
+                  : "#6366f1"
               }
               className="mr-1"
             >
@@ -246,9 +257,7 @@ export function UserCard({
                   className="dark:bg-dark-600 dark:text-dark-200 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
                   title={b}
                 >
-                  <span aria-hidden className="text-primary-500">
-                    🏅
-                  </span>
+                  <span aria-hidden className="text-primary-500">🏅</span>
                   {b}
                 </span>
               ))}
@@ -287,4 +296,5 @@ UserCard.propTypes = {
   motherTongue: PropTypes.string,
   addressLine1: PropTypes.string,
   city: PropTypes.string,
+  gender: PropTypes.string, // ✅ new prop
 };

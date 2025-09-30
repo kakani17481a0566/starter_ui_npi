@@ -1,5 +1,10 @@
 import axios from "axios";
 
+// Import fallback avatars
+import parentAvatar from "app/pages/dashboards/ParentStudent/Perfomance/avatar-16.jpg";
+import kidBoyAvatar from "assets/kidav.jpg";
+import kidGirlAvatar from "assets/kidav2.jpg";
+
 /**
  * Fetches parent and linked students from API and normalizes
  * into psLinkData shape that PsLink expects.
@@ -22,20 +27,29 @@ export async function fetchPsLinkData(userId, tenantId) {
         id: parent.parentId,
         parent: {
           id: parent.parentId,
-          name: parent.firstName ?? parent.parentName,
+          name:
+            [parent.firstName, parent.lastName].filter(Boolean).join(" ") ||
+            parent.parentName,
           gender: parent.gender ?? "unknown",
-          image: parent.userImageUrl ?? "/default-avatar.png",
+          image: parent.userImageUrl || parentAvatar, // 👈 parent fallback
         },
         kids: students.map((s) => ({
           id: s.studentId,
           name: s.name,
-          gender: s.gender === "M" ? "male" : "female",
-          image: s.studentImageUrl ?? "/default-student.png",
+          gender:
+            s.gender === "M"
+              ? "male"
+              : s.gender === "F"
+              ? "female"
+              : "unknown",
+          image:
+            s.studentImageUrl ||
+            (s.gender === "M" ? kidBoyAvatar : kidGirlAvatar), // 👈 gender-based fallback
           studentId: s.studentId,
           admissionNumber: s.admissionNumber,
           class: s.courseName,
           section: s.section ?? null, // API doesn’t give section yet
-          academicYear: "2025-2026", // 🔹 fallback if API doesn’t provide
+          academicYear: s.academicYear ?? "2025-2026", // fallback
           courseId: null, // API doesn’t return courseId
           dob: s.dob,
           age: s.age,
