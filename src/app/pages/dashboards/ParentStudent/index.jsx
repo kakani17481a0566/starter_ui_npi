@@ -8,14 +8,14 @@ import StudentAttendanceGraph from "./studentattendence";
 import { Statistics } from "./PageViews/Statistics";
 import { ViewChart } from "./PageViews/ViewChart";
 import { MonthlyPerformanceChart } from "./PageViews/MonthlyPerformanceChart";
+import { TermPerformanceChart } from "./PageViews/TermPerformanceChart";
+
 import { SkillsPerformance } from "./PageViews/SkillsPerformance";
 import { useStudentPerformance } from "./PageViews/PerfomaceApidata";
 import WeekSelector from "./WeekSelector";
-
-// ✅ import session helper
 import { getSessionData } from "utils/sessionStorage";
 
-// 🔹 Reusable Card wrapper for consistent design
+// 🔹 Reusable Card wrapper
 const Card = ({ children, className = "" }) => (
   <div
     className={`dark:border-dark-400 dark:bg-dark-700 flex h-full flex-col rounded-lg border border-gray-200 bg-white p-5 shadow-sm ${className}`}
@@ -24,49 +24,39 @@ const Card = ({ children, className = "" }) => (
   </div>
 );
 
+// 🔹 Skeleton Loader
+const Skeleton = ({ height = "h-20" }) => (
+  <div
+    className={`dark:bg-dark-500 animate-pulse rounded-md bg-gray-200 ${height}`}
+  />
+);
+
 export default function Home() {
-  // -----------------------------
-  // 🔹 Local State
-  // -----------------------------
   const [psLinkData, setPsLinkData] = useState([]);
   const [selectedKidId, setSelectedKidId] = useState(null);
   const [selectedSubjectCode, setSelectedSubjectCode] = useState(null);
   const [selectedWeekId, setSelectedWeekId] = useState(-1);
 
-  // -----------------------------
-  // 🔹 Fetch linked kids (once on mount)
-  // -----------------------------
   useEffect(() => {
     const loadData = async () => {
       const { userId, tenantId } = getSessionData();
-
       if (!userId || !tenantId) {
         console.error("⚠️ No session data found");
         return;
       }
-
       const data = await fetchPsLinkData(userId, tenantId);
       setPsLinkData(data);
-
-      // Auto-select the first kid if available
       if (data.length && data[0].kids.length) {
         setSelectedKidId(data[0].kids[0].id);
       }
     };
-
     loadData();
   }, []);
 
-  // -----------------------------
-  // 🔹 Find selected kid object
-  // -----------------------------
   const selectedKid = psLinkData
     .flatMap((e) => e.kids)
     .find((k) => k.id === selectedKidId);
 
-  // -----------------------------
-  // 🔹 Fetch performance data for selected kid
-  // -----------------------------
   const { performanceData, loading } = useStudentPerformance({
     tenantId: psLinkData[0]?.tenantId ?? getSessionData().tenantId,
     courseId: selectedKid?.courseId ?? 1,
@@ -75,70 +65,56 @@ export default function Home() {
     studentId: selectedKidId,
   });
 
-  // -----------------------------
-  // 🔹 If kids data not loaded yet → show loading
-  // -----------------------------
   if (!psLinkData.length) {
     return (
       <Page title="Parent Student Performance">
-        <div className="px-6 pt-5">Loading linked kids...</div>
+        <div className="px-4 pt-5 sm:px-6">Loading linked kids...</div>
       </Page>
     );
   }
 
-  // -----------------------------
-  // 🔹 Render Page
-  // -----------------------------
   return (
     <Page title="Parent Student Performance">
-      <div className="transition-content w-full px-6 pt-5 lg:pt-6">
+      <div className="transition-content w-full px-3 pt-4 sm:px-4 lg:px-6 lg:pt-6">
         <div className="dark:text-dark-50 min-w-0 text-gray-800">
-          {/* Section Header */}
           <h2 className="mb-4 truncate text-xl font-medium tracking-wide">
             Linked Kids
           </h2>
 
-          {/* 🔹 Kid Selector */}
           <PsLink
             selectedKidId={selectedKidId}
             onKidSelect={(id) => {
               setSelectedKidId(id);
-              setSelectedSubjectCode(null); // reset subject filter
+              setSelectedSubjectCode(null);
             }}
           />
 
-          {/* 🔹 Main content (only render when a kid is selected) */}
           {selectedKid && (
             <div className="mt-6 space-y-6">
-              {/* -----------------------------
-                  Week Selector
-              ------------------------------ */}
+              {/* Week Selector */}
               {performanceData?.weekDictionary && (
-                <div className="mb-4 flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-700 dark:text-dark-200">
+                <div className="mb-4 flex flex-wrap items-center gap-2 sm:gap-3">
+                  <label className="dark:text-dark-200 text-sm font-medium text-gray-700">
                     Select Week:
                   </label>
-                  <WeekSelector
-                    selectedWeekId={selectedWeekId}
-                    setSelectedWeekId={setSelectedWeekId}
-                    weekDictionary={performanceData.weekDictionary}
-                  />
+                  <div className="min-w-[140px] sm:min-w-[160px]">
+                    <WeekSelector
+                      selectedWeekId={selectedWeekId}
+                      setSelectedWeekId={setSelectedWeekId}
+                      weekDictionary={performanceData.weekDictionary}
+                    />
+                  </div>
                 </div>
               )}
 
-              {/* -----------------------------
-                  Row 1: Student Snapshot
-              ------------------------------ */}
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                {/* Kid Info */}
+              {/* Row 1 */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-3">
                 <Card>
                   <UserCard {...selectedKid} />
                 </Card>
-
-                {/* Quick Statistics */}
                 <Card>
                   {loading || !performanceData ? (
-                    <p>Loading performance...</p>
+                    <Skeleton height="h-24" />
                   ) : (
                     <Statistics
                       assessmentGrades={performanceData.assessmentGrades}
@@ -146,20 +122,20 @@ export default function Home() {
                     />
                   )}
                 </Card>
-
-                {/* Attendance */}
                 <Card>
-                  <StudentAttendanceGraph studentId={selectedKid.id} />
+                  {loading ? (
+                    <Skeleton height="h-32" />
+                  ) : (
+                    <StudentAttendanceGraph studentId={selectedKid.id} />
+                  )}
                 </Card>
               </div>
 
-              {/* -----------------------------
-                  Row 2: Charts + Skills
-              ------------------------------ */}
+              {/* Row 2 */}
               {performanceData && (
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-5 items-stretch">
-                  {/* Subject-wise Performance Chart */}
-                  <Card className="lg:col-span-3 flex flex-col h-full">
+                <div className="grid grid-cols-1 items-stretch gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-5">
+                  {/* Chart */}
+                  <Card className="lg:col-span-3">
                     <ViewChart
                       subjectWiseAssessments={
                         performanceData.subjectWiseAssessments
@@ -167,29 +143,33 @@ export default function Home() {
                       selectedStudentId={selectedKid.id}
                       onSubjectSelect={(subj) =>
                         setSelectedSubjectCode((prev) =>
-                          prev === subj ? null : subj
+                          prev === subj ? null : subj,
                         )
                       }
                     />
                   </Card>
 
-                  {/* Skills Performance */}
-                  <Card className="lg:col-span-2 flex flex-col h-full">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="text-sm font-medium text-gray-700 dark:text-dark-200">
-                        Skills Performance
-                      </h3>
-                      {selectedSubjectCode && (
-                        <button
-                          onClick={() => setSelectedSubjectCode(null)}
-                          className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                        >
-                          Clear Filter
-                        </button>
-                      )}
+                  {/* Skills (scrollable card with capped height) */}
+                  <Card className="flex h-full max-h-80 flex-col overflow-hidden sm:max-h-96 lg:col-span-2 lg:max-h-[28rem]">
+                    {/* Sticky Header */}
+                    <div className="dark:bg-dark-700 sticky top-0 z-10 mb-2 bg-white pb-2">
+                      <div className="flex items-center justify-between">
+                        <h3 className="dark:text-dark-200 text-sm font-medium text-gray-700">
+                          Skills Performance
+                        </h3>
+                        {selectedSubjectCode && (
+                          <button
+                            onClick={() => setSelectedSubjectCode(null)}
+                            className="dark:bg-dark-600 dark:hover:bg-dark-500 rounded-md bg-gray-100 px-2 py-1 text-xs text-blue-600 hover:bg-gray-200 dark:text-blue-400"
+                          >
+                            Clear Filter
+                          </button>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-dark-500 scrollbar-track-transparent">
+                    {/* Scrollable list */}
+                    <div className="scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-dark-500 scrollbar-track-transparent min-h-0 flex-1 overflow-y-auto pr-1 sm:pr-2">
                       <SkillsPerformance
                         subjectWiseAssessments={
                           performanceData.subjectWiseAssessments
@@ -203,20 +183,28 @@ export default function Home() {
                 </div>
               )}
 
-              {/* -----------------------------
-                  Row 3: Weekly Performance (Chart)
-              ------------------------------ */}
+              {/* Row 3 */}
               {performanceData && (
                 <div className="grid grid-cols-1">
                   <Card>
-<MonthlyPerformanceChart
-  weeklyAnalysis={performanceData.weeklyAnalysis}
-  selectedStudentId={selectedKid.id}
-/>
-
+                    <MonthlyPerformanceChart
+                      weeklyAnalysis={performanceData.weeklyAnalysis}
+                      selectedStudentId={selectedKid.id}
+                    />
                   </Card>
                 </div>
               )}
+
+
+              {/* Row 4: Term Performance */}
+{performanceData && (
+  <div className="grid grid-cols-1">
+    <Card>
+      <TermPerformanceChart termAnalysis={performanceData.termAnalysis} />
+    </Card>
+  </div>
+)}
+
             </div>
           )}
         </div>
