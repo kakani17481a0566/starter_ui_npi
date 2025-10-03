@@ -3,23 +3,23 @@ import Chart from "react-apexcharts";
 
 // ✅ Subject → consistent color mapping
 const subjectColors = {
-  CLL: "#93C5FD",  // Blue 300
-  PSRN: "#FCA5A5", // Red 300
-  KUW: "#FCD34D",  // Amber 300
-  PD: "#6EE7B7",   // Emerald 300
-  EAD: "#C4B5FD",  // Violet 300
-  PSED: "#F9A8D4", // Pink 300
+  CLL: "#93C5FD",  // Blue
+  PSRN: "#FCA5A5", // Red
+  KUW: "#FCD34D",  // Amber
+  PD: "#6EE7B7",   // Emerald
+  EAD: "#C4B5FD",  // Violet
+  PSED: "#F9A8D4", // Pink
 };
 
-// 🔹 Use subject.averageScore directly from backend
-function getWeeklySubjectPerformance(weeklyAnalysis) {
-  if (!weeklyAnalysis) return { weeks: [], seriesMap: {} };
+// 🔹 Transform termAnalysis → chart series
+function getTermSubjectPerformance(termAnalysis) {
+  if (!termAnalysis) return { terms: [], seriesMap: {} };
 
-  const weeks = weeklyAnalysis.map((w) => w.weekName);
+  const terms = termAnalysis.map((t) => t.termName);
   const seriesMap = {};
 
-  for (const week of weeklyAnalysis) {
-    for (const subject of week.subjectWiseAssessments) {
+  for (const term of termAnalysis) {
+    for (const subject of term.subjectWiseAssessments) {
       if (!seriesMap[subject.subjectCode]) {
         seriesMap[subject.subjectCode] = [];
       }
@@ -30,20 +30,20 @@ function getWeeklySubjectPerformance(weeklyAnalysis) {
     }
   }
 
-  return { weeks, seriesMap };
+  return { terms, seriesMap };
 }
 
-export function MonthlyPerformanceChart({ weeklyAnalysis }) {
-  const { weeks, seriesMap } = useMemo(() => {
-    if (!weeklyAnalysis) return { weeks: [], seriesMap: {} };
-    return getWeeklySubjectPerformance(weeklyAnalysis);
-  }, [weeklyAnalysis]);
+export function TermPerformanceChart({ termAnalysis }) {
+  const { terms, seriesMap } = useMemo(() => {
+    if (!termAnalysis) return { terms: [], seriesMap: {} };
+    return getTermSubjectPerformance(termAnalysis);
+  }, [termAnalysis]);
 
-  if (!weeks.length) {
+  if (!terms.length) {
     return (
       <div className="px-4 py-6">
         <p className="text-sm text-gray-500 dark:text-dark-300">
-          No weekly performance data available.
+          No term performance data available.
         </p>
       </div>
     );
@@ -52,7 +52,7 @@ export function MonthlyPerformanceChart({ weeklyAnalysis }) {
   const series = Object.entries(seriesMap).map(([subjectCode, scores]) => ({
     name: subjectCode,
     data: scores,
-    color: subjectColors[subjectCode] || "#A5B4FC",
+    color: subjectColors[subjectCode] || "#A5B4FC", // fallback violet
   }));
 
   const options = {
@@ -64,7 +64,7 @@ export function MonthlyPerformanceChart({ weeklyAnalysis }) {
     },
     plotOptions: { bar: { borderRadius: 4, columnWidth: "40%" } },
     dataLabels: { enabled: false },
-    xaxis: { categories: weeks },
+    xaxis: { categories: terms },
     yaxis: {
       min: 0,
       max: 100,

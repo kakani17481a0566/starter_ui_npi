@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import Chart from "react-apexcharts";
 
-// ✅ Subject color mapping (light fill, dark stroke)
+// ✅ Subject color mapping
 const domainColorMap = {
   CLL: { fill: "#BFDBFE", stroke: "#3B82F6" },  // Blue
   PSRN: { fill: "#FECACA", stroke: "#EF4444" }, // Red
@@ -25,8 +25,7 @@ function getSubjectVsScores(subjectWiseAssessments, studentId) {
       .filter((v) => v != null);
 
     if (values.length > 0) {
-      const avg =
-        values.reduce((sum, v) => sum + v, 0) / values.length;
+      const avg = values.reduce((sum, v) => sum + v, 0) / values.length;
       const variance =
         values.reduce((sum, v) => sum + (v - avg) ** 2, 0) / values.length;
       const sd = Math.sqrt(variance);
@@ -50,7 +49,7 @@ export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubject
 
   if (!subjects.length) {
     return (
-      <div className="col-span-12 px-2 sm:col-span-6 lg:col-span-8">
+      <div className="px-2">
         <p className="text-sm text-gray-500 dark:text-dark-300">
           No score data available for the selected student.
         </p>
@@ -58,7 +57,7 @@ export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubject
     );
   }
 
-  // 🎨 Map fills
+  // 🎨 Map bar fills
   const fillColors = subjects.map((code) => domainColorMap[code]?.fill || "#E5E7EB");
 
   // 🔹 Two series: Bars (avg), Line (SD)
@@ -118,23 +117,49 @@ export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubject
     },
     xaxis: {
       categories: subjects,
-      labels: { style: { fontSize: "13px", colors: "#374151" } },
+      labels: {
+        style: {
+          fontSize: "13px",
+          colors: subjects.map(() =>
+            document.documentElement.classList.contains("dark")
+              ? "#E5E7EB" // light gray for dark mode
+              : "#374151" // dark gray for light mode
+          ),
+        },
+      },
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
     yaxis: [
       {
+        min: 0,
+        max: 100, // ✅ keep scores between 0–100
         title: { text: "Average Marks (%)", style: { fontSize: "12px" } },
-        labels: { style: { fontSize: "12px", colors: "#6B7280" } },
+        labels: {
+          style: {
+            fontSize: "12px",
+            colors: [document.documentElement.classList.contains("dark") ? "#9CA3AF" : "#6B7280"],
+          },
+        },
       },
       {
         opposite: true,
         title: { text: "Std Dev", style: { fontSize: "12px" } },
-        labels: { style: { fontSize: "12px", colors: "#374151" } },
+        labels: {
+          style: {
+            fontSize: "12px",
+            colors: [document.documentElement.classList.contains("dark") ? "#E5E7EB" : "#374151"],
+          },
+        },
       },
     ],
     grid: { borderColor: "#F3F4F6", strokeDashArray: 4 },
-    legend: { show: true, position: "top" },
+    legend: { show: true, position: "bottom", horizontalAlign: "center" },
+    states: {
+      active: {
+        filter: { type: "lighten", value: 0.85 }, // highlight clicked bar
+      },
+    },
     responsive: [
       {
         breakpoint: 1024,
@@ -144,10 +169,8 @@ export function ViewChart({ subjectWiseAssessments, selectedStudentId, onSubject
   };
 
   return (
-    <div className="col-span-12 px-2 sm:col-span-6 lg:col-span-8">
-      <div className="rounded-xl bg-white shadow-sm dark:bg-dark-700 p-4">
-        <Chart options={chartOptions} series={series} height={280} />
-      </div>
+    <div className="h-full w-full">
+      <Chart options={chartOptions} series={series} height={300} />
     </div>
   );
 }

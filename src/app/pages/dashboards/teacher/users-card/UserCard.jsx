@@ -72,9 +72,8 @@ export function UserCard({
   const progressPct = Math.max(0, Math.min(100, Number(progress) || 0));
   const dotColor = presenceBg[presenceStatus] || presenceBg.offline;
 
-  const prettyRole = role
-    ? role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
-    : "";
+  // ✅ Show full role name (no truncation / no forced lowercase)
+  const prettyRole = role || "";
 
   const joinedText = joinedAt ? formatDate(joinedAt, timezone) : "";
   const hoursText =
@@ -145,7 +144,7 @@ export function UserCard({
 
           {/* Name */}
           <div className="dark:text-dark-200 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-700">
-            <span className="inline-flex max-w-[65%] items-center gap-1 truncate sm:max-w-[75%]">
+            <span className="inline-flex max-w-[65%] items-center gap-1 sm:max-w-[75%]">
               <Highlight query={query}>{name}</Highlight>
               {verified && (
                 <CheckBadgeIcon
@@ -163,15 +162,15 @@ export function UserCard({
               {(prettyRole || department) && (
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-700 dark:text-dark-200">
                   {prettyRole && (
-                    <span className="inline-flex items-center gap-1 truncate max-w-[65%] sm:max-w-[75%]">
+                    <span className="inline-flex items-center gap-1">
                       <AcademicCapIcon className="size-4 text-primary-500" />
-                      <span className="truncate">{prettyRole}</span>
+                      <span>{prettyRole}</span>
                     </span>
                   )}
                   {department && (
-                    <span className="inline-flex items-center gap-1 truncate max-w-[65%] sm:max-w-[75%]">
+                    <span className="inline-flex items-center gap-1">
                       <BuildingOffice2Icon className="size-4 text-primary-500" />
-                      <span className="truncate">{department}</span>
+                      <span>{department}</span>
                     </span>
                   )}
                 </div>
@@ -182,7 +181,7 @@ export function UserCard({
                   {branch && (
                     <span className="inline-flex items-center gap-1" title={branch}>
                       <MapPinIcon className="size-4 text-primary-500" />
-                      <span className="truncate">{branch}</span>
+                      <span>{branch}</span>
                     </span>
                   )}
                   {joinedText && (
@@ -191,13 +190,13 @@ export function UserCard({
                       title={`Joined ${joinedText}`}
                     >
                       <CalendarDaysIcon className="size-4 text-primary-500" />
-                      <span className="truncate">Joined {joinedText}</span>
+                      <span>Joined {joinedText}</span>
                     </span>
                   )}
                   {hoursText && (
                     <span className="inline-flex items-center gap-1" title={hoursText}>
                       <ClockIcon className="size-4 text-primary-500" />
-                      <span className="truncate">{hoursText}</span>
+                      <span>{hoursText}</span>
                     </span>
                   )}
                 </div>
