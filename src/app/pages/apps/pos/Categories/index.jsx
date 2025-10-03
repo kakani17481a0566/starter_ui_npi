@@ -1,5 +1,5 @@
 // Import Dependencies
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { register } from "swiper/element/bundle";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import invariant from "tiny-invariant";
@@ -10,32 +10,49 @@ import { Button, Card } from "components/ui";
 import { useIsomorphicEffect } from "hooks";
 // import UserCard from "/app/pages/dashboards/ParentStudent/Student-card/UserCard.jsx"; // 🔹 adjust path as needed
 import { UserCard } from "app/pages/dashboards/ParentStudent/Student-card/UserCard";
+import axios from "axios";
 
 // ----------------------------------------------------------------------
 
-const items = [
-  {
-    uid: "1",
-    name: "Books",
-    image: "/images/categories/books",
-  },
-  {
-    uid: "2",
-    name: "Uniform",
-    image: "/images/categories/uniform.jpg",
-  },
-  {
-    uid: "3",
-    name: "Accessories",
-    image: "/images/categories/accessories",
-  },
-];
+
+// const items = [
+//   {
+//     uid: "1",
+//     name: "Books",
+//     image: "/images/categories/books",
+//   },
+//   {
+//     uid: "2",
+//     name: "Uniform",
+//     image: "/images/categories/uniform.jpg",
+//   },
+//   {
+//     uid: "3",
+//     name: "Accessories",
+//     image: "/images/categories/accessories",
+//   },
+// ];
 
 register();
 
 export function Categories({ onCategorySelect, selectedKid }) {
+  const[data,setData]=useState([]);
   const { direction } = useLocaleContext();
   const carouselRef = useRef(null);
+  useEffect(()=>{
+    const fetchData=async()=>{
+      try{
+        const response=await axios.get("https://localhost:7202/api/ItemCategory/GetByTenant/1");
+        setData(response.data.data);
+      }
+      catch (err){
+        console.log(err);
+      }
+
+    };
+    fetchData();
+
+},[]);
 
   useIsomorphicEffect(() => {
     invariant(carouselRef.current, "carouselRef is null");
@@ -81,11 +98,11 @@ export function Categories({ onCategorySelect, selectedKid }) {
 
 
       {/* 🔹 Category Items */}
-      {items.map(({ uid, name, image }) => (
-        <swiper-slide key={uid} class="w-24">
+      {data.map(({ id, name, image }) => (
+        <swiper-slide key={id} class="w-24">
           <Card
             className="w-full shrink-0 cursor-pointer px-2 py-4 text-center text-gray-800 dark:text-dark-100 hover:bg-gray-100 dark:hover:bg-dark-700"
-            onClick={() => onCategorySelect?.(uid)} // send uid back
+            onClick={() => onCategorySelect?.(id)} // send uid back
           >
             <img
               alt={name}
