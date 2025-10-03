@@ -340,7 +340,7 @@ console.log("these are the results",testId,relationId,studentId);
             isRecording={isRecording}
             testId={testId}
             studentId={studentId}
-            testContentId={1}
+            testContentId={currentItem?.testContentId}
             relationId={0}
 
           />

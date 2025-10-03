@@ -23,15 +23,16 @@ const sendToAPI = async () => {
     const finalResult = response.data.trim().toLowerCase();
 
     console.log("First API result:", finalResult);
+    console.log("This is voiceinputcard",testContentId);
 
     // 2️⃣ Send result to the second API
     await axios.post(
       "https://localhost:7202/api/TestResult",
       {
-        studentId,
-        testContentId,
-        testId,
-        relationId,
+        studentId:studentId,
+        testContentId:testContentId ,
+        testId:testId,
+        relationId:relationId,
         result: finalResult,
       },
       { headers: { "Content-Type": "application/json" } }
