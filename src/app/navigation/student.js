@@ -41,6 +41,14 @@ else if(role ==='TEACHER'){
       transKey: "nav.student.StudentRegistrationForm",
       Icon: ClipboardDocumentCheckIcon,
     },
+    {
+      id: "StudentRegistrationForm",
+      path: path(ROOT_DASHBOARDS, "/StudentEnquiryTable"),
+      type: NAV_TYPE_ITEM,
+      title: " Student Registration Form",
+      transKey: "nav.student.StudentEnquiryTable",
+      Icon: ClipboardDocumentCheckIcon,
+    },
     // {
     //   id: "dashboards.Term",
     //   path: path(ROOT_DASHBOARDS, "/term"),

@@ -41,6 +41,7 @@ export const baseNavigation = [
     transKey: "nav.FrontDesk.FrontDesk",
     Icon: BuildingOfficeIcon, // semantic for enquiry/form
   },
+
    {
         id: 'apps',
         type: NAV_TYPE_ITEM,

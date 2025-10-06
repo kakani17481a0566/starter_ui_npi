@@ -2,17 +2,18 @@
 import {
   AcademicCapIcon,
   UserGroupIcon,
-
+  EnvelopeIcon, // ✅ new icon for postal
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 
 // Local Imports
-import { Button,} from "components/ui";
+import { Button } from "components/ui";
 import { randomId } from "utils/randomId";
 
 import StudentsTable from "./StudentsTable";
 import TeacherTable from "./TeacherTable";
+import  PostalDatatableV1  from "./PostalTable"; // ✅ import postal table
 
 // ----------------------------------------------------------------------
 
@@ -37,8 +38,16 @@ const tabs = [
       </div>
     ),
   },
-
-
+  {
+    id: randomId(),
+    title: "Postal",
+    icon: EnvelopeIcon,
+    content: (
+      <div>
+        <PostalDatatableV1 />
+      </div>
+    ),
+  },
 ];
 
 const StudentTeacherAttendenceTracking = () => {
@@ -62,7 +71,6 @@ const StudentTeacherAttendenceTracking = () => {
                   as={Button}
                   unstyled
                 >
-                  {/* ✅ Better icons with proper size */}
                   <tab.icon className="size-6" />
                   <span>{tab.title}</span>
                 </Tab>

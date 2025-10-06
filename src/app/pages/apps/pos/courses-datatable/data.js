@@ -32,18 +32,6 @@ export const filtersOptions = [
     }
 ]
 
-export const courseStatusOptions = [
-    {
-        value: 'available',
-        label: 'available',
-        color: 'info',
-    },
-    {
-        value: 'unavailable',
-        label: 'unavailable',
-        color: 'success',
-    }
-]
 
 export const levelOptions = [
     {
@@ -70,270 +58,234 @@ export const levelOptions = [
 
 // src/app/pages/courses/data.js
 
+
+// Status options
+
+// Size options (for uniforms & accessories)
+export const sizeOptions = [
+  { label: "18", value: "18" },
+  { label: "20", value: "20" },
+  { label: "N/A", value: "N/A" },
+];
+
+export const courseStatusOptions = [
+  {
+    value: "available",
+    label: "Available",
+    color: "success", // green
+  },
+  {
+    value: "unavailable",
+    label: "Unavailable",
+    color: "error", // red
+  },
+];
+
+
+
 export const coursesList = [
   {
     course_id: 1,
     name: "Mathematics Basics",
-	image:"/images/categories/BasicMathematics.jpg",
+    image: "/images/categories/BasicMathematics.jpg",
     categoryId: 1,
-    categoryName:"Books",
-    level: "Beginner",
+    categoryName: "Books",
     status: "available",
     size: "N/A",
-    lesson_count: 12,
-    duration: 3600000, // 1 hour
-    rating: 4.2,
     price: 150,
   },
   {
     course_id: 2,
     name: "Advanced Physics",
-	image:"/images/categories/AdvancedPhysics.jpg",
+    image: "/images/categories/AdvancedPhysics.jpg",
     categoryId: 1,
-    categoryName:"Books",
-    level: "Advanced",
-    status: "un available",
+    categoryName: "Books",
+    status: "unavailable",
     size: "N/A",
-    lesson_count: 20,
-    duration: 10800000, // 3 hours
-    rating: 4.8,
     price: 250,
   },
   {
     course_id: 3,
     name: "Hoddy",
-	image:"/images/categories/Hoody.jpg",
+    image: "/images/categories/Hoody.jpg",
     categoryId: 2,
-    categoryName:"Uniform",
-    size:"18",
-    level: "N/A",
+    categoryName: "Uniform",
+    size: "18",
     status: "available",
-    lesson_count: 0,
-    duration: 0,
-    rating: 4.0,
     price: 1000,
   },
   {
     course_id: 4,
     name: "Pant",
-	image:"/images/categories/pant.jpg",
+    image: "/images/categories/pant.jpg",
     categoryId: 2,
-    categoryName:"Uniform",
-    size:"18",
+    categoryName: "Uniform",
+    size: "18",
     status: "available",
-    lesson_count: 0,
-    duration: 0,
-    rating: 3.9,
     price: 1200,
- 
   },
   {
     course_id: 5,
     name: "Geometry Toolkit",
-	image:"/images/categories/GeometryKit.jpg",
-    categoryName:"Accessories",
+    image: "/images/categories/GeometryKit.jpg",
     categoryId: 3,
-    level: "Intermediate",
+    categoryName: "Accessories",
     status: "available",
-    price: 300,
     size: "N/A",
-    duration: 728304,
- 
+    price: 300,
   },
   {
     course_id: 6,
     name: "Art Supplies Pack",
-	image:"/images/categories/Drwaingkit.jpg",
-    categoryName:"Accessories",
+    image: "/images/categories/Drwaingkit.jpg",
     categoryId: 3,
-    size:"N/A",
+    categoryName: "Accessories",
     status: "available",
+    size: "N/A",
     price: 450,
-    duration: 728304,
- 
   },
   {
     course_id: 7,
     name: "Chemistry Experiments",
-	image:"/images/categories/chemistry.jpg",
+    image: "/images/categories/chemistry.jpg",
     categoryId: 3,
-    size: "N/A",
-    categoryName:"Accessories",
-    level: "Intermediate",
+    categoryName: "Accessories",
     status: "available",
+    size: "N/A",
     price: 300,
-    duration: 728304,
- 
   },
   {
     course_id: 8,
     name: "Sports Kit",
-	image:"/images/categories/sportsKit.jpg",
+    image: "/images/categories/sportsKit.jpg",
     categoryId: 3,
-    categoryName:"Accessories",
-    size: "N/A",
+    categoryName: "Accessories",
     status: "available",
+    size: "N/A",
     price: 800,
-    rating: 4.3,
-    duration: 728304,
   },
   {
     course_id: 9,
     name: "Grandma's Bag Of Stories",
-	image:"/images/categories/GrandmaStories.jpg",
+    image: "/images/categories/GrandmaStories.jpg",
     categoryId: 1,
-    categoryName:"Books",
-    level: "Advanced",
+    categoryName: "Books",
     status: "available",
     size: "N/A",
-    duration: 10800000, // 3 hours
-    rating: 4.8,
     price: 135,
   },
   {
     course_id: 10,
     name: "smock",
-	image:"/images/categories/smock.jpg",
+    image: "/images/categories/smock.jpg",
     categoryId: 2,
-    categoryName:"Uniform",
-    level: "Advanced",
+    categoryName: "Uniform",
     status: "available",
-    size:"18",
-    duration: 10800000, // 3 hours
-    rating: 4.8,
+    size: "18",
     price: 995,
   },
   {
     course_id: 11,
     name: "water color",
-	image:"/images/categories/WaterColours.jpg",
+    image: "/images/categories/WaterColours.jpg",
     categoryId: 3,
-    categoryName:"Accessories",
-    level: "Advanced",
+    categoryName: "Accessories",
     status: "available",
     size: "N/A",
-    duration: 10800000, // 3 hours
-    rating: 4.8,
     price: 555,
   },
   {
     course_id: 12,
     name: "The golden duck",
-	image:"/images/categories/TheGoldendUCK.jpg",
+    image: "/images/categories/TheGoldendUCK.jpg",
     categoryId: 1,
-    categoryName:"Books",
-    level: "Advanced",
+    categoryName: "Books",
     status: "available",
     size: "N/A",
-    duration: 10800000, // 3 hours
-    rating: 4.8,
     price: 555,
   },
   {
     course_id: 13,
     name: "weekend uniform",
-	image:"/images/categories/smock-2.jpg",
+    image: "/images/categories/smock-2.jpg",
     categoryId: 2,
-    categoryName:"Uniform",
-    level: "Advanced",
+    categoryName: "Uniform",
     status: "available",
     size: "18",
-    duration: 10800000, // 3 hours
-    rating: 4.8,
     price: 575,
   },
   {
     course_id: 14,
     name: "colour pencil",
-	image:"/images/categories/ColourPencils.jpg",
+    image: "/images/categories/ColourPencils.jpg",
     categoryId: 3,
-    categoryName:"Accessories",
-    level: "Advanced",
+    categoryName: "Accessories",
     status: "available",
     size: "N/A",
-    duration: 10800000, // 3 hours
-    rating: 4.8,
     price: 105,
   },
   {
     course_id: 15,
-    name: "The tower ",
-	image:"/images/categories/TheTowerTreasure.jpg",
+    name: "The tower",
+    image: "/images/categories/TheTowerTreasure.jpg",
     categoryId: 1,
-    categoryName:"Books",
-    level: "Advanced",
+    categoryName: "Books",
     status: "available",
     size: "N/A",
-    duration: 10800000, // 3 hours
-    rating: 4.8,
     price: 155,
   },
   {
     course_id: 16,
     name: "colour uniform",
-	image:"/images/800x600.png",
+    image: "/images/800x600.png",
     categoryId: 2,
-    categoryName:"Uniform",
-    level: "Advanced",
+    categoryName: "Uniform",
     status: "available",
     size: "20",
-    duration: 10800000, // 3 hours
-    rating: 4.8,
     price: 715,
   },
   {
     course_id: 17,
     name: "drawing book",
-	image:"/images/categories/DrwaingBook.jpg",
+    image: "/images/categories/DrwaingBook.jpg",
     categoryId: 1,
-    categoryName:"Books",
-    level: "Advanced",
+    categoryName: "Books",
     status: "available",
     size: "N/A",
-    duration: 10800000, // 3 hours
-    rating: 4.8,
     price: 985,
   },
   {
     course_id: 18,
     name: "jack and the beenstouk",
-	image:"/images/categories/JackAndJill.jpg",
+    image: "/images/categories/JackAndJill.jpg",
     categoryId: 1,
-    categoryName:"Books",
-    level: "Advanced",
+    categoryName: "Books",
     status: "available",
     size: "N/A",
-    duration: 10800000, // 3 hours
-    rating: 4.8,
     price: 235,
   },
   {
     course_id: 19,
     name: "colour pens",
-	image:"/images/categories/ColourPens.jpg",
+    image: "/images/categories/ColourPens.jpg",
     categoryId: 3,
-    categoryName:"Accessories",
-    level: "Advanced",
+    categoryName: "Accessories",
     status: "available",
     size: "N/A",
-    duration: 10800000, // 3 hours
-    rating: 4.8,
     price: 135,
   },
   {
     course_id: 20,
     name: "snow",
-	image:"/images/categories/snow.jpg",
+    image: "/images/categories/snow.jpg",
     categoryId: 1,
-    categoryName:"Books",
-    level: "Advanced",
+    categoryName: "Books",
     status: "available",
     size: "N/A",
-    duration: 10800000, // 3 hours
-    rating: 4.8,
     price: 335,
-  }
+  },
 ];
+
 
 // export const coursesList = [
 //     {

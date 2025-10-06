@@ -2,7 +2,7 @@ import { Page } from "components/shared/Page";
 import { Overview } from "./Components/Overview";
 import { StudentTeacherAttendenceTracking } from "./Components/StudentTeacherAttendenceTracking";
 import { MoneyControl } from "./Components/MoneyControl";
-
+import PostalTable from "./Components/PostalTable";   // ✅ renamed
 
 export default function FrontDeskDashboard() {
   return (
@@ -25,11 +25,10 @@ export default function FrontDeskDashboard() {
               <StudentTeacherAttendenceTracking />
             </div>
 
-            {/* 🔹 Optional right block: 25% width on lg screens */}
-            <div className="col-span-12 lg:col-span-3">
-
-                <MoneyControl />
-
+            {/* 🔹 Right block: 25% width on lg screens */}
+            <div className="col-span-12 lg:col-span-3 space-y-6">
+              <MoneyControl />
+              <PostalTable />   {/* ✅ consistent naming */}
             </div>
           </div>
         </div>

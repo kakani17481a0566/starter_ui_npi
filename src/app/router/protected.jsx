@@ -168,6 +168,14 @@ const protectedRoutes = {
                 ).default,
               }),
             },
+             {
+              path: "StudentEnquiryTable",
+              lazy: async () => ({
+                Component: (
+                  await import("app/pages/forms/StudentEnquiryTable")
+                ).default,
+              }),
+            },
             {
               path: "visitor",
               lazy: async () => ({
@@ -208,6 +216,12 @@ const protectedRoutes = {
               path: "FrontDesk",
               lazy: async () => ({
                 Component: (await import("app/pages/FrontDesk")).default,
+              }),
+            },
+            {
+              path: "branch",
+              lazy: async () => ({
+                Component: (await import("app/pages/FrontDesk/Branch")).default,
               }),
             },
           ],
