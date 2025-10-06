@@ -21,7 +21,7 @@ import { fuzzyFilter } from "utils/react-table/fuzzyFilter";
 import { useSkipper } from "utils/react-table/useSkipper";
 import { Toolbar } from "./Toolbar";
 import { columns } from "./columns";
-import { coursesList } from "./data"; // ✅ assume shape: [{ course_id, name, categoryId, ... }]
+import { fetchItemsData } from "./data"; // ✅ assume shape: [{ course_id, name, categoryId, ... }]
 import { PaginationSection } from "components/shared/table/PaginationSection";
 import { SelectedRowsActions } from "./SelectedRowsActions";
 // import { useThemeContext } from "app/contexts/theme/context";
@@ -36,19 +36,32 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
   // const { cardSkin } = useThemeContext();
 
   // 🔹 Keep full dataset
-  const [allCourses] = useState([...coursesList]);
+  const [allItems,setAllItems] = useState([]);
+  useEffect(()=>{
+    const loadItems=async()=>{
+      try{
+        const result=await fetchItemsData();
+        setAllItems(result);
+      }
+      catch(error){
+        console.log(error);
+      }
+    }
+    loadItems();
+
+  },[])
  
 
   // 🔹 Filter dataset by categoryId whenever prop changes
-  const [courses, setCourses] = useState([]);
+  const [items, setItems] = useState([]);
   useEffect(() => {
     if (categoryId) {
-      setCourses(allCourses.filter((c) => c.categoryId == categoryId));
-       console.log(courses);
+      setItems(allItems.filter((c) => c.categoryId == categoryId));
+       console.log(items);
     } else {
-      setCourses(allCourses);
+      setItems(allItems);
     }
-  }, [categoryId]);
+  }, [categoryId,allItems]);
 
   const [tableSettings, setTableSettings] = useState({
     enableFullScreen: false,
@@ -71,7 +84,7 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
 
   const table = useReactTable({
-    data: courses, // ✅ filtered dataset
+    data: items, // ✅ filtered dataset
     columns,
     state: {
       globalFilter,
@@ -84,14 +97,14 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
     meta: {
       deleteRow: (row) => {
         skipAutoResetPageIndex();
-        setCourses((old) =>
+        setItems((old) =>
           old.filter((oldRow) => oldRow.course_id !== row.original.course_id),
         );
       },
       deleteRows: (rows) => {
         skipAutoResetPageIndex();
         const rowIds = rows.map((row) => row.original.course_id);
-        setCourses((old) => old.filter((row) => !rowIds.includes(row.course_id)));
+        setItems((old) => old.filter((row) => !rowIds.includes(row.course_id)));
       },
       setTableSettings,
       setToolbarFilters,
@@ -115,7 +128,7 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
     autoResetPageIndex,
   });
 
-  useDidUpdate(() => table.resetRowSelection(), [courses]);
+  useDidUpdate(() => table.resetRowSelection(), [items]);
   useLockScrollbar(tableSettings.enableFullScreen);
 
   return (
