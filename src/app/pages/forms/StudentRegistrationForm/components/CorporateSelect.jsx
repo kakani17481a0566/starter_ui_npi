@@ -1,57 +1,70 @@
-// Import Dependencies
+// src/app/pages/forms/StudentRegistrationForm/components/CorporateSelect.jsx
+
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-
-// Local Imports
 import { Listbox } from "components/shared/form/Listbox";
+import axios from "axios";
+import { getSessionData } from "utils/sessionStorage";
 
-// ----------------------------------------------------------------------
+const API_BASE =
+  import.meta.env.VITE_API_BASE ||
+  "https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net";
 
-const CorporateSelect = ({
+export const CorporateSelect = ({
   onCorporateSelect,
   value,
   className,
   disabled = false,
-  tenantId = 1 // Default tenantId, can be passed as prop
+  tenantId: propTenantId,
 }) => {
   const [selected, setSelected] = useState(value || null);
-  const [corporates, setCorporates] = useState([]);
+  const [corporates, setCorporates] = useState([
+    { id: 0, name: "No Corporate", discount: 0, contactId: 0 },
+  ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch corporates from API
+  // Fetch corporates
   useEffect(() => {
     const fetchCorporates = async () => {
       setLoading(true);
       setError(null);
+
       try {
-        const response = await fetch(`https://localhost:7202/api/Corporate/${tenantId}`);
+        const { token, tenantId } = getSessionData();
+        const finalTenantId = propTenantId ?? tenantId;
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch corporates: ${response.status}`);
-        }
+        const res = await axios.get(
+          `${API_BASE}/api/Corporate/${finalTenantId}`,
+          token
+            ? { headers: { Authorization: `Bearer ${token}` } }
+            : undefined
+        );
 
-        const result = await response.json();
-
-        if (result.statusCode === 200 && result.data) {
-          // Add "No Corporate" option and transform data
+        if (res.data?.statusCode === 200 && res.data?.data) {
           const corporateOptions = [
             { id: 0, name: "No Corporate", discount: 0, contactId: 0 },
-            ...result.data.map(corp => ({
+            ...res.data.data.map((corp) => ({
               id: corp.id,
               name: corp.name,
               discount: corp.discount,
-              contactId: corp.contactId
-            }))
+              contactId: corp.contactId,
+            })),
           ];
           setCorporates(corporateOptions);
+
+          // Auto-select if value was passed and matches one of the options
+          if (value) {
+            const match = corporateOptions.find((c) => c.id === value.id);
+            if (match) setSelected(match);
+          }
         } else {
-          throw new Error(result.message || 'Failed to fetch corporates');
+          throw new Error(res.data?.message || "Failed to fetch corporates");
         }
       } catch (err) {
-        console.error('Error fetching corporates:', err);
+        console.error("Error fetching corporates:", err);
         setError(err.message);
-        // Fallback to empty array with just "No Corporate" option
+        // fallback: "No Corporate" only
         setCorporates([{ id: 0, name: "No Corporate", discount: 0, contactId: 0 }]);
       } finally {
         setLoading(false);
@@ -59,7 +72,7 @@ const CorporateSelect = ({
     };
 
     fetchCorporates();
-  }, [tenantId]);
+  }, [propTenantId]);
 
   // Sync with external value changes
   useEffect(() => {
@@ -71,47 +84,19 @@ const CorporateSelect = ({
     onCorporateSelect?.(corporate);
   };
 
-  if (loading) {
-    return (
-      <div className={className}>
-        <div className="max-w-xl">
-          <Listbox
-            data={[]}
-            value={null}
-            placeholder="Loading corporates..."
-            onChange={() => {}}
-            displayField="name"
-            disabled={true}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  if (error && corporates.length <= 1) {
-    return (
-      <div className={className}>
-        <div className="max-w-xl">
-          <Listbox
-            data={[]}
-            value={null}
-            placeholder="Error loading corporates"
-            onChange={() => {}}
-            displayField="name"
-            disabled={true}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={className}>
       <div className="max-w-xl">
         <Listbox
           data={corporates}
           value={selected}
-          placeholder="Select Corporate"
+          placeholder={
+            loading
+              ? "Loading corporates..."
+              : error
+              ? "Error loading corporates"
+              : "Select Corporate"
+          }
           onChange={handleChange}
           displayField="name"
           disabled={disabled || loading}
@@ -133,6 +118,3 @@ CorporateSelect.propTypes = {
   disabled: PropTypes.bool,
   tenantId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
-
-// Export the component (removed the corporates array export since it's now dynamic)
-export { CorporateSelect };

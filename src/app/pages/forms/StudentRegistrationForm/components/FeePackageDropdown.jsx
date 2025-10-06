@@ -9,17 +9,26 @@ import {
   MenuItems,
   Transition,
 } from "@headlessui/react";
-import { ChevronDownIcon, MagnifyingGlassIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import axios from "axios";
+import { getSessionData } from "utils/sessionStorage"; // ✅ use your session helper
+
+const API_BASE =
+  import.meta.env.VITE_API_BASE ||
+  "https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net";
 
 export function FeePackageDropdown({
   onSelect,
   value,
   className,
   disabled = false,
-  tenantId = 1,
-  branchId = 1,
+  tenantId: propTenantId,
+  branchId: propBranchId,
 }) {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,15 +42,19 @@ export function FeePackageDropdown({
       try {
         setLoading(true);
         setError(null);
+
+        const { token, tenantId, branch } = getSessionData();
+        const finalTenantId = propTenantId ?? tenantId;
+        const finalBranchId = propBranchId ?? branch;
+
         const res = await axios.get(
-          `https://localhost:7202/api/FeePackage/grouped/${tenantId}/${branchId}`,
+          `${API_BASE}/api/FeePackage/grouped/${finalTenantId}/${finalBranchId}`,
+          token
+            ? { headers: { Authorization: `Bearer ${token}` } }
+            : undefined
         );
 
-        if (res.data?.data) {
-          setPackages(res.data.data);
-        } else {
-          setError("No data received from server");
-        }
+        setPackages(res.data?.data || []);
       } catch (err) {
         console.error("Failed to fetch fee packages", err);
         setError(err.response?.data?.message || "Failed to load fee packages");
@@ -51,35 +64,34 @@ export function FeePackageDropdown({
     };
 
     fetchPackages();
-  }, [tenantId, branchId]);
+  }, [propTenantId, propBranchId]);
 
   // Keep in sync with parent prop
   useEffect(() => {
     setSelected(value);
   }, [value]);
 
-  const handleSelect = (pkg) => {
+  const handleSelect = (pkg, item) => {
+    const selectedData = { ...pkg, selectedItem: item };
     setSelected(pkg);
-    onSelect?.(pkg);
+    onSelect?.(selectedData);
     setSearchTerm("");
   };
 
   // 🔹 Improved search and filtering
   const filteredPackages = useMemo(() => {
     if (!packages.length) return [];
-
     const lowerSearchTerm = searchTerm.toLowerCase();
 
-    return packages.filter(pkg => {
-      // Check if package matches search
+    return packages.filter((pkg) => {
       const packageMatches =
         pkg.packageName.toLowerCase().includes(lowerSearchTerm) ||
         pkg.courseName.toLowerCase().includes(lowerSearchTerm);
 
-      // Check if any item matches search
-      const itemMatches = pkg.items.some(item =>
-        item.feeStructureName.toLowerCase().includes(lowerSearchTerm) ||
-        item.paymentPeriodName.toLowerCase().includes(lowerSearchTerm)
+      const itemMatches = pkg.items.some(
+        (item) =>
+          item.feeStructureName.toLowerCase().includes(lowerSearchTerm) ||
+          item.paymentPeriodName.toLowerCase().includes(lowerSearchTerm)
       );
 
       return packageMatches || itemMatches;
@@ -118,7 +130,8 @@ export function FeePackageDropdown({
             "flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium shadow-sm transition-colors",
             "hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
             "dark:border-dark-500 dark:bg-dark-700 dark:text-dark-200",
-            (disabled || loading) && "opacity-50 cursor-not-allowed bg-gray-100",
+            (disabled || loading) &&
+              "opacity-50 cursor-not-allowed bg-gray-100",
             !disabled && "text-gray-700",
             error && "border-red-300 bg-red-50"
           )}
@@ -168,55 +181,49 @@ export function FeePackageDropdown({
                 </div>
               )}
 
-              {hasSearchResults && filteredPackages.map((pkg) => (
-                <div key={pkg.packageMasterId} className="p-2">
-                  <div
-                    className="sticky top-0 z-10 bg-white px-2 py-1 text-xs font-semibold
-                               text-gray-500 dark:bg-dark-700 dark:text-dark-200 border-b border-gray-200 dark:border-dark-500"
-                  >
-                    {pkg.packageName} ({pkg.courseName})
+              {hasSearchResults &&
+                filteredPackages.map((pkg) => (
+                  <div key={pkg.packageMasterId} className="p-2">
+                    <div
+                      className="sticky top-0 z-10 bg-white px-2 py-1 text-xs font-semibold
+                                 text-gray-500 dark:bg-dark-700 dark:text-dark-200 border-b border-gray-200 dark:border-dark-500"
+                    >
+                      {pkg.packageName} ({pkg.courseName})
+                    </div>
+                    {pkg.items.map((item) => (
+                      <MenuItem key={item.id}>
+                        {({ focus }) => (
+                          <button
+                            type="button"
+                            onClick={() => handleSelect(pkg, item)}
+                            className={clsx(
+                              "w-full rounded-md px-3 py-2 text-left text-sm transition-colors",
+                              focus
+                                ? "bg-blue-50 text-blue-900 dark:bg-blue-900/20 dark:text-blue-100"
+                                : "text-gray-700 dark:text-dark-200",
+                              selected?.packageMasterId === pkg.packageMasterId &&
+                                "bg-blue-100 text-blue-900 dark:bg-blue-900/30 font-semibold"
+                            )}
+                          >
+                            <div className="flex flex-col">
+                              <span className="font-medium">
+                                {item.feeStructureName}
+                              </span>
+                              <span className="text-xs text-gray-500 dark:text-dark-400">
+                                ₹{item.amount.toLocaleString()} •{" "}
+                                {item.paymentPeriodName}
+                              </span>
+                            </div>
+                          </button>
+                        )}
+                      </MenuItem>
+                    ))}
                   </div>
-                  {pkg.items.map((item) => (
-                    <MenuItem key={item.id}>
-                      {({ focus }) => (
-                        <button
-                          type="button"
-                          onClick={() => handleSelect(pkg)} // Pass the full package
-                          className={clsx(
-                            "w-full rounded-md px-3 py-2 text-left text-sm transition-colors",
-                            focus
-                              ? "bg-blue-50 text-blue-900 dark:bg-blue-900/20 dark:text-blue-100"
-                              : "text-gray-700 dark:text-dark-200",
-                            selected?.packageMasterId === pkg.packageMasterId &&
-                              "bg-blue-100 text-blue-900 dark:bg-blue-900/30 font-semibold"
-                          )}
-                        >
-                          <div className="flex flex-col">
-                            <span className="font-medium">
-                              {item.feeStructureName}
-                            </span>
-                            <span className="text-xs text-gray-500 dark:text-dark-400">
-                              ₹{item.amount.toLocaleString()} •{" "}
-                              {item.paymentPeriodName}
-                            </span>
-                          </div>
-                        </button>
-                      )}
-                    </MenuItem>
-                  ))}
-                </div>
-              ))}
+                ))}
             </MenuItems>
           </Transition>
         )}
       </Menu>
-
-      {/* Loading state */}
-      {loading && (
-        <div className="mt-1 text-sm text-gray-500">
-          Loading fee packages...
-        </div>
-      )}
 
       {/* Empty state */}
       {!loading && !error && packages.length === 0 && (
@@ -235,13 +242,15 @@ FeePackageDropdown.propTypes = {
     packageName: PropTypes.string,
     courseId: PropTypes.number,
     courseName: PropTypes.string,
-    items: PropTypes.arrayOf(PropTypes.shape({
-      id: PropTypes.number,
-      feeStructureId: PropTypes.number,
-      feeStructureName: PropTypes.string,
-      amount: PropTypes.number,
-      paymentPeriodName: PropTypes.string,
-    })),
+    items: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number,
+        feeStructureId: PropTypes.number,
+        feeStructureName: PropTypes.string,
+        amount: PropTypes.number,
+        paymentPeriodName: PropTypes.string,
+      })
+    ),
   }),
   className: PropTypes.string,
   disabled: PropTypes.bool,

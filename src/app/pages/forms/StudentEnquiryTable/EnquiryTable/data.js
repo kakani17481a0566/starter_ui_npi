@@ -1,14 +1,25 @@
 import axios from "axios";
+import { getSessionData } from "utils/sessionStorage";
 
-// ✅ Hardcoded constants
-const baseUrl = "https://localhost:7202";
-const tenantId = 1;
-const branchId = 1;
+// ✅ Base URL (no extra /api7202 needed if your backend runs on /api)
+const baseUrl = "https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net";
 
 export async function fetchEnquiryData() {
   try {
+    const { tenantId, branch } = getSessionData();
+
+    if (!tenantId || !branch) {
+      console.warn("TenantId or BranchId missing from session");
+      return [];
+    }
+
     const response = await axios.get(
-      `${baseUrl}/api/StudentEnquiry/student-enquiry-new/tenant/${tenantId}/branch/${branchId}/display`
+      `${baseUrl}/api/StudentEnquiry/student-enquiry-new/tenant/${tenantId}/branch/${branch}/display`,
+      {
+        headers: {
+          Authorization: `Bearer ${getSessionData().token}`,
+        },
+      }
     );
 
     // API returns { statusCode, message, data }
@@ -18,8 +29,6 @@ export async function fetchEnquiryData() {
     return [];
   }
 }
-
-
 
 
 
