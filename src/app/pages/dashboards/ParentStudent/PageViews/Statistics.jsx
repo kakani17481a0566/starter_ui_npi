@@ -21,13 +21,13 @@ function computeGradeStats(assessmentGrades, studentId) {
   return { gradeMap, totalGraded };
 }
 
-// 🎨 Grade → Row color map
+// 🎨 Grade → color map (used for pills + charts)
 const gradeColorMap = {
-  A: "bg-green-100 text-green-800 dark:bg-green-600/30 dark:text-green-300",
-  B: "bg-blue-100 text-blue-800 dark:bg-blue-600/30 dark:text-blue-300",
-  C: "bg-yellow-100 text-yellow-800 dark:bg-yellow-600/30 dark:text-yellow-300",
-  D: "bg-orange-100 text-orange-800 dark:bg-orange-600/30 dark:text-orange-300",
-  F: "bg-red-100 text-red-800 dark:bg-red-600/30 dark:text-red-300",
+  A: "bg-green-500",
+  B: "bg-blue-500",
+  C: "bg-yellow-500",
+  D: "bg-orange-500",
+  F: "bg-red-500",
 };
 
 // ✅ Main Component
@@ -49,83 +49,91 @@ export function Statistics({ assessmentGrades, selectedStudent }) {
       {/* 📊 Performance Metrics */}
       <Section title="Performance">
         <StatCard
-          icon={<ChartBarIcon className="h-4 w-4 text-blue-500" />}
+          icon={<ChartBarIcon aria-hidden="true" className="h-4 w-4 text-blue-500" />}
           label="Average"
-          value={selectedStudent.averageScore ?? "N/A"}
-          color="border-blue-300"
+          value={
+            selectedStudent.averageScore != null
+              ? selectedStudent.averageScore.toFixed(1)
+              : "N/A"
+          }
         />
         <StatCard
-          icon={<ChartPieIcon className="h-4 w-4 text-purple-500" />}
+          icon={<ChartPieIcon aria-hidden="true" className="h-4 w-4 text-purple-500" />}
           label="Std Dev"
-          value={selectedStudent.standardDeviation ?? "N/A"}
-          color="border-purple-300"
+          value={
+            selectedStudent.standardDeviation != null
+              ? selectedStudent.standardDeviation.toFixed(1)
+              : "N/A"
+          }
         />
       </Section>
 
       {/* 📝 Assessment Stats */}
       <Section title="Assessments">
         <StatCard
-          icon={<ClipboardDocumentCheckIcon className="h-4 w-4 text-emerald-500" />}
+          icon={
+            <ClipboardDocumentCheckIcon
+              aria-hidden="true"
+              className="h-4 w-4 text-emerald-500"
+            />
+          }
           label="Total"
           value={totalAssessments}
-          color="border-emerald-300"
         />
         <StatCard
-          icon={<CheckCircleIcon className="h-4 w-4 text-cyan-500" />}
+          icon={<CheckCircleIcon aria-hidden="true" className="h-4 w-4 text-cyan-500" />}
           label="Graded"
           value={totalGraded}
-          color="border-cyan-300"
         />
         <StatCard
-          icon={<PresentationChartBarIcon className="h-4 w-4 text-pink-500" />}
+          icon={
+            <PresentationChartBarIcon
+              aria-hidden="true"
+              className="h-4 w-4 text-pink-500"
+            />
+          }
           label="Graded %"
           value={`${gradedPercentage}%`}
-          color="border-pink-300"
+          extra={
+            <div className="w-full bg-gray-200 dark:bg-dark-600 h-1 rounded mt-1">
+              <div
+                className="h-1 rounded bg-pink-500"
+                style={{ width: `${gradedPercentage}%` }}
+              />
+            </div>
+          }
         />
       </Section>
 
-      {/* 🏆 Grade Breakdown (Colored Table) */}
+      {/* 🏆 Grade Breakdown */}
       <div>
         <h3 className="mb-2 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
           Grade Breakdown
         </h3>
-        <div className="overflow-x-auto rounded-md border border-gray-200 dark:border-dark-600">
-          <table className="w-full text-xs text-left">
-            <thead className="bg-gray-200 dark:bg-dark-700 text-gray-700 dark:text-gray-300">
-              <tr>
-                <th className="px-3 py-1.5 font-medium">Grade</th>
-                <th className="px-3 py-1.5 font-medium text-right">Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(gradeMap).map(([grade, count]) => (
-                <tr
-                  key={grade}
-                  className={`${gradeColorMap[grade] || "bg-gray-100 dark:bg-dark-600"}`}
-                >
-                  <td className="px-3 py-1.5 font-medium">{grade}</td>
-                  <td className="px-3 py-1.5 text-right font-semibold">{count}</td>
-                </tr>
-              ))}
-              {Object.keys(gradeMap).length === 0 && (
-                <tr>
-                  <td
-                    colSpan={2}
-                    className="px-3 py-2 text-center text-gray-500 dark:text-gray-400"
-                  >
-                    No graded data
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {Object.keys(gradeMap).length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(gradeMap).map(([grade, count]) => (
+              <div
+                key={grade}
+                className="flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium text-white"
+                style={{ backgroundColor: gradeColorMap[grade] }}
+              >
+                <span>{grade}</span>
+                <span className="opacity-90">({count})</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-2">
+            No graded data
+          </p>
+        )}
       </div>
     </div>
   );
 }
 
-// ✅ Reusable Section Wrapper
+// ✅ Section Wrapper
 function Section({ title, children }) {
   return (
     <div>
@@ -137,21 +145,16 @@ function Section({ title, children }) {
   );
 }
 
-// ✅ Small Stat Card (kept clean white)
-function StatCard({ icon, label, value, color }) {
+// ✅ Small Stat Card
+function StatCard({ icon, label, value, extra }) {
   return (
-    <div
-      className={`flex flex-col items-center text-center rounded-md border ${color} px-2 py-2 bg-white dark:bg-dark-700 shadow-sm`}
-    >
+    <div className="flex flex-col items-center text-center rounded-md border border-gray-200 dark:border-dark-600 px-2.5 py-2 bg-white dark:bg-dark-700 shadow-sm">
       <div className="flex items-center gap-1 text-gray-600 dark:text-gray-300">
         {icon}
-        <span className="text-[10px] font-medium uppercase tracking-wide">
-          {label}
-        </span>
+        <span className="text-[10px] font-medium uppercase tracking-wide">{label}</span>
       </div>
-      <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
-        {value}
-      </p>
+      <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">{value}</p>
+      {extra}
     </div>
   );
 }

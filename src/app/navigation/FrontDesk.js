@@ -2,7 +2,8 @@
 import {
   HomeIcon,
   ClipboardDocumentCheckIcon,
-  BuildingOfficeIcon, // ✅ new icon for Front Desk
+  BuildingOfficeIcon,
+
 } from "@heroicons/react/24/outline";
 import { NAV_TYPE_ROOT, NAV_TYPE_ITEM } from "constants/app.constant";
 import { getSessionData } from "utils/sessionStorage";
@@ -25,7 +26,7 @@ if (normalizedRole === "nanny") {
       Icon: ClipboardDocumentCheckIcon,
     },
   ];
-} else if (normalizedRole === "teacher" || normalizedRole === "admin") {
+} else if (normalizedRole === "teacher") {
   dynamicChilds = [
     {
       id: "dashboards.home",
@@ -33,6 +34,34 @@ if (normalizedRole === "nanny") {
       type: NAV_TYPE_ITEM,
       title: "Week Plan",
       transKey: "nav.FrontDesk.frontdeskmain",
+      Icon: HomeIcon,
+    },
+    {
+      id: "dashboards.branch",
+      path: path(ROOT_DASHBOARDS, "/Branch"),
+      type: NAV_TYPE_ITEM,
+      title: "Branch",
+      transKey: "nav.FrontDesk.branch",
+      Icon: HomeIcon,
+    },
+
+  ];
+} else if (normalizedRole === "admin") {
+  dynamicChilds = [
+    {
+      id: "dashboards.home",
+      path: path(ROOT_DASHBOARDS, "/FrontDesk"),
+      type: NAV_TYPE_ITEM,
+      title: "Week Plan",
+      transKey: "nav.FrontDesk.frontdeskmain",
+      Icon: HomeIcon,
+    },
+    {
+      id: "dashboards.branch",
+      path: path(ROOT_DASHBOARDS, "/Branch"),
+      type: NAV_TYPE_ITEM,
+      title: "Branch",
+      transKey: "nav.FrontDesk.branch",
       Icon: HomeIcon,
     },
   ];
@@ -47,4 +76,3 @@ export const FrontDesk = {
   Icon: BuildingOfficeIcon,
   childs: dynamicChilds,
 };
-

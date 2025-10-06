@@ -11,7 +11,6 @@ import { useBreakpointsContext } from "app/contexts/breakpoint/context";
 
 export function TableConfig({ table }) {
   const { smAndDown } = useBreakpointsContext();
-
   return (
     <ResponsiveFilter
       anchor={{ to: "bottom end", gap: 12 }}
@@ -45,5 +44,5 @@ export function TableConfig({ table }) {
 }
 
 TableConfig.propTypes = {
-  table: PropTypes.object.isRequired,
+  table: PropTypes.object,
 };

@@ -21,7 +21,8 @@
     "enquiryForm":"Enquiry Form",
     "followUp":"Follow Up",
     "admissionForm":"Admission Form",
-    "StudentRegistrationForm":"Student Registration Form"
+    "StudentRegistrationForm":"Student Registration Form",
+    "StudentEnquiryTable":"Student Enquiry Table"
   },
    "FrontDesk":{
     "FrontDesk":"FrontDesk",

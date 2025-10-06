@@ -11,7 +11,7 @@ const subjectColors = {
   PSED: "#F9A8D4", // Pink 300
 };
 
-// 🔹 Use subject.averageScore directly from backend
+// 🔹 Extract data
 function getWeeklySubjectPerformance(weeklyAnalysis) {
   if (!weeklyAnalysis) return { weeks: [], seriesMap: {} };
 
@@ -23,7 +23,6 @@ function getWeeklySubjectPerformance(weeklyAnalysis) {
       if (!seriesMap[subject.subjectCode]) {
         seriesMap[subject.subjectCode] = [];
       }
-
       seriesMap[subject.subjectCode].push(
         subject.averageScore != null ? Number(subject.averageScore.toFixed(2)) : null
       );
@@ -62,21 +61,51 @@ export function MonthlyPerformanceChart({ weeklyAnalysis }) {
       toolbar: { show: false },
       animations: { enabled: true, easing: "easeinout", speed: 500 },
     },
-    plotOptions: { bar: { borderRadius: 4, columnWidth: "40%" } },
+    plotOptions: { bar: { borderRadius: 6, columnWidth: "50%" } },
     dataLabels: { enabled: false },
-    xaxis: { categories: weeks },
+    xaxis: {
+      categories: weeks,
+      labels: {
+        rotate: -45,
+        style: { fontSize: "12px" },
+      },
+    },
     yaxis: {
       min: 0,
       max: 100,
       title: { text: "Average Score (%)" },
     },
-    legend: { position: "top", horizontalAlign: "center" },
+    legend: { position: "top", horizontalAlign: "center", fontSize: "13px" },
     grid: { borderColor: "#E5E7EB" },
+    tooltip: {
+      y: {
+        formatter: (val) => (val !== null ? `${val}%` : "No data"),
+      },
+    },
+    responsive: [
+      {
+        breakpoint: 768, // tablets & below
+        options: {
+          plotOptions: { bar: { columnWidth: "60%" } },
+          xaxis: { labels: { rotate: -30, style: { fontSize: "10px" } } },
+          legend: { fontSize: "11px" },
+        },
+      },
+      {
+        breakpoint: 480, // mobiles
+        options: {
+          plotOptions: { bar: { columnWidth: "70%" } },
+          chart: { height: 260 },
+          xaxis: { labels: { rotate: -25, style: { fontSize: "9px" } } },
+          legend: { position: "bottom", fontSize: "10px" },
+        },
+      },
+    ],
   };
 
   return (
-    <div className="ax-transparent-gridline col-span-12 px-2 sm:col-span-6 lg:col-span-8">
-      <Chart options={options} series={series} type="bar" height={300} />
+    <div className="col-span-12 px-2 sm:col-span-6 lg:col-span-8 overflow-x-auto">
+      <Chart options={options} series={series} type="bar" height={320} />
     </div>
   );
 }

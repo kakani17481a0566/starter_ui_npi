@@ -1,74 +1,21 @@
 import axios from 'axios';
-export const durationOptions = [
-    {
-        value: [0, 3600000],
-        label: "Less 1 Hours",
-    },
-    {
-        value: [3600000, 10800000],
-        label: "1 to 3 Hours",
-    },
-    {
-        value: [10800000, 21600000],
-        label: "3 to 6 Hours",
-    },
-    {
-        value: [21600000, 36000000],
-        label: "6 to 10 Hours",
-    },
-    {
-        value: [36000000],
-        label: "More than 10 Hours",
-    },
+export const sizeOptions = [
+  { label: "18", value: "18" },
+  { label: "20", value: "20" },
+  { label: "N/A", value: "N/A" },
 ];
-
-export const filtersOptions = [
-    {
-        value: 'status',
-        label: 'status'
-    },
-    {
-        value: 'categoryName',
-        label: 'categoryName'
-    }
-]
-
 export const courseStatusOptions = [
-    {
-        value: 'available',
-        label: 'available',
-        color: 'info',
-    },
-    {
-        value: 'unavailable',
-        label: 'unavailable',
-        color: 'success',
-    }
-]
-
-export const levelOptions = [
-    {
-        value: 'l1',
-        index: 1,
-        label: 'Beginner'
-    },
-    {
-        value: 'l2',
-        index: 2,
-        label: 'Intermediate'
-    },
-    {
-        value: 'l3',
-        index: 3,
-        label: 'Upper Intermediate'
-    },
-    {
-        value: 'l4',
-        index: 4,
-        label: 'Advanced'
-    }
-]
-
+  {
+    value: "available",
+    label: "Available",
+    color: "success", // green
+  },
+  {
+    value: "unavailable",
+    label: "Unavailable",
+    color: "error", // red
+  },
+];
 
 export async function fetchItemsData() {
   try {
@@ -83,7 +30,6 @@ export async function fetchItemsData() {
   }
 }
 
-//   {
 //     course_id: 1,
 //     name: "Mathematics Basics",
 // 	image:"/images/categories/BasicMathematics.jpg",

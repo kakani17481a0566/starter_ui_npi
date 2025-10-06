@@ -12,7 +12,7 @@ import { Button,} from "components/ui";
 import { randomId } from "utils/randomId";
 
 // import StudentsTable from "./StudentsTable";
-import { Exchange } from "./Exchange";
+import { PostalDelivery } from "./PostalDelivery";
 import { SendFlow } from "./SendFlow";
 // ----------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ const tabs = [
     icon: AcademicCapIcon,
     content: (
       <div>
-        <Exchange />
+        <PostalDelivery />
       </div>
     ),
   },
