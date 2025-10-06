@@ -15,6 +15,8 @@ import { useStudentPerformance } from "./PageViews/PerfomaceApidata";
 import WeekSelector from "./WeekSelector";
 import { getSessionData } from "utils/sessionStorage";
 
+import { CalendarDaysIcon } from "lucide-react";
+
 // 🔹 Reusable Card wrapper
 const Card = ({ children, className = "" }) => (
   <div
@@ -134,7 +136,18 @@ export default function Home() {
                 <Card>
                   <UserCard {...selectedKid} />
                 </Card>
+
                 <Card>
+                  {/* Statistics Header */}
+                  <div className="mb-3 border-b border-gray-200 dark:border-dark-500 pb-2">
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Student Statistics
+                    </h3>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      Scores & grade breakdown
+                    </p>
+                  </div>
+
                   {loading || !performanceData ? (
                     <Skeleton height="h-24" />
                   ) : (
@@ -144,7 +157,19 @@ export default function Home() {
                     />
                   )}
                 </Card>
+
                 <Card>
+                  {/* Attendance Header */}
+                  <div className="mb-3 border-b border-gray-200 dark:border-dark-500 pb-2">
+                    <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      <CalendarDaysIcon className="h-4 w-4 text-primary-500" />
+                      Attendance Overview
+                    </h3>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      Last 7 days in/out times
+                    </p>
+                  </div>
+
                   {loading ? (
                     <Skeleton height="h-32" />
                   ) : (
@@ -157,6 +182,16 @@ export default function Home() {
               {performanceData && (
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-5">
                   <Card className="lg:col-span-3">
+                    {/* ViewChart Header */}
+                    <div className="mb-3 border-b border-gray-200 dark:border-dark-500 pb-2">
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                        Subject Performance
+                      </h3>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Average scores & deviations across subjects
+                      </p>
+                    </div>
+
                     <ViewChart
                       subjectWiseAssessments={
                         performanceData?.subjectWiseAssessments ?? []
@@ -164,7 +199,7 @@ export default function Home() {
                       selectedStudentId={selectedKid.id}
                       onSubjectSelect={(subj) =>
                         setSelectedSubjectCode((prev) =>
-                          prev === subj ? null : subj,
+                          prev === subj ? null : subj
                         )
                       }
                     />
@@ -174,6 +209,9 @@ export default function Home() {
                   <Card className="flex h-full max-h-80 flex-col sm:max-h-96 lg:col-span-2 lg:max-h-[28rem]">
                     <div className="dark:bg-dark-700 sticky top-0 z-10 mb-3 bg-white pb-2">
                       <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                          Skills Performance
+                        </h3>
                         {selectedSubjectCode && (
                           <button
                             onClick={() => setSelectedSubjectCode(null)}
@@ -183,6 +221,9 @@ export default function Home() {
                           </button>
                         )}
                       </div>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Individual skill-level breakdown
+                      </p>
                     </div>
 
                     <div className="scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-dark-500 scrollbar-track-transparent flex-1 overflow-y-auto pr-1 sm:pr-2">
@@ -202,6 +243,16 @@ export default function Home() {
               {/* Row 3 */}
               {performanceData?.weeklyAnalysis && (
                 <Card>
+                  {/* MonthlyPerformance Header */}
+                  <div className="mb-3 border-b border-gray-200 dark:border-dark-500 pb-2">
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Weekly Performance
+                    </h3>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      Subject scores across selected weeks
+                    </p>
+                  </div>
+
                   <MonthlyPerformanceChart
                     weeklyAnalysis={performanceData.weeklyAnalysis}
                     selectedStudentId={selectedKid.id}
@@ -212,6 +263,16 @@ export default function Home() {
               {/* Row 4 */}
               {performanceData?.termAnalysis && (
                 <Card>
+                  {/* TermPerformance Header */}
+                  <div className="mb-3 border-b border-gray-200 dark:border-dark-500 pb-2">
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Term Performance
+                    </h3>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      Average subject scores across academic terms
+                    </p>
+                  </div>
+
                   <TermPerformanceChart
                     termAnalysis={performanceData.termAnalysis}
                   />

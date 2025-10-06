@@ -15,10 +15,12 @@ import { fetchTransportOptions } from "../dropdown";
 export default function TransportationSection({ tenantId = 1 }) {
   const { register, watch, formState: { errors } } = useFormContext();
 
-  const regTransport = watch("regular_transport");
-  const altTransport = watch("alternate_transport");
+  // Watch the correct field names that are being registered
+  const regTransportId = watch("regular_transport_id");
+  const altTransportId = watch("alternate_transport_id");
 
   const [transportOptions, setTransportOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
   const compact = "h-8 py-1 text-xs";
 
   // Find the "OTHER" option IDs (if present)
@@ -28,17 +30,52 @@ export default function TransportationSection({ tenantId = 1 }) {
   );
   const otherAlternateId = otherRegularId; // same list, same id
 
+  // ✅ FIXED: Proper useEffect with cleanup
   useEffect(() => {
+    let isMounted = true; // Flag to prevent state updates after unmount
+
     async function loadOptions() {
       try {
+        setLoading(true);
         const opts = await fetchTransportOptions(tenantId);
-        setTransportOptions(opts);
+
+        // Only update state if component is still mounted
+        if (isMounted) {
+          setTransportOptions(opts);
+        }
       } catch (err) {
         console.error("Failed to load transport options", err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
+
     loadOptions();
-  }, [tenantId]);
+
+    // ✅ Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false;
+    };
+  }, [tenantId]); // tenantId as dependency is fine if it can change
+
+  // Optional: Add loading state
+  if (loading) {
+    return (
+      <SectionCard
+        title="Transportation"
+        icon={BuildingOfficeIcon}
+        variant="outlined"
+        elevation={1}
+        padding="md"
+      >
+        <div className="flex justify-center py-4">
+          <div className="text-sm text-gray-500">Loading transport options...</div>
+        </div>
+      </SectionCard>
+    );
+  }
 
   return (
     <SectionCard
@@ -67,7 +104,8 @@ export default function TransportationSection({ tenantId = 1 }) {
             ))}
           </div>
 
-          <Collapse in={Number(regTransport) === otherRegularId}>
+          {/* Show "Other" input when "OTHER" option is selected */}
+          <Collapse in={Number(regTransportId) === otherRegularId}>
             <div className="mt-3">
               <Input
                 className={compact}
@@ -101,7 +139,8 @@ export default function TransportationSection({ tenantId = 1 }) {
             ))}
           </div>
 
-          <Collapse in={Number(altTransport) === otherAlternateId}>
+          {/* Show "Other" input when "OTHER" option is selected */}
+          <Collapse in={Number(altTransportId) === otherAlternateId}>
             <div className="mt-3">
               <Input
                 className={compact}
