@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {POS_ITEMS} from"constants/apis";
 export const sizeOptions = [
   { label: "18", value: "18" },
   { label: "20", value: "20" },
@@ -16,10 +17,20 @@ export const courseStatusOptions = [
     color: "error", // red
   },
 ];
+export const filtersOptions = [
+    {
+        value: 'status',
+        label: 'status'
+    },
+    {
+        value: 'categoryName',
+        label: 'categoryName'
+    }
+]
 
 export async function fetchItemsData() {
   try {
-    const response = await axios.get("https://localhost:7202/api/Items/GetByTenant/1");
+    const response = await axios.get(POS_ITEMS);
 
     // Axios doesn't use response.ok — remove this check
     const result = response.data.data;

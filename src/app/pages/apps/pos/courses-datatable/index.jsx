@@ -69,7 +69,7 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
     enableFullScreen: false,
     enableRowDense: false,
     enableSorting: true,
-    enableColumnFilters: true,
+    enableColumnFilters: false,
   });
 
   const [toolbarFilters, setToolbarFilters] = useState(["status", "size"]);

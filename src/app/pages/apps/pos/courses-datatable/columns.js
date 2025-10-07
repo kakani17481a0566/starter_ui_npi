@@ -16,8 +16,8 @@ const columnHelper = createColumnHelper();
 export const columns = [
   columnHelper.accessor((row) => row.name, {
     id: "name",
-    header: "Course",
-    label: "Course",
+    header: "Item",
+    label: "Item",
     cell: CourseNameCell,
   }),
   columnHelper.accessor((row) => row.categoryName, {

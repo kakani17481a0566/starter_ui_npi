@@ -11,6 +11,7 @@ import { useIsomorphicEffect } from "hooks";
 // import UserCard from "/app/pages/dashboards/ParentStudent/Student-card/UserCard.jsx"; // 🔹 adjust path as needed
 import { UserCard } from "app/pages/dashboards/ParentStudent/Student-card/UserCard";
 import axios from "axios";
+import {POS_CATEGORIES} from "constants/apis";
 
 // ----------------------------------------------------------------------
 
@@ -42,7 +43,7 @@ export function Categories({ onCategorySelect, selectedKid }) {
   useEffect(()=>{
     const fetchData=async()=>{
       try{
-        const response=await axios.get("https://localhost:7202/api/ItemCategory/GetByTenant/1");
+        const response=await axios.get(POS_CATEGORIES);
         setData(response.data.data);
       }
       catch (err){

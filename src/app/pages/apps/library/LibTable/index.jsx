@@ -22,7 +22,7 @@ import { fuzzyFilter } from "utils/react-table/fuzzyFilter";
 import { useSkipper } from "utils/react-table/useSkipper";
 import { Toolbar } from "./Toolbar";
 import { columns } from "./columns";
-import { libraryList } from "./data";
+import { fetchBooks } from "./data";
 import { PaginationSection } from "components/shared/table/PaginationSection";
 import { SelectedRowsActions } from "./SelectedRowsActions";
 import { useThemeContext } from "app/contexts/theme/context";
@@ -35,14 +35,29 @@ const isSafari = getUserAgentBrowser() === "Safari";
 export default function LibTable({ selectedCategory, onAddToBasket }) {
   const { cardSkin } = useThemeContext();
 
-  const [books, setBooks] = useState([...libraryList]);
+  const [books, setBooks] = useState([]);
+   const [allItems,setAllItems] = useState([]);
+    useEffect(()=>{
+      const loadItems=async()=>{
+        try{
+          const result=await fetchBooks();
+          setAllItems(result);
+        }
+        catch(error){
+          console.log(error);
+        }
+      }
+      loadItems();
+  
+    },[])
+   
 
   // 🔹 Filter books based on selected category
   useEffect(() => {
     if (!selectedCategory || selectedCategory === "All") {
-      setBooks(libraryList);
+      setBooks(allItems);
     } else {
-      setBooks(libraryList.filter((book) => book.category === selectedCategory));
+      setBooks(allItems.filter((book) => book.category === selectedCategory));
     }
   }, [selectedCategory]);
 
