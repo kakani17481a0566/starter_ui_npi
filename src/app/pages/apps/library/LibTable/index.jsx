@@ -15,7 +15,7 @@ import clsx from "clsx";
 import { useState, useEffect } from "react";
 
 // Local Imports
-import { Table, Card, THead, TBody, Th, Tr, Td } from "components/ui";
+import { Table, Card, THead, TBody, Th, Tr, Td, Spinner } from "components/ui";
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
 import { useLockScrollbar, useDidUpdate, useLocalStorage } from "hooks";
 import { fuzzyFilter } from "utils/react-table/fuzzyFilter";
@@ -32,26 +32,36 @@ import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
+// 🔹 Centered loading spinner
+const LoadingSpinner = () => {
+  return (
+    <div className="flex h-screen items-center justify-center">
+      <Spinner className="text-primary-500 w-12 h-12" />
+    </div>
+  );
+};
+
 export default function LibTable({ selectedCategory, onAddToBasket }) {
   const { cardSkin } = useThemeContext();
 
   const [books, setBooks] = useState([]);
-   const [allItems,setAllItems] = useState([]);
-    useEffect(()=>{
-      const loadItems=async()=>{
-        try{
-          const result=await fetchBooks();
-          setAllItems(result);
-          setBooks(result);
-        }
-        catch(error){
-          console.log(error);
-        }
+  const [allItems, setAllItems] = useState([]);
+  const [loading, setLoading] = useState(true); // 🔹 loading state
+
+  useEffect(() => {
+    const loadItems = async () => {
+      try {
+        const result = await fetchBooks();
+        setAllItems(result);
+        setBooks(result);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false); // 🔹 stop spinner when done
       }
-      loadItems();
-  
-    },[])
-   
+    };
+    loadItems();
+  }, []);
 
   // 🔹 Filter books based on selected category
   useEffect(() => {
@@ -60,7 +70,7 @@ export default function LibTable({ selectedCategory, onAddToBasket }) {
     } else {
       setBooks(allItems.filter((book) => book.category === selectedCategory));
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, allItems]);
 
   const [tableSettings] = useState({
     enableFullScreen: false,
@@ -109,6 +119,11 @@ export default function LibTable({ selectedCategory, onAddToBasket }) {
 
   useDidUpdate(() => table.resetRowSelection(), [books]);
   useLockScrollbar(tableSettings.enableFullScreen);
+
+  // 🔹 Show spinner while loading
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="transition-content w-full pb-5">
