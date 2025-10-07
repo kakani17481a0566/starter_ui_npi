@@ -9,6 +9,7 @@ import { useLocaleContext } from "app/contexts/locale/context";
 import { Button, Card } from "components/ui";
 import { useIsomorphicEffect } from "hooks";
 import axios from "axios";
+import {LIBRARY_CATEGORIES} from "constants/apis";
 
 // ----------------------------------------------------------------------
 
@@ -29,7 +30,7 @@ export function Categories({ selectedCategory, onSelectCategory }) {
   useEffect(()=>{
     const fetchData=async()=>{
       try{
-        const response=await axios.get("https://localhost:7202/api/Genres/1");
+        const response=await axios.get(LIBRARY_CATEGORIES);
         setData(response.data.data);
       }
       catch(error)

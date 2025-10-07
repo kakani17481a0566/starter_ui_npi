@@ -29,12 +29,12 @@ export const columns = [
     header: SelectHeader,
     cell: SelectCell,
   }),
-  columnHelper.accessor((row) => row.book_id, {
+  columnHelper.accessor((row) => row.bookId, {
     id: "book_id",
     header: "Book ID",
     cell: BookIdCell,
   }),
-  columnHelper.accessor((row) => Number(row.created_at), {
+  columnHelper.accessor((row) => row.createdOn, {
     id: "created_at",
     header: "Added On",
     cell: DateCell,
@@ -75,7 +75,7 @@ export const columns = [
   }),
   columnHelper.accessor(
     (row) =>
-      `${row.publisher_address?.street}, ${row.publisher_address?.line}`,
+      `${row.publisherAddress?.street}, ${row.publisherAddress?.line}`,
     {
       id: "publisher_address",
       header: "Publisher Address",

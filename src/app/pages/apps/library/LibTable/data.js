@@ -8,7 +8,7 @@ import {
   ArchiveBoxIcon,
 } from "@heroicons/react/24/outline";
 import axios from 'axios';
-import {LIBRARY_CATEGORIES} from "constants/apis";
+import {LIBRARY_BOOKS} from "constants/apis";
 
 // ✅ Status options for the status dropdown (uses Tailux-supported colors)
 export const orderStatusOptions = [
@@ -21,7 +21,7 @@ export const orderStatusOptions = [
 
 export async function fetchBooks(){
    try {
-    const response = await axios.get(LIBRARY_CATEGORIES);
+    const response = await axios.get(LIBRARY_BOOKS);
     const result = response.data.data;
     return result;
   } catch (error) {
