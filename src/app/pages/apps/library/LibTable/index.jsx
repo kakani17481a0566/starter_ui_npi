@@ -33,20 +33,18 @@ import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 const isSafari = getUserAgentBrowser() === "Safari";
 
 // 🔹 Centered loading spinner
-const LoadingSpinner = () => {
-  return (
-    <div className="flex h-screen items-center justify-center">
-      <Spinner className="text-primary-500 w-12 h-12" />
-    </div>
-  );
-};
+const LoadingSpinner = () => (
+  <div className="flex h-screen items-center justify-center">
+    <Spinner className="text-primary-500 w-12 h-12" />
+  </div>
+);
 
 export default function LibTable({ selectedCategory, onAddToBasket }) {
   const { cardSkin } = useThemeContext();
 
   const [books, setBooks] = useState([]);
   const [allItems, setAllItems] = useState([]);
-  const [loading, setLoading] = useState(true); // 🔹 loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadItems = async () => {
@@ -55,9 +53,9 @@ export default function LibTable({ selectedCategory, onAddToBasket }) {
         setAllItems(result);
         setBooks(result);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       } finally {
-        setLoading(false); // 🔹 stop spinner when done
+        setLoading(false);
       }
     };
     loadItems();
@@ -72,9 +70,10 @@ export default function LibTable({ selectedCategory, onAddToBasket }) {
     }
   }, [selectedCategory, allItems]);
 
-  const [tableSettings] = useState({
+  // ✅ FIX: Add setter
+  const [tableSettings, setTableSettings] = useState({
     enableFullScreen: false,
-    enableRowDense: false,
+    enableRowDense: true,
   });
 
   const [globalFilter, setGlobalFilter] = useState("");
@@ -90,17 +89,20 @@ export default function LibTable({ selectedCategory, onAddToBasket }) {
     {}
   );
 
-  const [autoResetPageIndex] = useSkipper();
+  const [autoResetPageIndex, ] = useSkipper();
 
   const table = useReactTable({
     data: books,
-    columns: columns,
+    columns,
     state: {
       globalFilter,
       sorting,
       columnVisibility,
       columnPinning,
       tableSettings,
+    },
+    meta: {
+      setTableSettings, // ✅ allow Toolbar/TableSettings to toggle
     },
     filterFns: { fuzzy: fuzzyFilter },
     globalFilterFn: fuzzyFilter,
@@ -120,10 +122,7 @@ export default function LibTable({ selectedCategory, onAddToBasket }) {
   useDidUpdate(() => table.resetRowSelection(), [books]);
   useLockScrollbar(tableSettings.enableFullScreen);
 
-  // 🔹 Show spinner while loading
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="transition-content w-full pb-5">
@@ -202,11 +201,11 @@ export default function LibTable({ selectedCategory, onAddToBasket }) {
                 </THead>
                 <TBody>
                   {table.getRowModel().rows.map((row) => {
-                    const book = row.original; // ✅ raw book data
+                    const book = row.original;
                     return (
                       <Tr
                         key={row.id}
-                        onClick={() => onAddToBasket?.(book)} // ✅ add to basket on click
+                        onClick={() => onAddToBasket?.(book)}
                         className={clsx(
                           "relative border-y border-transparent border-b-gray-200 dark:border-b-dark-500 cursor-pointer hover:bg-primary-50 dark:hover:bg-dark-600",
                           row.getIsSelected() &&
@@ -243,7 +242,7 @@ export default function LibTable({ selectedCategory, onAddToBasket }) {
               </Table>
             </div>
             <SelectedRowsActions table={table} />
-            {table.getCoreRowModel().rows.length && (
+            {table.getCoreRowModel().rows.length > 0 && (
               <div
                 className={clsx(
                   "px-4 pb-4 sm:px-5 sm:pt-4",

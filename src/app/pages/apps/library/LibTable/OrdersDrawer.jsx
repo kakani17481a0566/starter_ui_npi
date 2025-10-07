@@ -13,11 +13,13 @@ import dayjs from "dayjs";
 import PropTypes from "prop-types";
 
 // Local Imports
-import { Badge, Button } from "components/ui";
+import { Badge, Button, Table, THead, TBody, Th, Tr, Td, Tag } from "components/ui";
 import { orderStatusOptions } from "./data";
 import { useLocaleContext } from "app/contexts/locale/context";
 
 // ----------------------------------------------------------------------
+
+const cols = ["Title", "Author", "Category", "Price", "Stock"];
 
 export function LibraryDrawer({ isOpen, close, row }) {
   const statusOption = orderStatusOptions.find(
@@ -32,6 +34,7 @@ export function LibraryDrawer({ isOpen, close, row }) {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-100" onClose={close}>
+        {/* Overlay */}
         <TransitionChild
           as="div"
           enter="ease-out duration-300"
@@ -43,6 +46,7 @@ export function LibraryDrawer({ isOpen, close, row }) {
           className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity dark:bg-black/40"
         />
 
+        {/* Drawer Panel */}
         <TransitionChild
           as={DialogPanel}
           enter="ease-out transform-gpu transition-transform duration-200"
@@ -75,27 +79,14 @@ export function LibraryDrawer({ isOpen, close, row }) {
             </Button>
           </div>
 
-          {/* Book Info */}
+          {/* Added On */}
           <div className="mt-3 flex w-full justify-between px-4 sm:px-5">
             <div className="flex flex-col">
-              <div className="mb-1.5 font-semibold">Title:</div>
-              <div className="text-lg font-medium text-gray-800 dark:text-dark-50">
-                {row.original.book.title}
-              </div>
-              <div className="mt-1.5 text-sm text-gray-600 dark:text-dark-200">
-                Author: {row.original.author}
-              </div>
-              <div className="mt-1.5 text-sm text-gray-600 dark:text-dark-200">
-                Category: {row.original.category}
-              </div>
-              <div className="mt-1.5 text-sm text-gray-600 dark:text-dark-200">
-                Price: ${row.original.price.toFixed(2)}
-              </div>
-              <div className="mt-1.5 text-sm text-gray-600 dark:text-dark-200">
-                Stock: {row.original.stock}
-              </div>
+              <div className="font-semibold">Publisher Address:</div>
+              <p className="mt-1 text-gray-700 dark:text-dark-200">
+                {`${row.original.publisher_address?.street}, ${row.original.publisher_address?.line}`}
+              </p>
             </div>
-
             <div className="text-end">
               <div className="font-semibold">Added On:</div>
               <div className="mt-1.5">
@@ -107,12 +98,56 @@ export function LibraryDrawer({ isOpen, close, row }) {
             </div>
           </div>
 
-          {/* Publisher Address */}
-          <div className="mt-3 px-4 sm:px-5">
-            <div className="font-semibold">Publisher Address:</div>
-            <p className="mt-1 text-gray-700 dark:text-dark-200">
-              {`${row.original.publisher_address?.street}, ${row.original.publisher_address?.line}`}
-            </p>
+          {/* Divider */}
+          <hr
+            className="mx-4 my-4 h-px border-gray-150 dark:border-dark-500 sm:mx-5"
+            role="none"
+          />
+
+          {/* Book Details Table */}
+          <div className="mt-1 grow overflow-x-auto overscroll-x-contain px-4 sm:px-5">
+            <Table
+              hoverable
+              className="w-full text-left text-xs-plus rtl:text-right [&_.table-td]:py-2"
+            >
+              <THead>
+                <Tr className="border-y border-transparent border-b-gray-200 dark:border-b-dark-500">
+                  {cols.map((title, index) => (
+                    <Th
+                      key={index}
+                      className="py-2 font-semibold uppercase text-gray-800 first:px-0 last:px-0 dark:text-dark-100"
+                    >
+                      {title}
+                    </Th>
+                  ))}
+                </Tr>
+              </THead>
+              <TBody>
+                <Tr className="border-y border-transparent border-b-gray-200 dark:border-b-dark-500">
+                  <Td className="px-0 font-medium ltr:rounded-l-lg rtl:rounded-r-lg">
+                    {row.original.book.title}
+                  </Td>
+                  <Td>{row.original.author}</Td>
+                  <Td>{row.original.category}</Td>
+                  <Td>₹{row.original.price.toFixed(2)}</Td>
+                  <Td className="px-0 font-medium text-gray-800 dark:text-dark-100 ltr:rounded-r-lg rtl:rounded-l-lg">
+                    {row.original.stock}
+                  </Td>
+                </Tr>
+              </TBody>
+            </Table>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="flex justify-end px-4 sm:px-5">
+            <div className="mt-4 flex space-x-1.5">
+              <Tag component="button" className="min-w-[4rem]">
+                Wishlist
+              </Tag>
+              <Tag component="button" color="primary" className="min-w-[4rem]">
+                Borrow
+              </Tag>
+            </div>
           </div>
         </TransitionChild>
       </Dialog>

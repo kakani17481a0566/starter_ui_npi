@@ -79,7 +79,7 @@ export function CategoryCell({ getValue }) {
 export function PriceCell({ getValue }) {
   return (
     <p className="text-sm-plus font-medium text-gray-800 dark:text-dark-100">
-      ${getValue().toFixed(2)}
+      ₹{getValue().toFixed(2)}
     </p>
   );
 }

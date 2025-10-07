@@ -1,7 +1,18 @@
-// columns.js
+// src/app/pages/apps/library/LibTable/columns.js
 
-// Import Dependencies
+import React from "react";
 import { createColumnHelper } from "@tanstack/react-table";
+import {
+  BookOpenIcon,
+  CalendarDaysIcon,
+  UserIcon,
+  TagIcon,
+  CurrencyRupeeIcon,
+  ArchiveBoxIcon,
+  SignalIcon,
+  MapPinIcon,
+  EllipsisHorizontalIcon,
+} from "@heroicons/react/24/outline";
 
 // Local Imports
 import { RowActions } from "./RowActions";
@@ -22,6 +33,20 @@ import {
 
 const columnHelper = createColumnHelper();
 
+// helper: build header with icon + text, including displayName
+function headerWithIcon(Icon, text, name) {
+  const HeaderComponent = () =>
+    React.createElement(
+      "div",
+      { className: "flex items-center space-x-2 text-primary-500" },
+      React.createElement(Icon, { className: "h-5 w-5" }),
+      text ? React.createElement("span", null, text) : null
+    );
+
+  HeaderComponent.displayName = name || "HeaderWithIcon";
+  return HeaderComponent;
+}
+
 export const columns = [
   columnHelper.display({
     id: "select",
@@ -31,45 +56,45 @@ export const columns = [
   }),
   columnHelper.accessor((row) => row.bookId, {
     id: "book_id",
-    header: "Book ID",
+    header: headerWithIcon(TagIcon, "Book ID", "BookIdHeader"),
     cell: BookIdCell,
   }),
   columnHelper.accessor((row) => row.createdOn, {
     id: "created_at",
-    header: "Added On",
+    header: headerWithIcon(CalendarDaysIcon, "Added On", "CreatedAtHeader"),
     cell: DateCell,
     filterFn: "inNumberRange",
   }),
   columnHelper.accessor((row) => row.book.title, {
     id: "title",
-    header: "Title",
+    header: headerWithIcon(BookOpenIcon, "Title", "TitleHeader"),
     cell: TitleCell,
   }),
   columnHelper.accessor((row) => row.author, {
     id: "author",
-    header: "Author",
+    header: headerWithIcon(UserIcon, "Author", "AuthorHeader"),
     cell: AuthorCell,
   }),
   columnHelper.accessor((row) => row.category, {
     id: "category",
-    header: "Category",
+    header: headerWithIcon(ArchiveBoxIcon, "Category", "CategoryHeader"),
     cell: CategoryCell,
   }),
   columnHelper.accessor((row) => row.price, {
     id: "price",
-    header: "Price",
+    header: headerWithIcon(CurrencyRupeeIcon, "Price", "PriceHeader"),
     cell: PriceCell,
     filterFn: "inNumberRange",
   }),
   columnHelper.accessor((row) => row.stock, {
     id: "stock",
-    header: "Stock",
+    header: headerWithIcon(SignalIcon, "Stock", "StockHeader"),
     cell: StockCell,
     filterFn: "inNumberRange",
   }),
   columnHelper.accessor((row) => row.status, {
     id: "status",
-    header: "Status",
+    header: headerWithIcon(SignalIcon, "Status", "StatusHeader"),
     cell: StatusCell,
     filterFn: "arrIncludesSome",
   }),
@@ -78,13 +103,13 @@ export const columns = [
       `${row.publisherAddress?.street}, ${row.publisherAddress?.line}`,
     {
       id: "publisher_address",
-      header: "Publisher Address",
+      header: headerWithIcon(MapPinIcon, "Publisher Address", "PublisherAddressHeader"),
       cell: AddressCell,
     }
   ),
   columnHelper.display({
     id: "actions",
-    header: "Actions",
+    header: headerWithIcon(EllipsisHorizontalIcon, null, "ActionsHeader"),
     cell: RowActions,
   }),
 ];

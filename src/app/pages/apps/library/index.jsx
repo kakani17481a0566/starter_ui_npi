@@ -19,18 +19,22 @@ export default function Lib() {
   const [basketItems, setBasketItems] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null); // always {value,label}
 
+  // 🔹 Helper: normalize book identifier
+  const getBookId = (book) =>
+    book.book_id ?? book.bookId ?? book.id ?? book._id;
+
   // ➕ Add book
   const handleAddToBasket = (book) => {
+    const bookId = getBookId(book);
+
     setBasketItems((prev) => {
-      const existing = prev.find((item) => item.book_id === book.book_id);
+      const existing = prev.find((item) => item.book_id === bookId);
       if (existing) {
         return prev.map((item) =>
-          item.book_id === book.book_id
-            ? { ...item, count: item.count + 1 }
-            : item
+          item.book_id === bookId ? { ...item, count: item.count + 1 } : item
         );
       }
-      return [...prev, { ...book, count: 1 }];
+      return [...prev, { ...book, book_id: bookId, count: 1 }];
     });
   };
 
@@ -67,10 +71,19 @@ export default function Lib() {
   // 📚 Assign
   const handleAssignBooks = async (student, items) => {
     try {
+      if (!student) {
+        toast.error("❌ Please select a student");
+        return;
+      }
+      if (items.length === 0) {
+        toast.error("❌ Basket is empty");
+        return;
+      }
+
       console.log("Assigning books →", { student, items });
 
-      // Example API call
-      // await fetch("/api/library/assign", { ... });
+      // Example API call:
+      // await fetch("/api/library/assign", { method: "POST", body: JSON.stringify({ student, items }) });
 
       toast.success(`✅ Books assigned to ${student.label}`);
       setBasketItems([]);
@@ -110,7 +123,7 @@ export default function Lib() {
             onIncrease={handleIncreaseQuantity}
             onDecrease={handleDecreaseQuantity}
             selectedStudent={selectedStudent}
-            onSelectStudent={handleSelectStudent} // ✅ fixed
+            onSelectStudent={handleSelectStudent}
           />
         </div>
       </main>
