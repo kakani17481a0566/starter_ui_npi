@@ -62,6 +62,9 @@ export const HEARD_ABOUT_US=`https://neuropi-fhafe3gchabde0gb.canadacentral-01.a
 export const COURSE_OPTIONS=`${BASE_URL}/Course/dropdown-options-course/${tenantId}`;
 export const GENDER_OPTIONS=`https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/getByMasterTypeId/49/1?isUtilites=false`;
 export const BRANCH_OPTIONS=`${BASE_URL}/Branch/dropdown-options/${tenantId}`;
+export const POS_CATEGORIES=`${BASE_URL}/ItemCategory/GetByTenant/${tenantId}`;
+export const POS_ITEMS=`${BASE_URL}/Items/GetByTenant/${tenantId}`;
+export const LIBRARY_CATEGORIES=`${BASE_URL}/Genres/${tenantId}`;
 
 
 

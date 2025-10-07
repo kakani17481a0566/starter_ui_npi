@@ -1,73 +1,10 @@
-export const durationOptions = [
-    {
-        value: [0, 3600000],
-        label: "Less 1 Hours",
-    },
-    {
-        value: [3600000, 10800000],
-        label: "1 to 3 Hours",
-    },
-    {
-        value: [10800000, 21600000],
-        label: "3 to 6 Hours",
-    },
-    {
-        value: [21600000, 36000000],
-        label: "6 to 10 Hours",
-    },
-    {
-        value: [36000000],
-        label: "More than 10 Hours",
-    },
-];
-
-export const filtersOptions = [
-    {
-        value: 'status',
-        label: 'status'
-    },
-    {
-        value: 'categoryName',
-        label: 'categoryName'
-    }
-]
-
-
-export const levelOptions = [
-    {
-        value: 'l1',
-        index: 1,
-        label: 'Beginner'
-    },
-    {
-        value: 'l2',
-        index: 2,
-        label: 'Intermediate'
-    },
-    {
-        value: 'l3',
-        index: 3,
-        label: 'Upper Intermediate'
-    },
-    {
-        value: 'l4',
-        index: 4,
-        label: 'Advanced'
-    }
-]
-
-// src/app/pages/courses/data.js
-
-
-// Status options
-
-// Size options (for uniforms & accessories)
+import axios from 'axios';
+import {POS_ITEMS} from"constants/apis";
 export const sizeOptions = [
   { label: "18", value: "18" },
   { label: "20", value: "20" },
   { label: "N/A", value: "N/A" },
 ];
-
 export const courseStatusOptions = [
   {
     value: "available",
@@ -80,212 +17,292 @@ export const courseStatusOptions = [
     color: "error", // red
   },
 ];
+export const filtersOptions = [
+    {
+        value: 'status',
+        label: 'status'
+    },
+    {
+        value: 'categoryName',
+        label: 'categoryName'
+    }
+]
 
+export async function fetchItemsData() {
+  try {
+    const response = await axios.get(POS_ITEMS);
 
+    // Axios doesn't use response.ok — remove this check
+    const result = response.data.data;
+    return result;
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    throw error; // rethrow so caller can handle it
+  }
+}
 
-export const coursesList = [
-  {
-    course_id: 1,
-    name: "Mathematics Basics",
-    image: "/images/categories/BasicMathematics.jpg",
-    categoryId: 1,
-    categoryName: "Books",
-    status: "available",
-    size: "N/A",
-    price: 150,
-  },
-  {
-    course_id: 2,
-    name: "Advanced Physics",
-    image: "/images/categories/AdvancedPhysics.jpg",
-    categoryId: 1,
-    categoryName: "Books",
-    status: "unavailable",
-    size: "N/A",
-    price: 250,
-  },
-  {
-    course_id: 3,
-    name: "Hoddy",
-    image: "/images/categories/Hoody.jpg",
-    categoryId: 2,
-    categoryName: "Uniform",
-    size: "18",
-    status: "available",
-    price: 1000,
-  },
-  {
-    course_id: 4,
-    name: "Pant",
-    image: "/images/categories/pant.jpg",
-    categoryId: 2,
-    categoryName: "Uniform",
-    size: "18",
-    status: "available",
-    price: 1200,
-  },
-  {
-    course_id: 5,
-    name: "Geometry Toolkit",
-    image: "/images/categories/GeometryKit.jpg",
-    categoryId: 3,
-    categoryName: "Accessories",
-    status: "available",
-    size: "N/A",
-    price: 300,
-  },
-  {
-    course_id: 6,
-    name: "Art Supplies Pack",
-    image: "/images/categories/Drwaingkit.jpg",
-    categoryId: 3,
-    categoryName: "Accessories",
-    status: "available",
-    size: "N/A",
-    price: 450,
-  },
-  {
-    course_id: 7,
-    name: "Chemistry Experiments",
-    image: "/images/categories/chemistry.jpg",
-    categoryId: 3,
-    categoryName: "Accessories",
-    status: "available",
-    size: "N/A",
-    price: 300,
-  },
-  {
-    course_id: 8,
-    name: "Sports Kit",
-    image: "/images/categories/sportsKit.jpg",
-    categoryId: 3,
-    categoryName: "Accessories",
-    status: "available",
-    size: "N/A",
-    price: 800,
-  },
-  {
-    course_id: 9,
-    name: "Grandma's Bag Of Stories",
-    image: "/images/categories/GrandmaStories.jpg",
-    categoryId: 1,
-    categoryName: "Books",
-    status: "available",
-    size: "N/A",
-    price: 135,
-  },
-  {
-    course_id: 10,
-    name: "smock",
-    image: "/images/categories/smock.jpg",
-    categoryId: 2,
-    categoryName: "Uniform",
-    status: "available",
-    size: "18",
-    price: 995,
-  },
-  {
-    course_id: 11,
-    name: "water color",
-    image: "/images/categories/WaterColours.jpg",
-    categoryId: 3,
-    categoryName: "Accessories",
-    status: "available",
-    size: "N/A",
-    price: 555,
-  },
-  {
-    course_id: 12,
-    name: "The golden duck",
-    image: "/images/categories/TheGoldendUCK.jpg",
-    categoryId: 1,
-    categoryName: "Books",
-    status: "available",
-    size: "N/A",
-    price: 555,
-  },
-  {
-    course_id: 13,
-    name: "weekend uniform",
-    image: "/images/categories/smock-2.jpg",
-    categoryId: 2,
-    categoryName: "Uniform",
-    status: "available",
-    size: "18",
-    price: 575,
-  },
-  {
-    course_id: 14,
-    name: "colour pencil",
-    image: "/images/categories/ColourPencils.jpg",
-    categoryId: 3,
-    categoryName: "Accessories",
-    status: "available",
-    size: "N/A",
-    price: 105,
-  },
-  {
-    course_id: 15,
-    name: "The tower",
-    image: "/images/categories/TheTowerTreasure.jpg",
-    categoryId: 1,
-    categoryName: "Books",
-    status: "available",
-    size: "N/A",
-    price: 155,
-  },
-  {
-    course_id: 16,
-    name: "colour uniform",
-    image: "/images/800x600.png",
-    categoryId: 2,
-    categoryName: "Uniform",
-    status: "available",
-    size: "20",
-    price: 715,
-  },
-  {
-    course_id: 17,
-    name: "drawing book",
-    image: "/images/categories/DrwaingBook.jpg",
-    categoryId: 1,
-    categoryName: "Books",
-    status: "available",
-    size: "N/A",
-    price: 985,
-  },
-  {
-    course_id: 18,
-    name: "jack and the beenstouk",
-    image: "/images/categories/JackAndJill.jpg",
-    categoryId: 1,
-    categoryName: "Books",
-    status: "available",
-    size: "N/A",
-    price: 235,
-  },
-  {
-    course_id: 19,
-    name: "colour pens",
-    image: "/images/categories/ColourPens.jpg",
-    categoryId: 3,
-    categoryName: "Accessories",
-    status: "available",
-    size: "N/A",
-    price: 135,
-  },
-  {
-    course_id: 20,
-    name: "snow",
-    image: "/images/categories/snow.jpg",
-    categoryId: 1,
-    categoryName: "Books",
-    status: "available",
-    size: "N/A",
-    price: 335,
-  },
-];
-
+//     course_id: 1,
+//     name: "Mathematics Basics",
+// 	image:"/images/categories/BasicMathematics.jpg",
+//     categoryId: 1,
+//     categoryName:"Books",
+//     level: "Beginner",
+//     status: "available",
+//     size: "N/A",
+//     lesson_count: 12,
+//     duration: 3600000, // 1 hour
+//     rating: 4.2,
+//     price: 150,
+//   },
+//   {
+//     course_id: 2,
+//     name: "Advanced Physics",
+// 	image:"/images/categories/AdvancedPhysics.jpg",
+//     categoryId: 1,
+//     categoryName:"Books",
+//     level: "Advanced",
+//     status: "un available",
+//     size: "N/A",
+//     lesson_count: 20,
+//     duration: 10800000, // 3 hours
+//     rating: 4.8,
+//     price: 250,
+//   },
+//   {
+//     course_id: 3,
+//     name: "Hoddy",
+// 	image:"/images/categories/Hoody.jpg",
+//     categoryId: 2,
+//     categoryName:"Uniform",
+//     size:"18",
+//     level: "N/A",
+//     status: "available",
+//     lesson_count: 0,
+//     duration: 0,
+//     rating: 4.0,
+//     price: 1000,
+//   },
+//   {
+//     course_id: 4,
+//     name: "Pant",
+// 	image:"/images/categories/pant.jpg",
+//     categoryId: 2,
+//     categoryName:"Uniform",
+//     size:"18",
+//     status: "available",
+//     lesson_count: 0,
+//     duration: 0,
+//     rating: 3.9,
+//     price: 1200,
+ 
+//   },
+//   {
+//     course_id: 5,
+//     name: "Geometry Toolkit",
+// 	image:"/images/categories/GeometryKit.jpg",
+//     categoryName:"Accessories",
+//     categoryId: 3,
+//     level: "Intermediate",
+//     status: "available",
+//     price: 300,
+//     size: "N/A",
+//     duration: 728304,
+ 
+//   },
+//   {
+//     course_id: 6,
+//     name: "Art Supplies Pack",
+// 	image:"/images/categories/Drwaingkit.jpg",
+//     categoryName:"Accessories",
+//     categoryId: 3,
+//     size:"N/A",
+//     status: "available",
+//     price: 450,
+//     duration: 728304,
+ 
+//   },
+//   {
+//     course_id: 7,
+//     name: "Chemistry Experiments",
+// 	image:"/images/categories/chemistry.jpg",
+//     categoryId: 3,
+//     size: "N/A",
+//     categoryName:"Accessories",
+//     level: "Intermediate",
+//     status: "available",
+//     price: 300,
+//     duration: 728304,
+ 
+//   },
+//   {
+//     course_id: 8,
+//     name: "Sports Kit",
+// 	image:"/images/categories/sportsKit.jpg",
+//     categoryId: 3,
+//     categoryName:"Accessories",
+//     size: "N/A",
+//     status: "available",
+//     price: 800,
+//     rating: 4.3,
+//     duration: 728304,
+//   },
+//   {
+//     course_id: 9,
+//     name: "Grandma's Bag Of Stories",
+// 	image:"/images/categories/GrandmaStories.jpg",
+//     categoryId: 1,
+//     categoryName:"Books",
+//     level: "Advanced",
+//     status: "available",
+//     size: "N/A",
+//     duration: 10800000, // 3 hours
+//     rating: 4.8,
+//     price: 135,
+//   },
+//   {
+//     course_id: 10,
+//     name: "smock",
+// 	image:"/images/categories/smock.jpg",
+//     categoryId: 2,
+//     categoryName:"Uniform",
+//     level: "Advanced",
+//     status: "available",
+//     size:"18",
+//     duration: 10800000, // 3 hours
+//     rating: 4.8,
+//     price: 995,
+//   },
+//   {
+//     course_id: 11,
+//     name: "water color",
+// 	image:"/images/categories/WaterColours.jpg",
+//     categoryId: 3,
+//     categoryName:"Accessories",
+//     level: "Advanced",
+//     status: "available",
+//     size: "N/A",
+//     duration: 10800000, // 3 hours
+//     rating: 4.8,
+//     price: 555,
+//   },
+//   {
+//     course_id: 12,
+//     name: "The golden duck",
+// 	image:"/images/categories/TheGoldendUCK.jpg",
+//     categoryId: 1,
+//     categoryName:"Books",
+//     level: "Advanced",
+//     status: "available",
+//     size: "N/A",
+//     duration: 10800000, // 3 hours
+//     rating: 4.8,
+//     price: 555,
+//   },
+//   {
+//     course_id: 13,
+//     name: "weekend uniform",
+// 	image:"/images/categories/smock-2.jpg",
+//     categoryId: 2,
+//     categoryName:"Uniform",
+//     level: "Advanced",
+//     status: "available",
+//     size: "18",
+//     duration: 10800000, // 3 hours
+//     rating: 4.8,
+//     price: 575,
+//   },
+//   {
+//     course_id: 14,
+//     name: "colour pencil",
+// 	image:"/images/categories/ColourPencils.jpg",
+//     categoryId: 3,
+//     categoryName:"Accessories",
+//     level: "Advanced",
+//     status: "available",
+//     size: "N/A",
+//     duration: 10800000, // 3 hours
+//     rating: 4.8,
+//     price: 105,
+//   },
+//   {
+//     course_id: 15,
+//     name: "The tower ",
+// 	image:"/images/categories/TheTowerTreasure.jpg",
+//     categoryId: 1,
+//     categoryName:"Books",
+//     level: "Advanced",
+//     status: "available",
+//     size: "N/A",
+//     duration: 10800000, // 3 hours
+//     rating: 4.8,
+//     price: 155,
+//   },
+//   {
+//     course_id: 16,
+//     name: "colour uniform",
+// 	image:"/images/800x600.png",
+//     categoryId: 2,
+//     categoryName:"Uniform",
+//     level: "Advanced",
+//     status: "available",
+//     size: "20",
+//     duration: 10800000, // 3 hours
+//     rating: 4.8,
+//     price: 715,
+//   },
+//   {
+//     course_id: 17,
+//     name: "drawing book",
+// 	image:"/images/categories/DrwaingBook.jpg",
+//     categoryId: 1,
+//     categoryName:"Books",
+//     level: "Advanced",
+//     status: "available",
+//     size: "N/A",
+//     duration: 10800000, // 3 hours
+//     rating: 4.8,
+//     price: 985,
+//   },
+//   {
+//     course_id: 18,
+//     name: "jack and the beenstouk",
+// 	image:"/images/categories/JackAndJill.jpg",
+//     categoryId: 1,
+//     categoryName:"Books",
+//     level: "Advanced",
+//     status: "available",
+//     size: "N/A",
+//     duration: 10800000, // 3 hours
+//     rating: 4.8,
+//     price: 235,
+//   },
+//   {
+//     course_id: 19,
+//     name: "colour pens",
+// 	image:"/images/categories/ColourPens.jpg",
+//     categoryId: 3,
+//     categoryName:"Accessories",
+//     level: "Advanced",
+//     status: "available",
+//     size: "N/A",
+//     duration: 10800000, // 3 hours
+//     rating: 4.8,
+//     price: 135,
+//   },
+//   {
+//     course_id: 20,
+//     name: "snow",
+// 	image:"/images/categories/snow.jpg",
+//     categoryId: 1,
+//     categoryName:"Books",
+//     level: "Advanced",
+//     status: "available",
+//     size: "N/A",
+//     duration: 10800000, // 3 hours
+//     rating: 4.8,
+//     price: 335,
+//   }
+// ];
 
 // export const coursesList = [
 //     {
@@ -1029,50 +1046,8 @@ export const coursesList = [
 //         rating: 4.2,
 //         earning: 889231,
 //         status: 'draft'
-//     },
-//     {
-//         course_id: 54,
-//         name: "ning and Business Intelligence",
-//         image: "/images/800x600.png",
-//         lesson_count: 11,
-//         duration: 75439867,
-//         category: "Ruby on Rails",
-//         students: 63216,
-//         level: 'l1',
-//         price: 55.74,
-//         rating: 4.28,
-//         earning: 828239,
-//         status: 'published'
-//     },
-//     {
-//         course_id: 55,
-//         name: "Human-Computer Interaction and User Experience Design",
-//         image: "/images/800x600.png",
-//         lesson_count: 19,
-//         duration: 348169812,
-//         category: "Data Visualization",
-//         students: 14694,
-//         level: 'l2',
-//         price: 22.57,
-//         rating: 4.79,
-//         earning: 961792,
-//         status: 'published'
-//     },
-//     {
-//         course_id: 56,
-//         name: "Software Architecture and Design Patterns",
-//         image: "/images/800x600.png",
-//         lesson_count: 37,
-//         duration: 27136111,
-//         category: "Git",
-//         students: 46590,
-//         level: 'l3',
-//         price: 41.86,
-//         rating: 4.81,
-//         earning: 524670,
-//         status: 'published'
-//     },
-//     {
+//     },{}
+//     },{}
 //         course_id: 57,
 //         name: "Virtual Reality and Augmented Reality",
 //         image: "/images/800x600.png",

@@ -22,22 +22,54 @@ import { fuzzyFilter } from "utils/react-table/fuzzyFilter";
 import { useSkipper } from "utils/react-table/useSkipper";
 import { Toolbar } from "./Toolbar";
 import { columns } from "./columns";
-import { coursesList } from "./data";
+import { fetchItemsData } from "./data"; // ✅ assume shape: [{ course_id, name, categoryId, ... }]
 import { PaginationSection } from "components/shared/table/PaginationSection";
 import { SelectedRowsActions } from "./SelectedRowsActions";
 
 // ----------------------------------------------------------------------
 
-export default function CoursesDatatable({ categoryId, onRowClick }) {
+// const isSafari = getUserAgentBrowser() === "Safari";
+
+export default function CoursesDatatable({ categoryId,onRowClick  }) {
+  // console.log("the id is category id",categoryId);
+  // const { cardSkin } = useThemeContext();
+
+  // 🔹 Keep full dataset
+  const [allItems,setAllItems] = useState([]);
+  useEffect(()=>{
+    const loadItems=async()=>{
+      try{
+        const result=await fetchItemsData();
+        setAllItems(result);
+      }
+      catch(error){
+        console.log(error);
+      }
+    }
+    loadItems();
+
+  },[])
+ 
+
+  // 🔹 Filter dataset by categoryId whenever prop changes
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    if (categoryId) {
+      setItems(allItems.filter((c) => c.categoryId == categoryId));
+       console.log(items);
+    } else {
+      setItems(allItems);
+    }
+  }, [categoryId,allItems]);
   // Keep an immutable copy of the seed data
-  const seedCourses = useMemo(() => [...coursesList], []);
+  const seedCourses = useMemo(() => [], []);
 
   // UI/table settings (kept in React state and also injected into table.state)
   const [tableSettings, setTableSettings] = useState({
     enableFullScreen: false,
     enableRowDense: false,
     enableSorting: true,
-    enableColumnFilters: true,
+    enableColumnFilters: false,
   });
 
   const [toolbarFilters, setToolbarFilters] = useState(["status", "size"]);
@@ -69,7 +101,7 @@ export default function CoursesDatatable({ categoryId, onRowClick }) {
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
 
   const table = useReactTable({
-    data: courses,
+    data: items, // ✅ filtered dataset
     columns,
     state: {
       globalFilter,
@@ -82,12 +114,13 @@ export default function CoursesDatatable({ categoryId, onRowClick }) {
     meta: {
       deleteRow: (row) => {
         skipAutoResetPageIndex();
-        setCourses((old) =>
-          old.filter((r) => r.course_id !== row.original.course_id),
-        );
+        setItems((old) =>
+          old.filter((oldRow) => oldRow.course_id !== row.original.course_id));
       },
       deleteRows: (rows) => {
         skipAutoResetPageIndex();
+        const rowIds = rows.map((row) => row.original.course_id);
+        setItems((old) => old.filter((row) => !rowIds.includes(row.course_id)));
         const ids = new Set(rows.map((r) => r.original.course_id));
         setCourses((old) => old.filter((r) => !ids.has(r.course_id)));
       },
@@ -114,6 +147,8 @@ export default function CoursesDatatable({ categoryId, onRowClick }) {
     autoResetPageIndex,
   });
 
+  useDidUpdate(() => table.resetRowSelection(), [items]);
+  useLockScrollbar(tableSettings.enableFullScreen);
   // Reset selection when data changes
   useDidUpdate(() => table.resetRowSelection(), [courses]);
 

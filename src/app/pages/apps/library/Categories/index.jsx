@@ -1,5 +1,5 @@
 // Import Dependencies
-import { useRef } from "react";
+import { useEffect, useRef,useState } from "react";
 import { register } from "swiper/element/bundle";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import invariant from "tiny-invariant";
@@ -8,22 +8,37 @@ import invariant from "tiny-invariant";
 import { useLocaleContext } from "app/contexts/locale/context";
 import { Button, Card } from "components/ui";
 import { useIsomorphicEffect } from "hooks";
+import axios from "axios";
 
 // ----------------------------------------------------------------------
 
-const items = [
-  { uid: "1", name: "All", image: "/images/4300_7_03.jpg" },
-  { uid: "2", name: "PreNursery", image: "/images/4300_7_03.jpg" },
-  { uid: "3", name: "Nursery", image: "/images/4300_7_03.jpg" },
-  { uid: "4", name: "K1", image: "/images/4300_7_03.jpg" },
-  { uid: "5", name: "K2", image: "/images/4300_7_03.jpg" },
-];
+// const items = [
+//   { uid: "1", name: "All", image: "/images/4300_7_03.jpg" },
+//   { uid: "2", name: "PreNursery", image: "/images/4300_7_03.jpg" },
+//   { uid: "3", name: "Nursery", image: "/images/4300_7_03.jpg" },
+//   { uid: "4", name: "K1", image: "/images/4300_7_03.jpg" },
+//   { uid: "5", name: "K2", image: "/images/4300_7_03.jpg" },
+// ];
 
 register();
 
 export function Categories({ selectedCategory, onSelectCategory }) {
   const { direction } = useLocaleContext();
   const carouselRef = useRef(null);
+  const [data,setData]=useState([]);
+  useEffect(()=>{
+    const fetchData=async()=>{
+      try{
+        const response=await axios.get("https://localhost:7202/api/Genres/1");
+        setData(response.data.data);
+      }
+      catch(error)
+      {
+        console.log(error);
+      }
+    }
+    fetchData()
+  },[])
 
   useIsomorphicEffect(() => {
     invariant(carouselRef.current, "carouselRef is null");
@@ -69,8 +84,8 @@ export function Categories({ selectedCategory, onSelectCategory }) {
       </span>
 
       {/* Render categories */}
-      {items.map(({ uid, name, image }) => (
-        <swiper-slide key={uid} className="w-24">
+      {data.map(({ id, name, image }) => (
+        <swiper-slide key={id} className="w-24">
           <Card
             onClick={() => handleClick(name)}
             tabIndex={0}

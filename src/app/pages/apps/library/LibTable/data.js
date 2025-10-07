@@ -7,6 +7,8 @@ import {
   ExclamationTriangleIcon,
   ArchiveBoxIcon,
 } from "@heroicons/react/24/outline";
+import axios from 'axios';
+import {LIBRARY_CATEGORIES} from "constants/apis";
 
 // ✅ Status options for the status dropdown (uses Tailux-supported colors)
 export const orderStatusOptions = [
@@ -16,6 +18,17 @@ export const orderStatusOptions = [
   { value: "lost",      label: "Lost",      color: "error",   icon: ExclamationTriangleIcon }, // 🔹 fixed here
   { value: "archived",  label: "Archived",  color: "gray",    icon: ArchiveBoxIcon },
 ];
+
+export async function fetchBooks(){
+   try {
+    const response = await axios.get(LIBRARY_CATEGORIES);
+    const result = response.data.data;
+    return result;
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    throw error; 
+  }
+}
 
 // ✅ Library dataset
 export const libraryList = [
