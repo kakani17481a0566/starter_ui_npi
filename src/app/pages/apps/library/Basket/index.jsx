@@ -9,7 +9,6 @@ import {
 } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 
-// Local Imports
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
 import { BasketSelector } from "./BasketSelector";
 import { BasketActions } from "./BasketActions";
@@ -31,7 +30,6 @@ export function Basket({
   onSelectStudent,
 }) {
   const { smAndUp } = useBreakpointsContext();
-
   return smAndUp ? (
     <DesktopView
       items={items}
@@ -57,22 +55,13 @@ export function Basket({
   );
 }
 
-function MobileView({
-  items,
-  onRemove,
-  onClearBasket,
-  onAssignBooks,
-  onIncrease,
-  onDecrease,
-  selectedStudent,
-  onSelectStudent,
-}) {
+function MobileView(props) {
   const [isBasketOpen, { open, close }] = useDisclosure(false);
-  const totalBooks = items.reduce((sum, i) => sum + i.count, 0);
+  const totalBooks = props.items.length;
 
   return (
     <>
-      {/* Floating button with live total */}
+      {/* Floating button */}
       <div className="fixed bottom-3 right-3 rounded-full bg-white dark:bg-dark-700">
         <Button
           onClick={open}
@@ -121,31 +110,31 @@ function MobileView({
                     <XMarkIcon className="size-5" />
                   </Button>
                   <BasketSelector />
-                  {selectedStudent?.label && (
+                  {props.selectedStudent?.label && (
                     <span className="text-sm font-medium text-primary-600 dark:text-primary-400">
-                      → {selectedStudent.label}
+                      → {props.selectedStudent.label}
                     </span>
                   )}
                 </div>
-                <BasketActions onClearBasket={onClearBasket} />
+                <BasketActions onClearBasket={props.onClearBasket} />
               </div>
 
               {/* Items list */}
               <div className="flex grow flex-col overflow-y-auto pt-4">
                 <Items
-                  items={items}
-                  onRemove={onRemove}
-                  onIncrease={onIncrease}
-                  onDecrease={onDecrease}
+                  items={props.items}
+                  onRemove={props.onRemove}
+                  onIncrease={props.onIncrease}
+                  onDecrease={props.onDecrease}
                 />
               </div>
 
-              {/* Assign books */}
+              {/* Assign section */}
               <AssignSection
-                items={items}
-                onAssignBooks={onAssignBooks}
-                selectedStudent={selectedStudent}
-                onSelectStudent={onSelectStudent}
+                items={props.items}
+                onAssignBooks={props.onAssignBooks}
+                selectedStudent={props.selectedStudent}
+                onSelectStudent={props.onSelectStudent}
               />
             </DialogPanel>
           </TransitionChild>
@@ -155,44 +144,35 @@ function MobileView({
   );
 }
 
-function DesktopView({
-  items,
-  onRemove,
-  onClearBasket,
-  onAssignBooks,
-  onIncrease,
-  onDecrease,
-  selectedStudent,
-  onSelectStudent,
-}) {
+function DesktopView(props) {
   return (
     <div>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <BasketSelector />
-          {selectedStudent?.label && (
+          {props.selectedStudent?.label && (
             <span className="text-sm font-medium text-primary-600 dark:text-primary-400">
-              → {selectedStudent.label}
+              → {props.selectedStudent.label}
             </span>
           )}
         </div>
-        <BasketActions onClearBasket={onClearBasket} />
+        <BasketActions onClearBasket={props.onClearBasket} />
       </div>
 
       {/* Items + Assign Section */}
       <Card className="mt-3 p-4 sm:p-5">
         <Items
-          items={items}
-          onRemove={onRemove}
-          onIncrease={onIncrease}
-          onDecrease={onDecrease}
+          items={props.items}
+          onRemove={props.onRemove}
+          onIncrease={props.onIncrease}
+          onDecrease={props.onDecrease}
         />
         <AssignSection
-          items={items}
-          onAssignBooks={onAssignBooks}
-          selectedStudent={selectedStudent}
-          onSelectStudent={onSelectStudent}
+          items={props.items}
+          onAssignBooks={props.onAssignBooks}
+          selectedStudent={props.selectedStudent}
+          onSelectStudent={props.onSelectStudent}
         />
       </Card>
     </div>

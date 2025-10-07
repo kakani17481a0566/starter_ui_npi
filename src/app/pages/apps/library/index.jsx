@@ -1,6 +1,5 @@
 // Lib.jsx
 
-// Import Dependencies
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -17,58 +16,50 @@ import LibTable from "./LibTable";
 export default function Lib() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [basketItems, setBasketItems] = useState([]);
-  const [selectedStudent, setSelectedStudent] = useState(null); // always {value,label}
+  const [selectedStudent, setSelectedStudent] = useState(null); // {value,label}
 
-  // 🔹 Helper: normalize book identifier
+  // 🔹 Normalize book identifier
   const getBookId = (book) =>
     book.book_id ?? book.bookId ?? book.id ?? book._id;
 
-  // ➕ Add book
+  // ➕ Add book (max 3 unique, 1 copy each)
   const handleAddToBasket = (book) => {
     const bookId = getBookId(book);
 
     setBasketItems((prev) => {
-      const existing = prev.find((item) => item.book_id === bookId);
-      if (existing) {
-        return prev.map((item) =>
-          item.book_id === bookId ? { ...item, count: item.count + 1 } : item
-        );
+      if (prev.find((item) => item.book_id === bookId)) {
+        toast.error("❌ This book is already in your basket");
+        return prev;
+      }
+      if (prev.length >= 3) {
+        toast.error("❌ You cannot have more than 3 books in your basket");
+        return prev;
       }
       return [...prev, { ...book, book_id: bookId, count: 1 }];
     });
   };
 
-  // ➖ Decrease
+  // ➖ Decrease = remove (only 1 copy allowed)
   const handleDecreaseQuantity = (bookId) => {
-    setBasketItems((prev) =>
-      prev
-        .map((item) =>
-          item.book_id === bookId ? { ...item, count: item.count - 1 } : item
-        )
-        .filter((item) => item.count > 0)
-    );
+    setBasketItems((prev) => prev.filter((item) => item.book_id !== bookId));
   };
 
-  // ➕ Increase
-  const handleIncreaseQuantity = (bookId) => {
-    setBasketItems((prev) =>
-      prev.map((item) =>
-        item.book_id === bookId ? { ...item, count: item.count + 1 } : item
-      )
-    );
+  // ➕ Increase not allowed
+  const handleIncreaseQuantity = () => {
+    toast.error("❌ You can only have one copy of each book");
   };
 
-  // 🗑 Remove
+  // 🗑 Remove book
   const handleRemoveFromBasket = (bookId) => {
     setBasketItems((prev) => prev.filter((item) => item.book_id !== bookId));
   };
 
-  // 🧹 Clear all
+  // 🧹 Clear basket
   const handleClearBasket = () => {
     setBasketItems([]);
   };
 
-  // 📚 Assign
+  // 📚 Assign books
   const handleAssignBooks = async (student, items) => {
     try {
       if (!student) {
@@ -82,11 +73,11 @@ export default function Lib() {
 
       console.log("Assigning books →", { student, items });
 
-      // Example API call:
+      // Example API call
       // await fetch("/api/library/assign", { method: "POST", body: JSON.stringify({ student, items }) });
 
       toast.success(`✅ Books assigned to ${student.label}`);
-      setBasketItems([]);
+      setBasketItems([]); // clear on success
     } catch (err) {
       console.error(err);
       toast.error("❌ Failed to assign books");
@@ -95,6 +86,7 @@ export default function Lib() {
 
   // ✅ Ensure always storing {value,label}
   const handleSelectStudent = (option) => {
+    if (!option) return;
     setSelectedStudent(option);
   };
 
