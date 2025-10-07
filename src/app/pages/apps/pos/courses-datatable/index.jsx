@@ -14,7 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 
 // Local Imports
-import { Table, Card, THead, TBody, Th, Tr, Td } from "components/ui";
+import { Table, Card, THead, TBody, Th, Tr, Td, Spinner } from "components/ui";
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
 import { Page } from "components/shared/Page";
 import { useLockScrollbar, useLocalStorage, useDidUpdate } from "hooks";
@@ -22,49 +22,48 @@ import { fuzzyFilter } from "utils/react-table/fuzzyFilter";
 import { useSkipper } from "utils/react-table/useSkipper";
 import { Toolbar } from "./Toolbar";
 import { columns } from "./columns";
-import { fetchItemsData } from "./data"; // ✅ assume shape: [{ course_id, name, categoryId, ... }]
+import { fetchItemsData } from "./data";
 import { PaginationSection } from "components/shared/table/PaginationSection";
 import { SelectedRowsActions } from "./SelectedRowsActions";
 
 // ----------------------------------------------------------------------
 
-// const isSafari = getUserAgentBrowser() === "Safari";
+const Default = () => {
+  return (
+    <div className="flex h-screen items-center justify-center">
+      <Spinner className="text-primary-900 w-12 h-12" />
+    </div>
+  );
+};
 
-export default function CoursesDatatable({ categoryId,onRowClick  }) {
-  // console.log("the id is category id",categoryId);
-  // const { cardSkin } = useThemeContext();
+export default function CoursesDatatable({ categoryId, onRowClick }) {
+  const [allItems, setAllItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // 🔹 Keep full dataset
-  const [allItems,setAllItems] = useState([]);
-  useEffect(()=>{
-    const loadItems=async()=>{
-      try{
-        const result=await fetchItemsData();
+  useEffect(() => {
+    const loadItems = async () => {
+      try {
+        const result = await fetchItemsData();
         setAllItems(result);
-      }
-      catch(error){
+      } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
     loadItems();
+  }, []);
 
-  },[])
- 
-
-  // 🔹 Filter dataset by categoryId whenever prop changes
   const [items, setItems] = useState([]);
   useEffect(() => {
     if (categoryId) {
       setItems(allItems.filter((c) => c.categoryId == categoryId));
-       console.log(items);
     } else {
       setItems(allItems);
     }
-  }, [categoryId,allItems]);
-  // Keep an immutable copy of the seed data
-  const seedCourses = useMemo(() => [], []);
+  }, [categoryId, allItems]);
 
-  // UI/table settings (kept in React state and also injected into table.state)
+  const seedCourses = useMemo(() => [], []);
   const [tableSettings, setTableSettings] = useState({
     enableFullScreen: false,
     enableRowDense: false,
@@ -85,10 +84,8 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
     {},
   );
 
-  // Working dataset (supports deletions)
   const [courses, setCourses] = useState(seedCourses);
 
-  // Filter dataset when categoryId changes
   useEffect(() => {
     if (categoryId) {
       setCourses(seedCourses.filter((c) => c.categoryId === categoryId));
@@ -97,11 +94,10 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
     }
   }, [categoryId, seedCourses]);
 
-  // Avoid auto-resetting page index when we delete rows
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
 
   const table = useReactTable({
-    data: items, // ✅ filtered dataset
+    data: items,
     columns,
     state: {
       globalFilter,
@@ -115,7 +111,8 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
       deleteRow: (row) => {
         skipAutoResetPageIndex();
         setItems((old) =>
-          old.filter((oldRow) => oldRow.course_id !== row.original.course_id));
+          old.filter((oldRow) => oldRow.course_id !== row.original.course_id),
+        );
       },
       deleteRows: (rows) => {
         skipAutoResetPageIndex();
@@ -127,19 +124,16 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
       setTableSettings,
       setToolbarFilters,
     },
-    // Filtering
-    filterFns: { fuzzy: fuzzyFilter }, // (arrIncludesSome/inNumberRange are handled in your components)
+    filterFns: { fuzzy: fuzzyFilter },
     globalFilterFn: fuzzyFilter,
     enableSorting: tableSettings?.enableSorting ?? true,
     enableColumnFilters: tableSettings?.enableColumnFilters ?? true,
-    // Models
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    // State updaters
     onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
@@ -149,13 +143,14 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
 
   useDidUpdate(() => table.resetRowSelection(), [items]);
   useLockScrollbar(tableSettings.enableFullScreen);
-  // Reset selection when data changes
   useDidUpdate(() => table.resetRowSelection(), [courses]);
-
-  // Lock page scroll when fullscreen table
   useLockScrollbar(tableSettings?.enableFullScreen ?? false);
 
   const hasRows = table.getCoreRowModel().rows.length > 0;
+
+  if (loading) {
+    return <Default />;
+  }
 
   return (
     <Page title="React Table">
@@ -172,7 +167,9 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
           <div
             className={clsx(
               "transition-content flex grow flex-col pt-3",
-              tableSettings?.enableFullScreen ? "overflow-hidden" : "px-(--margin-x)",
+              tableSettings?.enableFullScreen
+                ? "overflow-hidden"
+                : "px-(--margin-x)",
             )}
           >
             <Card
@@ -188,7 +185,6 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
                   sticky={tableSettings?.enableFullScreen}
                   className="w-full text-left rtl:text-right"
                 >
-                  {/* ---------- HEADERS ---------- */}
                   <THead>
                     {table.getHeaderGroups().map((headerGroup) => (
                       <Tr key={headerGroup.id}>
@@ -241,7 +237,6 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
                     ))}
                   </THead>
 
-                  {/* ---------- BODY ---------- */}
                   <TBody>
                     {table.getRowModel().rows.map((row) => (
                       <Tr
@@ -277,9 +272,10 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
                 <div
                   className={clsx(
                     "px-4 pb-4 sm:px-5 sm:pt-4",
-                    tableSettings?.enableFullScreen && "bg-gray-50 dark:bg-dark-800",
-                    !(table.getIsSomeRowsSelected() || table.getIsAllRowsSelected()) &&
-                      "pt-4",
+                    tableSettings?.enableFullScreen &&
+                      "bg-gray-50 dark:bg-dark-800",
+                    !(table.getIsSomeRowsSelected() ||
+                      table.getIsAllRowsSelected()) && "pt-4",
                   )}
                 >
                   <PaginationSection table={table} />
@@ -295,7 +291,6 @@ export default function CoursesDatatable({ categoryId,onRowClick  }) {
 
 // ----------------------------------------------------------------------
 // PropTypes
-
 CoursesDatatable.propTypes = {
   categoryId: PropTypes.number,
   onRowClick: PropTypes.func,
