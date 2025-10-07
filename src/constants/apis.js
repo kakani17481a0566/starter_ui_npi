@@ -65,6 +65,7 @@ export const BRANCH_OPTIONS=`${BASE_URL}/Branch/dropdown-options/${tenantId}`;
 export const POS_CATEGORIES=`${BASE_URL}/ItemCategory/GetByTenant/${tenantId}`;
 export const POS_ITEMS=`${BASE_URL}/Items/GetByTenant/${tenantId}`;
 export const LIBRARY_CATEGORIES=`${BASE_URL}/Genres/${tenantId}`;
+export const LIBRARY_BOOKS=`${BASE_URL}/ItemHeader/${tenantId}`;
 
 
 

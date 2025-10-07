@@ -42,6 +42,7 @@ export default function LibTable({ selectedCategory, onAddToBasket }) {
         try{
           const result=await fetchBooks();
           setAllItems(result);
+          setBooks(result);
         }
         catch(error){
           console.log(error);
