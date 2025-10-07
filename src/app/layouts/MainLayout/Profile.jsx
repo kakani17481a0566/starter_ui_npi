@@ -1,3 +1,5 @@
+// src/app/components/Profile.jsx
+
 // Import Dependencies
 import {
   Popover,
@@ -9,7 +11,6 @@ import {
   ArrowLeftStartOnRectangleIcon,
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
-// import { TbCoins, TbUser } from "react-icons/tb";
 import { TbUser } from "react-icons/tb";
 
 import { Link } from "react-router";
@@ -20,6 +21,9 @@ import { KeyRound } from "lucide-react";
 
 // Local Imports
 import { Avatar, AvatarDot, Button } from "components/ui";
+
+// ✅ Import the same default avatar
+import defaultAvatar from "./avatar-11.jpg";
 
 // ----------------------------------------------------------------------
 
@@ -32,14 +36,6 @@ const links = [
     Icon: TbUser,
     color: "warning",
   },
-  // {
-  //   id: "4",
-  //   title: "Billing",
-  //   description: "Your billing information",
-  //   to: "/settings/billing",
-  //   Icon: TbCoins,
-  //   color: "error",
-  // },
   {
     id: "5",
     title: "Settings",
@@ -69,13 +65,16 @@ export function Profile() {
     navigate("/login?redirect=/");
   };
 
+  // ✅ Same fallback logic
+  const avatarSrc = imageUrl || defaultAvatar;
+
   return (
     <Popover className="relative">
       <PopoverButton
         as={Avatar}
         size={12}
         role="button"
-        src={imageUrl}
+        src={avatarSrc}
         alt="Profile"
         indicator={
           <AvatarDot color="success" className="ltr:right-0 rtl:left-0" />
@@ -98,8 +97,9 @@ export function Profile() {
         >
           {({ close }) => (
             <>
+              {/* Top user info */}
               <div className="dark:bg-dark-800 flex items-center gap-4 rounded-t-lg bg-gray-100 px-4 py-5">
-                <Avatar size={14} src={imageUrl} alt="Profile" />
+                <Avatar size={14} src={avatarSrc} alt="Profile" />
                 <div>
                   <Link
                     className="hover:text-primary-600 focus:text-primary-600 dark:text-dark-100 dark:hover:text-primary-400 dark:focus:text-primary-400 text-base font-medium text-gray-700"
@@ -113,6 +113,7 @@ export function Profile() {
                 </div>
               </div>
 
+              {/* Links */}
               <div className="flex flex-col pt-2 pb-5">
                 {links.map((link) => (
                   <Link

@@ -31,9 +31,6 @@ export function SkillsPerformance({
   if (!skills.length) {
     return (
       <div className="px-4 py-6 text-center">
-        <h2 className="mb-1 text-base font-semibold text-gray-800 dark:text-dark-100">
-          Skills Performance
-        </h2>
         <p className="text-xs text-gray-500 dark:text-dark-300">{selectedStudentName}</p>
         <div className="mt-3 text-xs text-gray-400 dark:text-dark-300">
           No skills found for{" "}
@@ -66,9 +63,7 @@ export function SkillsPerformance({
       {/* Header */}
       <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-base font-semibold text-gray-800 dark:text-dark-100">
-            Skills Performance
-          </h2>
+
           <p className="text-xs text-gray-500 dark:text-dark-300">{selectedStudentName}</p>
         </div>
         <div className="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-dark-600 dark:text-dark-100">
