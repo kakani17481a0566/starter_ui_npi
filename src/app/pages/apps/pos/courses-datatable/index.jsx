@@ -36,6 +36,10 @@ const Default = () => {
   );
 };
 
+// helper: normalize id
+const getCourseId = (course) =>
+  course.course_id ?? course.id ?? course._id;
+
 export default function CoursesDatatable({ categoryId, onRowClick }) {
   const [allItems, setAllItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -241,7 +245,11 @@ export default function CoursesDatatable({ categoryId, onRowClick }) {
                     {table.getRowModel().rows.map((row) => (
                       <Tr
                         key={row.id}
-                        onClick={() => onRowClick?.(row.original)}
+                        onClick={() => {
+                          const original = row.original;
+                          const courseId = getCourseId(original);
+                          onRowClick?.({ ...original, course_id: courseId });
+                        }}
                         className={clsx(
                           "cursor-pointer hover:bg-gray-50 dark:hover:bg-dark-600",
                           "relative border-y border-transparent border-b-gray-200 dark:border-b-dark-500",

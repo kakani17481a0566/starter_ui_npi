@@ -2,12 +2,12 @@
 
 // Import Dependencies
 import {
-  ChevronUpDownIcon,
+  // ChevronUpDownIcon,
   MagnifyingGlassIcon,
-  PrinterIcon,
+  // PrinterIcon,
   MapPinIcon,
 } from "@heroicons/react/24/outline";
-import { TbUpload } from "react-icons/tb";
+// import { TbUpload } from "react-icons/tb";
 import clsx from "clsx";
 import {
   Menu,
@@ -114,16 +114,16 @@ export function Toolbar({ table }) {
         ) : (
           // ---------- Desktop Actions ----------
           <div className="flex space-x-2">
-            <Button
+            {/* <Button
               variant="outlined"
               className="h-8 space-x-2 rounded-md px-3 text-xs"
             >
               <PrinterIcon className="size-4" />
               <span>Print</span>
-            </Button>
+            </Button> */}
 
             {/* Export Menu */}
-            <Menu
+            {/* <Menu
               as="div"
               className="relative inline-block whitespace-nowrap text-left"
             >
@@ -173,7 +173,7 @@ export function Toolbar({ table }) {
                   )}
                 </MenuItem>
               </Transition>
-            </Menu>
+            </Menu> */}
           </div>
         )}
       </div>

@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 
 // Local Imports
 import { Badge } from "components/ui";
-import { formatNumber } from "utils/formatNumber";
 import { courseStatusOptions } from "./data";
 
 // ----------------------------------------------------------------------
@@ -52,7 +51,16 @@ export function StatusCell({ getValue }) {
 
 export function PriceCell({ getValue }) {
   const value = getValue?.();
-  return <>{value != null ? `$${formatNumber(value)}` : "—"}</>;
+
+  // ✅ Format in INR
+  const formatINR = (val) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 2,
+    }).format(Number(val || 0));
+
+  return <>{value != null ? formatINR(value) : "—"}</>;
 }
 
 // ----------------------------------------------------------------------

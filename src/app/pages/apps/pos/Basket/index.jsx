@@ -18,8 +18,11 @@ import { Button, Card } from "components/ui";
 export function Basket({ items, onIncrease, onDecrease, onRemove }) {
   const { smAndUp } = useBreakpointsContext();
 
-  // --- Totals ---
-  const subtotal = items.reduce((s, i) => s + i.count * Number(i.price || 0), 0);
+  // --- Totals (keep as numbers) ---
+  const subtotal = items.reduce(
+    (s, i) => s + i.count * Number(i.price || 0),
+    0
+  );
   const gst = subtotal * 0.05;
   const total = subtotal + gst;
 
@@ -46,7 +49,15 @@ export function Basket({ items, onIncrease, onDecrease, onRemove }) {
   );
 }
 
-function MobileView({ items, subtotal, gst, total, onIncrease, onDecrease, onRemove }) {
+function MobileView({
+  items,
+  subtotal,
+  gst,
+  total,
+  onIncrease,
+  onDecrease,
+  onRemove,
+}) {
   const [isBasketOpen, { close, open }] = useDisclosure(false);
 
   return (
@@ -119,7 +130,15 @@ function MobileView({ items, subtotal, gst, total, onIncrease, onDecrease, onRem
   );
 }
 
-function DesktopView({ items, subtotal, gst, total, onIncrease, onDecrease, onRemove }) {
+function DesktopView({
+  items,
+  subtotal,
+  gst,
+  total,
+  onIncrease,
+  onDecrease,
+  onRemove,
+}) {
   return (
     <div>
       <div className="flex items-center justify-between">

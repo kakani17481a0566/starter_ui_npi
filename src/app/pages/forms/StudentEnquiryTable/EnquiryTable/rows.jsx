@@ -85,10 +85,17 @@ export function GenderCell({ getValue }) {
       "N/A"
     );
   }
+
+  // Normalize
+  let label = gender;
+  const normalized = gender.toUpperCase();
+  if (normalized === "M") label = "Male";
+  else if (normalized === "F") label = "Female";
+
   return React.createElement(
     Tag,
     { color: "info", className: "text-xs-plus font-medium capitalize" },
-    gender
+    label
   );
 }
 GenderCell.propTypes = {
@@ -135,7 +142,6 @@ BranchCell.propTypes = {
   getValue: PropTypes.func.isRequired,
 };
 
-// ✅ Status Cell
 // ✅ Status Cell
 export function StatusCell({ getValue }) {
   const status = getValue();
@@ -185,7 +191,31 @@ export function StatusCell({ getValue }) {
     label
   );
 }
-
 StatusCell.propTypes = {
+  getValue: PropTypes.func.isRequired,
+};
+
+// ✅ Parent Cell (No Phone Number)
+export function ParentCell({ getValue }) {
+  const parent = getValue();
+  if (!parent) {
+    return React.createElement(
+      "span",
+      { className: "text-xs text-gray-400" },
+      "N/A"
+    );
+  }
+
+  // If backend sends "John Doe (9876543210)"
+  // → keep only the name part before "("
+  const nameOnly = parent.split("(")[0].trim();
+
+  return React.createElement(
+    "span",
+    { className: "text-sm font-medium text-gray-800 dark:text-dark-100" },
+    nameOnly
+  );
+}
+ParentCell.propTypes = {
   getValue: PropTypes.func.isRequired,
 };

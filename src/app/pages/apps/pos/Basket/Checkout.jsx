@@ -1,4 +1,3 @@
-// Checkout.jsx
 import { useState } from "react";
 import {
   CreditCardIcon,
@@ -7,6 +6,14 @@ import {
 } from "@heroicons/react/24/outline";
 import { Button, Input } from "components/ui";
 
+// ✅ INR formatter
+const formatINR = (val) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2,
+  }).format(Number(val || 0));
+
 export function Checkout({ subtotal, gst, total }) {
   const [method, setMethod] = useState(null);
   const [cashPaid, setCashPaid] = useState("");
@@ -14,10 +21,11 @@ export function Checkout({ subtotal, gst, total }) {
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvv, setCardCvv] = useState("");
 
-  const remaining = cashPaid ? (Number(cashPaid) - total).toFixed(2) : null;
-  const handlePayment=()=>{
-
-  }
+  const remaining = cashPaid ? Number(cashPaid) - total : null;
+  const handlePayment = () => {
+    // handle checkout logic
+    console.log("Payment method:", method);
+  };
 
   return (
     <div>
@@ -26,15 +34,15 @@ export function Checkout({ subtotal, gst, total }) {
       <div className="space-y-2">
         <div className="flex justify-between text-gray-800 dark:text-dark-100">
           <p>Subtotal</p>
-          <p className="font-medium tracking-wide">${subtotal.toFixed(2)}</p>
+          <p className="font-medium tracking-wide">{formatINR(subtotal)}</p>
         </div>
         <div className="flex justify-between text-xs-plus">
           <p>Tax (5%)</p>
-          <p className="font-medium tracking-wide">${gst.toFixed(2)}</p>
+          <p className="font-medium tracking-wide">{formatINR(gst)}</p>
         </div>
         <div className="flex justify-between text-base font-medium text-primary-600 dark:text-primary-400">
           <p>Total</p>
-          <p>${total.toFixed(2)}</p>
+          <p>{formatINR(total)}</p>
         </div>
       </div>
 
@@ -83,14 +91,12 @@ export function Checkout({ subtotal, gst, total }) {
             {cashPaid && (
               <p
                 className={`mt-2 font-medium ${
-                  Number(cashPaid) < total
-                    ? "text-red-600"
-                    : "text-green-600"
+                  Number(cashPaid) < total ? "text-red-600" : "text-green-600"
                 }`}
               >
                 {Number(cashPaid) < total
-                  ? `Remaining: $${(total - cashPaid).toFixed(2)}`
-                  : `Change: $${remaining}`}
+                  ? `Remaining: ${formatINR(total - Number(cashPaid))}`
+                  : `Change: ${formatINR(remaining)}`}
               </p>
             )}
           </div>
@@ -132,9 +138,13 @@ export function Checkout({ subtotal, gst, total }) {
       </div>
 
       {/* Checkout Button */}
-      <Button color="primary" className="mt-5 h-11 w-full justify-between" onClick={handlePayment}>
+      <Button
+        color="primary"
+        className="mt-5 h-11 w-full justify-between"
+        onClick={handlePayment}
+      >
         <span>Checkout</span>
-        <span>${total.toFixed(2)}</span>
+        <span>{formatINR(total)}</span>
       </Button>
     </div>
   );

@@ -4,6 +4,20 @@
 import React from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 
+// Icons
+import {
+  IdentificationIcon,
+  UserIcon,
+  CalendarIcon,
+  UserCircleIcon,
+  BookOpenIcon,
+  BuildingOfficeIcon,
+  CheckCircleIcon,
+  UserGroupIcon,
+  ClockIcon,
+  Cog6ToothIcon,
+} from "@heroicons/react/24/outline";
+
 // Local Imports
 import { RowActions } from "./RowActions";
 import {
@@ -21,12 +35,11 @@ import {
   StatusCell,
 } from "./rows";
 
-// ✅ Custom Parent Cell (no JSX)
+// ✅ Custom Parent Cell (Only Name, No Phone Number)
 function ParentCell({ row }) {
   const parentName = row.original.parentName;
-  const parentPhone = row.original.parentPhone;
 
-  if (!parentName && !parentPhone) {
+  if (!parentName) {
     return React.createElement(
       "span",
       { className: "text-xs text-gray-400" },
@@ -35,24 +48,25 @@ function ParentCell({ row }) {
   }
 
   return React.createElement(
-    "div",
-    { className: "flex flex-col" },
-    React.createElement(
-      "span",
-      { className: "text-sm font-medium text-gray-800 dark:text-dark-100" },
-      parentName
-    ),
-    parentPhone
-      ? React.createElement(
-          "span",
-          { className: "text-xs text-gray-500 dark:text-dark-300" },
-          parentPhone
-        )
-      : null
+    "span",
+    { className: "text-sm font-medium text-gray-800 dark:text-dark-100" },
+    parentName
   );
 }
 
 // ----------------------------------------------------------------------
+
+// ✅ Utility: header with icon (strict JS)
+function withIcon(Icon, label) {
+  return React.createElement(
+    "div",
+    { className: "flex items-center gap-2" },
+    React.createElement(Icon, {
+      className: "w-4 h-4 text-primary-600 dark:text-primary-400",
+    }),
+    React.createElement("span", null, label)
+  );
+}
 
 const columnHelper = createColumnHelper();
 
@@ -69,7 +83,7 @@ export const columns = [
   columnHelper.accessor((row) => row.studentEnquiryId, {
     id: "studentEnquiryId",
     label: "Enquiry ID",
-    header: "ID",
+    header: withIcon(IdentificationIcon, "ID"),
     cell: EnquiryIdCell,
   }),
 
@@ -77,7 +91,7 @@ export const columns = [
   columnHelper.accessor((row) => row.fullName, {
     id: "fullName",
     label: "Student Name",
-    header: "Student Name",
+    header: withIcon(UserIcon, "Student Name"),
     cell: NameCell,
   }),
 
@@ -87,7 +101,7 @@ export const columns = [
     {
       id: "dob",
       label: "Date of Birth",
-      header: "DOB",
+      header: withIcon(CalendarIcon, "DOB"),
       cell: DateCell,
       filterFn: "inNumberRange",
     }
@@ -97,7 +111,7 @@ export const columns = [
   columnHelper.accessor((row) => row.gender, {
     id: "gender",
     label: "Gender",
-    header: "Gender",
+    header: withIcon(UserCircleIcon, "Gender"),
     cell: GenderCell,
   }),
 
@@ -105,7 +119,7 @@ export const columns = [
   columnHelper.accessor((row) => row.admissionCourseName, {
     id: "admissionCourseName",
     label: "Admission Course",
-    header: "Course",
+    header: withIcon(BookOpenIcon, "Course"),
     cell: CourseCell,
   }),
 
@@ -113,7 +127,7 @@ export const columns = [
   columnHelper.accessor((row) => row.branchName, {
     id: "branchName",
     label: "Branch",
-    header: "Branch",
+    header: withIcon(BuildingOfficeIcon, "Branch"),
     cell: BranchCell,
   }),
 
@@ -121,15 +135,15 @@ export const columns = [
   columnHelper.accessor((row) => row.statusName, {
     id: "statusName",
     label: "Status",
-    header: "Status",
+    header: withIcon(CheckCircleIcon, "Status"),
     cell: StatusCell,
   }),
 
-  // ✅ Parent Info
+  // ✅ Parent Info (Only Name)
   columnHelper.display({
     id: "parent",
     label: "Parent",
-    header: "Parent",
+    header: withIcon(UserGroupIcon, "Parent"),
     cell: ParentCell,
   }),
 
@@ -139,7 +153,7 @@ export const columns = [
     {
       id: "createdOn",
       label: "Created On",
-      header: "Created On",
+      header: withIcon(ClockIcon, "Created On"),
       cell: DateCell,
       filterFn: "inNumberRange",
     }
@@ -149,7 +163,7 @@ export const columns = [
   columnHelper.display({
     id: "actions",
     label: "Row Actions",
-    header: "Actions",
+    header: withIcon(Cog6ToothIcon, "Actions"),
     cell: RowActions,
   }),
 ];

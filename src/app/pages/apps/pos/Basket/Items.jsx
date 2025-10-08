@@ -1,6 +1,14 @@
 import { PlusIcon, MinusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Button } from "components/ui";
 
+// ✅ INR formatter
+const formatINR = (val) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2,
+  }).format(Number(val || 0));
+
 export function Items({ items, onIncrease, onDecrease, onRemove }) {
   if (!items.length) {
     return <p className="text-sm text-gray-400">No items in basket</p>;
@@ -66,9 +74,7 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
                             onDecrease(item.uid);
                           } else {
                             if (
-                              window.confirm(
-                                `Remove ${item.name} from cart?`
-                              )
+                              window.confirm(`Remove ${item.name} from cart?`)
                             ) {
                               onRemove(item.uid);
                             }
@@ -94,13 +100,13 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
 
                   {/* Prices */}
                   <td className="border px-3 py-2 text-right">
-                    ${Number(item.price).toFixed(2)}
+                    {formatINR(item.price)}
                   </td>
                   <td className="border px-3 py-2 text-right">
-                    ${itemGst.toFixed(2)}
+                    {formatINR(itemGst)}
                   </td>
                   <td className="border px-3 py-2 text-right">
-                    ${itemTotal.toFixed(2)}
+                    {formatINR(itemTotal)}
                   </td>
 
                   {/* Remove button */}

@@ -6,7 +6,15 @@ import {
   Transition,
   TransitionChild,
 } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/solid";
+import {
+  XMarkIcon,
+  AcademicCapIcon,
+  BuildingOfficeIcon,
+  UserIcon,
+  UsersIcon,
+  EnvelopeIcon,
+  MegaphoneIcon,
+} from "@heroicons/react/24/solid";
 import { Fragment } from "react";
 import dayjs from "dayjs";
 import PropTypes from "prop-types";
@@ -28,11 +36,10 @@ import { useLocaleContext } from "app/contexts/locale/context";
 
 // ----------------------------------------------------------------------
 
-const cols = ["Field", "Value"];
+const cols = ["Detail", "Information"];
 
 export function EnquiryDrawer({ isOpen, close, row }) {
   const { locale } = useLocaleContext();
-
   const data = row.original;
 
   const timestamps = data.createdOn;
@@ -147,15 +154,24 @@ export function EnquiryDrawer({ isOpen, close, row }) {
               </THead>
               <TBody>
                 <Tr>
-                  <Td className="font-medium">Admission Course</Td>
+                  <Td className="font-bold flex items-center gap-2">
+                    <AcademicCapIcon className="size-4 text-primary-600" />
+                    Admission Course
+                  </Td>
                   <Td>{data.admissionCourseName ?? "N/A"}</Td>
                 </Tr>
                 <Tr>
-                  <Td className="font-medium">Branch</Td>
+                  <Td className="font-bold flex items-center gap-2">
+                    <BuildingOfficeIcon className="size-4 text-primary-600" />
+                    Branch
+                  </Td>
                   <Td>{data.branchName ?? "N/A"}</Td>
                 </Tr>
                 <Tr>
-                  <Td className="font-medium">Parent Contact</Td>
+                  <Td className="font-bold flex items-center gap-2">
+                    <UserIcon className="size-4 text-primary-600" />
+                    Parent Contact
+                  </Td>
                   <Td>
                     {data.parentName ?? "N/A"}{" "}
                     {data.parentPhone && (
@@ -172,7 +188,10 @@ export function EnquiryDrawer({ isOpen, close, row }) {
                   </Td>
                 </Tr>
                 <Tr>
-                  <Td className="font-medium">Mother Contact</Td>
+                  <Td className="font-bold flex items-center gap-2">
+                    <UsersIcon className="size-4 text-primary-600" />
+                    Mother Contact
+                  </Td>
                   <Td>
                     {data.motherName ?? "N/A"}{" "}
                     {data.motherPhone && (
@@ -189,7 +208,10 @@ export function EnquiryDrawer({ isOpen, close, row }) {
                   </Td>
                 </Tr>
                 <Tr>
-                  <Td className="font-medium">Parent Email</Td>
+                  <Td className="font-bold flex items-center gap-2">
+                    <EnvelopeIcon className="size-4 text-primary-600" />
+                    Parent Email
+                  </Td>
                   <Td>
                     {data.parentEmail ? (
                       <a
@@ -204,7 +226,10 @@ export function EnquiryDrawer({ isOpen, close, row }) {
                   </Td>
                 </Tr>
                 <Tr>
-                  <Td className="font-medium">Mother Email</Td>
+                  <Td className="font-bold flex items-center gap-2">
+                    <EnvelopeIcon className="size-4 text-primary-600" />
+                    Mother Email
+                  </Td>
                   <Td>
                     {data.motherEmail ? (
                       <a
@@ -219,7 +244,10 @@ export function EnquiryDrawer({ isOpen, close, row }) {
                   </Td>
                 </Tr>
                 <Tr>
-                  <Td className="font-medium">Heard About Us</Td>
+                  <Td className="font-bold flex items-center gap-2">
+                    <MegaphoneIcon className="size-4 text-primary-600" />
+                    Heard About Us
+                  </Td>
                   <Td>{data.hearAboutUsName ?? "N/A"}</Td>
                 </Tr>
               </TBody>

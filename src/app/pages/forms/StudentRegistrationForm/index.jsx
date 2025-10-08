@@ -174,42 +174,52 @@ function StudentRegistrationForm() {
           );
         },
       },
-      {
-        key: "feeStructure",
-        label: "Fee Structure",
-        description: "Select package and corporate discounts.",
-        icon: CurrencyDollarIcon,
-        Component: function Step() {
-          return (
-            <div className="space-y-6">
-              {/* Section: Package & Corporate */}
-              <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FeePackageDropdown
-                    onSelect={setSelectedPackage}
-                    value={selectedPackage}
-                  />
-                  <CorporateSelect
-                    onCorporateSelect={setSelectedCorporate}
-                    value={selectedCorporate}
-                  />
-                </div>
+     {
+  key: "feeStructure",
+  label: "Fee Structure",
+  // description: "Select package and corporate discounts.",
+  icon: CurrencyDollarIcon,
+  Component: function Step() {
+    return (
+      <div className="space-y-6">
+        {/* Section: Package & Corporate - MOVED TO HEADER AREA */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+          {/* Header with dropdowns inline */}
+          <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">
+                Fee Details
+              </h3>
+              <p className="text-sm text-gray-500">
+                Select package and corporate discounts
+              </p>
+            </div>
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+              <div className="min-w-[200px]">
+                <FeePackageDropdown
+                  onSelect={setSelectedPackage}
+                  value={selectedPackage}
+                />
               </div>
-
-              {/* Section: Fee Table */}
-              <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
-                <h3 className="mb-4 text-lg font-semibold text-gray-800">
-                  Fee Details
-                </h3>
-                <FeeStructure
-                  selectedPackage={selectedPackage}
-                  selectedCorporate={selectedCorporate}
+              <div className="min-w-[200px]">
+                <CorporateSelect
+                  onCorporateSelect={setSelectedCorporate}
+                  value={selectedCorporate}
                 />
               </div>
             </div>
-          );
-        },
-      },
+          </div>
+
+          {/* Fee Table */}
+          <FeeStructure
+            selectedPackage={selectedPackage}
+            selectedCorporate={selectedCorporate}
+          />
+        </div>
+      </div>
+    );
+  },
+},
       {
         key: "transportMedical",
         label: "Transport & Medical",
