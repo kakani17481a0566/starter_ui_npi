@@ -5,6 +5,7 @@ import {
   WalletIcon,
 } from "@heroicons/react/24/outline";
 import { Button, Input } from "components/ui";
+import axios from "axios";
 
 // ✅ INR formatter
 const formatINR = (val) =>
@@ -14,7 +15,7 @@ const formatINR = (val) =>
     minimumFractionDigits: 2,
   }).format(Number(val || 0));
 
-export function Checkout({ subtotal, gst, total }) {
+export function Checkout({ subtotal, gst, total, items, studentId, tenantId }) {
   const [method, setMethod] = useState(null);
   const [cashPaid, setCashPaid] = useState("");
   const [cardNumber, setCardNumber] = useState("");
@@ -22,9 +23,35 @@ export function Checkout({ subtotal, gst, total }) {
   const [cardCvv, setCardCvv] = useState("");
 
   const remaining = cashPaid ? Number(cashPaid) - total : null;
-  const handlePayment = () => {
-    // handle checkout logic
-    console.log("Payment method:", method);
+  // const handlePayment = () => {
+  //   // handle checkout logic
+  //   console.log("Payment method:", method);
+
+  // };
+  const handlePayment = async () => {
+    const payload = {
+      studentId,
+      tenantId,
+      date: new Date().toISOString(),
+      paymentMethod: method,
+      items: items.map((i) => ({
+        id: i.id,
+        unitPrice: Number(i.price),
+        quantity: i.count,
+        gstPercent: 5,
+        gstValue: Number(i.price) * i.count * 0.05,
+      })),
+    };
+
+    try {
+      const res = await axios.post(
+        "https://localhost:7202/api/LibraryTransactions/checkout",
+        payload
+      );
+      console.log("✅ Checkout success:", res.data);
+    } catch (err) {
+      console.error("❌ Checkout failed:", err);
+    }
   };
 
   return (

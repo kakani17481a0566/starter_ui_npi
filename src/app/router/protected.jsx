@@ -248,6 +248,12 @@ const protectedRoutes = {
               }),
             },
             {
+              path: "lib",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/library")).default,
+              }),
+            },
+            {
               path: "library",
               lazy: async () => ({
                 Component: (await import("app/pages/apps/library")).default,

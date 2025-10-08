@@ -121,7 +121,7 @@ function MobileView({
               </div>
 
               {/* Checkout */}
-              <Checkout subtotal={subtotal} gst={gst} total={total} />
+              <Checkout subtotal={subtotal} gst={gst} total={total} items={items} />
             </DialogPanel>
           </TransitionChild>
         </Dialog>
