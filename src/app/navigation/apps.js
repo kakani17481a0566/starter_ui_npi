@@ -45,7 +45,7 @@ export const apps = {
         },
         {
             id: 'apps.pos',
-            path: path(ROOT_APPS, '/library'),
+            path: path(ROOT_APPS, '/lib'),
             type: NAV_TYPE_ITEM,
             title: 'POS Sytem',
             transKey: 'nav.apps.library',

@@ -5,7 +5,7 @@ import { Categories } from "./Categories";
 import { Basket } from "./Basket";
 import CoursesDatatable from "./courses-datatable";
 import { useState } from "react";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 
 export default function Pos() {
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -20,11 +20,11 @@ export default function Pos() {
             ? { ...item, count: item.count + 1 }
             : item
         );
-        toast.success(`${course.name} quantity increased`, { position: "top-center" });
+        // toast.success(`${course.name} quantity increased`, { position: "top-center" });
         return updated;
       }
 
-      toast.success(`${course.name} added to basket`, { position: "top-center" });
+      // toast.success(`${course.name} added to basket`, { position: "top-center" });
       return [
         ...prev,
         {
