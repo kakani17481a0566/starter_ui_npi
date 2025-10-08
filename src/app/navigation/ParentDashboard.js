@@ -140,6 +140,14 @@ else if(role.toLowerCase()==="parent"){
       transKey: "nav.parent.ParenntDashbord",
       Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
     },
+     {
+      id: "dashboards.Registration",
+      path: path(ROOT_DASHBOARDS, "/Fee"),
+      type: NAV_TYPE_ITEM,
+      title: "RegistrationForm",
+      transKey: "nav.parent.Fee",
+      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
 
   ]
 }

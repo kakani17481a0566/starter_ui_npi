@@ -14,7 +14,8 @@
     "ai":"Test",
     "registrationForm":"Registration Form",
     "ParenntDashbord":"Parennt Dashbord",
-    "Exam":"Exam"
+    "Exam":"Exam",
+    "Fee":"Fee"
   },
   "student":{
     "student":"Student",

@@ -144,6 +144,12 @@ const protectedRoutes = {
                 Component: (await import("app/pages/dashboards/Exam")).default,
               }),
             },
+             {
+              path: "Fee",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/Parent/Fee")).default,
+              }),
+            },
           ],
         },
         {

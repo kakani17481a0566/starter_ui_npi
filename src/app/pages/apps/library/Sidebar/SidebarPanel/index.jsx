@@ -6,9 +6,9 @@ import { LockClosedIcon } from "@heroicons/react/24/outline";
 import { useThemeContext } from "app/contexts/theme/context";
 import { Button } from "components/ui";
 import { Header } from "./Header";
-import { Footer } from "./Footer";
-import { Channels } from "./Channels";
-import { Menu } from "./Menu";
+// import { Footer } from "./Footer";
+// import { Channels } from "./Channels";
+// import { Menu } from "./Menu";
 
 // ----------------------------------------------------------------------
 
@@ -39,17 +39,17 @@ export function SidebarPanel() {
               <span>Lock Screen LIB</span>
             </Button>
           </div>
-          <Channels />
+          {/* <Channels /> */}
           <div className="mx-4 my-4 h-px bg-gray-200 dark:bg-dark-500" />
-          <Menu />
-          <div className="p-4">
+          {/* <Menu /> */}
+          {/* <div className="p-4">
             <p>Sales Today</p>
             <p className="mt-1 text-base font-medium text-gray-800 dark:text-dark-100">
               134.55$
             </p>
-          </div>
+          </div> */}
         </div>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </div>
   );
