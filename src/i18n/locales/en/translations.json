@@ -9,14 +9,14 @@
       "term":"Term Plan"
     },
   "parent":{
-    "parent":"Parent Dashboard",
-    "dashboard":"Student Performance",
-    "ai":"Test",
-    "registrationForm":"Registration Form",
-    "ParenntDashbord":"Parennt Dashbord",
-    "Exam":"Exam",
-    "Fee":"Fee"
-  },
+  "parent":"Parent Dashboard",
+  "dashboard":"Student Performance",
+  "ai":"Test",
+  "registrationForm":"Registration Form",
+  "ParenntDashbord":"Parennt Dashbord",
+  "Exam":"Exam",
+  "Fee":"Fee"
+ },
   "student":{
     "student":"Student",
     "enquiryForm":"Enquiry Form",

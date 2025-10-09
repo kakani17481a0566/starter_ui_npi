@@ -1,12 +1,14 @@
 // src/app/pages/FrontDesk/Components/PostalTable/Toolbar.js
 
 import {
-  ChevronUpDownIcon,
+  // ChevronUpDownIcon,
   MagnifyingGlassIcon,
-  PrinterIcon,
+  // PrinterIcon,
   MapPinIcon,
 } from "@heroicons/react/24/outline";
-import { TbUpload, TbCurrencyDollar } from "react-icons/tb";
+// import { TbUpload, TbCurrencyDollar } from "react-icons/tb";
+import {  TbCurrencyDollar } from "react-icons/tb";
+
 import clsx from "clsx";
 import {
   Menu,
@@ -176,15 +178,15 @@ function Filters({ table }) {
 function DesktopActions() {
   return (
     <div className="flex space-x-2 ">
-      <Button
+      {/* <Button
         variant="outlined"
         className="h-8 space-x-2 rounded-md px-3 text-xs "
       >
         <PrinterIcon className="size-4" />
         <span>Print</span>
-      </Button>
+      </Button> */}
 
-      <Menu as="div" className="relative inline-block whitespace-nowrap text-left">
+      {/* <Menu as="div" className="relative inline-block whitespace-nowrap text-left">
         <MenuButton
           as={Button}
           variant="outlined"
@@ -220,7 +222,7 @@ function DesktopActions() {
             )}
           </MenuItem>
         </Transition>
-      </Menu>
+      </Menu> */}
     </div>
   );
 }

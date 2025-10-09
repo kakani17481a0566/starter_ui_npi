@@ -12,6 +12,8 @@ import { LanguageSelector } from "components/template/LaguageSelector";
 import { Search } from "components/template/Search";
 import { useThemeContext } from "app/contexts/theme/context";
 
+import Logo from "./150300px01.svg";
+
 // ----------------------------------------------------------------------
 
 function SlashIcon(props) {
@@ -47,15 +49,14 @@ export function Header() {
           : "dark:bg-dark-900/80",
       )}
     >
-      <SidebarToggleBtn />
-
-      <div className="flex items-center px-4 shrink-0">
-  {/* <img
+     <div className="flex items-center gap-3">
+  <SidebarToggleBtn />
+  <img
     id="header-logo-main-bar"
     alt="Company Logo"
-    className="h-100 w-100 max-w-[300px] object-contain pointer-events-none"
-    src="https://res.cloudinary.com/kakani7/image/upload/v1746172182/MSI/yqjbpqtuvuf0co08zai4.svg"
-  /> */}
+    className="h-30 w-auto max-w-[300px]"
+    src={Logo}
+  />
 </div>
 
 

@@ -44,7 +44,7 @@ export function Toolbar({ table }) {
       >
         <div className="min-w-0">
           <h2 className="truncate text-xl font-medium tracking-wide text-gray-800 dark:text-dark-50">
-            Orders History
+           Fee Table
           </h2>
         </div>
 

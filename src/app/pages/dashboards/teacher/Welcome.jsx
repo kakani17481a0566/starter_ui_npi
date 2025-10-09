@@ -4,19 +4,30 @@ import clsx from "clsx";
 // Local Imports
 import { Card } from "components/ui";
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
-import TeacherWelcome from "assets/illustrations/teacher-welcome.svg?react";
+// import TeacherWelcome from "assets/illustrations/teacher-welcome.svg?react";
+import TeacherWelcome from "./BannerImage.svg?react";
+
+
 import { getSessionData } from "utils/sessionStorage";
 
 // ----------------------------------------------------------------------
 
+// 🎨 Gradient stop config (easy to adjust)
+const GRADIENT_STOPS = {
+  from: "from-primary-400 from-4%",
+  via: "via-[#2BBBAD] via-50%",
+  to: "to-primary-950 to-150%",
+};
+
 export function Welcome() {
   const { smAndUp } = useBreakpointsContext();
   const { user } = getSessionData();
+
   return (
     <Card
       className={clsx(
-        smAndUp && "via-purple-300",
-        "mt-12 flex flex-col bg-linear-to-l from-pink-300 to-indigo-400 p-5 sm:mt-0 sm:flex-row",
+        smAndUp && `${GRADIENT_STOPS.via} ${GRADIENT_STOPS.to}`,
+        `mt-12 flex flex-col bg-gradient-to-l ${GRADIENT_STOPS.from} p-5 sm:mt-0 sm:flex-row`
       )}
     >
       <div className="flex justify-center sm:order-last">
@@ -30,21 +41,6 @@ export function Welcome() {
             {user?.charAt(0).toUpperCase() + user?.slice(1).toLowerCase()}
           </span>
         </h3>
-
-        {/* <p className="mt-2 leading-relaxed">
-          Your student completed
-          <span className="font-semibold text-black/90"> 85%</span> of tasks
-        </p>
-        <p>
-          Progress is <span className="font-semibold">excellent!</span>
-        </p> */}
-
-        {/* <Button
-          unstyled
-          className="mt-6 rounded-lg bg-white/90 px-5 py-2.5 text-gray-900 hover:bg-white/70 focus:bg-white/70"
-        >
-          View Lessons
-        </Button> */}
       </div>
     </Card>
   );

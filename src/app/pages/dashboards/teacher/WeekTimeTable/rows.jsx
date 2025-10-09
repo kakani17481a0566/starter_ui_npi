@@ -4,26 +4,27 @@ import clsx from "clsx";
 import PropTypes from "prop-types";
 
 // ----------------------------------------------------------------------
-// Cell: Day (column1)
+// Cell: Day (column1, always uppercase)
 export function DayCell({ getValue }) {
+  const value = getValue();
   return (
-    <span className="font-semibold text-gray-900 dark:text-white">
-      {getValue()}
+    <span className="font-semibold text-gray-900 dark:text-white uppercase">
+      {value ? value.toString() : ""}
     </span>
   );
 }
 
-// Cell: File (column2–7)
+// Cell: File (columns 2–7, always uppercase, fallback placeholder)
 export function FileCell({ getValue }) {
   const value = getValue();
   return (
     <div
       className={clsx(
-        "whitespace-normal text-sm",
+        "whitespace-normal text-sm uppercase",
         value ? "text-gray-800 dark:text-dark-100" : "text-gray-400 italic"
       )}
     >
-      {value || "—"}
+      {value ? value.toString() : "—"}
     </div>
   );
 }
