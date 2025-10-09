@@ -3,42 +3,42 @@ import clsx from "clsx";
 
 // Local Imports
 import { Card } from "components/ui";
-import { useBreakpointsContext } from "app/contexts/breakpoint/context";
-// import TeacherWelcome from "assets/illustrations/teacher-welcome.svg?react";
 import TeacherWelcome from "./BannerImage.svg?react";
-
-
 import { getSessionData } from "utils/sessionStorage";
 
 // ----------------------------------------------------------------------
 
-// 🎨 Gradient stop config (easy to adjust)
+// 🎨 Gradient stop config
 const GRADIENT_STOPS = {
-  from: "from-primary-400 from-4%",
-  via: "via-[#2BBBAD] via-50%",
-  to: "to-primary-950 to-150%",
+  from: "from-[#33cdcd] from-4%",
+  via: "via-[#33cdcd] via-50%",
+  to: "to-[#33cdcd] to-150%",
 };
 
+// 🎨 Gradient stop config (easy to adjust) // const GRADIENT_STOPS = { // from: "from-primary-400 from-4%", // via: "via-[#2BBBAD] via-50%", // to: "to-primary-950 to-150%", // };
+
 export function Welcome() {
-  const { smAndUp } = useBreakpointsContext();
   const { user } = getSessionData();
 
   return (
     <Card
       className={clsx(
-        smAndUp && `${GRADIENT_STOPS.via} ${GRADIENT_STOPS.to}`,
-        `mt-12 flex flex-col bg-gradient-to-l ${GRADIENT_STOPS.from} p-5 sm:mt-0 sm:flex-row`
+        `mt-12 flex flex-col items-center justify-center bg-gradient-to-l ${GRADIENT_STOPS.from} ${GRADIENT_STOPS.via} ${GRADIENT_STOPS.to} p-5 sm:mt-0 sm:flex-row`,
       )}
     >
+      {/* Illustration */}
       <div className="flex justify-center sm:order-last">
         <TeacherWelcome className="-mt-16 h-40 sm:mt-0" />
       </div>
 
-      <div className="mt-2 flex-1 pt-2 text-center text-white sm:mt-0 sm:text-start">
-        <h3 className="text-xl">
+      {/* Welcome Text */}
+      <div className="mt-2 flex flex-1 items-center justify-center pt-2 sm:mt-0">
+        <h3 className="text-center text-3xl text-primary-950">
           Welcome Back,{" "}
-          <span className="font-semibold">
-            {user?.charAt(0).toUpperCase() + user?.slice(1).toLowerCase()}
+          <span className="font-semibold text-primary-950">
+            {user
+              ? user.charAt(0).toUpperCase() + user.slice(1).toLowerCase()
+              : ""}
           </span>
         </h3>
       </div>

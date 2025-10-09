@@ -179,7 +179,7 @@
               leave="transition ease-in"
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-2"
-              className="dark:border-dark-500 dark:bg-dark-100 absolute z-100 mt-1.5 min-w-[10rem] rounded-lg border border-gray-300 bg-white py-1 shadow-lg ltr:right-0 rtl:left-0"
+              className="dark:border-dark-500 dark:bg-dark-100 absolute z-100 mt-1.5 min-w-[10rem] rounded-lg border border-primary-400 bg-white py-1 shadow-lg ltr:right-0 rtl:left-0"
             >
               {(isParent || isTeacher) && (
                 <MenuItem>

@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 export function DayCell({ getValue }) {
   const value = getValue();
   return (
-    <span className="font-semibold text-gray-900 dark:text-white uppercase">
+    <span className="font-semibold text-primary-950 dark:text-white uppercase">
       {value ? value.toString() : ""}
     </span>
   );
@@ -21,7 +21,7 @@ export function FileCell({ getValue }) {
     <div
       className={clsx(
         "whitespace-normal text-sm uppercase",
-        value ? "text-gray-800 dark:text-dark-100" : "text-gray-400 italic"
+        value ? "text-primary-950 dark:text-dark-100" : "text-gray-400 italic"
       )}
     >
       {value ? value.toString() : "—"}

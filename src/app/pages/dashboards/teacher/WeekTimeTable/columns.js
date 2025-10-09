@@ -7,49 +7,42 @@ import React from "react";
 
 const columnHelper = createColumnHelper();
 
+// ----------------------------------------------------------------------
 // Render cell for "Days" column (column1)
 export function DayCell(cell) {
   const day = cell.getValue?.();
   return React.createElement(
     "span",
-    { className: "font-semibold text-sm text-gray-800 dark:text-dark-100" },
-    day
+    { className: "font-semibold text-sm text-primary-950 uppercase" },
+    day || "-"
   );
 }
 
-// Render content cells (column2+)
+// {
+//   className: "font-lato font-semibold text-sm text-primary-950 uppercase"
+// }
+
+// ----------------------------------------------------------------------
+// Render content cells (columns 2+)
 export function FileCell(cell) {
   const value = cell.getValue?.() ?? "";
   const lines = value.trim().split("\n");
 
-  const getClassForLine = (line) => {
-    const trimmed = line.trim();
-    if (trimmed.startsWith("AS:") || trimmed.startsWith("Action Song")) return "text-[#713427] font-bold";
-    if (trimmed.startsWith("FT:") || trimmed.startsWith("Fairytale")) return "text-[#E27257] font-bold";
-    if (trimmed.startsWith("NR:") || trimmed.startsWith("Nursery Rhyme")) return "text-[#B14434] font-bold";
-    if (trimmed.startsWith("ET:") || trimmed.startsWith("Event")) return "text-[#52AA97] font-bold";
-    if (trimmed.startsWith("PL:") || trimmed.startsWith("PHONICS LAB")) return "text-[#83CAE6] font-bold";
-    if (trimmed.startsWith("SL:") || trimmed.startsWith("SCIENCE LAB")) return "text-[#8FD1E6] font-bold";
-    if (trimmed.startsWith("AL:") || trimmed.startsWith("ART LAB")) return "text-[#437EB4] font-bold";
-    if (trimmed.startsWith("ML:") || trimmed.startsWith("MATH LAB")) return "text-[#2F469A] font-bold";
-    if (trimmed.startsWith("ST:") || trimmed.startsWith("Story Time")) return "text-[#465C8A] font-bold";
-    if (trimmed.startsWith("LAB:") || trimmed.startsWith("LAB")) return "text-[#3366] font-bold";
-    return "";
-  };
-
   return React.createElement(
-    "div",
-    { className: "text-sm whitespace-pre-line" },
-    lines.map((line, i) =>
-      React.createElement(
-        "div",
-        { key: i, className: clsx(getClassForLine(line)) },
-        line.trim() || "-"
-      )
+  "div",
+  { className: "font-lato font-normal text-xs  whitespace-pre-line uppercase" },
+  lines.map((line, i) =>
+    React.createElement(
+      "div",
+      { key: i, className: "text-primary-950" },
+      line.trim() || "-"
     )
-  );
+  )
+);
+
 }
 
+// ----------------------------------------------------------------------
 // Render row actions
 export function ActionsCell(cell) {
   return React.createElement(RowActions, {
@@ -58,11 +51,25 @@ export function ActionsCell(cell) {
   });
 }
 
+// ----------------------------------------------------------------------
 // Generate columns from dynamic headers
 export function generateColumns(headers = []) {
+
+
   const baseColumns = headers.map((header, index) => {
     const columnId = `column${index + 1}`;
     const isDayColumn = index === 0;
+
+    console.log(`➡️ Header ${index}:`, header);
+
+    // detect subject key
+    let subjectKey = null;
+    if (header.includes("Language")) subjectKey = "CLL";
+    else if (header.includes("Numeracy")) subjectKey = "PSRN";
+    else if (header.includes("Knowledge")) subjectKey = "KUW";
+    else if (header.includes("Physical")) subjectKey = "PD";
+    else if (header.includes("Arts")) subjectKey = "EAD";
+    else if (header.includes("Social")) subjectKey = "PSED";
 
     return columnHelper.accessor((row) => row[columnId], {
       id: isDayColumn ? "days" : `col${index}`,
@@ -71,20 +78,26 @@ export function generateColumns(headers = []) {
           "div",
           {
             className: clsx(
-              "whitespace-pre-line",
-              isDayColumn ? "font-bold" : "text-xs font-semibold"
+              "whitespace-pre-line uppercase text-primary-950",
+              isDayColumn ? "" : "text-xs",
             ),
           },
           header
         ),
       cell: isDayColumn ? DayCell : FileCell,
+      meta: { subjectKey }, // ✅ store subjectKey for coloring
     });
   });
 
   baseColumns.push(
     columnHelper.display({
       id: "actions",
-      header: "Actions",
+      header: () =>
+        React.createElement(
+          "div",
+          { className: "uppercase text-white text-xs font-semibold" },
+          "Actions"
+        ),
       cell: ActionsCell,
     })
   );
