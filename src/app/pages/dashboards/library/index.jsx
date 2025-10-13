@@ -1,22 +1,23 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // ✅ import
 
 
-export default  function Library(){
+export default function Library() {
   const [selectedCourse, setSelectedCourse] = useState(""); // only for fetching students
-  const [studentId, setStudentId] = useState(""); // only store studentId for submission
+  const [studentId, setStudentId] = useState("");
+  const [studentName, setStudentName] = useState("");
   const [courses, setCourses] = useState([]);
   const [students, setStudents] = useState([]);
   const [message, setMessage] = useState("");
-    const navigate = useNavigate(); // ✅ hook for navigation
+  const navigate = useNavigate(); // ✅ hook for navigation
 
 
   // 🔹 Fetch courses on mount
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await axios.get("https://localhost:7202/api/Course/dropdown-options-course/1"); 
+        const res = await axios.get("https://localhost:7202/api/Course/dropdown-options-course/1");
         // ✅ assuming your courses API: /api/Course/dropdown-options-course/{tenantId}
         setCourses(res.data.data);
       } catch (err) {
@@ -51,36 +52,10 @@ export default  function Library(){
     }
   };
 
-  // 🔹 Submit studentId only
-// const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     if (!studentId) {
-//       setMessage("Please select a student.");
-//       return;
-//     }
-
-//     try {
-      
-//         // ✅ Navigate to apps/library and pass studentId
-//         navigate("/apps/library", {
-//           state: { studentId }, // send studentId in location.state
-//         });
-
-//         // (Optional) reset form
-//         setSelectedCourse("");
-//         setStudentId("");
-//         setStudents([]);
-      
-//     } catch (err) {
-//       console.error("Error submitting form:", err);
-//       setMessage("❌ Error: Unable to create card.");
-//     }
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <form
-        // onSubmit={handleSubmit}
         className="w-full max-w-sm bg-white p-6 md:p-8 rounded-xl shadow-2xl border border-gray-200 space-y-6"
       >
         {/* Header */}
@@ -94,8 +69,6 @@ export default  function Library(){
           <div className="pt-2">
             <h3 className="text-sm font-bold text-gray-700 pb-1">Library</h3>
           </div>
-
-          {/* Course Dropdown */}
           <div className="flex flex-col space-y-1">
             <label htmlFor="course" className="text-sm font-semibold text-gray-700">
               Course
@@ -114,19 +87,26 @@ export default  function Library(){
               ))}
             </select>
           </div>
-
-          {/* Student Dropdown */}
           {selectedCourse && (
             <div className="flex flex-col space-y-1">
               <label htmlFor="studentId" className="text-sm font-semibold text-gray-700">
                 Student
               </label>
-              <select
-                id="studentId"
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              >
+             <select
+  id="studentId"
+  value={studentId}
+  onChange={(e) => {
+    const id = e.target.value;
+    setStudentId(id);
+    const student = students.find((s) => String(s.id) === id);
+    if (student) {
+      setStudentName(student.name);
+    } else {
+      setStudentName("");
+    }
+  }}
+  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+>
                 <option value="">Select a student</option>
                 {students.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -141,11 +121,10 @@ export default  function Library(){
         {/* Feedback */}
         {message && (
           <div
-            className={`p-3 text-sm rounded-lg ${
-              message.startsWith("✅")
+            className={`p-3 text-sm rounded-lg ${message.startsWith("✅")
                 ? "bg-green-100 text-green-700"
                 : "bg-red-100 text-red-700"
-            }`}
+              }`}
           >
             {message}
           </div>
@@ -153,27 +132,27 @@ export default  function Library(){
 
         {/* Submit */}
         <button
-        type="button"
+          type="button"
           onClick={() => {
-    if (!studentId) {
-      setMessage("Please select a student.");
-      return;
-    }
+            if (!studentId) {
+              setMessage("Please select a student.");
+              return;
+            }
 
-    try {
-      navigate("/apps/library", {
-        state: { studentId }, // ✅ pass studentId in location.state
-      });
+            try {
+              navigate("/apps/library", {
+                state: { studentId,studentName }, // ✅ pass studentId in location.state
+              });
 
-      // Reset form
-      setSelectedCourse("");
-      setStudentId("");
-      setStudents([]);
-    } catch (err) {
-      console.error("Error navigating:", err);
-      setMessage("❌ Error: Unable to navigate.");
-    }
-  }}
+              // Reset form
+              setSelectedCourse("");
+              setStudentId("");
+              setStudents([]);
+            } catch (err) {
+              console.error("Error navigating:", err);
+              setMessage("❌ Error: Unable to navigate.");
+            }
+          }}
           className="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition duration-200 shadow-md"
         >
           Submit

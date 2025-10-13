@@ -1,6 +1,6 @@
 // Lib.jsx
 
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { toast } from "sonner";
 
 // Local Imports
@@ -10,15 +10,31 @@ import { Sidebar } from "./Sidebar";
 import { Categories } from "./Categories";
 import { Basket } from "./Basket";
 import LibTable from "./LibTable";
+import BookTable from "./PreviousBooks";
+import{useLocation} from "react-router-dom";
+import { fetchPreviousBooks } from "./PreviousBooks/data";
 
 // ----------------------------------------------------------------------
 
 export default function Lib() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [basketItems, setBasketItems] = useState([]);
-  const [selectedStudent, setSelectedStudent] = useState(null); // {value,label}
-
-  // 🔹 Normalize book identifier
+  const [previousBooks, setPreviousBooks] = useState([]); 
+  // const [selectedStudent, setSelectedStudent] = useState(null); // {value,label}
+  const location=useLocation();
+  const {studentId,studentName}=location.state;
+ useEffect(() => {
+    const loadPreviousBooks = async () => {
+      try {
+        if (!studentId) return;
+        const result = await fetchPreviousBooks(studentId);
+        setPreviousBooks(result.book || []);
+      } catch (error) {
+        console.error("Error fetching previous books", error);
+      }
+    };
+    loadPreviousBooks();
+  }, [studentId]);
   const getBookId = (book) =>
     book.book_id ?? book.bookId ?? book.id ?? book._id;
 
@@ -73,9 +89,6 @@ export default function Lib() {
 
       console.log("Assigning books →", { student, items });
 
-      // Example API call
-      // await fetch("/api/library/assign", { method: "POST", body: JSON.stringify({ student, items }) });
-
       toast.success(`✅ Books assigned to ${student.label}`);
       setBasketItems([]); // clear on success
     } catch (err) {
@@ -87,7 +100,7 @@ export default function Lib() {
   // ✅ Ensure always storing {value,label}
   const handleSelectStudent = (option) => {
     if (!option) return;
-    setSelectedStudent(option);
+    // setSelectedStudent(option);
   };
 
   return (
@@ -102,6 +115,7 @@ export default function Lib() {
           <LibTable
             selectedCategory={selectedCategory}
             onAddToBasket={handleAddToBasket}
+            previousBooks={previousBooks} 
           />
         </div>
 
@@ -114,10 +128,14 @@ export default function Lib() {
             onAssignBooks={handleAssignBooks}
             onIncrease={handleIncreaseQuantity}
             onDecrease={handleDecreaseQuantity}
-            selectedStudent={selectedStudent}
+            selectedStudent={studentId}
             onSelectStudent={handleSelectStudent}
           />
+          <BookTable data={previousBooks} studentId={studentId} studentName={studentName}/>
+
         </div>
+
+
       </main>
       <Sidebar />
     </Page>

@@ -16,7 +16,7 @@ import { Button } from "components/ui";
 
 // ----------------------------------------------------------------------
 
-export function BasketSelector({ currentDraft, drafts = [], onSelectDraft }) {
+export function BasketSelector({ currentDraft, drafts = [] }) {
   const active = drafts.find((d) => d.id === currentDraft);
 
   return (
@@ -24,9 +24,9 @@ export function BasketSelector({ currentDraft, drafts = [], onSelectDraft }) {
       {/* Active draft label */}
       <div className="min-w-0">
         <span className="truncate text-base font-medium leading-none text-gray-800 dark:text-dark-100">
-          {active?.label || "No Draft"}
+          {active?.label || "Kiran"}
         </span>{" "}
-        <span>#{active?.id || "000"}</span>
+        <span>{active?.id || "Shyam"}</span>
       </div>
 
       {/* 🔹 Quantity badge */}
@@ -36,7 +36,7 @@ export function BasketSelector({ currentDraft, drafts = [], onSelectDraft }) {
         </span>
       )}
 
-      <BasketSelectorMenu drafts={drafts} onSelectDraft={onSelectDraft} />
+      {/* <BasketSelectorMenu drafts={drafts} onSelectDraft={onSelectDraft} /> */}
     </div>
   );
 }

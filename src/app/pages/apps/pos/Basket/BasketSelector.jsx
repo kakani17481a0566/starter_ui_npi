@@ -1,75 +1,74 @@
-// Import Dependencies
-import {
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-  Transition,
-} from "@headlessui/react";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import clsx from "clsx";
-import { Fragment } from "react";
+// BasketSelector.jsx
+import { useEffect, useState } from "react";
+import axios from "axios";
 
-// Local Imports
-import { Button } from "components/ui";
+export function BasketSelector({ onSelectStudent }) {
+  const [query, setQuery] = useState("");
+  const [students, setStudents] = useState([]);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
-// ----------------------------------------------------------------------
+  useEffect(() => {
+    if (!query.trim()) {
+      setStudents([]);
+      return;
+    }
+    const fetchStudents = async () => {
+      try {
+        const res = await axios.get(`https://localhost:7202/search/${query}`);
+        setStudents(res.data);
+        setShowDropdown(true);
+      } catch (err) {
+        console.error("Failed to fetch students", err);
+      }
+    };
+    const debounce = setTimeout(fetchStudents, 400);
+    return () => clearTimeout(debounce);
+  }, [query]);
 
-export function BasketSelector() {
+  const handleSelect = (student) => {
+    setSelectedStudent(student);
+    setQuery(student.studentName);
+    setShowDropdown(false);
+    onSelectStudent?.(student); // ✅ Notify parent
+  };
+
   return (
-    <div className="flex items-center gap-1">
-      <div className="min-w-0">
-        <span className="truncate text-base font-medium leading-none text-gray-800 dark:text-dark-100">
-          Draft
-        </span>{" "}
-        <span>#001</span>
-      </div>
+    <div className="relative w-64">
+      Enter Student Name:
+      <input
+        type="text"
+        placeholder="Search Student..."
+        className="w-full border rounded-md px-3 py-2 text-sm text-gray-800 dark:text-dark-100"
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setSelectedStudent(null);
+        }}
+        onFocus={() => query && setShowDropdown(true)}
+      />
 
-      <BasketSelectorMenu />
+      {showDropdown && students.length > 0 && (
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg dark:border-dark-500 dark:bg-dark-700">
+          {students.map((s) => (
+            <div
+              key={s.studentId}
+              onClick={() => handleSelect(s)}
+              className="cursor-pointer px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-dark-600"
+            >
+              {s.studentName}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {selectedStudent && (
+        <div className="mt-2 flex gap-4 text-sm text-gray-700 dark:text-dark-200">
+          <span className="font-semibold">{selectedStudent.studentName}</span>
+          <span>{selectedStudent.branchName}</span>
+          <span>{selectedStudent.courseName}</span>
+        </div>
+      )}
     </div>
-  );
-}
-
-function BasketSelectorMenu() {
-  return (
-    <Menu as="div" className="relative inline-block text-left">
-      <MenuButton
-        as={Button}
-        variant="flat"
-        isIcon
-        className="size-7 rounded-full"
-      >
-        <ChevronDownIcon className="size-5" />
-      </MenuButton>
-      <Transition
-        as={Fragment}
-        enter="transition ease-out"
-        enterFrom="opacity-0 translate-y-2"
-        enterTo="opacity-100 translate-y-0"
-        leave="transition ease-in"
-        leaveFrom="opacity-100 translate-y-0"
-        leaveTo="opacity-0 translate-y-2"
-      >
-        <MenuItems className="absolute z-100 mt-1.5 min-w-[8rem] rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-hidden focus-visible:outline-hidden dark:border-dark-500 dark:bg-dark-700 dark:shadow-none ltr:right-0 rtl:left-0">
-          {Array(4)
-            .fill(null)
-            .map((_, i) => (
-              <MenuItem key={i}>
-                {({ focus }) => (
-                  <button
-                    className={clsx(
-                      "flex h-9 w-full items-center px-3 tracking-wide outline-hidden transition-colors",
-                      focus &&
-                        "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100",
-                    )}
-                  >
-                    <span>Draft #00{i + 1}</span>
-                  </button>
-                )}
-              </MenuItem>
-            ))}
-        </MenuItems>
-      </Transition>
-    </Menu>
   );
 }

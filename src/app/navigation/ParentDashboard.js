@@ -115,6 +115,14 @@ else if(role.toLowerCase()==="admin"){
 
 else if(role.toLowerCase()==="parent"){
   dynamicChilds=[
+      {
+      id: "dashboards.Registration",
+      path: path(ROOT_DASHBOARDS, "/ParentStudent"),
+      type: NAV_TYPE_ITEM,
+      title: "RegistrationForm",
+      transKey: "nav.parent.ParenntDashbord",
+      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
     {
       id: "dashboards.home",
       path: path(ROOT_DASHBOARDS, "/week"),
@@ -132,14 +140,7 @@ else if(role.toLowerCase()==="parent"){
       transKey: "nav.dashboards.term",
       Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
     },
-    {
-      id: "dashboards.Registration",
-      path: path(ROOT_DASHBOARDS, "/ParentStudent"),
-      type: NAV_TYPE_ITEM,
-      title: "RegistrationForm",
-      transKey: "nav.parent.ParenntDashbord",
-      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
-    },
+  
      {
       id: "dashboards.Registration",
       path: path(ROOT_DASHBOARDS, "/Fee"),

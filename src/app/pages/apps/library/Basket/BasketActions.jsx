@@ -6,7 +6,7 @@ import {
   MenuItems,
   Transition,
 } from "@headlessui/react";
-import { EllipsisVerticalIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { Fragment } from "react";
@@ -17,7 +17,7 @@ import { Button } from "components/ui";
 
 // ----------------------------------------------------------------------
 
-export function BasketActions({ onAddBasket, onClearBasket, onMenuAction }) {
+export function BasketActions({ onAddBasket, onClearBasket }) {
   return (
     <div className="flex gap-1">
       {/* ➕ Add new basket */}
@@ -28,7 +28,7 @@ export function BasketActions({ onAddBasket, onClearBasket, onMenuAction }) {
         className="size-7 rounded-full"
         onClick={onAddBasket}
       >
-        <PlusIcon className="size-5" />
+        {/* <PlusIcon className="size-1" /> */}
       </Button>
 
       {/* 🗑 Clear current basket */}
@@ -43,7 +43,7 @@ export function BasketActions({ onAddBasket, onClearBasket, onMenuAction }) {
       </Button>
 
       {/* ⋮ Extra menu actions */}
-      <MenuAction onMenuAction={onMenuAction} />
+      {/* <MenuAction onMenuAction={onMenuAction} /> */}
     </div>
   );
 }
