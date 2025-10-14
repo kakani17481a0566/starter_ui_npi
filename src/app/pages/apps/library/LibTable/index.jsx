@@ -13,6 +13,8 @@ import {
 } from "@tanstack/react-table";
 import clsx from "clsx";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
+
 
 // Local Imports
 import { Table, Card, THead, TBody, Th, Tr, Td, Spinner } from "components/ui";
@@ -39,7 +41,7 @@ const LoadingSpinner = () => (
   </div>
 );
 
-export default function LibTable({ selectedCategory, onAddToBasket }) {
+export default function LibTable({ selectedCategory, onAddToBasket,previousBooks = [] }) {
   const { cardSkin } = useThemeContext();
 
   const [books, setBooks] = useState([]);
@@ -60,6 +62,28 @@ export default function LibTable({ selectedCategory, onAddToBasket }) {
     };
     loadItems();
   }, []);
+    const handleAddBook = (book) => {
+    const activeBooks = previousBooks.filter(
+      (b) => b.status.toLowerCase() === "checkedin"
+    ).length;
+
+    if (activeBooks >= 5) {
+      toast.error("❌ You already have 5 books. Please return a book before borrowing new ones.");
+      return;
+    }
+
+    const alreadyTaken = previousBooks.some(
+      (b) => b.bookId === book.bookId && b.status.toLowerCase() === "checkedin"
+    );
+
+    if (alreadyTaken) {
+      toast.error("❌ This book is already issued to you.");
+      return;
+    }
+
+    onAddToBasket?.(book);
+  };
+
 
   // 🔹 Filter books based on selected category
   useEffect(() => {
@@ -205,7 +229,7 @@ export default function LibTable({ selectedCategory, onAddToBasket }) {
                     return (
                       <Tr
                         key={row.id}
-                        onClick={() => onAddToBasket?.(book)}
+                        onClick={() => handleAddBook(book)}
                         className={clsx(
                           "relative border-y border-transparent border-b-gray-200 dark:border-b-dark-500 cursor-pointer hover:bg-primary-50 dark:hover:bg-dark-600",
                           row.getIsSelected() &&

@@ -1,35 +1,42 @@
 import PropTypes from "prop-types";
-import { Button, Select } from "components/ui";
+import { Button } from "components/ui";
 import { toast } from "sonner";
-
-const studentsMock = [
-  { value: 1, label: "Abhiram Charan" },
-  { value: 2, label: "Priya Sharma" },
-  { value: 3, label: "Rohit Kumar" },
-];
+import axios from "axios";
 
 export function AssignSection({
   items = [],
   onAssignBooks,
-  selectedStudent,
-  onSelectStudent,
+  selectedStudent, // studentId (number)
 }) {
   const totalBooks = items.length;
 
-  const handleAssign = () => {
-    console.log("👉 handleAssign called, selectedStudent:", selectedStudent);
-
+  const handleAssign = async () => {
     if (!selectedStudent) {
-      toast.error("❌ Please select a student before assigning books");
+      toast.error("❌ No student selected");
       return;
     }
+
     if (totalBooks === 0) {
       toast.error("❌ Basket is empty");
       return;
     }
+    const payload = {
+      studentId: selectedStudent,     
+      checkInBy: 1,                    
+      bookIds: items.map((b) => b.book_id),
+    };
 
-    console.log("✅ Assigning books to:", selectedStudent, "items:", items);
-    onAssignBooks?.(selectedStudent, items);
+    console.log("📦 Final Payload →", payload);
+
+    try {
+      const res = await axios.post("https://localhost:7202/api/LibraryTransaction", payload);
+      console.log(res);
+      toast.success("✅ Books assigned successfully");
+      onAssignBooks?.(selectedStudent, items); // optional callback to parent
+    } catch (error) {
+      console.error("❌ Error assigning books", error);
+      toast.error("❌ Failed to assign books");
+    }
   };
 
   return (
@@ -38,23 +45,6 @@ export function AssignSection({
         <p className="font-medium">Total Books</p>
         <p className="font-semibold">{totalBooks} / 3</p>
       </div>
-
-      <Select
-        value={selectedStudent?.value || ""}
-        onChange={(e) => {
-          let val = e?.target?.value;
-          if (val !== undefined && val !== null) {
-            val = Number(val);
-          }
-
-          const found = studentsMock.find((s) => s.value === val);
-          console.log("🔍 Final mapped student:", found);
-
-          onSelectStudent(found || null);
-        }}
-        placeholder="Select student"
-        data={studentsMock}
-      />
 
       <Button
         color="primary"
@@ -71,6 +61,5 @@ export function AssignSection({
 AssignSection.propTypes = {
   items: PropTypes.array,
   onAssignBooks: PropTypes.func,
-  selectedStudent: PropTypes.object,
-  onSelectStudent: PropTypes.func,
+  selectedStudent: PropTypes.number,   // ✅ studentId is a number now
 };

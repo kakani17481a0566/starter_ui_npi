@@ -6,8 +6,8 @@ import {
   MenuItems,
   Transition,
 } from "@headlessui/react";
-import { EllipsisVerticalIcon, PlusIcon } from "@heroicons/react/20/solid";
-import { TrashIcon } from "@heroicons/react/24/outline";
+// import { EllipsisVerticalIcon, PlusIcon } from "@heroicons/react/20/solid";
+// import { TrashIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { Fragment } from "react";
 
@@ -19,12 +19,7 @@ import { Button } from "components/ui";
 export function BasketActions() {
   return (
     <div className="flex gap-1">
-      <Button variant="flat" isIcon className="size-7 rounded-full">
-        <PlusIcon className="size-5" />
-      </Button>
-      <Button variant="flat" isIcon className="group size-7 rounded-full">
-        <TrashIcon className="size-4.5 transition-colors group-hover:text-error" />
-      </Button>
+ 
       <MenuAction />
     </div>
   );
@@ -39,7 +34,7 @@ export function MenuAction() {
         isIcon
         className="size-7 rounded-full"
       >
-        <EllipsisVerticalIcon className="size-4.5" />
+        {/* <EllipsisVerticalIcon className="size-4.5" /> */}
       </MenuButton>
       <Transition
         as={Fragment}

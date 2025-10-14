@@ -15,7 +15,7 @@ const formatINR = (val) =>
     minimumFractionDigits: 2,
   }).format(Number(val || 0));
 
-export function Checkout({ subtotal, gst, total, items, studentId, tenantId }) {
+export function Checkout({ subtotal, gst, total, basketItems, studentId, tenantId }) {
   const [method, setMethod] = useState(null);
   const [cashPaid, setCashPaid] = useState("");
   const [cardNumber, setCardNumber] = useState("");
@@ -28,14 +28,15 @@ export function Checkout({ subtotal, gst, total, items, studentId, tenantId }) {
   //   console.log("Payment method:", method);
 
   // };
+  console.log("Items in Basket checkout process",basketItems);
   const handlePayment = async () => {
     const payload = {
       studentId,
       tenantId,
       date: new Date().toISOString(),
-      paymentMethod: method,
-      items: items.map((i) => ({
-        id: i.id,
+      // paymentMethod: method,
+      items: basketItems.map((i) => ({
+        Itemid: i.uid,
         unitPrice: Number(i.price),
         quantity: i.count,
         gstPercent: 5,
@@ -45,7 +46,7 @@ export function Checkout({ subtotal, gst, total, items, studentId, tenantId }) {
 
     try {
       const res = await axios.post(
-        "https://localhost:7202/api/LibraryTransactions/checkout",
+        "https://localhost:7202/api/PosTransactionMaster/CreatePostTransaction",
         payload
       );
       console.log("✅ Checkout success:", res.data);

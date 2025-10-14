@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment ,useState} from "react";
 import {
   Dialog,
   DialogPanel,
@@ -17,6 +17,7 @@ import { Button, Card } from "components/ui";
 
 export function Basket({ items, onIncrease, onDecrease, onRemove }) {
   const { smAndUp } = useBreakpointsContext();
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   // --- Totals (keep as numbers) ---
   const subtotal = items.reduce(
@@ -25,12 +26,15 @@ export function Basket({ items, onIncrease, onDecrease, onRemove }) {
   );
   const gst = subtotal * 0.05;
   const total = subtotal + gst;
+  console.log("items in basket",items);
 
   return smAndUp ? (
     <DesktopView
       items={items}
       subtotal={subtotal}
       gst={gst}
+      selectedStudent={selectedStudent}
+      onSelectStudent={setSelectedStudent}
       total={total}
       onIncrease={onIncrease}
       onDecrease={onDecrease}
@@ -41,6 +45,8 @@ export function Basket({ items, onIncrease, onDecrease, onRemove }) {
       items={items}
       subtotal={subtotal}
       gst={gst}
+       selectedStudent={selectedStudent}
+      onSelectStudent={setSelectedStudent}
       total={total}
       onIncrease={onIncrease}
       onDecrease={onDecrease}
@@ -54,6 +60,8 @@ function MobileView({
   subtotal,
   gst,
   total,
+  selectedStudent,
+  // onSelectStudent,
   onIncrease,
   onDecrease,
   onRemove,
@@ -107,7 +115,7 @@ function MobileView({
                   </Button>
                   <BasketSelector />
                 </div>
-                <BasketActions />
+                {/* <BasketActions /> */}
               </div>
 
               {/* Items */}
@@ -121,7 +129,7 @@ function MobileView({
               </div>
 
               {/* Checkout */}
-              <Checkout subtotal={subtotal} gst={gst} total={total} items={items} />
+              <Checkout subtotal={subtotal} gst={gst} total={total} basketItems={items} studentId={selectedStudent?.studentId} />
             </DialogPanel>
           </TransitionChild>
         </Dialog>
@@ -135,6 +143,8 @@ function DesktopView({
   subtotal,
   gst,
   total,
+  selectedStudent,
+  // onSelectStudent,
   onIncrease,
   onDecrease,
   onRemove,
@@ -153,7 +163,7 @@ function DesktopView({
           onDecrease={onDecrease}
           onRemove={onRemove}
         />
-        <Checkout subtotal={subtotal} gst={gst} total={total} />
+        <Checkout subtotal={subtotal} gst={gst} total={total} basketItems={items} studentId={selectedStudent?.studentId}/>
       </Card>
     </div>
   );
