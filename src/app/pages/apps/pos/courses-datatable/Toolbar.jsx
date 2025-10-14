@@ -1,11 +1,13 @@
 // Import Dependencies
 import {
   CheckCircleIcon,
-  ChevronUpDownIcon,
+  // ChevronUpDownIcon,
   MagnifyingGlassIcon,
-  PrinterIcon,
+  // PrinterIcon,
 } from "@heroicons/react/24/outline";
-import { TbCurrencyDollar, TbUpload } from "react-icons/tb";
+// import { TbCurrencyDollar, TbUpload } from "react-icons/tb";
+import { TbCurrencyDollar, } from "react-icons/tb";
+
 import clsx from "clsx";
 import { Menu, MenuButton } from "@headlessui/react";
 import { EllipsisHorizontalIcon } from "@heroicons/react/20/solid";
@@ -217,11 +219,11 @@ function MobileMenu() {
 function DesktopMenu() {
   return (
     <div className="flex gap-2">
-      <Button variant="outlined" className="h-8 gap-2 rounded-md px-3 text-xs">
+      {/* <Button variant="outlined" className="h-8 gap-2 rounded-md px-3 text-xs">
         <PrinterIcon className="size-4" />
         <span>Print</span>
-      </Button>
-      <Menu as="div" className="relative inline-block text-left">
+      </Button> */}
+      {/* <Menu as="div" className="relative inline-block text-left">
         <MenuButton
           as={Button}
           variant="outlined"
@@ -231,8 +233,8 @@ function DesktopMenu() {
           <span>Export</span>
           <ChevronUpDownIcon className="size-4" />
         </MenuButton>
-        {/* Add <MenuItems> here later if needed */}
-      </Menu>
+
+      </Menu> */}
     </div>
   );
 }
