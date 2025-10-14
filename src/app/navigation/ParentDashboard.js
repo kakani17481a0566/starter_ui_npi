@@ -140,7 +140,7 @@ else if(role.toLowerCase()==="parent"){
       transKey: "nav.dashboards.term",
       Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
     },
-  
+
      {
       id: "dashboards.Registration",
       path: path(ROOT_DASHBOARDS, "/Fee"),

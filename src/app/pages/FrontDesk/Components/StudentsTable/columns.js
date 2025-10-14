@@ -50,6 +50,7 @@ const skipHeaders = [
   "parentName",
 //   "mobileNumber",
   "alternateNumber",
+  "attendanceDate",
 //   "attendanceDate",
   "fromTime",
   "toTime",

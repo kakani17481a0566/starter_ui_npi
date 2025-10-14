@@ -26,6 +26,17 @@ import { generateColumns } from "./columns";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
+// 🎨 Subject background colors
+const subjectColors = {
+  CLL: "rgba(147,197,253,0.5)",  // Blue 300 @70% opacity
+  PSRN: "rgba(252,165,165,0.5)", // Red 300 @70%
+  KUW: "rgba(252,211,77,0.5)",   // Amber 300 @70%
+  PD: "rgba(110,231,183,0.5)",   // Emerald 300 @70%
+  EAD: "rgba(196,181,253,0.5)",  // Violet 300 @70%
+  PSED: "rgba(249,168,212,0.5)", // Pink 300 @70%
+};
+
+
 export function WeekTimeTable({ courseId }) {
   const [autoResetPageIndex] = useSkipper();
   const theadRef = useRef();
@@ -51,7 +62,7 @@ export function WeekTimeTable({ courseId }) {
             mapped[`column${idx + 1}`] = row[`column${idx + 1}`];
           });
           mapped.timeTableId = row.timeTableId;
-          mapped.courseId=courseId;
+          mapped.courseId = courseId;
           return mapped;
         });
 
@@ -77,12 +88,7 @@ export function WeekTimeTable({ courseId }) {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     autoResetPageIndex,
-    // ✅ Show 7 rows per page
-    initialState: {
-      pagination: {
-        pageSize: 5,
-      },
-    },
+    initialState: { pagination: { pageSize: 5 } },
   });
 
   useDidUpdate(() => table.resetRowSelection(), [media.length]);
@@ -91,7 +97,7 @@ export function WeekTimeTable({ courseId }) {
     <div className="mt-4 sm:mt-5 lg:mt-6">
       {/* Toolbar */}
       <div className="table-toolbar flex items-center justify-between">
-        <h2 className="dark:text-dark-100 truncate text-base font-medium tracking-wide text-gray-800">
+        <h2 className="dark:text-dark-100 truncate text-base font-medium tracking-wide text-primary-950">
           Weekly Timetable
         </h2>
         <div className="flex">
@@ -119,15 +125,17 @@ export function WeekTimeTable({ courseId }) {
                   <Tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
                       const isDayCol = header.column.id === "days";
+                      const subjectKey = header.column.columnDef.meta?.subjectKey;
+                      const bgColor = isDayCol
+                        ? "#93E6E6"
+                        : subjectColors[subjectKey] || "#33CDCD";
+
                       return (
                         <Th
                           key={header.id}
-                          className={clsx(
-                            "text-center text-xs font-semibold uppercase",
-                            isDayCol ? "text-primary-950" : "text-white"
-                          )}
+                          className="text-center text-xs font-semibold uppercase"
                           style={{
-                            backgroundColor: isDayCol ? "#93E6E6" : "#33CDCD",
+                            backgroundColor: bgColor,
                             borderBottom: "none",
                             borderRight: "1px solid #2BBBAD",
                             transform: isDayCol ? "translateY(-1px)" : undefined,
@@ -178,16 +186,17 @@ export function WeekTimeTable({ courseId }) {
                   >
                     {row.getVisibleCells().map((cell) => {
                       const isDayCol = cell.column.id === "days";
+                      const subjectKey = cell.column.columnDef.meta?.subjectKey;
+                      const bgColor = isDayCol
+                        ? "#93E6E6"
+                        : subjectColors[subjectKey] || "white";
+
                       return (
                         <Td
                           key={cell.id}
-                          className={clsx(
-                            "border-r px-2 py-2 text-center text-sm",
-                            isDayCol
-                              ? "bg-[#93E6E6] text-gray-900"
-                              : "bg-white text-gray-900"
-                          )}
+                          className="border-r px-2 py-2 text-center text-sm"
                           style={{
+                            backgroundColor: bgColor,
                             borderRight: "1px solid #2BBBAD",
                             position: isDayCol ? "sticky" : "relative",
                             left: isDayCol ? 0 : undefined,

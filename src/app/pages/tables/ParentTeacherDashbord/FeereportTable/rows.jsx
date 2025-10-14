@@ -1,7 +1,7 @@
 // Import Dependencies
 import dayjs from "dayjs";
 import PropTypes from "prop-types";
-// import clsx from "clsx";
+import clsx from "clsx";
 
 // Local Imports
 import { Highlight } from "components/shared/Highlight";
@@ -45,11 +45,31 @@ export function TextCell({ getValue, column, table }) {
   );
 }
 
-export function AmountCell({ getValue }) {
+export function AmountCell({ getValue, row }) {
   const val = getValue() || 0;
+  const trxType = row?.original?.trxType; // "debit" or "credit"
+
+  // ✅ If amount is 0 → neutral style (gray, no prefix)
+  if (val === 0) {
+    return (
+      <p className="text-sm-plus font-medium text-gray-800 dark:text-dark-100">
+        ₹{val.toLocaleString("en-IN")}
+      </p>
+    );
+  }
+
+  const color =
+    trxType === "credit"
+      ? "text-green-600 dark:text-green-400"
+      : trxType === "debit"
+      ? "text-red-600 dark:text-red-400"
+      : "text-gray-800 dark:text-dark-100";
+
+  const prefix = trxType === "credit" ? "+" : trxType === "debit" ? "-" : "";
+
   return (
-    <p className="text-sm-plus font-medium text-gray-800 dark:text-dark-100">
-      ₹{val.toLocaleString("en-IN")}
+    <p className={clsx("text-sm-plus font-medium", color)}>
+      {prefix}₹{val.toLocaleString("en-IN")}
     </p>
   );
 }
@@ -74,6 +94,13 @@ export function StatusCell({ getValue }) {
 // PropTypes
 TxnIdCell.propTypes = { getValue: PropTypes.func };
 DateCell.propTypes = { getValue: PropTypes.func };
-TextCell.propTypes = { getValue: PropTypes.func, column: PropTypes.object, table: PropTypes.object };
-AmountCell.propTypes = { getValue: PropTypes.func };
+TextCell.propTypes = {
+  getValue: PropTypes.func,
+  column: PropTypes.object,
+  table: PropTypes.object,
+};
+AmountCell.propTypes = {
+  getValue: PropTypes.func,
+  row: PropTypes.object,
+};
 StatusCell.propTypes = { getValue: PropTypes.func };
