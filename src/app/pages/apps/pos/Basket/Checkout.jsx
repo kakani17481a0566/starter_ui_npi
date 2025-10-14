@@ -6,6 +6,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Button, Input } from "components/ui";
 import axios from "axios";
+import { toast } from "sonner";
 
 // ✅ INR formatter
 const formatINR = (val) =>
@@ -15,7 +16,7 @@ const formatINR = (val) =>
     minimumFractionDigits: 2,
   }).format(Number(val || 0));
 
-export function Checkout({ subtotal, gst, total, basketItems, studentId, tenantId }) {
+export function Checkout({ subtotal, gst, total, basketItems, studentId, tenantId=1 }) {
   const [method, setMethod] = useState(null);
   const [cashPaid, setCashPaid] = useState("");
   const [cardNumber, setCardNumber] = useState("");
@@ -30,6 +31,10 @@ export function Checkout({ subtotal, gst, total, basketItems, studentId, tenantI
   // };
   console.log("Items in Basket checkout process",basketItems);
   const handlePayment = async () => {
+    if(!studentId){
+      toast.error("Please select the student");
+    }
+    else{
     const payload = {
       studentId,
       tenantId,
@@ -39,7 +44,7 @@ export function Checkout({ subtotal, gst, total, basketItems, studentId, tenantI
         Itemid: i.uid,
         unitPrice: Number(i.price),
         quantity: i.count,
-        gstPercent: 5,
+        GstPercentage: 5,
         gstValue: Number(i.price) * i.count * 0.05,
       })),
     };
@@ -49,10 +54,14 @@ export function Checkout({ subtotal, gst, total, basketItems, studentId, tenantI
         "https://localhost:7202/api/PosTransactionMaster/CreatePostTransaction",
         payload
       );
+      if(res.data==="Inserted"){
+        toast.success("CheckOut Done SuccessFully");
+      }
       console.log("✅ Checkout success:", res.data);
     } catch (err) {
       console.error("❌ Checkout failed:", err);
     }
+  }
   };
 
   return (

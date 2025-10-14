@@ -30,7 +30,8 @@ export function BasketSelector({ onSelectStudent }) {
     setSelectedStudent(student);
     setQuery(student.studentName);
     setShowDropdown(false);
-    onSelectStudent?.(student); // ✅ Notify parent
+    onSelectStudent?.(student); 
+    // console.log("Student Detailsc in basket selector",student);
   };
 
   return (

@@ -26,8 +26,6 @@ export function Basket({ items, onIncrease, onDecrease, onRemove }) {
   );
   const gst = subtotal * 0.05;
   const total = subtotal + gst;
-  console.log("items in basket",items);
-
   return smAndUp ? (
     <DesktopView
       items={items}
@@ -61,7 +59,7 @@ function MobileView({
   gst,
   total,
   selectedStudent,
-  // onSelectStudent,
+  onSelectStudent,
   onIncrease,
   onDecrease,
   onRemove,
@@ -113,7 +111,7 @@ function MobileView({
                   >
                     <XMarkIcon className="size-5" />
                   </Button>
-                  <BasketSelector />
+                  <BasketSelector onSelectStudent={onSelectStudent}  />
                 </div>
                 {/* <BasketActions /> */}
               </div>
@@ -144,7 +142,7 @@ function DesktopView({
   gst,
   total,
   selectedStudent,
-  // onSelectStudent,
+  onSelectStudent,
   onIncrease,
   onDecrease,
   onRemove,
@@ -152,7 +150,7 @@ function DesktopView({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <BasketSelector />
+        <BasketSelector onSelectStudent={onSelectStudent}  />
         <BasketActions />
       </div>
 

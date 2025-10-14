@@ -30,8 +30,10 @@ export function AssignSection({
 
     try {
       const res = await axios.post("https://localhost:7202/api/LibraryTransaction", payload);
-      console.log(res);
+      // console.log(res);
+      if(res.data.data==="assigned"){
       toast.success("✅ Books assigned successfully");
+      }
       onAssignBooks?.(selectedStudent, items); // optional callback to parent
     } catch (error) {
       console.error("❌ Error assigning books", error);
