@@ -52,7 +52,7 @@ export default function InsertWeek() {
     enableSorting: true,
     enableColumnFilters: true,
     enableFullScreen: false,
-    enableRowDense: false,
+    enableRowDense: true,
   });
 
   // Data loader

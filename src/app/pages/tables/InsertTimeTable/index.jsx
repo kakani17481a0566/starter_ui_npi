@@ -58,7 +58,7 @@ export default function InsertTimeTable() {
     enableSorting: true,
     enableColumnFilters: true,
     enableFullScreen: false,
-    enableRowDense: false,
+    enableRowDense: true,
   });
 
   const loadTimeTableData = async () => {

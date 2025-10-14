@@ -43,7 +43,7 @@ export default function AttendanceStatusDisplayTable({ data }) {
     enableSorting: true,
     enableColumnFilters: true,
     enableFullScreen: false,
-    enableRowDense: false,
+    enableRowDense: true,
   });
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);

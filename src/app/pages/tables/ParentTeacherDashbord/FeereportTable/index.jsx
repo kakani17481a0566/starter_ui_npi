@@ -52,7 +52,7 @@ export default function FeereportTable() {
 
   const [tableSettings, setTableSettings] = useState({
     enableFullScreen: false,
-    enableRowDense: false,
+    enableRowDense: true,
   });
 
   // 🔹 Fetch fee report data

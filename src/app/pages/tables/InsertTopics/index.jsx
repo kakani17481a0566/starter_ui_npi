@@ -59,7 +59,7 @@ export default function InsertTopics() {
     enableSorting: true,
     enableColumnFilters: true,
     enableFullScreen: false,
-    enableRowDense: false,
+    enableRowDense: true,
   });
 
   // Data loader

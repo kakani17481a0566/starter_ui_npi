@@ -36,7 +36,7 @@ export default function StudentsTable() {
 
   const [tableSettings, setTableSettings] = useState({
     enableFullScreen: false,
-    enableRowDense: false,
+    enableRowDense: true,
   });
 
   const [globalFilter, setGlobalFilter] = useState("");

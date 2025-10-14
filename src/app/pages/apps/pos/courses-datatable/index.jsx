@@ -70,7 +70,7 @@ export default function CoursesDatatable({ categoryId, onRowClick }) {
   const seedCourses = useMemo(() => [], []);
   const [tableSettings, setTableSettings] = useState({
     enableFullScreen: false,
-    enableRowDense: false,
+    enableRowDense: true,
     enableSorting: true,
     enableColumnFilters: false,
   });

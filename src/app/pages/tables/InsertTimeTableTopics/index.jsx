@@ -50,7 +50,7 @@ export default function InsertTimeTableTopics() {
     enableSorting: true,
     enableColumnFilters: true,
     enableFullScreen: false,
-    enableRowDense: false,
+    enableRowDense: true,
   });
 
   const loadData = useCallback(async () => {

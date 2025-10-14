@@ -47,7 +47,7 @@ export default function InsertTimeTableDetails() {
     enableSorting: true,
     enableColumnFilters: true,
     enableFullScreen: false,
-    enableRowDense: false,
+    enableRowDense: true,
   });
 
   // Load dynamic table headers and data

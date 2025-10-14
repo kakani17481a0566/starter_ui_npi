@@ -46,7 +46,7 @@ export default function InsertWeek() {
     enableSorting: true,
     enableColumnFilters: true,
     enableFullScreen: false,
-    enableRowDense: false,
+    enableRowDense: true,
   });
 
   // Fetch data on mount or reload
