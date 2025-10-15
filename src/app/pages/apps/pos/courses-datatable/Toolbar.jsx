@@ -1,28 +1,32 @@
+// ----------------------------------------------------------------------
 // Import Dependencies
+// ----------------------------------------------------------------------
 import {
   CheckCircleIcon,
-  ChevronUpDownIcon,
   MagnifyingGlassIcon,
-  PrinterIcon,
+  TagIcon,
+  EllipsisHorizontalIcon,
+  CurrencyDollarIcon,
 } from "@heroicons/react/24/outline";
-import { TbCurrencyDollar, TbUpload } from "react-icons/tb";
 import clsx from "clsx";
 import { Menu, MenuButton } from "@headlessui/react";
-import { EllipsisHorizontalIcon } from "@heroicons/react/20/solid";
 import PropTypes from "prop-types";
 
+// ----------------------------------------------------------------------
 // Local Imports
-import { FacedtedFilter } from "components/shared/table/FacedtedFilter"; // ✅ check if typo
+// ----------------------------------------------------------------------
+import { FacedtedFilter } from "components/shared/table/FacedtedFilter";
 import { RangeFilter } from "components/shared/table/RangeFilter";
 import { FilterSelector } from "components/shared/table/FilterSelector";
 import { Button, Input } from "components/ui";
 import { TableConfig } from "./TableConfig";
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
-import { courseStatusOptions, filtersOptions, sizeOptions } from "./data";
+import { filtersOptions } from "./data";
 
 // ----------------------------------------------------------------------
-
-export function Toolbar({ table }) {
+// Toolbar Component
+// ----------------------------------------------------------------------
+export function Toolbar({ table, dropdowns }) {
   const { isXs } = useBreakpointsContext();
   const isFullScreenEnabled = table.getState().tableSettings.enableFullScreen;
 
@@ -32,7 +36,7 @@ export function Toolbar({ table }) {
       <div
         className={clsx(
           "transition-content flex items-center justify-between gap-4",
-          isFullScreenEnabled ? "px-4 sm:px-5" : "px-(--margin-x) pt-4",
+          isFullScreenEnabled ? "px-4 sm:px-5" : "px-4 pt-4"
         )}
       >
         <div className="min-w-0">
@@ -40,47 +44,44 @@ export function Toolbar({ table }) {
             Items
           </h2>
         </div>
-
-        {/* Mobile vs Desktop Menus */}
         {isXs ? <MobileMenu /> : <DesktopMenu />}
       </div>
 
-      {/* Filters */}
+      {/* Filters & Search */}
       {isXs ? (
         <>
+          {/* 🔍 Search & Table Config (mobile) */}
           <div
             className={clsx(
               "flex gap-2 pt-4 [&_.input-root]:flex-1",
-              isFullScreenEnabled ? "px-4 sm:px-5" : "px-(--margin-x)",
+              isFullScreenEnabled ? "px-4 sm:px-5" : "px-4"
             )}
           >
             <SearchInput table={table} />
             <TableConfig table={table} />
           </div>
+
+          {/* 🔽 Filters (mobile scrollable row) */}
           <div
             className={clsx(
-              "hide-scrollbar flex shrink-0 gap-2 overflow-x-auto pb-1 pt-4",
-              isFullScreenEnabled ? "px-4 sm:px-5" : "px-(--margin-x)",
+              "hide-scrollbar flex shrink-0 gap-2 overflow-x-auto pb-2 pt-4",
+              isFullScreenEnabled ? "px-4 sm:px-5" : "px-4"
             )}
           >
-            <Filters table={table} />
+            <Filters table={table} dropdowns={dropdowns} />
           </div>
         </>
       ) : (
+        /* 💻 Desktop layout */
         <div
           className={clsx(
-            "custom-scrollbar transition-content flex justify-between gap-4 overflow-x-auto pb-1 pt-4",
-            isFullScreenEnabled ? "px-4 sm:px-5" : "px-(--margin-x)",
+            "custom-scrollbar transition-content flex justify-between gap-4 overflow-x-auto pb-2 pt-4",
+            isFullScreenEnabled ? "px-4 sm:px-5" : "px-4"
           )}
-          style={{
-            "--margin-scroll": isFullScreenEnabled
-              ? "1.25rem"
-              : "var(--margin-x)",
-          }}
         >
-          <div className="flex shrink-0 gap-2">
+          <div className="flex shrink-0 gap-2 items-center">
             <SearchInput table={table} />
-            <Filters table={table} />
+            <Filters table={table} dropdowns={dropdowns} />
           </div>
           <TableConfig table={table} />
         </div>
@@ -91,16 +92,16 @@ export function Toolbar({ table }) {
 
 // ----------------------------------------------------------------------
 // Search Input
-
+// ----------------------------------------------------------------------
 function SearchInput({ table }) {
   return (
     <Input
-      value={table.getState().globalFilter}
+      value={table.getState().globalFilter ?? ""}
       onChange={(e) => table.setGlobalFilter(e.target.value)}
       prefix={<MagnifyingGlassIcon className="size-4" />}
-      placeholder="Search Course, Category..."
+      placeholder="Search Item, Category..."
       classNames={{
-        root: "shrink-0",
+        root: "flex-1 min-w-[160px]",
         input: "h-8 text-xs ring-primary-500/50 focus:ring-3",
       }}
     />
@@ -108,81 +109,73 @@ function SearchInput({ table }) {
 }
 
 // ----------------------------------------------------------------------
-// Filters — synced with data.js
-
-function Filters({ table }) {
+// Filters (Dynamic from dropdowns)
+// ----------------------------------------------------------------------
+function Filters({ table, dropdowns }) {
   const isFiltered = table.getState().columnFilters.length > 0;
-  const toolbarFilters = table.getState().toolbarFilters;
+  const toolbarFilters = table.getState().toolbarFilters || [];
+
+  const selectOptionsMap = {
+    status: dropdowns?.statusOptions ?? [],
+    size: dropdowns?.sizeOptions ?? [],
+    category: dropdowns?.categoryOptions ?? [],
+  };
+
+  const iconMap = {
+    status: CheckCircleIcon,
+    size: undefined,
+    category: TagIcon,
+  };
 
   return (
     <>
-      {/* Status filter */}
-      {toolbarFilters.includes("status") && table.getColumn("status") && (
-        <div style={{ order: toolbarFilters.indexOf("status") + 1 }}>
-          <FacedtedFilter
-            options={courseStatusOptions}
-            column={table.getColumn("status")}
-            title="Status"
-            Icon={CheckCircleIcon}
-          />
-        </div>
-      )}
+      {toolbarFilters.map((colId, i) => {
+        const column = table.getColumn(colId);
+        if (!column) return null;
 
-      {/* Size filter */}
-      {toolbarFilters.includes("size") && table.getColumn("size") && (
-        <div style={{ order: toolbarFilters.indexOf("size") + 1 }}>
-          <FacedtedFilter
-            options={sizeOptions}
-            column={table.getColumn("size")}
-            title="Size"
-          />
-        </div>
-      )}
+        const filterType = column.columnDef.filter;
 
-      {/* Lesson count filter */}
-      {toolbarFilters.includes("lesson_count") &&
-        table.getColumn("lesson_count") && (
-          <div style={{ order: toolbarFilters.indexOf("lesson_count") + 1 }}>
-            <RangeFilter
-              column={table.getColumn("lesson_count")}
-              title="Lesson Count"
-              buttonText={({ min, max }) => (
-                <>
-                  {min && <>From {min} lessons</>}
-                  {min && max && " - "}
-                  {max && <>To {max} lessons</>}
-                </>
-              )}
-            />
-          </div>
-        )}
+        switch (filterType) {
+          case "searchableSelect":
+            return (
+              <div key={colId} style={{ order: i + 1 }}>
+                <FacedtedFilter
+                  options={selectOptionsMap[colId] || []}
+                  column={column}
+                  title={column.columnDef.label}
+                  Icon={iconMap[colId]}
+                />
+              </div>
+            );
 
-      {/* Price filter */}
-      {toolbarFilters.includes("price") && table.getColumn("price") && (
-        <div style={{ order: toolbarFilters.indexOf("price") + 1 }}>
-          <RangeFilter
-            column={table.getColumn("price")}
-            title="Price"
-            buttonText={({ min, max }) => (
-              <>
-                {min && <>From ${min}</>}
-                {min && max && " - "}
-                {max && <>To ${max}</>}
-              </>
-            )}
-            Icon={TbCurrencyDollar}
-            MinPrefixIcon={TbCurrencyDollar}
-            MaxPrefixIcon={TbCurrencyDollar}
-          />
-        </div>
-      )}
+          case "numberRange":
+            return (
+              <div key={colId} style={{ order: i + 1 }}>
+                <RangeFilter
+                  column={column}
+                  title={column.columnDef.label}
+                  Icon={colId === "price" ? CurrencyDollarIcon : undefined}
+                  MinPrefixIcon={
+                    colId === "price" ? CurrencyDollarIcon : undefined
+                  }
+                  MaxPrefixIcon={
+                    colId === "price" ? CurrencyDollarIcon : undefined
+                  }
+                />
+              </div>
+            );
 
-      {/* Filter selector */}
+          default:
+            return null;
+        }
+      })}
+
+      {/* Filter Selector */}
       <div style={{ order: toolbarFilters.length + 1 }}>
         <FilterSelector options={filtersOptions} table={table} />
       </div>
 
-      {/* Reset filters */}
+      {/* Reset Filters */}
       {isFiltered && (
         <Button
           onClick={() => table.resetColumnFilters()}
@@ -197,8 +190,8 @@ function Filters({ table }) {
 }
 
 // ----------------------------------------------------------------------
-// Menus (mobile & desktop)
-
+// Mobile & Desktop Menus
+// ----------------------------------------------------------------------
 function MobileMenu() {
   return (
     <Menu as="div" className="relative inline-block text-left">
@@ -209,45 +202,27 @@ function MobileMenu() {
       >
         <EllipsisHorizontalIcon className="size-4.5" />
       </MenuButton>
-      {/* Add <MenuItems> here later if needed */}
     </Menu>
   );
 }
 
 function DesktopMenu() {
-  return (
-    <div className="flex gap-2">
-      <Button variant="outlined" className="h-8 gap-2 rounded-md px-3 text-xs">
-        <PrinterIcon className="size-4" />
-        <span>Print</span>
-      </Button>
-      <Menu as="div" className="relative inline-block text-left">
-        <MenuButton
-          as={Button}
-          variant="outlined"
-          className="h-8 gap-2 rounded-md px-3 text-xs"
-        >
-          <TbUpload className="size-4" />
-          <span>Export</span>
-          <ChevronUpDownIcon className="size-4" />
-        </MenuButton>
-        {/* Add <MenuItems> here later if needed */}
-      </Menu>
-    </div>
-  );
+  return <div className="flex gap-2" />;
 }
 
 // ----------------------------------------------------------------------
 // PropTypes
-
+// ----------------------------------------------------------------------
 Toolbar.propTypes = {
-  table: PropTypes.object,
+  table: PropTypes.object.isRequired,
+  dropdowns: PropTypes.object,
 };
 
 SearchInput.propTypes = {
-  table: PropTypes.object,
+  table: PropTypes.object.isRequired,
 };
 
 Filters.propTypes = {
-  table: PropTypes.object,
+  table: PropTypes.object.isRequired,
+  dropdowns: PropTypes.object,
 };

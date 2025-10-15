@@ -1,7 +1,7 @@
+// src/app/pages/apps/pos/Items.jsx
 import { PlusIcon, MinusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Button } from "components/ui";
 
-// ✅ INR formatter
 const formatINR = (val) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -16,7 +16,6 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
 
   return (
     <div className="flex flex-col space-y-6">
-      {/* Items Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse border border-gray-200 dark:border-dark-500 text-sm">
           <thead className="bg-gray-100 dark:bg-dark-600">
@@ -37,10 +36,10 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
 
               return (
                 <tr
-                  key={item.uid}
+                  key={item.id} // ✅ use id, not uid
                   className="hover:bg-gray-50 dark:hover:bg-dark-700"
                 >
-                  {/* Image + Name */}
+                  {/* Name + Image */}
                   <td className="border px-3 py-2">
                     <div className="flex items-center gap-3">
                       <img
@@ -61,22 +60,21 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
                     </div>
                   </td>
 
-                  {/* Quantity controls */}
+                  {/* Quantity Controls */}
                   <td className="border px-3 py-2 text-center">
                     <div className="flex items-center justify-center gap-2">
                       <Button
                         isIcon
                         size="sm"
                         variant="outline"
-                        aria-label="Decrease quantity"
                         onClick={() => {
                           if (item.count > 1) {
-                            onDecrease(item.uid);
+                            onDecrease(item.id); // ✅ use id
                           } else {
                             if (
-                              window.confirm(`Remove ${item.name} from cart?`)
+                              window.confirm(`Remove ${item.name} from basket?`)
                             ) {
-                              onRemove(item.uid);
+                              onRemove(item.id); // ✅ use id
                             }
                           }
                         }}
@@ -90,15 +88,14 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
                         isIcon
                         size="sm"
                         variant="outline"
-                        aria-label="Increase quantity"
-                        onClick={() => onIncrease(item.uid)}
+                        onClick={() => onIncrease(item.id)} // ✅ use id
                       >
                         <PlusIcon className="size-4" />
                       </Button>
                     </div>
                   </td>
 
-                  {/* Prices */}
+                  {/* Price Columns */}
                   <td className="border px-3 py-2 text-right">
                     {formatINR(item.price)}
                   </td>
@@ -109,17 +106,15 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
                     {formatINR(itemTotal)}
                   </td>
 
-                  {/* Remove button */}
+                  {/* Remove Button */}
                   <td className="border px-3 py-2 text-center">
                     <Button
                       isIcon
                       size="sm"
                       variant="danger"
-                      aria-label={`Remove ${item.name}`}
                       onClick={() => {
-                        if (window.confirm(`Remove ${item.name} from cart?`)) {
-                          onRemove(item.uid);
-                        }
+                        if (window.confirm(`Remove ${item.name} from basket?`))
+                          onRemove(item.id); // ✅ use id
                       }}
                     >
                       <TrashIcon className="size-4" />
