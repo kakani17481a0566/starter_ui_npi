@@ -1,75 +1,96 @@
+// ----------------------------------------------------------------------
 // Import Dependencies
+// ----------------------------------------------------------------------
 import PropTypes from "prop-types";
-
-// Local Imports
 import { Badge } from "components/ui";
-import { courseStatusOptions } from "./data";
 
 // ----------------------------------------------------------------------
-
-export function CourseNameCell({ row, getValue }) {
-  const name = getValue?.() ?? "Unnamed Course";
+// 🧾 Item Name Cell
+// ----------------------------------------------------------------------
+export function ItemNameCell({ row, getValue }) {
+  const name = getValue?.() ?? "Unnamed Item";
+  const image = row.original.image || "/images/placeholder.png";
+  const category = row.original.categoryName || "Uncategorized";
 
   return (
-    <div className="flex max-w-xs items-center space-x-4 2xl:max-w-sm">
+    <div className="flex max-w-xs items-center gap-3 2xl:max-w-sm">
+      {/* Thumbnail */}
       <div className="size-12 shrink-0">
         <img
-          className="h-full w-full rounded-lg object-cover object-center"
-          src={row.original.image}
+          className="h-full w-full rounded-lg object-cover border border-gray-200 dark:border-dark-600"
+          src={image}
           alt={name}
+          onError={(e) => (e.target.src = "/images/placeholder.png")}
           loading="lazy"
         />
       </div>
+
+      {/* Text Info */}
       <div className="min-w-0">
-        <p className="truncate">
-          <a
-            href="javascript:void(0)"
-            className="font-medium text-gray-700 transition-colors hover:text-primary-600 dark:text-dark-100 dark:hover:text-primary-400"
-          >
-            {name}
-          </a>
+        <p className="truncate text-sm font-medium text-gray-800 dark:text-dark-100">
+          {name}
+        </p>
+        <p className="truncate text-xs text-gray-500 dark:text-dark-400">
+          {category}
         </p>
       </div>
     </div>
   );
 }
 
+// ----------------------------------------------------------------------
+// ✅ Status Cell (dynamic colors from backend)
+// ----------------------------------------------------------------------
+const STATUS_COLOR_MAP = {
+  available: "success",
+  "not available": "error",
+};
+
 export function StatusCell({ getValue }) {
-  const val = getValue?.();
-  const option = courseStatusOptions.find((item) => item.value === val);
+  const val = getValue?.() ?? "Unknown";
+  const normalized = val.toLowerCase();
+
+  const color =
+    STATUS_COLOR_MAP[normalized] ??
+    (normalized.includes("available") && !normalized.includes("not")
+      ? "success"
+      : normalized.includes("not")
+      ? "error"
+      : "gray");
 
   return (
     <Badge
-      color={option?.color ?? "gray"}
-      className="rounded-full"
+      color={color}
       variant="outlined"
+      className="rounded-full text-xs capitalize"
     >
-      {option?.label ?? val ?? "Unknown"}
+      {val}
     </Badge>
   );
 }
 
+// ----------------------------------------------------------------------
+// 💰 Price Cell
+// ----------------------------------------------------------------------
 export function PriceCell({ getValue }) {
   const value = getValue?.();
+  if (value == null) return <span>—</span>;
 
-  // ✅ Format in INR
-  const formatINR = (val) =>
-    new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      minimumFractionDigits: 2,
-    }).format(Number(val || 0));
-
-  return <>{value != null ? formatINR(value) : "—"}</>;
+  return (
+    <span className="font-medium text-primary-700 dark:text-primary-400">
+      ₹{Number(value).toLocaleString("en-IN")}
+    </span>
+  );
 }
 
 // ----------------------------------------------------------------------
 // ✅ PropTypes
-
-CourseNameCell.propTypes = {
+// ----------------------------------------------------------------------
+ItemNameCell.propTypes = {
   row: PropTypes.shape({
     original: PropTypes.shape({
       image: PropTypes.string,
+      categoryName: PropTypes.string,
     }),
   }),
   getValue: PropTypes.func,

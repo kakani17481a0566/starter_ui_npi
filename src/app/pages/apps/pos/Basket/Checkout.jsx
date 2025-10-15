@@ -41,7 +41,7 @@ export function Checkout({ subtotal, gst, total, basketItems, studentId, tenantI
       date: new Date().toISOString(),
       // paymentMethod: method,
       items: basketItems.map((i) => ({
-        Itemid: i.uid,
+        Itemid: i.id,
         unitPrice: Number(i.price),
         quantity: i.count,
         GstPercentage: 5,

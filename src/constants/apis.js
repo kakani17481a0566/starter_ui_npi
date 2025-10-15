@@ -64,6 +64,8 @@ export const GENDER_OPTIONS=`https://neuropi-fhafe3gchabde0gb.canadacentral-01.a
 export const BRANCH_OPTIONS=`${BASE_URL}/Branch/dropdown-options/${tenantId}`;
 export const POS_CATEGORIES=`${BASE_URL}/ItemCategory/GetByTenant/${tenantId}`;
 export const POS_ITEMS=`${BASE_URL}/Items/GetByTenant/${tenantId}`;
+// export const POS_ITEMS=`https://localhost:7202/api/Items/GetByTenant/1`;
+
 export const LIBRARY_CATEGORIES=`${BASE_URL}/Genres/${tenantId}`;
 export const LIBRARY_BOOKS=`${BASE_URL}/ItemHeader/${tenantId}`;
 
@@ -72,4 +74,3 @@ export const LIBRARY_BOOKS=`${BASE_URL}/ItemHeader/${tenantId}`;
 
 // folder  path : src\app\pages\forms
     // file path : src\app\pages\forms\InsertPeriodsForm
-    
