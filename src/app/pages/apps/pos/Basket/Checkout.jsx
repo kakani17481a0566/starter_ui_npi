@@ -1,3 +1,4 @@
+// src/app/pages/apps/pos/Checkout.jsx
 import { useState } from "react";
 import {
   CreditCardIcon,
@@ -16,7 +17,15 @@ const formatINR = (val) =>
     minimumFractionDigits: 2,
   }).format(Number(val || 0));
 
-export function Checkout({ subtotal, gst, total, basketItems, studentId, tenantId=1 }) {
+export function Checkout({
+  subtotal,
+  gst,
+  total,
+  basketItems,
+  studentId,
+  tenantId = 1,
+  onInvoiceReady,
+}) {
   const [method, setMethod] = useState(null);
   const [cashPaid, setCashPaid] = useState("");
   const [cardNumber, setCardNumber] = useState("");
@@ -24,27 +33,22 @@ export function Checkout({ subtotal, gst, total, basketItems, studentId, tenantI
   const [cardCvv, setCardCvv] = useState("");
 
   const remaining = cashPaid ? Number(cashPaid) - total : null;
-  // const handlePayment = () => {
-  //   // handle checkout logic
-  //   console.log("Payment method:", method);
 
-  // };
-  console.log("Items in Basket checkout process",basketItems);
   const handlePayment = async () => {
-    if(!studentId){
-      toast.error("Please select the student");
-    }
-    else{
+    if (!studentId) return toast.error("Please select the student");
+    if (!method) return toast.error("Select a payment method");
+
     const payload = {
       studentId,
       tenantId,
       date: new Date().toISOString(),
-      // paymentMethod: method,
+      paymentMethod: method,
       items: basketItems.map((i) => ({
-        Itemid: i.id,
+        itemId: i.id,
+        itemName: i.name,
         unitPrice: Number(i.price),
         quantity: i.count,
-        GstPercentage: 5,
+        gstPercentage: 5,
         gstValue: Number(i.price) * i.count * 0.05,
       })),
     };
@@ -54,14 +58,42 @@ export function Checkout({ subtotal, gst, total, basketItems, studentId, tenantI
         "https://localhost:7202/api/PosTransactionMaster/CreatePostTransaction",
         payload
       );
-      if(res.data==="Inserted"){
-        toast.success("CheckOut Done SuccessFully");
+
+      if (res.data === "Inserted") {
+        toast.success("✅ Checkout completed successfully!");
+        const invoiceData = {
+          tenantId,
+          invoiceNumber: "INV-" + new Date().getTime(),
+          date: new Date().toISOString(),
+          status: "Paid",
+          subtotal,
+          gst,
+          total,
+          student: {
+            studentId,
+            studentName: basketItems[0]?.studentName || "N/A",
+          },
+          payment: {
+            method,
+            transactionId: "TXN" + Math.floor(Math.random() * 10000000),
+            remarks: "Paid successfully at POS",
+          },
+          items: payload.items,
+          footer: {
+            thankYouNote:
+              "Thank you for shopping with NeuroPi International School!",
+            supportEmail: "support@neuropi.edu.in",
+            supportPhone: "+91-9876543210",
+          },
+        };
+        onInvoiceReady?.(invoiceData);
+      } else {
+        toast.error("Unexpected response from server");
       }
-      console.log("✅ Checkout success:", res.data);
     } catch (err) {
       console.error("❌ Checkout failed:", err);
+      toast.error("Failed to complete checkout");
     }
-  }
   };
 
   return (

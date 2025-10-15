@@ -196,6 +196,7 @@ const protectedRoutes = {
                   .default,
               }),
             },
+
           ],
         },
 
@@ -245,6 +246,13 @@ const protectedRoutes = {
               path: "pos",
               lazy: async () => ({
                 Component: (await import("app/pages/apps/pos")).default,
+              }),
+            },
+            {
+              path: "invoice",
+              lazy: async () => ({
+                Component: (await import("app/pages/apps/pos/invoice-1"))
+                  .default,
               }),
             },
             {
