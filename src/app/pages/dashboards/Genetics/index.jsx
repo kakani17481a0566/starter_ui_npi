@@ -1,15 +1,14 @@
 import { Page } from "components/shared/Page";
+import NewPostFrom  from "../../forms/Genetics/new-post-form"
 
 export default function Genetics() {
   return (
     <Page title="Example">
-      <div className="transition-content w-full px-(--margin-x) pt-5 lg:pt-6">
+      <div className="transition-content w-full  pt-5 lg:pt-6">
         <div className="min-w-0">
-          <h2 className="truncate text-xl font-medium tracking-wide text-gray-800 dark:text-dark-50">
-            Example Page
-            Hello Mohith
-          </h2>
+
         </div>
+        <NewPostFrom />
       </div>
     </Page>
   );
