@@ -12,7 +12,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { toast } from "sonner";
 import axios from "axios";
-import { schema } from "app/pages/forms/Genetics/new-post-form/schema"; // ✅ external schema
+import { schema } from "app/pages/forms/Genetics/GeneticRegitrationForm/schema"; // ✅ external schema
 
 // Local Imports
 import { Page } from "components/shared/Page";

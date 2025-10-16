@@ -1,5 +1,5 @@
 import { Page } from "components/shared/Page";
-import NewPostFrom  from "../../forms/Genetics/new-post-form"
+import NewPostFrom  from "../../forms/Genetics/GeneticRegitrationForm"
 
 export default function Genetics() {
   return (
