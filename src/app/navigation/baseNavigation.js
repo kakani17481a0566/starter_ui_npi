@@ -6,6 +6,7 @@ import {
 } from "@heroicons/react/24/outline";
 import DashboardsIcon from "assets/dualicons/dashboards.svg?react";
 import AppsIcon from 'assets/dualicons/applications.svg?react'
+import { GenIcon } from "react-icons";
 
 export const baseNavigation = [
   {
@@ -50,6 +51,14 @@ export const baseNavigation = [
         transKey: 'nav.apps.apps',
         Icon: AppsIcon,
     },
+     {
+    id: "Genetics",
+    type: NAV_TYPE_ITEM,
+    path: "/genetics",
+    title: "Genetics",
+    transKey: "nav.genetics.genetics",
+    Icon: GenIcon,
+  },
 
 
 ];

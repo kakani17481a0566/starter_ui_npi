@@ -232,6 +232,22 @@ const protectedRoutes = {
             },
           ],
         },
+         {
+          path: "genetics",
+          children: [
+            {
+              index: true,
+              element: <Navigate to="/genetics" />,
+            },
+            {
+              path: "genetics",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/Genetics"))
+                  .default,
+              }),
+            },
+          ]
+          }
       ],
     },
     // The app layout supports only the main layout. Avoid using it for other layouts.
