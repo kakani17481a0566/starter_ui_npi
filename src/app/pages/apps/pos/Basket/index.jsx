@@ -1,4 +1,3 @@
-// src/app/pages/apps/pos/Basket.jsx
 import { Fragment, useState } from "react";
 import {
   Dialog,
@@ -16,15 +15,12 @@ import { Checkout } from "./Checkout";
 import { useDisclosure } from "hooks";
 import { Button, Card } from "components/ui";
 
-export function Basket({ items, onIncrease, onDecrease, onRemove }) {
+export function Basket({ items, onIncrease, onDecrease, onRemove, onInvoiceReady }) {
   const { smAndUp } = useBreakpointsContext();
   const [selectedStudent, setSelectedStudent] = useState(null);
-  console.log("items :", items);
+
   // ✅ Totals
-  const subtotal = items.reduce(
-    (s, i) => s + i.count * Number(i.price || 0),
-    0
-  );
+  const subtotal = items.reduce((s, i) => s + i.count * Number(i.price || 0), 0);
   const gst = subtotal * 0.05;
   const total = subtotal + gst;
 
@@ -39,6 +35,7 @@ export function Basket({ items, onIncrease, onDecrease, onRemove }) {
       onIncrease={onIncrease}
       onDecrease={onDecrease}
       onRemove={onRemove}
+      onInvoiceReady={onInvoiceReady} // ✅ forward to desktop
     />
   ) : (
     <MobileView
@@ -51,12 +48,13 @@ export function Basket({ items, onIncrease, onDecrease, onRemove }) {
       onIncrease={onIncrease}
       onDecrease={onDecrease}
       onRemove={onRemove}
+      onInvoiceReady={onInvoiceReady} // ✅ forward to mobile
     />
   );
 }
 
 // ----------------------------------------------------------------------
-// 📱 Mobile View (Bottom Sheet)
+// 📱 Mobile View
 // ----------------------------------------------------------------------
 function MobileView({
   items,
@@ -68,6 +66,7 @@ function MobileView({
   onIncrease,
   onDecrease,
   onRemove,
+  onInvoiceReady, // ✅ added here
 }) {
   const [isBasketOpen, { close, open }] = useDisclosure(false);
 
@@ -85,7 +84,7 @@ function MobileView({
         </Button>
       </div>
 
-      {/* Bottom Sheet Drawer */}
+      {/* Drawer */}
       <Transition appear show={isBasketOpen} as={Fragment}>
         <Dialog as="div" className="relative z-[100]" onClose={close}>
           {/* Overlay */}
@@ -101,7 +100,7 @@ function MobileView({
             <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm dark:bg-black/50" />
           </TransitionChild>
 
-          {/* Bottom Panel */}
+          {/* Bottom Drawer */}
           <TransitionChild
             as={Fragment}
             enter="ease-out duration-300 transform-gpu"
@@ -141,13 +140,14 @@ function MobileView({
                 />
               </div>
 
-              {/* Checkout Summary */}
+              {/* Checkout Section */}
               <Checkout
                 subtotal={subtotal}
                 gst={gst}
                 total={total}
                 basketItems={items}
                 studentId={selectedStudent?.studentId}
+                onInvoiceReady={onInvoiceReady} // ✅ forward to parent
               />
             </DialogPanel>
           </TransitionChild>
@@ -158,7 +158,7 @@ function MobileView({
 }
 
 // ----------------------------------------------------------------------
-// 💻 Desktop View (Sidebar Card)
+// 💻 Desktop View
 // ----------------------------------------------------------------------
 function DesktopView({
   items,
@@ -170,6 +170,7 @@ function DesktopView({
   onIncrease,
   onDecrease,
   onRemove,
+  onInvoiceReady, // ✅ added here
 }) {
   return (
     <div>
@@ -191,6 +192,7 @@ function DesktopView({
           total={total}
           basketItems={items}
           studentId={selectedStudent?.studentId}
+          onInvoiceReady={onInvoiceReady} // ✅ forward to parent
         />
       </Card>
     </div>

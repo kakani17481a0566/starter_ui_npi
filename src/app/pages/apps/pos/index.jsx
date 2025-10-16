@@ -1,29 +1,42 @@
 // src/app/pages/apps/pos/index.jsx
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import { Page } from "components/shared/Page";
 import { Header } from "app/layouts/MainLayout/Header";
 import { Sidebar } from "./Sidebar";
 import { Categories } from "./Categories";
 import { Basket } from "./Basket";
 import CoursesDatatable from "./courses-datatable";
+import Invoice1 from "./invoice-1";
+import {
+  Dialog,
+  DialogPanel,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/solid";
+// import { Button } from "components/ui";
 
 export default function Pos() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [basketItems, setBasketItems] = useState([]);
+  const [invoiceData, setInvoiceData] = useState(null); // ✅ store invoice data
+  const [showInvoice, setShowInvoice] = useState(false); // ✅ toggle modal
+
+  // 🧾 Called when checkout success
+  const handleInvoiceReady = (data) => {
+    setInvoiceData(data);
+    setShowInvoice(true);
+  };
 
   // 🛒 Add to Basket
   const addToBasket = (item) => {
     setBasketItems((prev) => {
       const existing = prev.find((i) => i.id === item.id);
-
       if (existing) {
-        // already in basket → increase quantity
         return prev.map((i) =>
           i.id === item.id ? { ...i, count: i.count + 1 } : i
         );
       }
-
-      // new item → add to basket
       return [
         ...prev,
         {
@@ -83,12 +96,57 @@ export default function Pos() {
               onIncrease={handleIncrease}
               onDecrease={handleDecrease}
               onRemove={handleRemove}
+              onInvoiceReady={handleInvoiceReady} // ✅ pass callback
             />
           </div>
         </div>
       </main>
 
       <Sidebar />
+
+      {/* ✅ INVOICE POPUP */}
+      <Transition appear show={showInvoice} as={Fragment}>
+        <Dialog as="div" className="relative z-[200]" onClose={() => setShowInvoice(false)}>
+          {/* Overlay */}
+          <TransitionChild
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+          </TransitionChild>
+
+          {/* Panel */}
+          <TransitionChild
+            as={Fragment}
+            enter="ease-out duration-300 transform-gpu"
+            enterFrom="scale-90 opacity-0"
+            enterTo="scale-100 opacity-100"
+            leave="ease-in duration-200 transform-gpu"
+            leaveFrom="scale-100 opacity-100"
+            leaveTo="scale-90 opacity-0"
+          >
+            <DialogPanel className="fixed inset-0 flex items-center justify-center p-4">
+              <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl bg-white dark:bg-dark-800 shadow-2xl p-6">
+                {/* Close Button */}
+                <button
+                  onClick={() => setShowInvoice(false)}
+                  className="absolute top-4 right-4 rounded-full bg-gray-200 hover:bg-gray-300 p-2 dark:bg-dark-600 dark:hover:bg-dark-500"
+                >
+                  <XMarkIcon className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                </button>
+
+                {/* Invoice Content */}
+                <Invoice1 data={invoiceData} />
+              </div>
+            </DialogPanel>
+          </TransitionChild>
+        </Dialog>
+      </Transition>
     </Page>
   );
 }
