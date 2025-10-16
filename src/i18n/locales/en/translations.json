@@ -30,6 +30,10 @@
     "frontdeskmain":"Front Desk Main"
 
   },
+  "genetics":{
+    "genetics":"Neuro Pi"
+
+  },
    "apps": {
       "apps": "Apps",
       "chat": "Chat",
