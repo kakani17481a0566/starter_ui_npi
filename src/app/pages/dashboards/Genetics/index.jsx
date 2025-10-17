@@ -1,11 +1,11 @@
 import { Page } from "components/shared/Page";
-import NewPostFrom  from "../../forms/Genetics/GeneticRegitrationForm"
+import HealthForm  from "../../forms/Genetics/GeneticRegitrationForm"
 
 export default function Genetics() {
   return (
     <Page title="Example">
       <div className="transition-content w-full  pt-5 lg:pt-6">
-        <NewPostFrom />
+        <HealthForm />
       </div>
     </Page>
   );
