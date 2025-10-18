@@ -52,6 +52,10 @@ export const schema = yup.object({
   sleepDuration: yup.string().required("Sleep duration is required"),
   sleepQuality: yup.string().required("Sleep quality is required"),
   screenTime: yup.string().required("Screen time is required"),
+  country: yup.string().required("Country is required"),
+state: yup.string().required("State is required"),
+city: yup.string().required("District is required"),
+
 
   // ✅ Family & Health
   familyType: yup.string().required("Family type is required"),

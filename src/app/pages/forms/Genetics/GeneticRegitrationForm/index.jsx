@@ -10,6 +10,10 @@ import {
   UsersIcon,
   GlobeAltIcon,
 } from "@heroicons/react/24/outline";
+import { CountrySelect, StateSelect, CitySelect } from "react-country-state-city";
+import { useState } from 'react';
+
+import "react-country-state-city/dist/react-country-state-city.css";
 import { toast } from "sonner";
 import axios from "axios";
 import { schema } from "app/pages/forms/Genetics/GeneticRegitrationForm/schema"; // ✅ external schema
@@ -17,13 +21,12 @@ import { schema } from "app/pages/forms/Genetics/GeneticRegitrationForm/schema";
 // Local Imports
 import { Page } from "components/shared/Page";
 import { Button, Card, Input, Textarea } from "components/ui";
-import {HEALTH_REGISTRATION} from "constants/apis";
+import { HEALTH_REGISTRATION } from "constants/apis";
 
 // ----------------------------------------------------------------------
 // Initial Values
 // ----------------------------------------------------------------------
 const initialState = {
-  // ✅ Personal Information
   studentName: "",
   studentId: "",
   className: "",
@@ -34,8 +37,9 @@ const initialState = {
   motherOccupation: "",
   countryCode: "+91",
   contactNumber: "",
-
-  // ✅ Health + Lifestyle
+  country: "",
+  state: "",
+  city: "",
   age: "",
   gender: "",
   height: "",
@@ -70,15 +74,21 @@ const HealthForm = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: initialState,
   });
+  const [selectedCountryId, setSelectedCountryId] = useState(null);
+  const [selectedStateId, setSelectedStateId] = useState(null);
+  const [selectedCityId, setSelectedCityId] = useState(null);
+  // const HEALTH_REGISTRATION="https://localhost:7202/api/Genetic";
+  
 
   const onSubmit = async (data) => {
     console.log(data);
     try {
-      await axios.post(HEALTH_REGISTRATION, data);
+      await axios.post( HEALTH_REGISTRATION, data);
       toast.success("Health form submitted successfully!");
       reset();
     } catch (error) {
@@ -115,7 +125,7 @@ const HealthForm = () => {
               type="submit"
               form="health-form"
             >
-              Save
+              Save&Clear
             </Button>
           </div>
         </div>
@@ -130,6 +140,60 @@ const HealthForm = () => {
                 Personal Information
               </h3>
               <div className="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Country
+                  </label>
+                  <CountrySelect
+                    onChange={(val) => {
+                      setSelectedCountryId(val.id);
+                      setSelectedStateId(null);
+                      setSelectedCityId(null);
+                      setValue("country", val.name);
+                    }}
+                    value={selectedCountryId}
+                    className="w-full border border-gray-300 rounded-md shadow-sm focus:ring-primary-600 focus:border-primary-600"
+                  />
+                  {errors?.country && (
+                    <p className="text-red-500 text-sm mt-1">{errors.country.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    State
+                  </label>
+                  <StateSelect
+                    countryid={selectedCountryId}
+                    onChange={(val) => {
+                      setSelectedStateId(val.id);
+                      setSelectedCityId(null);
+                      setValue("state", val.name);
+                    }}
+                    value={selectedStateId}
+                    className="w-full border border-gray-300 rounded-md shadow-sm focus:ring-primary-600 focus:border-primary-600"
+                  />
+                  {errors?.state && (
+                    <p className="text-red-500 text-sm mt-1">{errors.state.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    District / City
+                  </label>
+                  <CitySelect
+                    countryid={selectedCountryId}
+                    stateid={selectedStateId}
+                    onChange={(val) => {
+                      setSelectedCityId(val.id);
+                      setValue("city", val.name);
+                    }}
+                    value={selectedCityId}
+                    className="w-full border border-gray-300 rounded-md shadow-sm focus:ring-primary-600 focus:border-primary-600"
+                  />
+                  {errors?.district && (
+                    <p className="text-red-500 text-sm mt-1">{errors.district.message}</p>
+                  )}
+                </div>
                 <Input
                   label="Student Name"
                   {...register("studentName")}

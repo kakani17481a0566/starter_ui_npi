@@ -5170,6 +5170,11 @@ react-confetti@^6.4.0:
   dependencies:
     tween-functions "^1.2.0"
 
+react-country-state-city@^1.1.12:
+  version "1.1.12"
+  resolved "https://registry.yarnpkg.com/react-country-state-city/-/react-country-state-city-1.1.12.tgz#da4486005538a5f5c5e629a77463b379a6986c5e"
+  integrity sha512-9xOfUvm5uw5zZEjjNT3eooWvrJB08Hv1MITPYfgeQUttCHEpxbD/iqMzXNBF2g3Owc9MEnhrKCSpKn5DpTDHqg==
+
 react-dom@^19.0.0:
   version "19.1.1"
   resolved "https://registry.npmjs.org/react-dom/-/react-dom-19.1.1.tgz"
