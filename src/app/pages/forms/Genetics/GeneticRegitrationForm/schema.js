@@ -9,7 +9,7 @@ import * as yup from "yup";
 export const schema = yup.object({
   // ✅ Personal Information
   studentName: yup.string().required("Student name is required"),
-  studentId: yup.string().required("Student ID / Roll No is required"),
+  studentId: yup.string().notRequired(),
   className: yup.string().required("Class / Grade is required"),
   branch: yup.string().required("Branch / Campus is required"),
   fatherName: yup.string().required("Father’s name is required"),
@@ -52,6 +52,10 @@ export const schema = yup.object({
   sleepDuration: yup.string().required("Sleep duration is required"),
   sleepQuality: yup.string().required("Sleep quality is required"),
   screenTime: yup.string().required("Screen time is required"),
+  country: yup.string().required("Country is required"),
+state: yup.string().required("State is required"),
+city: yup.string().required("District is required"),
+
 
   // ✅ Family & Health
   familyType: yup.string().required("Family type is required"),

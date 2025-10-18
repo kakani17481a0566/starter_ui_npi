@@ -10,11 +10,10 @@ import { ItemsTable } from "./ItemsTable";
 
 // ----------------------------------------------------------------------
 
-export default function Invoice1() {
+export default function Invoice1(data) {
   const invoiceRef = useRef();
   const handlePrint = useReactToPrint({ contentRef: invoiceRef });
-
-  // ✅ Replace with your backend / props data
+  console.log(data);
   const invoice = {
     tenantId: 1,
     invoiceNumber: "INV-2025-00123",
@@ -76,7 +75,7 @@ export default function Invoice1() {
       supportPhone: "+91-9876543210",
     },
   };
-
+console.log(invoice);
   return (
     <Page title="Invoice V1">
       <div
