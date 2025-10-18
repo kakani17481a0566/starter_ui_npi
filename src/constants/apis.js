@@ -68,6 +68,7 @@ export const POS_ITEMS=`${BASE_URL}/Items/GetByTenant/${tenantId}`;
 
 export const LIBRARY_CATEGORIES=`${BASE_URL}/Genres/${tenantId}`;
 export const LIBRARY_BOOKS=`${BASE_URL}/ItemHeader/${tenantId}`;
+export const HEALTH_REGISTRATION=`${BASE_URL}/Genetic`;
 
 
 

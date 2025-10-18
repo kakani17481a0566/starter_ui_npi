@@ -17,6 +17,7 @@ import { schema } from "app/pages/forms/Genetics/GeneticRegitrationForm/schema";
 // Local Imports
 import { Page } from "components/shared/Page";
 import { Button, Card, Input, Textarea } from "components/ui";
+import {HEALTH_REGISTRATION} from "constants/apis";
 
 // ----------------------------------------------------------------------
 // Initial Values
@@ -75,8 +76,9 @@ const HealthForm = () => {
   });
 
   const onSubmit = async (data) => {
+    console.log(data);
     try {
-      await axios.post("/api/health-form", data);
+      await axios.post(HEALTH_REGISTRATION, data);
       toast.success("Health form submitted successfully!");
       reset();
     } catch (error) {

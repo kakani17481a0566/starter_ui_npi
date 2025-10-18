@@ -9,7 +9,7 @@ import * as yup from "yup";
 export const schema = yup.object({
   // ✅ Personal Information
   studentName: yup.string().required("Student name is required"),
-  studentId: yup.string().required("Student ID / Roll No is required"),
+  studentId: yup.string().notRequired(),
   className: yup.string().required("Class / Grade is required"),
   branch: yup.string().required("Branch / Campus is required"),
   fatherName: yup.string().required("Father’s name is required"),

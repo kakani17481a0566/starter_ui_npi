@@ -59,33 +59,34 @@ export function Checkout({
         payload
       );
 
-      if (res.data === "Inserted") {
+      if (res.status==201) {
         toast.success("✅ Checkout completed successfully!");
-        const invoiceData = {
-          tenantId,
-          invoiceNumber: "INV-" + new Date().getTime(),
-          date: new Date().toISOString(),
-          status: "Paid",
-          subtotal,
-          gst,
-          total,
-          student: {
-            studentId,
-            studentName: basketItems[0]?.studentName || "N/A",
-          },
-          payment: {
-            method,
-            transactionId: "TXN" + Math.floor(Math.random() * 10000000),
-            remarks: "Paid successfully at POS",
-          },
-          items: payload.items,
-          footer: {
-            thankYouNote:
-              "Thank you for shopping with NeuroPi International School!",
-            supportEmail: "support@neuropi.edu.in",
-            supportPhone: "+91-9876543210",
-          },
-        };
+        const invoiceData=res.data.data;
+        // const invoiceData = {
+        //   tenantId,
+        //   invoiceNumber: "INV-" + new Date().getTime(),
+        //   date: new Date().toISOString(),
+        //   status: "Paid",
+        //   subtotal,
+        //   gst,
+        //   total,
+        //   student: {
+        //     studentId,
+        //     studentName: basketItems[0]?.studentName || "N/A",
+        //   },
+        //   payment: {
+        //     method,
+        //     transactionId: "TXN" + Math.floor(Math.random() * 10000000),
+        //     remarks: "Paid successfully at POS",
+        //   },
+        //   items: payload.items,
+        //   footer: {
+        //     thankYouNote:
+        //       "Thank you for shopping with NeuroPi International School!",
+        //     supportEmail: "support@neuropi.edu.in",
+        //     supportPhone: "+91-9876543210",
+        //   },
+        // };
         onInvoiceReady?.(invoiceData);
       } else {
         toast.error("Unexpected response from server");
