@@ -91,6 +91,9 @@ const HealthForm = () => {
       await axios.post( HEALTH_REGISTRATION, data);
       toast.success("Health form submitted successfully!");
       reset();
+      setSelectedCountryId(null);
+      setSelectedStateId(null);
+      setSelectedCityId(null);
     } catch (error) {
       toast.error("Failed to submit form");
       console.error(error);
