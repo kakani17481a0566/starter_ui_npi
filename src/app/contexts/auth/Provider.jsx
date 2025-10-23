@@ -176,7 +176,7 @@ export function AuthProvider({ children }) {
         termId,
         courses,
         userProfile;
-
+      if(!roleName==="USER"){
       if (roleName === "PARENT") {
         console.log("[Auth] Fetching parent profile...");
         const res = await axios.get(
@@ -190,18 +190,19 @@ export function AuthProvider({ children }) {
         );
         ({ branchId, weekId, termId, courses, userProfile } = ids.data.data);
       }
+    }
 
-      console.log("[Auth] Session data prepared:", {
-        tenantId,
-        userId,
-        userName,
-        roleName,
-        departmentId,
-        branchId,
-        weekId,
-        termId,
-        courses,
-      });
+      // console.log("[Auth] Session data prepared:", {
+      //   tenantId,
+      //   userId,
+      //   userName,
+      //   roleName,
+      //   departmentId,
+      //   branchId,
+      //   weekId,
+      //   termId,
+      //   courses,
+      // });
 
       setSessionData({
         token,
@@ -237,7 +238,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    console.log("[Auth] Manual logout triggered");
+    // console.log("[Auth] Manual logout triggered");
 
     setSession(null);
     clearSessionData();
