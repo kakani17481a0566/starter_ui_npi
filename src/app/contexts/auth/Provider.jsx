@@ -176,21 +176,23 @@ export function AuthProvider({ children }) {
         termId,
         courses,
         userProfile;
-      if(!roleName==="USER"){
-      if (roleName === "PARENT") {
-        console.log("[Auth] Fetching parent profile...");
-        const res = await axios.get(
-          `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/ParentStudents/user/${userId}/tenant/${tenantId}/courses`
-        );
-        ({ branchId, weekId, termId, courses, userProfile } = res.data.data);
-      } else {
-        console.log("[Auth] Fetching department profile...");
-        const ids = await axios.get(
-          `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/department/${userId}/user/${tenantId}`
-        );
-        ({ branchId, weekId, termId, courses, userProfile } = ids.data.data);
+      if(roleName==="USER"){
+        // console.log("This is user");
       }
-    }
+      else if (roleName === "PARENT") {
+            console.log("[Auth] Fetching parent profile...");
+            const res = await axios.get(
+            `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/ParentStudents/user/${userId}/tenant/${tenantId}/courses`
+            );
+            ({ branchId, weekId, termId, courses, userProfile } = res.data.data);
+          } else {
+            console.log("[Auth] Fetching department profile...");
+            const ids = await axios.get(
+            `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/department/${userId}/user/${tenantId}`
+            );
+            ({ branchId, weekId, termId, courses, userProfile } = ids.data.data);
+          }
+      
 
       // console.log("[Auth] Session data prepared:", {
       //   tenantId,
@@ -227,7 +229,7 @@ export function AuthProvider({ children }) {
         payload: { userProfile },
       });
 
-      console.log("[Auth] Login successful, user authenticated");
+      // console.log("[Auth] Login successful, user authenticated");
     } catch (err) {
       console.error("[Auth] Login error:", err);
       dispatch({
