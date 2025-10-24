@@ -20,12 +20,15 @@ export function MainPanel({ nav, setActiveSegment, activeSegment }) {
   const { role } = getSessionData();
   const navigate = useNavigate();
   const handleLogoClick = () => {
-    if (role === "Teacher") {
+    if(role==="USER") {
+      navigate("/genetics/genetics");
+    }
+    else if (role === "Teacher") {
       navigate("/dashboards/home"); // ✅ absolute path
     } else if (role === "Nanny") {
       navigate("/dashboards/mark-attendance"); // ✅ fixed
     } else {
-      navigate("/"); // ✅
+      navigate("/")
     }
     close();
   };
