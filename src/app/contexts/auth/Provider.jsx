@@ -54,7 +54,7 @@ const reducerHandlers = {
     };
   },
   LOGOUT: (state) => {
-    console.log("[Reducer] LOGOUT triggered");
+    // console.log("[Reducer] LOGOUT triggered");
     return {
       ...state,
       isAuthenticated: false,
@@ -99,7 +99,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const init = async () => {
-      console.log("[Auth] Initializing AuthProvider...");
+      // console.log("[Auth] Initializing AuthProvider...");
       try {
         const authToken = localStorage.getItem("authToken");
         const userProfileString = localStorage.getItem("userProfile");
@@ -107,13 +107,13 @@ export function AuthProvider({ children }) {
           ? JSON.parse(userProfileString)
           : null;
 
-        console.log("[Auth] Retrieved from storage:", {
-          authToken,
-          parsedUserProfile,
-        });
+        // console.log("[Auth] Retrieved from storage:", {
+        //   authToken,
+        //   parsedUserProfile,
+        // });
 
         if (authToken && isTokenValid(authToken)) {
-          console.log("[Auth] Token valid, setting session...");
+          // console.log("[Auth] Token valid, setting session...");
           setSession(authToken);
           scheduleAutoLogout(authToken);
 
@@ -157,7 +157,7 @@ export function AuthProvider({ children }) {
       const response = await axios.get(
         `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/User/login?username=${username}&password=${password}`
       );
-      console.log("[Auth] Login API response:", response.data);
+      // console.log("[Auth] Login API response:", response.data);
 
       const {
         tenantId,
