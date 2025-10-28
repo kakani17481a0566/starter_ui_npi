@@ -180,13 +180,13 @@ export function AuthProvider({ children }) {
         // console.log("This is user");
       }
       else if (roleName === "PARENT") {
-            console.log("[Auth] Fetching parent profile...");
+            // console.log("[Auth] Fetching parent profile...");
             const res = await axios.get(
             `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/ParentStudents/user/${userId}/tenant/${tenantId}/courses`
             );
             ({ branchId, weekId, termId, courses, userProfile } = res.data.data);
           } else {
-            console.log("[Auth] Fetching department profile...");
+            // console.log("[Auth] Fetching department profile...");
             const ids = await axios.get(
             `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/department/${userId}/user/${tenantId}`
             );
