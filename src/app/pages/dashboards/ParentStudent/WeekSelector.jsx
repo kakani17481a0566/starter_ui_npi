@@ -22,7 +22,7 @@ export default function WeekSelector({
   const options = [
     { value: -2, label: "Previous Week" },
     { value: -1, label: "Current Week" },
-    { value: 1, label: "Next Week" },
+    // { value: 1, label: "Next Week" },
     { value: 0, label: "All Weeks" },
     // Dynamically add additional weeks from dictionary
     ...Object.entries(weekDictionary).map(([id, label]) => ({
