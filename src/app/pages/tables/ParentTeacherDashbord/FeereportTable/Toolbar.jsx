@@ -1,20 +1,20 @@
 // Import Dependencies
 import {
-  ChevronUpDownIcon,
+  // ChevronUpDownIcon,
   MagnifyingGlassIcon,
-  PrinterIcon,
+  // PrinterIcon,
   MapPinIcon,
 } from "@heroicons/react/24/outline";
-import { TbUpload, TbCurrencyDollar } from "react-icons/tb";
+import {  TbCurrencyDollar } from "react-icons/tb";
 import clsx from "clsx";
 import {
   Menu,
-  MenuButton,
-  MenuItem,
+  // MenuButton,
+  // MenuItem,
   MenuItems,
   Transition,
 } from "@headlessui/react";
-import { EllipsisHorizontalIcon } from "@heroicons/react/20/solid";
+// import { EllipsisHorizontalIcon } from "@heroicons/react/20/solid";
 import PropTypes from "prop-types";
 
 // Local Imports
@@ -92,21 +92,21 @@ export function Toolbar({ table }) {
 // Subcomponents
 
 function MobileActions() {
-  const items = [
-    "New Order",
-    "Share",
-    "Print",
-    "Import Orders",
-    "Export as PDF",
-    "Export as CSV",
-    "Save Table as View",
-  ];
+  // const items = [
+  //   "New Order",
+  //   "Share",
+  //   "Print",
+  //   "Import Orders",
+  //   "Export as PDF",
+  //   "Export as CSV",
+  //   "Save Table as View",
+  // ];
 
   return (
     <Menu as="div" className="relative inline-block text-left">
-      <MenuButton as={Button} variant="flat" className="size-8 shrink-0 rounded-full p-0">
+      {/* <MenuButton as={Button} variant="flat" className="size-8 shrink-0 rounded-full p-0">
         <EllipsisHorizontalIcon className="size-4.5" />
-      </MenuButton>
+      </MenuButton> */}
       <Transition
         as={MenuItems}
         enter="transition ease-out"
@@ -117,7 +117,7 @@ function MobileActions() {
         leaveTo="opacity-0 translate-y-2"
         className="absolute z-100 mt-1.5 min-w-[10rem] whitespace-nowrap rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 dark:border-dark-500 dark:bg-dark-700 dark:shadow-none ltr:right-0 rtl:left-0"
       >
-        {items.map((label) => (
+        {/* {items.map((label) => (
           <MenuItem key={label}>
             {({ focus }) => (
               <button
@@ -131,7 +131,7 @@ function MobileActions() {
               </button>
             )}
           </MenuItem>
-        ))}
+        ))} */}
       </Transition>
     </Menu>
   );
@@ -140,13 +140,13 @@ function MobileActions() {
 function DesktopActions() {
   return (
     <div className="flex space-x-2">
-      <Button variant="outlined" className="h-8 space-x-2 rounded-md px-3 text-xs">
+      {/* <Button variant="outlined" className="h-8 space-x-2 rounded-md px-3 text-xs">
         <PrinterIcon className="size-4" />
         <span>Print</span>
-      </Button>
+      </Button> */}
 
       {/* Export */}
-      <Menu as="div" className="relative inline-block whitespace-nowrap text-left">
+      {/* <Menu as="div" className="relative inline-block whitespace-nowrap text-left">
         <MenuButton as={Button} variant="outlined" className="h-8 space-x-2 rounded-md px-3 text-xs">
           <TbUpload className="size-4" />
           <span>Export</span>
@@ -178,13 +178,13 @@ function DesktopActions() {
             </MenuItem>
           ))}
         </Transition>
-      </Menu>
+      </Menu> */}
 
       {/* More */}
       <Menu as="div" className="relative inline-block whitespace-nowrap text-left">
-        <MenuButton as={Button} variant="outlined" className="h-8 shrink-0 rounded-md px-2.5">
-          <EllipsisHorizontalIcon className="size-4.5" />
-        </MenuButton>
+        {/* <MenuButton as={Button} variant="outlined" className="h-8 shrink-0 rounded-md px-2.5">
+          {/* <EllipsisHorizontalIcon className="size-4.5" /> 
+        </MenuButton> */}
         <Transition
           as={MenuItems}
           enter="transition ease-out"
@@ -195,7 +195,7 @@ function DesktopActions() {
           leaveTo="opacity-0 translate-y-2"
           className="absolute z-100 mt-1.5 min-w-[10rem] whitespace-nowrap rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 dark:border-dark-500 dark:bg-dark-700 dark:shadow-none ltr:right-0 rtl:left-0"
         >
-          {["New Order", "Share Orders", "Import Orders", "Save Table as View"].map((label) => (
+          {/* {["New Order", "Share Orders", "Import Orders", "Save Table as View"].map((label) => (
             <MenuItem key={label}>
               {({ focus }) => (
                 <button
@@ -209,7 +209,7 @@ function DesktopActions() {
                 </button>
               )}
             </MenuItem>
-          ))}
+          ))} */}
         </Transition>
       </Menu>
     </div>
