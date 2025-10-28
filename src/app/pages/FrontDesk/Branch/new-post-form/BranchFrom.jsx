@@ -1,15 +1,18 @@
+// ----------------------------------------------------------------------
 // Import Dependencies
+// ----------------------------------------------------------------------
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { DocumentPlusIcon } from "@heroicons/react/24/outline";
 import { toast } from "sonner";
+import axios from "axios";
 
 // Local Imports
-import { schema } from "./schema"; // branch schema
+import { schema } from "./schema";
 import { Page } from "components/shared/Page";
 import { Button, Card, Input, Textarea } from "components/ui";
-import { Listbox } from "components/shared/form/Listbox";
+import { getSessionData } from "utils/sessionStorage";
 
 // ----------------------------------------------------------------------
 
@@ -20,67 +23,122 @@ const initialState = {
   pincode: "",
   district: "",
   state: "",
-  tenant_id: "",
-  department_id: "",
 };
 
-const BranchForm = () => {
+const BranchForm = ({ onCancel, onCreated }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    control,
     reset,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: initialState,
   });
 
-  // 🔹 Local state for tenants & departments
-  const [tenants, setTenants] = useState([]);
-  const [departments, setDepartments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [sessionInfo, setSessionInfo] = useState(null);
 
-  // 🔹 Simulate fetching with useEffect
+  // 🔹 Load session from local/session storage
   useEffect(() => {
-    const tenantData = [
-      { id: "t1", label: "Tenant One" },
-      { id: "t2", label: "Tenant Two" },
-      { id: "t3", label: "Tenant Three" },
-    ];
-    const deptData = [
-      { id: "1", label: "HR" },
-      { id: "2", label: "Finance" },
-      { id: "3", label: "Operations" },
-    ];
+    const session = getSessionData();
+    if (session?.tenantId && session?.user) {
+      setSessionInfo(session);
 
-    setTimeout(() => {
-      setTenants(tenantData);
-      setDepartments(deptData);
-    }, 500);
+      // 🧾 Log for testing
+      console.log("📦 Loaded Session Info:", {
+        tenantId: session.tenantId,
+        userId: session.userId,
+        user: session.user,
+        role: session.role,
+      });
+    } else {
+      toast.error("No session found. Please log in again.");
+    }
   }, []);
 
-  const onSubmit = (data) => {
-    console.log("✅ Branch Data:", data);
-    toast.success("Branch saved successfully!");
-    reset();
+  // ✅ Handle Save
+  const onSubmit = async (data) => {
+    if (!sessionInfo?.tenantId) {
+      toast.error("Tenant info missing. Please log in again.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const payload = {
+        name: data.name,
+        contact: data.contact,
+        address: data.address,
+        pincode: data.pincode,
+        district: data.district,
+        state: data.state,
+        tenantId: Number(sessionInfo.tenantId),
+        createdBy: Number(sessionInfo.userId) || 1,
+        createdOn: new Date().toISOString(),
+      };
+
+      // 🧾 Log payload for testing
+      console.log("🛰️ Sending Branch Payload:", payload);
+
+      const url = `https://localhost:7202/api/Branch`;
+
+      // 🧾 Log request URL
+      console.log("🔗 API Endpoint:", url);
+
+      const res = await axios.post(url, payload, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(sessionInfo.token
+            ? { Authorization: `Bearer ${sessionInfo.token}` }
+            : {}),
+        },
+      });
+
+      // 🧾 Log response for testing
+      console.log("✅ API Response:", res.status, res.data);
+
+      if (res.status === 200 || res.status === 201) {
+        toast.success("✅ Branch created successfully!");
+        reset(initialState);
+        onCreated?.();
+      } else {
+        toast.error("⚠️ Failed to create branch.");
+        console.warn("Unexpected response:", res);
+      }
+    } catch (err) {
+      console.error("❌ Error creating branch:", err.response || err);
+      toast.error("Error creating branch.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Handle Cancel
+  const handleCancel = () => {
+    console.log("🚫 Branch creation cancelled by user.");
+    reset(initialState);
+    onCancel?.();
   };
 
   return (
-    <Page title="Branch Form">
+    <Page title="Create Branch">
       <div className="transition-content px-(--margin-x) pb-6">
         {/* Header */}
         <div className="flex flex-col items-center justify-between space-y-4 py-5 sm:flex-row sm:space-y-0 lg:py-6">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <DocumentPlusIcon className="size-7 text-primary-600" />
             <h2 className="line-clamp-1 text-xl font-semibold text-gray-800 dark:text-dark-50">
-              Branch
+              New Branch
             </h2>
           </div>
+
           <div className="flex gap-2">
             <Button
               className="min-w-[7rem]"
               variant="outlined"
-              onClick={() => reset()}
+              onClick={handleCancel}
             >
               Cancel
             </Button>
@@ -89,8 +147,9 @@ const BranchForm = () => {
               color="primary"
               type="submit"
               form="branch-form"
+              disabled={loading}
             >
-              Save
+              {loading ? "Saving..." : "Save"}
             </Button>
           </div>
         </div>
@@ -108,51 +167,41 @@ const BranchForm = () => {
                 <h3 className="text-base font-semibold text-gray-800 dark:text-dark-100">
                   Branch Details
                 </h3>
+
                 <div className="mt-5 space-y-5">
                   <Input
-                    label={<span className="font-semibold">Branch Name</span>}
+                    label="Branch Name"
                     placeholder="Enter branch name"
-                    className="h-8 py-1 text-xs"
                     {...register("name")}
                     error={errors?.name?.message}
                   />
-
                   <Input
-                    label={<span className="font-semibold">Contact Number</span>}
+                    label="Contact Number"
                     placeholder="Enter contact number"
-                    className="h-8 py-1 text-xs"
                     {...register("contact")}
                     error={errors?.contact?.message}
                   />
-
                   <Textarea
-                    label={<span className="font-semibold">Address</span>}
+                    label="Address"
                     placeholder="Enter branch address"
-                    className="h-16 py-1 text-xs"
                     {...register("address")}
                     error={errors?.address?.message}
                   />
-
                   <Input
-                    label={<span className="font-semibold">Pincode</span>}
+                    label="Pincode"
                     placeholder="Enter pincode"
-                    className="h-8 py-1 text-xs"
                     {...register("pincode")}
                     error={errors?.pincode?.message}
                   />
-
                   <Input
-                    label={<span className="font-semibold">District</span>}
+                    label="District"
                     placeholder="Enter district"
-                    className="h-8 py-1 text-xs"
                     {...register("district")}
                     error={errors?.district?.message}
                   />
-
                   <Input
-                    label={<span className="font-semibold">State</span>}
+                    label="State"
                     placeholder="Enter state"
-                    className="h-8 py-1 text-xs"
                     {...register("state")}
                     error={errors?.state?.message}
                   />
@@ -160,46 +209,42 @@ const BranchForm = () => {
               </Card>
             </div>
 
-            {/* RIGHT SIDE - Tenant & Department */}
-            <div className="col-span-12 space-y-4 sm:space-y-5 lg:col-span-4 lg:space-y-6">
-              <Card className="space-y-5 p-4 sm:px-5">
-                {/* Tenant Dropdown */}
-                <Controller
-                  render={({ field }) => (
-                    <Listbox
-                      data={tenants}
-                      value={tenants.find((t) => t.id === field.value) || null}
-                      onChange={(val) => field.onChange(val.id)}
-                      name={field.name}
-                      label={<span className="font-semibold">Tenant</span>}
-                      placeholder="Select Tenant"
-                      displayField="label"
-                      className="h-8 py-1 text-xs"
-                      error={errors?.tenant_id?.message}
-                    />
-                  )}
-                  control={control}
-                  name="tenant_id"
-                />
+            {/* RIGHT SIDE - Session Info (non-editable) */}
+            <div className="col-span-12 lg:col-span-4">
+              <Card className="p-4 sm:px-5 space-y-5">
+                <h3 className="text-base font-semibold text-gray-800 dark:text-dark-100">
+                  Session Info
+                </h3>
 
-                {/* Department Dropdown */}
-                <Controller
-                  render={({ field }) => (
-                    <Listbox
-                      data={departments}
-                      value={departments.find((d) => d.id === field.value) || null}
-                      onChange={(val) => field.onChange(val.id)}
-                      name={field.name}
-                      label={<span className="font-semibold">Department</span>}
-                      placeholder="Select Department"
-                      displayField="label"
-                      className="h-8 py-1 text-xs"
-                      error={errors?.department_id?.message}
+                {sessionInfo ? (
+                  <div className="space-y-4">
+                    <Input
+                      label="Tenant Name"
+                      value={`Tenant #${sessionInfo.tenantId}`}
+                      disabled
+                      readOnly
+                      className="bg-gray-100 dark:bg-dark-600"
                     />
-                  )}
-                  control={control}
-                  name="department_id"
-                />
+                    <Input
+                      label="User Name"
+                      value={sessionInfo.user || "Unknown User"}
+                      disabled
+                      readOnly
+                      className="bg-gray-100 dark:bg-dark-600"
+                    />
+                    <Input
+                      label="Role"
+                      value={sessionInfo.role || "N/A"}
+                      disabled
+                      readOnly
+                      className="bg-gray-100 dark:bg-dark-600"
+                    />
+                  </div>
+                ) : (
+                  <p className="text-sm text-red-500">
+                    No session found. Please log in again.
+                  </p>
+                )}
               </Card>
             </div>
           </div>

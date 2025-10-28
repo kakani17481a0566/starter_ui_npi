@@ -1,14 +1,10 @@
-// import { Horizontal } from "./Vertical";
-import  BranchFrom  from "./new-post-form/BranchFrom";
+// src/app/pages/FrontDesk/Branch/Home.jsx
+import BranchFrom from "./new-post-form/BranchFrom";
 
-
-export function BranchHome() {
+export function BranchHome({ onCancel, onCreated }) {
   return (
-    <div >
-      {/* Directly use Vertical */}
-      {/* <Horizontal /> */}
-      <BranchFrom />
-
+    <div>
+      <BranchFrom onCancel={onCancel} onCreated={onCreated} />
     </div>
   );
 }

@@ -2,13 +2,14 @@ import { useMemo } from "react";
 import Chart from "react-apexcharts";
 
 // Domain color mapping
+// ✅ Updated Subject color mapping with RGBA fills
 const domainColorMap = {
-  CLL: "#465C8A",
-  PSRN: "#D2486E",
-  KUW: "#E27257",
-  PD: "#713427",
-  EAD: "#DA973A",
-  PSED: "#475468",
+  CLL: { fill: "rgba(147,197,253,0.5)", stroke: "#3B82F6" },  // Blue 300 @50% opacity
+  PSRN: { fill: "rgba(252,165,165,0.5)", stroke: "#EF4444" }, // Red 300 @50%
+  KUW: { fill: "rgba(252,211,77,0.5)", stroke: "#F59E0B" },  // Amber 300 @50%
+  PD: { fill: "rgba(110,231,183,0.5)", stroke: "#10B981" },  // Emerald 300 @50%
+  EAD: { fill: "rgba(196,181,253,0.5)", stroke: "#8B5CF6" }, // Violet 300 @50%
+  PSED: { fill: "rgba(249,168,212,0.5)", stroke: "#EC4899" },// Pink 300 @50%
 };
 
 // Helper: Calculate average scores for each subject

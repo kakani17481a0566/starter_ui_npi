@@ -74,10 +74,10 @@ export default function General() {
   return (
     <div className="w-full max-w-3xl 2xl:max-w-5xl">
       {/* Heading */}
-      <h5 className="text-lg font-medium text-gray-800 dark:text-dark-50">
+      <h5 className="text-lg font-medium text-primary-950 dark:text-dark-50">
         General
       </h5>
-      <p className="mt-0.5 text-balance text-sm text-gray-500 dark:text-dark-200">
+      <p className="mt-0.5 text-balance text-sm text-primary-950 dark:text-dark-200">
         Update your account settings.
       </p>
 
@@ -85,7 +85,7 @@ export default function General() {
 
       {/* Avatar */}
       <div className="mt-4 flex flex-col space-y-1.5">
-        <span className="text-base font-medium text-gray-800 dark:text-dark-100">
+        <span className="text-base font-medium text-primary-950 dark:text-dark-100">
           Avatar
         </span>
         <Avatar
@@ -127,12 +127,12 @@ export default function General() {
       </div>
 
       {/* User Info Inputs */}
-      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 [&_.prefix]:pointer-events-none">
+      <div className="mt-5 text-primary-950 grid grid-cols-1 gap-4 sm:grid-cols-2 [&_.prefix]:pointer-events-none">
         <Input
           placeholder="Enter Nickname"
           label="Display name"
           className="rounded-xl"
-          prefix={<UserIcon className="size-4.5" />}
+          prefix={<UserIcon className="size-4.5 text-primary-600" />}
           value={profile?.username || ""}
           readOnly
         />
@@ -140,7 +140,7 @@ export default function General() {
           placeholder="Enter FullName"
           label="Full name"
           className="rounded-xl"
-          prefix={<UserIcon className="size-4.5" />}
+          prefix={<UserIcon className="size-4.5 text-primary-600" />}
           value={profile?.fullName || ""}
           onChange={(e) =>
             setProfile((prev) => ({ ...prev, fullName: e.target.value }))
@@ -150,7 +150,7 @@ export default function General() {
           placeholder="Enter Email"
           label="Email"
           className="rounded-xl"
-          prefix={<EnvelopeIcon className="size-4.5" />}
+          prefix={<EnvelopeIcon className="size-4.5 text-primary-600" />}
           value={profile?.email || ""}
           onChange={(e) =>
             setProfile((prev) => ({ ...prev, email: e.target.value }))
@@ -160,7 +160,7 @@ export default function General() {
           placeholder="Phone Number"
           label="Phone Number"
           className="rounded-xl"
-          prefix={<PhoneIcon className="size-4.5" />}
+          prefix={<PhoneIcon className="size-4.5 text-primary-600" />}
           value={profile?.mobileNumber || ""}
           onChange={(e) =>
             setProfile((prev) => ({ ...prev, mobileNumber: e.target.value }))
@@ -171,7 +171,7 @@ export default function General() {
       <div className="my-7 h-px bg-gray-200 dark:bg-dark-500" />
 
       {/* Linked Accounts */}
-      <div>
+      {/* <div>
         <div>
           <p className="text-base font-medium text-gray-800 dark:text-dark-100">
             Linked Accounts
@@ -206,7 +206,7 @@ export default function General() {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Action Buttons */}
       <div className="mt-8 flex justify-end space-x-3 ">

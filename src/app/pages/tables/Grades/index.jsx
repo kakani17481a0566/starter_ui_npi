@@ -1,4 +1,7 @@
-// Grades Table with Save Functionality
+// ----------------------------------------------------------------------
+// Grades Table with Save Functionality + StudentCardCell Integration
+// ----------------------------------------------------------------------
+
 import {
   getCoreRowModel,
   getExpandedRowModel,
@@ -8,26 +11,41 @@ import {
   useReactTable,
   flexRender,
 } from "@tanstack/react-table";
-import { Button } from "components/ui";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import {
+  Spinner,
+  Table,
+  THead,
+  TBody,
+  Th,
+  Tr,
+  Td,
+  Button,
+} from "components/ui";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { Spinner, Table, THead, TBody, Th, Tr, Td, Avatar } from "components/ui";
 import { toast } from "sonner";
-import { getSessionData }  from "utils/sessionStorage";
+import { getSessionData } from "utils/sessionStorage";
 
-// import { getSessionData } from "utils/sessionStorage";
 import {
   fetchAssessmentMatrix,
   fetchGradeList,
   saveGradesMatrix,
 } from "./data";
 
-export default function Grades({ timeTableId, assessmentStatusCode ,courseId}) {
-  const{tenantId,branch,course}=getSessionData();
-  const defaultCourse=courseId!=null ?courseId :course[0].id;
-  // const branchId=parseInt(branch);
-console.log(`Tenant ID: ${tenantId}, Branch: ${branch}, Course ID: ${courseId}`);
+// Local component (see below)
+import { StudentCardCell } from "components/shared/StudentCardCell";
+
+// ----------------------------------------------------------------------
+
+export default function Grades({
+  timeTableId,
+  assessmentStatusCode,
+  courseId,
+}) {
+  const { tenantId, branch, course } = getSessionData();
+  const defaultCourse = courseId != null ? courseId : course[0].id;
+
   const [students, setStudents] = useState([]);
   const [originalStudents, setOriginalStudents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,25 +54,19 @@ console.log(`Tenant ID: ${tenantId}, Branch: ${branch}, Course ID: ${courseId}`)
   const [gradeName, setGradeName] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [isCompleted, setIsCompleted] = useState(false);
-  const [overrideStatusCode, setOverRideStatusCode] = useState(172);
   const [assessmentIdMap, setAssessmentIdMap] = useState({});
-  // const { branch, course, tenantId } = getSessionData();
-  // const courseId = course[0].id;
-  // const conductedById = 1;
-  // const branchId = parseInt(branch);
-// const tenantId = 1;
-// const branchId = 1;
-// const courseId = 5;
-const conductedById = 1;
 
+  const conductedById = 1;
 
-  const handleSave = async () => {
+  // ----------------------------------------------------------------------
+  // Handlers
+  // ----------------------------------------------------------------------
+
+  const handleSave = async (statusCode = 172) => {
     try {
-      setOverRideStatusCode(isCompleted ? 174 : 172);
       const originalMap = Object.fromEntries(
-        originalStudents.map((s) => [s.studentId, s])
+        originalStudents.map((s) => [s.studentId, s]),
       );
-      setAlertMessage("");
 
       const changedStudents = students
         .map((student) => {
@@ -62,7 +74,7 @@ const conductedById = 1;
           const changedGrades = Object.entries(student.assessmentGrades)
             .filter(
               ([key, grade]) =>
-                grade.gradeId !== original?.assessmentGrades?.[key]?.gradeId
+                grade.gradeId !== original?.assessmentGrades?.[key]?.gradeId,
             )
             .map(([key, grade]) => ({
               assessmentId: assessmentIdMap[key],
@@ -82,100 +94,153 @@ const conductedById = 1;
         return toast.error("Nothing to be saved", { className: "soft-color" });
       }
 
+      // Validate before completion
+      if (statusCode === 174) {
+        const ungraded = students.filter((s) =>
+          Object.values(s.assessmentGrades || {}).some(
+            (g) =>
+              !g.gradeName ||
+              g.gradeName === "Not Graded" ||
+              g.gradeName === "Marks Not Added",
+          ),
+        );
+        if (ungraded.length) {
+          const names = ungraded.map((s) => s.studentName).join(", ");
+          setAlertMessage(`Ungraded students: ${names}`);
+          return;
+        }
+      }
+
       const payload = {
         TimeTableId: timeTableId,
         TenantId: tenantId,
-        BranchId:branch,
+        BranchId: branch,
         conductedById,
         courseId,
-        overrideStatusCode,
-        assessmentCode: overrideStatusCode,
+        overrideStatusCode: statusCode,
+        assessmentCode: statusCode,
         students: changedStudents,
       };
 
       setIsLoading(true);
       await saveGradesMatrix(payload);
       toast.success("Grades saved successfully!", { className: "soft-color" });
-      setOriginalStudents(JSON.parse(JSON.stringify(students)));
+      setOriginalStudents(structuredClone(students));
+      setIsCompleted(statusCode === 174);
+      setAlertMessage("");
     } catch (err) {
       console.error("Save failed", err);
-      toast.error("Save failed. Please try again.", { className: "soft-color" });
+      toast.error("Save failed. Please try again.", {
+        className: "soft-color",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleGradeChange = useCallback(
+    (studentId, header, newGradeName) => {
+      const gradeObj = gradesList.find(
+        (g) => g.name.trim() === newGradeName.trim(),
+      );
+      const gradeId = gradeObj?.id ?? 0;
+
+      setStudents((prev) =>
+        prev.map((student) =>
+          student.studentId === studentId
+            ? {
+                ...student,
+                assessmentGrades: {
+                  ...student.assessmentGrades,
+                  [header]: {
+                    ...student.assessmentGrades?.[header],
+                    gradeId,
+                    gradeName: newGradeName,
+                  },
+                },
+              }
+            : student,
+        ),
+      );
+    },
+    [gradesList],
+  );
+
   const getGradeColorStyle = useCallback((grade) => {
     const map = {
       "A+": "bg-green-200",
-      A: "bg-emerald-200",
-      B: "bg-blue-200",
+      A: "bg-purple-200",
+      B: "bg-yellow-200",
       C: "bg-yellow-200",
       "Marks Not Added": "bg-orange-200",
       Poor: "bg-pink-200",
       Fair: "bg-red-300",
       "Not Graded": "bg-gray-200",
     };
-    return map[grade] || "bg-white";
+    return map[grade] || "bg-gray-50";
   }, []);
 
-  const handleGradeChange = useCallback((studentId, header, newGradeName) => {
-    const gradeObj = gradesList.find(
-      (g) => g.name.trim() === newGradeName.trim()
-    );
-    const gradeId = gradeObj?.id ?? 0;
+  const renderGradeCell = useCallback(
+    (row, header) => {
+      const grade = (
+        row.assessmentGrades?.[header]?.gradeName || "Not Graded"
+      ).trim();
+      const bgColor = getGradeColorStyle(grade);
 
-    setStudents((prev) =>
-      prev.map((student) =>
-        student.studentId === studentId
-          ? {
-              ...student,
-              assessmentGrades: {
-                ...student.assessmentGrades,
-                [header]: {
-                  ...student.assessmentGrades?.[header],
-                  gradeId,
-                  gradeName: newGradeName,
-                },
-              },
-            }
-          : student
-      )
-    );
-  }, [gradesList]);
+      if (
+        isCompleted ||
+        (assessmentStatusCode === gradeId && gradeName === "COMPLETED")
+      ) {
+        return (
+          <div className={`rounded-md px-1 py-1 text-sm ${bgColor}`}>
+            {grade}
+          </div>
+        );
+      }
 
-  const renderGradeCell = useCallback((row, header) => {
-    const grade = (
-      row.assessmentGrades?.[header]?.gradeName || "Not Graded"
-    ).trim();
-    const bgColor = getGradeColorStyle(grade);
+      return (
+        <select
+          value={grade}
+          onChange={(e) =>
+            handleGradeChange(row.studentId, header, e.target.value)
+          }
+          className={`rounded-md px-1 py-1 text-sm ${bgColor}`}
+        >
+          <option value="">Not Graded</option>
+          {gradesList.map((g) => (
+            <option key={g.id} value={g.name?.trim()}>
+              {g.name}
+            </option>
+          ))}
+        </select>
+      );
+    },
+    [
+      gradesList,
+      handleGradeChange,
+      getGradeColorStyle,
+      isCompleted,
+      assessmentStatusCode,
+      gradeId,
+      gradeName,
+    ],
+  );
 
-    if (isCompleted || (assessmentStatusCode === gradeId && gradeName === "COMPLETED")) {
-      return <div className={`rounded-md px-1 py-1 text-sm ${bgColor}`}>{grade}</div>;
-    }
-
-    return (
-      <select
-        value={grade}
-        onChange={(e) => handleGradeChange(row.studentId, header, e.target.value)}
-        className={`rounded-md px-1 py-1 text-sm ${bgColor}`}
-      >
-        <option value="">Not Graded</option>
-        {gradesList.map((g) => (
-          <option key={g.id} value={g.name?.trim()}>{g.name}</option>
-        ))}
-      </select>
-    );
-  }, [gradesList, handleGradeChange, getGradeColorStyle, isCompleted, assessmentStatusCode, gradeId, gradeName]);
+  // ----------------------------------------------------------------------
+  // Data Fetch
+  // ----------------------------------------------------------------------
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
         const [data, grades] = await Promise.all([
-          // fetchAssessmentMatrix({ timeTableId, tenantId, courseId, branch }),
-          fetchAssessmentMatrix({ timeTableId, tenantId, courseId:defaultCourse, branchId:branch }),
-
+          fetchAssessmentMatrix({
+            timeTableId,
+            tenantId,
+            courseId: defaultCourse,
+            branchId: branch,
+          }),
           fetchGradeList(),
         ]);
 
@@ -184,7 +249,7 @@ const conductedById = 1;
         setAssessmentIdMap(data?.data?.headerSkillMap || {});
         setGradesList(grades);
         setStudents(data?.data?.rows || []);
-        setOriginalStudents(JSON.parse(JSON.stringify(data?.data?.rows || [])));
+        setOriginalStudents(structuredClone(data?.data?.rows || []));
       } catch (err) {
         console.error("Failed to fetch data", err);
       } finally {
@@ -192,32 +257,37 @@ const conductedById = 1;
       }
     };
     fetchData();
-  // }, [timeTableId, tenantId, courseId, branch]);
-  }, [courseId]);
+  }, [timeTableId, tenantId, branch, courseId]);
 
+  // ----------------------------------------------------------------------
+  // Table Definition
+  // ----------------------------------------------------------------------
 
   const columns = useMemo(() => {
     if (!students.length) return [];
+
     const assessmentHeaders = Object.keys(students[0].assessmentGrades || {});
     const studentColumn = {
       accessorKey: "studentName",
-      header: "Student Name",
+      header: "Student",
       cell: ({ row }) => (
-        <div className="flex items-center gap-1">
-          <Avatar
-            src="http://147.93.155.157/websiteimages/Neuropi%20Revised%20Logo-01%20(1).jpeg"
-            className="h-15 w-15"
-          />
-          <span className="font-medium text-gray-800">{row.original.studentName}</span>
-        </div>
+        <StudentCardCell
+          avatar={`https://api.dicebear.com/7.x/initials/svg?seed=${row.original.studentName}`}
+          name={row.original.studentName}
+          shape="circle"
+          color="blue"
+        />
       ),
     };
+
     const assessmentColumns = assessmentHeaders.map((header) => ({
       id: header,
-      accessorFn: (row) => row.assessmentGrades?.[header]?.gradeName ?? "Not Graded",
+      accessorFn: (row) =>
+        row.assessmentGrades?.[header]?.gradeName ?? "Not Graded",
       header,
       cell: ({ row }) => renderGradeCell(row.original, header),
     }));
+
     return [studentColumn, ...assessmentColumns];
   }, [students, renderGradeCell]);
 
@@ -232,39 +302,38 @@ const conductedById = 1;
     autoResetPageIndex: false,
   });
 
-  const handleCompleted = async () => {
-    const invalidStudents = students.filter((student) =>
-      Object.values(student.assessmentGrades || {}).some((gradeObj) => {
-        const grade = (gradeObj?.gradeName || "").trim();
-        return grade === "Not Graded" || grade === "Marks Not Added";
-      })
-    );
-    if (invalidStudents.length > 0) {
-      const names = invalidStudents.map((s) => s.studentName).join(", ");
-      setAlertMessage(`The following students have ungraded assessments: ${names}\n`);
-      return;
-    }
-    try {
-      await handleSave();
-      setIsCompleted(true);
-      setAlertMessage("");
-    } catch (err) {
-      console.error("Completion failed", err);
-      setAlertMessage("Something went wrong");
-    }
-  };
+  // ----------------------------------------------------------------------
+  // Render
+  // ----------------------------------------------------------------------
 
   return (
     <div className="overflow-visible p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Assessment Grades</h2>
         <div className="flex gap-2">
-          <Button color="error" onClick={() => {
-            setStudents(JSON.parse(JSON.stringify(originalStudents)));
-            toast.info("Local changes discarded");
-          }}>CANCEL</Button>
-          <Button color="warning" onClick={handleSave}>IN-PROGRESS</Button>
-          <Button color="success" onClick={handleCompleted}>COMPLETED</Button>
+          <Button
+            color="error"
+            onClick={() => {
+              setStudents(structuredClone(originalStudents));
+              toast.info("Local changes discarded");
+            }}
+            disabled={isLoading}
+          >
+            CANCEL
+          </Button>
+          <Button
+            color="warning"
+            onClick={() => handleSave(172)}
+            disabled={isLoading}
+          >
+            {isLoading ? "Saving..." : "IN-PROGRESS"}
+          </Button>
+          <Button
+            color="success"
+            onClick={() => handleSave(174)}
+            disabled={isLoading}
+          >
+            {isLoading ? "Saving..." : "COMPLETED"}
+          </Button>
         </div>
       </div>
 
@@ -286,7 +355,10 @@ const conductedById = 1;
               <Tr>
                 {table.getHeaderGroups()[0].headers.map((header) => (
                   <Th key={header.id}>
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
                   </Th>
                 ))}
               </Tr>
@@ -296,19 +368,33 @@ const conductedById = 1;
                 <Tr key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <Td key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </Td>
                   ))}
                 </Tr>
               ))}
             </TBody>
           </Table>
-          <div className="mt-4 flex justify-between">
-            <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+          <div className="mt-4 flex items-center justify-between">
+            <button
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className="disabled:opacity-50"
+            >
               <ChevronLeftIcon className="h-5 w-5" />
             </button>
-            <span>Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}</span>
-            <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+            <span>
+              Page {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount()}
+            </span>
+            <button
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className="disabled:opacity-50"
+            >
               <ChevronRightIcon className="h-5 w-5" />
             </button>
           </div>

@@ -1,8 +1,11 @@
+// ----------------------------------------------------------------------
 // Import Dependencies
+// ----------------------------------------------------------------------
 import * as Yup from "yup";
 
 // ----------------------------------------------------------------------
-
+// ✅ Final Branch Validation Schema (matches form & backend payload)
+// ----------------------------------------------------------------------
 export const schema = Yup.object().shape({
   name: Yup.string()
     .trim()
@@ -40,11 +43,4 @@ export const schema = Yup.object().shape({
     .min(2, "State too short")
     .max(50, "State too long")
     .required("State is required"),
-
-  tenant_id: Yup.string()
-    .trim()
-    .required("Tenant ID is required"),
-
-  department_id: Yup.string()
-    .required("Department is required"),
 });

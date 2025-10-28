@@ -18,7 +18,7 @@ const GRADIENT_STOPS = {
 // 🎨 Gradient stop config (easy to adjust) // const GRADIENT_STOPS = { // from: "from-primary-400 from-4%", // via: "via-[#2BBBAD] via-50%", // to: "to-primary-950 to-150%", // };
 
 export function Welcome() {
-  const { user } = getSessionData();
+  const { userProfile } = getSessionData();
 
   return (
     <Card
@@ -33,11 +33,11 @@ export function Welcome() {
 
       {/* Welcome Text */}
       <div className="mt-2 flex flex-1 items-center justify-center pt-2 sm:mt-0">
-        <h3 className="text-center text-3xl text-primary-950">
-          Welcome Back,{" "}
+        <h3 className="text-center font-semibold text-3xl text-primary-950">
+          WELCOME{" "}
           <span className="font-semibold text-primary-950">
-            {user
-              ? user.charAt(0).toUpperCase() + user.slice(1).toLowerCase()
+            {userProfile
+              ? userProfile.firstName.toUpperCase() + " "+userProfile.lastName.toUpperCase()
               : ""}
           </span>
         </h3>

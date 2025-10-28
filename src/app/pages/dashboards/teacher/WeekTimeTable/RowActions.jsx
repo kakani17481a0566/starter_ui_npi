@@ -379,7 +379,7 @@
         {showWorkShopPopup && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
             <div className="relative max-h-[80vh] w-full max-w-4xl overflow-auto rounded-lg bg-white p-6 shadow-lg">
-              <h2 className="mb-4 text-lg font-semibold">Assignments</h2>
+              <h2 className="mb-4 text-lg font-semibold">Assessments</h2>
               {assignments.length === 0 ? (
                 <p>No assignments found.</p>
               ) : (
@@ -470,7 +470,7 @@
             <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-4 shadow-lg">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-primary-950 text-lg font-semibold">
-                  Assignments
+                  Assessment
                 </h2>
                 <button
                   onClick={() => setShowAssignmentsPopUp(false)}

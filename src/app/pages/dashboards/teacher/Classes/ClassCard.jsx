@@ -1,5 +1,8 @@
 // Import Dependencies
-import { ArrowUpRightIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowUpRightIcon,
+  DocumentTextIcon,
+} from "@heroicons/react/24/outline";
 // import clsx from "clsx";
 import PropTypes from "prop-types";
 
@@ -8,43 +11,40 @@ import { Avatar, Button, Card, Tag } from "components/ui";
 
 // Domain-specific color mapping
 const domainColorMap = {
-  CLL: "#465C8A",
-  PSRN: "#D2486E",
-  KUW: "#E27257",
-  PD: "#713427",
-  EAD: "#DA973A",
-  PSED: "#475468",
+  CLL: "rgba(147,197,253,0.5)", // Blue 300 @70% opacity
+  PSRN: "rgba(252,165,165,0.5)", // Red 300 @70%
+  KUW: "rgba(252,211,77,0.5)", // Amber 300 @70%
+  PD: "rgba(110,231,183,0.5)", // Emerald 300 @70%
+  EAD: "rgba(196,181,253,0.5)", // Violet 300 @70%
+  PSED: "rgba(249,168,212,0.5)", // Pink 300 @70%
 };
 
 export function ClassCard({ name, category, time, students }) {
   const domainColor = domainColorMap[name] || "#465C8A"; // Fallback to CLL blue
 
   return (
-    <Card className="group flex overflow-hidden border border-gray-300 dark:border-dark-700 rounded-2xl shadow-sm hover:shadow-md transition duration-300">
+    <Card className="group dark:border-dark-700 flex overflow-hidden rounded-2xl border border-gray-300 shadow-sm transition duration-300 hover:shadow-md">
       {/* Colored Stripe */}
-      <div
-        className="w-1 sm:w-1.5"
-        style={{ backgroundColor: domainColor }}
-      />
+      <div className="w-1 sm:w-1.5" style={{ backgroundColor: domainColor }} />
 
       {/* Card Content */}
       <div className="flex flex-1 flex-col justify-between p-4">
         <div className="flex flex-col gap-1">
           {/* Icon */}
-          <DocumentTextIcon className="w-8 h-8 text-primary-600 mb-2" />
+          <DocumentTextIcon className="text-primary-600 mb-2 h-8 w-8" />
 
           {/* Title */}
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-100 line-clamp-2">
+          <h3 className="dark:text-dark-100 line-clamp-2 text-sm font-semibold text-primary-950">
             {name}
           </h3>
 
           {/* Time */}
-          <p className="text-xs text-gray-500 dark:text-dark-300">{time}</p>
+          <p className="dark:text-dark-300 text-xs text-primary-950">{time}</p>
 
           {/* Tag with custom background */}
           <div className="mt-2 max-w-full">
             <Tag
-              className="w-full text-center whitespace-normal break-words line-clamp-2 text-white"
+              className="line-clamp-2 w-full text-center break-words whitespace-normal text-primary-950"
               style={{ backgroundColor: domainColor }}
             >
               {category}
@@ -53,7 +53,7 @@ export function ClassCard({ name, category, time, students }) {
         </div>
 
         {/* Footer */}
-        <div className="mt-auto flex justify-between items-center pt-4">
+        <div className="mt-auto flex items-center justify-between pt-4">
           <div className="flex -space-x-2">
             {students.map((student) => (
               <Avatar
@@ -63,13 +63,13 @@ export function ClassCard({ name, category, time, students }) {
                 src={student.avatar}
                 classNames={{
                   root: "origin-bottom transition-transform hover:z-10 hover:scale-110",
-                  display: "text-xs ring-2 ring-white dark:ring-dark-700",
+                  display: "dark:ring-dark-700 text-xs ring-2 ring-white",
                 }}
               />
             ))}
           </div>
           <Button
-            className="size-7 rounded-full group-hover:bg-primary-600 group-hover:text-white transition"
+            className="group-hover:bg-primary-600 size-7 rounded-full transition group-hover:text-white"
             isIcon
           >
             <ArrowUpRightIcon className="size-4" />
@@ -81,15 +81,15 @@ export function ClassCard({ name, category, time, students }) {
 }
 
 ClassCard.propTypes = {
-  name: PropTypes.string.isRequired,     // Domain like CLL, PSED, etc.
+  name: PropTypes.string.isRequired, // Domain like CLL, PSED, etc.
   category: PropTypes.string.isRequired, // Topic
-  time: PropTypes.string.isRequired,     // Day (e.g., Monday)
+  time: PropTypes.string.isRequired, // Day (e.g., Monday)
   students: PropTypes.arrayOf(
     PropTypes.shape({
       uid: PropTypes.string.isRequired,
       name: PropTypes.string,
       avatar: PropTypes.string,
-    })
+    }),
   ),
 };
 
