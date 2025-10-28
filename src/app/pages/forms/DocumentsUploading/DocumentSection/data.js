@@ -1,0 +1,15 @@
+export const documentList = [
+  { id: "signature", label: "Signature", accept: ["image/jpeg", "image/png", "application/pdf"] },
+  { id: "birthCertificate", label: "Birth Certificate", accept: ["image/jpeg", "image/png", "application/pdf"] },
+  { id: "kidPassport", label: "Kid Passport", accept: ["image/jpeg", "image/png", "application/pdf"] },
+  { id: "aadhar", label: "Student Aadhar", accept: ["image/jpeg", "image/png", "application/pdf"] },
+  { id: "studentImage", label: "Student Image", accept: ["image/jpeg", "image/png"] },
+  { id: "parentAadhar", label: "Parent Aadhar", accept: ["image/jpeg", "image/png", "application/pdf"] },
+  { id: "motherAadhar", label: "Mother Aadhar", accept: ["image/jpeg", "image/png", "application/pdf"] },
+  { id: "motherPhoto", label: "Mother Photo", accept: ["image/jpeg", "image/png"] },
+  { id: "fatherPhoto", label: "Father Photo", accept: ["image/jpeg", "image/png"] },
+  { id: "jointPhoto", label: "Joint Photo", accept: ["image/jpeg", "image/png"] },
+  { id: "healthForm", label: "Health Form (PDF only)", accept: ["application/pdf"] },
+  { id: "privacyForm", label: "Privacy Form (PDF only)", accept: ["application/pdf"] },
+  { id: "liabilityForm", label: "Liability Form (PDF only)", accept: ["application/pdf"] },
+];
