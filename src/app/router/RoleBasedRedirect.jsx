@@ -5,5 +5,6 @@ export default function RoleBasedRedirect() {
   const { role } = getSessionData();
   if (role === "Nanny") return <Navigate to="/dashboards/mark-attendance" />;
   if(role==="USER") return <Navigate to="/genetics/genetics"/>;
+  if(role==="PARENT") return <Navigate to="/parent/ParentStudent"/>;
   return <Navigate to="/dashboards/home" />;
 }

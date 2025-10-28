@@ -24,11 +24,11 @@ export function MainPanel({ nav, setActiveSegment, activeSegment }) {
       navigate("/genetics/genetics");
     }
     else if (role === "Teacher") {
-      navigate("/dashboards/home"); // ✅ absolute path
+      navigate("/dashboards/home"); 
     } else if (role === "Nanny") {
-      navigate("/dashboards/mark-attendance"); // ✅ fixed
-    } else {
-      navigate("/")
+      navigate("/dashboards/mark-attendance"); 
+    } else if(role==="PARENT"){
+      navigate("/parent/ParentStudent")
     }
     close();
   };
