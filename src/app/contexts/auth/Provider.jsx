@@ -167,6 +167,7 @@ export function AuthProvider({ children }) {
         departmentId,
         userImageUrl,
         token,
+        userProfile
       } = response.data.data;
 
       if (!isString(token)) throw new Error("Invalid token format");
@@ -174,8 +175,7 @@ export function AuthProvider({ children }) {
       let branchId,
         weekId,
         termId,
-        courses,
-        userProfile;
+        courses
       if(roleName==="USER"){
         // console.log("This is user");
       }
@@ -184,15 +184,15 @@ export function AuthProvider({ children }) {
             const res = await axios.get(
             `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api/ParentStudents/user/${userId}/tenant/${tenantId}/courses`
             );
-            ({ branchId, weekId, termId, courses, userProfile } = res.data.data);
+            ({ branchId, weekId, termId, courses } = res.data.data);
           } else {
             // console.log("[Auth] Fetching department profile...");
             const ids = await axios.get(
             `https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/department/${userId}/user/${tenantId}`
             );
-            ({ branchId, weekId, termId, courses, userProfile } = ids.data.data);
+            ({ branchId, weekId, termId, courses } = ids.data.data);
           }
-      
+
 
       // console.log("[Auth] Session data prepared:", {
       //   tenantId,

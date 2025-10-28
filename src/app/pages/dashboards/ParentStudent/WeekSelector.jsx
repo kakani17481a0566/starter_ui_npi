@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon, CheckIcon } from "@heroicons/react/24/solid";
 import clsx from "clsx";
 import {
   Menu,
@@ -15,70 +15,113 @@ export default function WeekSelector({
   setSelectedWeekId,
   weekDictionary = {},
 }) {
-  // -----------------------------
-  // 🔹 Build options list
-  // -----------------------------
+  // --------------------------------------------
+  // 🧩 Build the options list for the dropdown
+  // --------------------------------------------
+  // Include static options for quick selection
   const options = [
+    { value: -2, label: "Previous Week" },
     { value: -1, label: "Current Week" },
+    { value: 1, label: "Next Week" },
     { value: 0, label: "All Weeks" },
+    // Dynamically add additional weeks from dictionary
     ...Object.entries(weekDictionary).map(([id, label]) => ({
       value: Number(id),
       label,
     })),
   ];
 
-  // -----------------------------
-  // 🔹 Current selected label
-  // -----------------------------
+  // --------------------------------------------
+  // 🏷️ Get currently selected week label
+  // --------------------------------------------
   const selectedLabel =
     options.find((o) => o.value === selectedWeekId)?.label || "Select Week";
 
   return (
     <div className="inline-block">
-      <Menu as="div" className="relative inline-block text-start w-36"> {/* smaller width */}
-        {/* 🔹 Dropdown Button */}
+      {/* ================================
+          🔹 HeadlessUI Menu Container
+         ================================ */}
+      <Menu as="div" className="relative inline-block w-44 text-start">
+        {/* --------------------------------
+            🔘 Trigger Button for Dropdown
+           -------------------------------- */}
         <MenuButton
           as={Button}
           color="primary"
-          size="sm" // use small size if your Button supports it
-          className="w-full justify-between px-2 py-1 text-xs"
+          size="sm"
+          className="w-full justify-between px-3 py-1.5 text-sm font-medium shadow-sm hover:shadow-md transition-all"
         >
           {({ open }) => (
             <>
+              {/* Display the current selection */}
               <span>{selectedLabel}</span>
+
+              {/* Chevron rotates on open */}
               <ChevronDownIcon
-                className={clsx("h-3.5 w-3.5 transition-transform", open && "rotate-180")}
+                className={clsx(
+                  "h-4 w-4 ml-1 text-gray-600 transition-transform duration-200",
+                  open && "rotate-180"
+                )}
               />
             </>
           )}
         </MenuButton>
 
-        {/* 🔹 Dropdown Menu */}
+        {/* --------------------------------
+            📜 Dropdown Menu with Transition
+           -------------------------------- */}
         <Transition
           as={Fragment}
-          enter="transition ease-out"
-          enterFrom="opacity-0 translate-y-2"
-          enterTo="opacity-100 translate-y-0"
-          leave="transition ease-in"
-          leaveFrom="opacity-100 translate-y-0"
-          leaveTo="opacity-0 translate-y-2"
+          enter="transition ease-out duration-150"
+          enterFrom="opacity-0 scale-95"
+          enterTo="opacity-100 scale-100"
+          leave="transition ease-in duration-100"
+          leaveFrom="opacity-100 scale-100"
+          leaveTo="opacity-0 scale-95"
         >
-          <MenuItems className="absolute z-50 mt-1 w-full rounded-md border border-gray-300 bg-white py-1 text-xs font-medium shadow-lg shadow-gray-200/50 outline-none dark:border-dark-500 dark:bg-dark-700 dark:shadow-none">
-            {options.map((opt) => (
-              <MenuItem key={opt.value}>
-                {({ focus }) => (
-                  <button
-                    onClick={() => setSelectedWeekId(opt.value)}
-                    className={clsx(
-                      "flex h-7 w-full items-center px-2 outline-none transition-colors",
-                      focus && "bg-primary-600 text-white"
-                    )}
-                  >
-                    {opt.label}
-                  </button>
-                )}
-              </MenuItem>
-            ))}
+          {/* ================================
+              📋 Dropdown List Container
+             ================================ */}
+          <MenuItems
+            className={clsx(
+              // Base styles
+              "absolute z-50 mt-2 w-full overflow-y-auto rounded-md border border-gray-200 bg-white text-sm shadow-lg ring-1 ring-black/5 focus:outline-none",
+              // Dark mode
+              "dark:border-dark-500 dark:bg-dark-700",
+              // Scrollable list (max height)
+              "max-h-48 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent dark:scrollbar-thumb-dark-500"
+            )}
+          >
+            {/* Render each week option */}
+            {options.map((opt) => {
+              const isSelected = selectedWeekId === opt.value;
+
+              return (
+                <MenuItem key={opt.value}>
+                  {({ active }) => (
+                    <button
+                      onClick={() => setSelectedWeekId(opt.value)}
+                      className={clsx(
+                        "flex w-full items-center justify-between px-3 py-2 text-left transition-colors",
+                        active
+                          ? "bg-primary-600 text-white"
+                          : "text-gray-700 dark:text-gray-100",
+                        isSelected && "font-semibold"
+                      )}
+                    >
+                      {/* Option label */}
+                      <span>{opt.label}</span>
+
+                      {/* ✅ Check icon for selected item */}
+                      {isSelected && (
+                        <CheckIcon className="h-4 w-4 text-primary-600 dark:text-primary-400" />
+                      )}
+                    </button>
+                  )}
+                </MenuItem>
+              );
+            })}
           </MenuItems>
         </Transition>
       </Menu>

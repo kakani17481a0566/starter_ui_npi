@@ -121,7 +121,7 @@ export default function Home() {
       <div className="transition-content w-full px-3 pt-4 sm:px-4 lg:px-6 lg:pt-6">
         <div className="dark:text-dark-50 min-w-0 text-gray-800">
           <h2 className="mb-5 text-xl font-semibold tracking-wide">
-            Linked Kids
+
           </h2>
 
           <PsLink

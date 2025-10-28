@@ -38,6 +38,8 @@ const {tenantId,branch,course,week}=getSessionData();
 // export const USER_LIST=`https://localhost:7171/api/user/by-tenant?tenantId=${tenantId}`;
 const defaultCourse = course && course.length > 0 ? course[0].id : null;
 export const BASE_URL=`https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/api`;
+export const Local_url=`https://localhost:7202/api`;
+
 export const USER_LIST=`${BASE_URL}/user/by-tenant?tenantId=${tenantId}`;
 // export const USER_LOGIN=`${BASE_URL}/User/login?username=aaa&password=aa`;
 export const WEEK_PLAN_LIST=`${BASE_URL}/VwComprehensive/all`;
@@ -68,7 +70,7 @@ export const POS_ITEMS=`${BASE_URL}/Items/GetByTenant/${tenantId}`;
 
 export const LIBRARY_CATEGORIES=`${BASE_URL}/Genres/${tenantId}`;
 export const LIBRARY_BOOKS=`${BASE_URL}/ItemHeader/${tenantId}`;
-export const HEALTH_REGISTRATION=`${BASE_URL}/Genetic`;
+export const HEALTH_REGISTRATION=`${Local_url}/Genetic`;
 
 
 
