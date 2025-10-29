@@ -59,7 +59,7 @@ export default function FeereportTable() {
   useEffect(() => {
     const loadItems = async () => {
       try {
-        const result = await fetchFeeReport(1, 384); // tenantId=1, studentId=374
+        const result = await fetchFeeReport(1, 374); // tenantId=1, studentId=374
         if (result) {
           setSummary(result);
           setTransactions(result.transactions || []);

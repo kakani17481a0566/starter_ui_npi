@@ -11,7 +11,7 @@ export default function Fee() {
 
   useEffect(() => {
     async function loadReport() {
-      const data = await fetchFeeReport(1,384); // tenantId=1, studentId=374
+      const data = await fetchFeeReport(1,374); // tenantId=1, studentId=374
       setFeeReport(data);
     }
     loadReport();
