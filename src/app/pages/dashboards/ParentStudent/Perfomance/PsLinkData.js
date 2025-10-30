@@ -54,7 +54,7 @@ export async function fetchPsLinkData(userId, tenantId) {
           class: s.courseName,
           section: s.section ?? null, // API doesn’t give section yet
           academicYear: s.academicYear ?? "2025-2026", // fallback
-          courseId: null, // API doesn’t return courseId
+          courseId: s.courseId, // API doesn’t return courseId
           dob: s.dob,
           age: s.age,
           bloodGroup: s.bloodGroup,
