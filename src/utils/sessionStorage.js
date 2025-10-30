@@ -1,4 +1,3 @@
-// Local in-memory cache
 let jwtToken = null;
 let tenantId = null;
 let userId = null;
@@ -10,8 +9,9 @@ let branch = null;
 let term = null;
 let course = null;
 let imageUrl = null;
+let selectedStudentId=null;
+let selectedCourseId=null;
 
-// ✅ Safe JSON parse utility
 function safeParse(value) {
   try {
     if (!value || value === "undefined") return null;
@@ -21,7 +21,6 @@ function safeParse(value) {
   }
 }
 
-// ✅ Set all session data
 export const setSessionData = ({
   token,
   tid,
@@ -36,7 +35,6 @@ export const setSessionData = ({
   userImageUrl,
   userProfile,
 }) => {
-  // Set in-memory
   jwtToken = token;
   tenantId = tid;
   userId = uid;
@@ -48,8 +46,6 @@ export const setSessionData = ({
   term = termId;
   course = courses;
   imageUrl = userImageUrl;
-
-  // Set in localStorage
   localStorage.setItem("authToken", token ?? "");
   localStorage.setItem("tenantId", tid ?? "");
   localStorage.setItem("userId", uid ?? "");
@@ -61,14 +57,12 @@ export const setSessionData = ({
   localStorage.setItem("branchId", branchId ?? "");
   localStorage.setItem("courses", JSON.stringify(courses ?? []));
   localStorage.setItem("userImageUrl", userImageUrl ?? "");
-
-  // ✅ Save userProfile safely
   if (userProfile && typeof userProfile === "object") {
     localStorage.setItem("userProfile", JSON.stringify(userProfile));
   }
 };
 
-// ✅ Get session data (from memory or fallback to localStorage)
+
 export const getSessionData = () => ({
   token: jwtToken || localStorage.getItem("authToken"),
   tenantId: tenantId || localStorage.getItem("tenantId"),
@@ -82,9 +76,12 @@ export const getSessionData = () => ({
   course: course || safeParse(localStorage.getItem("courses")),
   imageUrl: imageUrl || localStorage.getItem("userImageUrl"),
   userProfile: safeParse(localStorage.getItem("userProfile")),
+  selectedStudentId:selectedStudentId||localStorage.getItem("selectedStudentId"),
+  selectedCourseId:selectedCourseId||localStorage.getItem("selectedCourseId"),
+
+
 });
 
-// ✅ Clear session data
 export const clearSessionData = () => {
   jwtToken = null;
   tenantId = null;
@@ -97,6 +94,8 @@ export const clearSessionData = () => {
   course = null;
   branch = null;
   imageUrl = null;
+  selectedCourseId=null;
+  selectedStudentId=null;
 
   localStorage.removeItem("authToken");
   localStorage.removeItem("tenantId");
@@ -110,4 +109,17 @@ export const clearSessionData = () => {
   localStorage.removeItem("courses");
   localStorage.removeItem("userImageUrl");
   localStorage.removeItem("userProfile");
+  localStorage.removeItem("courseId");
+  localStorage.removeItem("studentId");
+};
+
+export const setSelectedStudentId = (studentId) => {
+  const idToSet = studentId ?? 0;
+  selectedStudentId = idToSet;
+  localStorage.setItem("selectedStudentId", idToSet);
+};
+export const setSelectedCourseId = (courseId) => {
+  const idToSet = courseId ?? 0;
+  selectedCourseId = idToSet;
+  localStorage.setItem("selectedCourseId", idToSet);
 };

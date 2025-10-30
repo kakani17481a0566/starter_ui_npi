@@ -5,13 +5,14 @@ import { Card } from "components/ui";
 import FeereportTable from "app/pages/tables/ParentTeacherDashbord/FeereportTable";
 import FeeSummaryCard from "app/pages/dashboards/Parent/FeeSummaryCard";
 import { fetchFeeReport } from "app/pages/tables/ParentTeacherDashbord/FeereportTable/data";
+import { getSessionData } from "utils/sessionStorage";
 
 export default function Fee() {
   const [feeReport, setFeeReport] = useState(null);
-
+  const{selectedStudentId,tenantId}=getSessionData();
   useEffect(() => {
     async function loadReport() {
-      const data = await fetchFeeReport(1,374); // tenantId=1, studentId=374
+      const data = await fetchFeeReport(tenantId,selectedStudentId); // tenantId=1, studentId=374
       setFeeReport(data);
     }
     loadReport();

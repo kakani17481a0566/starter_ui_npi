@@ -4,6 +4,7 @@ import axios from "axios";
 import parentAvatar from "app/pages/dashboards/ParentStudent/Perfomance/avatar-16.jpg";
 import kidBoyAvatar from "assets/kidav.jpg";
 import kidGirlAvatar from "assets/kidav2.jpg";
+import {setSelectedCourseId,setSelectedStudentId} from "utils/sessionStorage";
 
 /**
  * Fetches parent and linked students from API and normalizes
@@ -20,7 +21,10 @@ export async function fetchPsLinkData(userId, tenantId) {
     }
 
     const { parent, students } = res.data.data;
-
+    const courseId=students[0].courseId;
+    const studentId=students[0].studentId;
+    setSelectedStudentId(studentId);
+    setSelectedCourseId(courseId);    
     // 🔄 Normalize API response to match PsLinkData.js shape
     return [
       {
@@ -50,7 +54,7 @@ export async function fetchPsLinkData(userId, tenantId) {
           class: s.courseName,
           section: s.section ?? null, // API doesn’t give section yet
           academicYear: s.academicYear ?? "2025-2026", // fallback
-          courseId: null, // API doesn’t return courseId
+          courseId: s.courseId, // API doesn’t return courseId
           dob: s.dob,
           age: s.age,
           bloodGroup: s.bloodGroup,

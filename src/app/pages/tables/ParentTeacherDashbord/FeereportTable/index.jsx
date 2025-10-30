@@ -36,6 +36,8 @@ import { useThemeContext } from "app/contexts/theme/context";
 import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 import { fetchFeeReport } from "./data";
 import { FeeTransactionsDrawer } from "./FeeTransactionsDrawer";
+import { getSessionData } from "utils/sessionStorage";
+
 
 // ----------------------------------------------------------------------
 
@@ -54,12 +56,14 @@ export default function FeereportTable() {
     enableFullScreen: false,
     enableRowDense: true,
   });
+    const{selectedStudentId,tenantId}=getSessionData();
+  
 
   // 🔹 Fetch fee report data
   useEffect(() => {
     const loadItems = async () => {
       try {
-        const result = await fetchFeeReport(1, 374); // tenantId=1, studentId=374
+        const result = await fetchFeeReport(tenantId, selectedStudentId); 
         if (result) {
           setSummary(result);
           setTransactions(result.transactions || []);
