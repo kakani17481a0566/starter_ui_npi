@@ -26,6 +26,19 @@ const {role}=getSessionData();
     },
   ]
 }
+else if(role==='PARENT'){
+   dynamicChilds=[
+    
+        {
+      id: "StudentRegistrationForm",
+      path: path(ROOT_DASHBOARDS, "/genetics"),
+      type: NAV_TYPE_ITEM,
+      title: " Mohith Genetics Centre",
+      transKey: "nav.genetics.genetics",
+      Icon: ClipboardDocumentCheckIcon,
+    },
+  ]
+}
 
 export const Genetics = {
   id: "Genetics",

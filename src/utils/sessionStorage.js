@@ -10,6 +10,8 @@ let branch = null;
 let term = null;
 let course = null;
 let imageUrl = null;
+let selectedStudentId=null;
+let selectedCourseId=null;
 
 // ✅ Safe JSON parse utility
 function safeParse(value) {
@@ -35,6 +37,8 @@ export const setSessionData = ({
   courses,
   userImageUrl,
   userProfile,
+  // studentId,
+  // courseId
 }) => {
   // Set in-memory
   jwtToken = token;
@@ -48,6 +52,8 @@ export const setSessionData = ({
   term = termId;
   course = courses;
   imageUrl = userImageUrl;
+  // selectedStudentId=studentId;
+  // selectedCourseId=courseId;
 
   // Set in localStorage
   localStorage.setItem("authToken", token ?? "");
@@ -61,6 +67,8 @@ export const setSessionData = ({
   localStorage.setItem("branchId", branchId ?? "");
   localStorage.setItem("courses", JSON.stringify(courses ?? []));
   localStorage.setItem("userImageUrl", userImageUrl ?? "");
+  // localStorage.setItem("selectedStudentId",selectedStudentId??0);
+  // localStorage.setItem("selectedCourseId",selectedCourseId??0);
 
   // ✅ Save userProfile safely
   if (userProfile && typeof userProfile === "object") {
@@ -82,6 +90,10 @@ export const getSessionData = () => ({
   course: course || safeParse(localStorage.getItem("courses")),
   imageUrl: imageUrl || localStorage.getItem("userImageUrl"),
   userProfile: safeParse(localStorage.getItem("userProfile")),
+  selectedStudentId:selectedStudentId||localStorage.getItem("selectedStudentId"),
+  selectedCourseId:selectedCourseId||localStorage.getItem("selectedCourseId"),
+
+
 });
 
 // ✅ Clear session data
@@ -97,6 +109,8 @@ export const clearSessionData = () => {
   course = null;
   branch = null;
   imageUrl = null;
+  selectedCourseId=null;
+  selectedStudentId=null;
 
   localStorage.removeItem("authToken");
   localStorage.removeItem("tenantId");
@@ -110,4 +124,28 @@ export const clearSessionData = () => {
   localStorage.removeItem("courses");
   localStorage.removeItem("userImageUrl");
   localStorage.removeItem("userProfile");
+  localStorage.removeItem("courseId");
+  localStorage.removeItem("studentId");
 };
+
+// ... after your setSessionData function ...
+
+// ✅ Set selectedStudentId separately
+export const setSelectedStudentId = (studentId) => {
+  const idToSet = studentId ?? 0;
+  // Set in-memory
+  selectedStudentId = idToSet;
+  // Set in localStorage
+  localStorage.setItem("selectedStudentId", idToSet);
+};
+
+// ✅ Set selectedCourseId separately
+export const setSelectedCourseId = (courseId) => {
+  const idToSet = courseId ?? 0;
+  // Set in-memory
+  selectedCourseId = idToSet;
+  // Set in localStorage
+  localStorage.setItem("selectedCourseId", idToSet);
+};
+
+// ... your existing getSessionData and clearSessionData functions ...

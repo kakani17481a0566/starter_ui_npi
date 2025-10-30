@@ -60,6 +60,7 @@ export default function Home() {
   const [selectedWeekId, setSelectedWeekId] = useState(-1);
 
   const sessionData = getSessionData();
+  const{tenantId}=getSessionData();
 
   useEffect(() => {
     const loadData = async () => {
@@ -83,11 +84,9 @@ export default function Home() {
     .flatMap((e) => e?.kids || [])
     .find((k) => k?.id === selectedKidId);
 
-  const tenantIdForPerf =
-    psLinkData?.[0]?.tenantId ?? sessionData?.tenantId ?? undefined;
-
+  // const tenantIdForPerf =sessionData?.tenantId;
   const { performanceData, loading } = useStudentPerformance({
-    tenantId: tenantIdForPerf,
+    tenantId: tenantId,
     courseId: selectedKid?.courseId ?? 1,
     branchId: selectedKid?.branchId ?? 1,
     weekId: selectedWeekId,

@@ -5,20 +5,25 @@ import { WeekTimeTable } from "app/pages/dashboards/teacher/WeekTimeTable";
 import { getSessionData } from "utils/sessionStorage";
 
 export default function TermPlan() {
-  const { course: allCourses } = getSessionData();
-  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const { course: allCourses,role,selectedCourseId } = getSessionData();
+  const [courseId, setCourseId] = useState(null);
 
   // Load stored or lowest ID course
   useEffect(() => {
+    
+  if(role==="PARENT"){
+    setCourseId(selectedCourseId);
+  }
+  else
     if (allCourses?.length > 0) {
       const storedId = Number(localStorage.getItem("selectedCourseId"));
       const initial =
         allCourses.find((c) => c.id === storedId) ||
         allCourses.reduce((min, c) => (c.id < min.id ? c : min), allCourses[0]);
 
-      setSelectedCourseId(initial?.id ?? null);
+      setCourseId(initial?.id ?? null);
     }
-  }, [allCourses]);
+  }, [allCourses,selectedCourseId]);
 
   return (
     <Page title="Academic Term Plan">
@@ -33,7 +38,7 @@ export default function TermPlan() {
           </div>
 
           <div className="mt-4">
-            <WeekTimeTable courseId={selectedCourseId} />
+            <WeekTimeTable courseId={courseId} />
           </div>
         </div>
       </div>

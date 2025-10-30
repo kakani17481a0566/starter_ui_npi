@@ -1,5 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import {setSelectedCourseId,setSelectedStudentId} from "utils/sessionStorage";
+
 
 // API call wrapper
 export async function fetchStudentPerformance({
@@ -37,6 +39,8 @@ export function useStudentPerformance({
 }) {
   const [performanceData, setPerformanceData] = useState(null);
   const [loading, setLoading] = useState(true);
+  setSelectedStudentId(studentId);
+  setSelectedCourseId(courseId);
 
   useEffect(() => {
     async function loadData() {

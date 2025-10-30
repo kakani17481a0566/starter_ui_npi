@@ -4,10 +4,15 @@ import { TermTimeTable } from "app/pages/dashboards/teacher/TermTimeTable";
 import { getSessionData } from "utils/sessionStorage";
 
 export default function TermPlan() {
-  const { course: courses } = getSessionData();
+  const { course: courses,role,selectedCourseId } = getSessionData();
   const storedId = Number(localStorage.getItem("selectedCourseId"));
-  const selectedCourse =
-    courses?.find((c) => c.id === storedId) || courses?.[0];
+  let selectedCourse =
+    courses?.find((c) => c.id === storedId) || courses?.[0].id;
+  if(role==="PARENT"){
+    selectedCourse=selectedCourseId;
+
+  }
+ 
 
   return (
     <Page title="Academic Term Plan">
@@ -22,7 +27,7 @@ export default function TermPlan() {
           </div>
 
           <div className="mt-4">
-            <TermTimeTable courseId={selectedCourse?.id} />
+            <TermTimeTable courseId={selectedCourse} />
           </div>
         </div>
       </div>
