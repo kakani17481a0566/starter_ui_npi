@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input, Button, Card } from "components/ui";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -8,7 +8,7 @@ import { getSessionData } from "utils/sessionStorage";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "app/contexts/auth/context";
 
-// Icons
+// Heroicons
 import {
   ArrowPathIcon,
   LockClosedIcon,
@@ -16,13 +16,17 @@ import {
   LockOpenIcon,
   ShieldCheckIcon,
   CheckCircleIcon,
-  ExclamationCircleIcon,
+  ExclamationTriangleIcon,
+  XCircleIcon,
 } from "@heroicons/react/24/solid";
 
-// Validation Schema
+// ✅ Validation Schema
 const schema = yup.object().shape({
   currentPassword: yup.string().required("Current password is required"),
-  newPassword: yup.string().required("New password is required"),
+  newPassword: yup
+    .string()
+    .required("New password is required")
+    .min(6, "Password must be at least 6 characters"),
   confirmPassword: yup
     .string()
     .oneOf([yup.ref("newPassword")], "Passwords must match")
@@ -43,6 +47,15 @@ export default function ChangePassword() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [responseMsg, setResponseMsg] = useState("");
+  const [msgType, setMsgType] = useState("info"); // success | warning | error
+
+  // 🕓 Auto-clear messages
+  useEffect(() => {
+    if (responseMsg) {
+      const timer = setTimeout(() => setResponseMsg(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [responseMsg]);
 
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -55,66 +68,105 @@ export default function ChangePassword() {
           currentPassword: data.currentPassword,
           newPassword: data.newPassword,
         },
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
+        { headers: { Authorization: token } }
       );
 
-      const message = res.data.message || "Password updated successfully ✅";
-      setResponseMsg(message);
-      reset();
+      // ✅ Success
+      if (res.status === 200) {
+        setResponseMsg("Password updated successfully. You’ll be logged out shortly...");
+        setMsgType("success");
+        reset();
 
-      if (message.toLowerCase().includes("success")) {
         setTimeout(async () => {
           await logout();
           navigate("/login?redirect=/");
         }, 3000);
+      } else {
+        setResponseMsg("⚠️ Something went wrong. Please try again later.");
+        setMsgType("warning");
       }
     } catch (err) {
-      const msg =
-        err?.response?.data?.message || "❌ Failed to update password.";
+      let msg = err?.response?.data?.message || "❌ Failed to update password. Please try again.";
+      const lowerMsg = msg.toLowerCase();
+
+      // 🔍 Detect wrong password
+      if (
+        err?.response?.status === 401 ||
+        lowerMsg.includes("incorrect") ||
+        lowerMsg.includes("invalid") ||
+        lowerMsg.includes("wrong")
+      ) {
+        msg = "Current password is incorrect.";
+        setMsgType("error");
+      } else if (err?.message?.includes("Network Error")) {
+        msg = "⚠️ Network error. Please check your internet connection.";
+        setMsgType("warning");
+      } else {
+        setMsgType("error");
+      }
+
       setResponseMsg(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // 🎨 Dynamic Alert Styles
+  const getAlertClasses = () => {
+    switch (msgType) {
+      case "success":
+        return "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300";
+      case "warning":
+        return "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300";
+      case "error":
+      default:
+        return "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300";
+    }
+  };
+
+  const getAlertIcon = () => {
+    switch (msgType) {
+      case "success":
+        return <CheckCircleIcon className="w-5 h-5" />;
+      case "warning":
+        return <ExclamationTriangleIcon className="w-5 h-5" />;
+      case "error":
+        return <XCircleIcon className="w-5 h-5" />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen px-4 bg-gray-100 dark:bg-dark-900">
       <Card className="w-full max-w-xl p-8 rounded-xl shadow-md bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-600">
+        {/* Header */}
         <div className="text-center mb-6">
           <div className="flex justify-center">
-            <div className="p-3 rounded-full bg-gray-200 dark:bg-dark-700">
-              <LockClosedIcon className="h-6 w-6 text-primary-600" />
-            </div>
+            <div className="p-3 rounded-full outline outline-2 outline-primary-600 dark:bg-dark-700">
+  <LockClosedIcon className="h-6 w-6 text-primary-600" />
+</div>
+
           </div>
           <h2 className="mt-4 text-2xl font-semibold text-primary-950 dark:text-white">
             Change Your Password
           </h2>
           <p className="text-sm text-primary-950 dark:text-gray-400 mt-1">
-            Keep your account secure
+            Keep your account secure by updating it regularly
           </p>
         </div>
 
+        {/* Message */}
         {responseMsg && (
           <div
-            className={`flex items-center gap-2 mb-6 text-sm px-4 py-3 rounded-lg shadow-sm transition-all duration-300 ${
-              responseMsg.toLowerCase().includes("success")
-                ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
-                : "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300"
-            }`}
+            className={`flex items-center gap-2 mb-6 text-sm px-4 py-3 rounded-lg shadow-sm transition-all duration-300 ${getAlertClasses()}`}
           >
-            {responseMsg.toLowerCase().includes("success") ? (
-              <CheckCircleIcon className="w-5 h-5" />
-            ) : (
-              <ExclamationCircleIcon className="w-5 h-5" />
-            )}
+            {getAlertIcon()}
             <span>{responseMsg}</span>
           </div>
         )}
 
+        {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 text-primary-950 dark:text-white">
           <Input
             label="Current Password"
@@ -125,6 +177,7 @@ export default function ChangePassword() {
             {...register("currentPassword")}
             error={errors.currentPassword?.message}
           />
+
           <Input
             label="New Password"
             type="password"
@@ -134,6 +187,7 @@ export default function ChangePassword() {
             {...register("newPassword")}
             error={errors.newPassword?.message}
           />
+
           <Input
             label="Confirm New Password"
             type="password"
@@ -148,7 +202,7 @@ export default function ChangePassword() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="min-w-[140px] flex items-center justify-center gap-2 bg-primary-600 text-white hover:bg-primary-700 transition-all"
+              className="min-w-[150px] flex items-center justify-center gap-2 bg-primary-600 text-white hover:bg-primary-700 transition-all"
             >
               {isLoading ? (
                 <>
