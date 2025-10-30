@@ -104,7 +104,7 @@ export function UserCard({
       className={`flex h-full flex-col justify-between transition-all duration-200 focus-within:shadow-lg hover:-translate-y-0.5 hover:shadow-lg ${className}`}
     >
       <Card className="flex h-full flex-col">
-        <div className="bg-primary-500 relative h-24 overflow-hidden rounded-t-lg">
+        <div className="bg-primary-500 relative h-35 overflow-hidden rounded-t-lg">
           <img
             src={cover || defaultCover}
             onError={(e) => {
