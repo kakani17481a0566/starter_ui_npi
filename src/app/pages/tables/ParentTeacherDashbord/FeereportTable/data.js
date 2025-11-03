@@ -2,13 +2,15 @@
 import axios from "axios";
 
 // Base API URL (use env var or fallback for dev)
-const API_BASE = "https://localhost:7202";
+// const API_BASE = "https://localhost:7202";
+const BASE_URL=`https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net`;
+
 
 // 🔹 Fetch fee report for a student
 export async function fetchFeeReport(tenantId, studentId) {
   try {
     const res = await axios.get(
-      `${API_BASE}/api/FeeTransactions/report-fee/${tenantId}/${studentId}`
+      `${BASE_URL}/api/FeeTransactions/report-fee/${tenantId}/${studentId}`
     );
     return res.data?.data || null;
   } catch (err) {
