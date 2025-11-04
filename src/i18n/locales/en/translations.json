@@ -36,6 +36,10 @@
     "genetics":"Neuro Pi"
 
   },
+   "nutrition":{
+    "nutrition":"Nutrition"
+
+  },
    "apps": {
       "apps": "Apps",
       "chat": "Chat",
