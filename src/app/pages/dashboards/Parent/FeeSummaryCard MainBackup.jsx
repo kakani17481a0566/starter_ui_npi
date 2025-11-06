@@ -1,7 +1,5 @@
 // src/app/pages/dashboards/Parent/FeeSummaryCard.jsx
-// import { Avatar, Card, Input } from "components/ui";
-import { Avatar, Card } from "components/ui";
-
+import { Avatar, Card, Input } from "components/ui";
 import {
   UserIcon,
   CurrencyRupeeIcon,
@@ -11,11 +9,9 @@ import {
 import PropTypes from "prop-types";
 import { useState } from "react";
 
-// export default function FeeSummaryCard({ feeReport, isLoading, onPaymentSuccess }) {
-
-export default function FeeSummaryCard({ feeReport, isLoading }) {
-  // const [paymentAmount, setPaymentAmount] = useState(feeReport?.pendingFee || "");
-  // const [showPaymentOptions, setShowPaymentOptions] = useState(false);
+export default function FeeSummaryCard({ feeReport, isLoading, onPaymentSuccess }) {
+  const [paymentAmount, setPaymentAmount] = useState(feeReport?.pendingFee || "");
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
 
   if (isLoading) {
@@ -89,34 +85,34 @@ export default function FeeSummaryCard({ feeReport, isLoading }) {
   const progress = (feeReport.totalPaid / feeReport.totalFee) * 100;
   const isFullyPaid = feeReport.pendingFee === 0;
 
-  // const handlePayNow = () => {
-  //   setShowPaymentOptions(true);
-  // };
+  const handlePayNow = () => {
+    setShowPaymentOptions(true);
+  };
 
-  // const handleAmountChange = (e) => {
-  //   const value = e.target.value;
-  //   if (
-  //     value === "" ||
-  //     (Number(value) >= 0 && Number(value) <= feeReport.pendingFee)
-  //   ) {
-  //     setPaymentAmount(value);
-  //   }
-  // };
+  const handleAmountChange = (e) => {
+    const value = e.target.value;
+    if (
+      value === "" ||
+      (Number(value) >= 0 && Number(value) <= feeReport.pendingFee)
+    ) {
+      setPaymentAmount(value);
+    }
+  };
 
-  // const handlePaymentSuccess = () => {
-  //   setShowPaymentOptions(false);
-  //   setPaymentCompleted(true);
-  //   setPaymentAmount("");
+  const handlePaymentSuccess = () => {
+    setShowPaymentOptions(false);
+    setPaymentCompleted(true);
+    setPaymentAmount("");
 
     // 🔹 Notify parent (Fee.jsx) to refresh table + summary
-  //   onPaymentSuccess?.();
-  // };
+    onPaymentSuccess?.();
+  };
 
-  // const handleCancelPayment = () => {
-  //   setShowPaymentOptions(false);
-  // };
+  const handleCancelPayment = () => {
+    setShowPaymentOptions(false);
+  };
 
-  // const amountToPay = paymentAmount || feeReport.pendingFee;
+  const amountToPay = paymentAmount || feeReport.pendingFee;
 
   return (
     <Card className="col-span-12 lg:col-span-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
@@ -198,7 +194,7 @@ export default function FeeSummaryCard({ feeReport, isLoading }) {
       </div>
 
       {/* Payment Input & Button */}
-      {/* {!isFullyPaid && (
+      {!isFullyPaid && (
         <div className="space-y-2">
           <div>
             <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
@@ -214,7 +210,7 @@ export default function FeeSummaryCard({ feeReport, isLoading }) {
             />
           </div>
 
-
+          {/* Pay Now Button - Only show when payment options are hidden */}
           {!showPaymentOptions && (
             <button
               className="w-full bg-blue-500 hover:bg-blue-600 text-white py-1.5 px-3 rounded text-xs font-medium transition-colors"
@@ -224,7 +220,7 @@ export default function FeeSummaryCard({ feeReport, isLoading }) {
             </button>
           )}
 
-
+          {/* Payment Options - Show when Pay Now is clicked */}
           {showPaymentOptions && (
             <div className="space-y-1.5">
               <div className="text-center mb-1">
@@ -261,7 +257,7 @@ export default function FeeSummaryCard({ feeReport, isLoading }) {
             </div>
           )}
         </div>
-      )} */}
+      )}
     </Card>
   );
 }

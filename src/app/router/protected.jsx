@@ -255,6 +255,22 @@ const protectedRoutes = {
               }),
             },
           ]
+          },
+           {
+          path: "nutrition",
+          children: [
+            {
+              index: true,
+              element: <Navigate to="/nutrition" />,
+            },
+            {
+              path: "nutrition",
+              lazy: async () => ({
+                Component: (await import("app/pages/Nutrition/Index"))
+                  .default,
+              }),
+            },
+          ]
           }
       ],
     },

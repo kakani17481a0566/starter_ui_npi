@@ -11,10 +11,11 @@ export function SkillsPerformance({
   const skills = [];
 
   for (const subject of subjectWiseAssessments) {
-    if (selectedSubjectCode && subject.subjectCode !== selectedSubjectCode) continue;
+    if (selectedSubjectCode && subject.subjectCode !== selectedSubjectCode)
+      continue;
     for (const skill of subject.skills) {
       const scoreEntry = skill.studentScores.find(
-        (entry) => entry.studentId === selectedStudentId
+        (entry) => entry.studentId === selectedStudentId,
       );
       if (scoreEntry) {
         skills.push({
@@ -26,15 +27,22 @@ export function SkillsPerformance({
     }
   }
 
-  const sortedSkills = [...skills].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  const sortedSkills = [...skills].sort(
+    (a, b) => (b.score ?? 0) - (a.score ?? 0),
+  );
 
   if (!skills.length) {
     return (
       <div className="px-4 py-6 text-center">
-        <p className="text-xs text-gray-500 dark:text-dark-300">{selectedStudentName}</p>
-        <div className="mt-3 text-xs text-gray-400 dark:text-dark-300">
+        <p className="dark:text-dark-300 text-xs text-gray-500">
+          {selectedStudentName}
+        </p>
+        <div className="dark:text-dark-300 mt-3 text-xs text-gray-400">
           No skills found for{" "}
-          {selectedSubjectCode ? `subject "${selectedSubjectCode}"` : "this student"}.
+          {selectedSubjectCode
+            ? `subject "${selectedSubjectCode}"`
+            : "this student"}
+          .
         </div>
       </div>
     );
@@ -42,12 +50,18 @@ export function SkillsPerformance({
 
   const getGradeClass = (grade) => {
     switch (grade) {
-      case "A+": return "bg-green-500/20 text-green-600 dark:text-green-400";
-      case "A":  return "bg-blue-500/20 text-blue-600 dark:text-blue-400";
-      case "B":  return "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400";
-      case "C":  return "bg-orange-500/20 text-orange-600 dark:text-orange-400";
-      case "D":  return "bg-red-500/20 text-red-600 dark:text-red-400";
-      default:   return "bg-gray-400/20 text-gray-700 dark:text-gray-300";
+      case "A+":
+        return "bg-green-500/20 text-green-600 dark:text-green-400";
+      case "A":
+        return "bg-blue-500/20 text-blue-600 dark:text-blue-400";
+      case "B":
+        return "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400";
+      case "C":
+        return "bg-orange-500/20 text-orange-600 dark:text-orange-400";
+      case "D":
+        return "bg-red-500/20 text-red-600 dark:text-red-400";
+      default:
+        return "bg-gray-400/20 text-gray-700 dark:text-gray-300";
     }
   };
 
@@ -63,31 +77,32 @@ export function SkillsPerformance({
       {/* Header */}
       <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-
-          <p className="text-xs text-gray-500 dark:text-dark-300">{selectedStudentName}</p>
+          <p className="dark:text-dark-300 text-xs text-gray-500">
+            {selectedStudentName}
+          </p>
         </div>
-        <div className="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-dark-600 dark:text-dark-100">
+        <div className="dark:bg-dark-600 dark:text-dark-100 rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
           {skills.length} Skills
         </div>
       </div>
 
       {/* Skills grid */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="flex flex-col gap-3">
         {sortedSkills.map((item, index) => (
           <div
             key={index}
-            className="rounded border border-gray-200 bg-gray-50 p-3 shadow-sm dark:border-dark-500 dark:bg-dark-700"
+            className="dark:border-dark-500 dark:bg-dark-700 rounded border border-gray-200 bg-gray-50 p-3 shadow-sm"
           >
             <div className="mb-1 flex items-center justify-between gap-2">
               <p
-                className="truncate text-xs font-medium text-gray-800 dark:text-dark-100"
+                className="dark:text-dark-100 truncate text-xs font-medium text-gray-800"
                 title={item.skillName}
               >
                 {item.skillName}
               </p>
               <div className="flex items-center gap-1">
                 <span
-                  className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${getGradeClass(item.grade)}`}
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${getGradeClass(item.grade)}`}
                 >
                   {item.grade}
                 </span>
@@ -100,16 +115,16 @@ export function SkillsPerformance({
             </div>
 
             {/* Score Bar */}
-            <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-dark-600">
+            <div className="dark:bg-dark-600 relative h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
               <div
-                className={`absolute left-0 top-0 h-full rounded-full bg-gradient-to-r ${getBarClass(
-                  item.score
+                className={`absolute top-0 left-0 h-full rounded-full bg-gradient-to-r ${getBarClass(
+                  item.score,
                 )}`}
                 style={{ width: `${item.score ?? 0}%` }}
               ></div>
             </div>
 
-            <p className="mt-1 text-right text-[10px] font-medium text-gray-500 dark:text-dark-300">
+            <p className="dark:text-dark-300 mt-1 text-right text-[10px] font-medium text-gray-500">
               {item.score} / 100
             </p>
           </div>

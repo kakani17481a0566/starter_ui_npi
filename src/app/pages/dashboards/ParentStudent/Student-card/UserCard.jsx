@@ -104,19 +104,18 @@ export function UserCard({
       className={`flex h-full flex-col justify-between transition-all duration-200 focus-within:shadow-lg hover:-translate-y-0.5 hover:shadow-lg ${className}`}
     >
       <Card className="flex h-full flex-col">
-        <div className="bg-primary-500 relative h-35 overflow-hidden rounded-t-lg">
-          <img
-            src={cover || defaultCover}
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-            }}
-            loading="lazy"
-            decoding="async"
-            alt={`${name || "User"} cover`}
-            className="h-full w-full object-cover object-center"
-          />
-          <div className="pointer-events-none absolute inset-0 rounded-t-lg bg-gradient-to-t from-black/20 to-transparent" />
-        </div>
+       <div className="relative overflow-hidden rounded-t-lg bg-primary-500 h-45">
+  <img
+    src={cover || defaultCover}
+    onError={(e) => (e.currentTarget.style.display = "none")}
+    loading="lazy"
+    decoding="async"
+    alt={`${name || "User"} cover`}
+    className="h-full w-full object-contain object-center"
+  />
+  <div className="pointer-events-none absolute inset-0 rounded-t-lg bg-gradient-to-t from-black/20 to-transparent" />
+</div>
+
 
         <div className="flex flex-col space-y-3 px-4 py-3 sm:px-5">
           <div className="flex items-center justify-between gap-3">

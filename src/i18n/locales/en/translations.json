@@ -37,6 +37,10 @@
     "exercise":"Exercise Test"
 
   },
+   "nutrition":{
+    "nutrition":"Nutrition"
+
+  },
    "apps": {
       "apps": "Apps",
       "chat": "Chat",
