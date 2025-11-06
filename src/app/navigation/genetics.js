@@ -1,6 +1,7 @@
 import {
   // HomeIcon,
   ClipboardDocumentCheckIcon,
+  BoltIcon
 //   ClipboardDocumentListIcon,
 } from "@heroicons/react/24/outline";
 // import DashboardsIcon from "assets/dualicons/dashboards.svg?react";
@@ -23,6 +24,14 @@ const {role}=getSessionData();
       title: " Mohith Genetics Centre",
       transKey: "nav.genetics.genetics",
       Icon: ClipboardDocumentCheckIcon,
+    },
+      {
+      id: "Exercise",
+      path: path(ROOT_DASHBOARDS, "/exercise"),
+      type: NAV_TYPE_ITEM,
+      title: "Exercise",
+      transKey: "nav.genetics.exercise",
+      Icon: BoltIcon,
     },
   ]
 }
