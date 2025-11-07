@@ -5,21 +5,23 @@ export const schema = yup.object({
   // Personal Information
   studentName: yup
     .string()
-    .required('User name is required')
+    // .required('User name is required')
     .min(2, 'User name must be at least 2 characters')
     .max(100, 'User name must be less than 100 characters'),
 
   studentId: yup
     .string()
-    .required('User ID is required'),
+    // .required('User ID is required')
+    ,
 
-  // className: yup
-  //   .string()
-  //   .required('Class name is required'),
+  // Optional fields - removed required validation
+  className: yup
+    .string()
+    .nullable(),
 
-  // branch: yup
-  //   .string()
-  //   .required('Branch is required'),
+  branch: yup
+    .string()
+    .nullable(),
 
   fatherName: yup
     .string()
@@ -59,21 +61,113 @@ export const schema = yup.object({
     .required('City is required'),
 
   dateOfBirth: yup
-    .string()
+    .mixed()
     .required("User's date of birth is required"),
 
   fatherDateOfBirth: yup
-    .string()
+    .mixed()
     .required("Father's date of birth is required"),
 
   motherDateOfBirth: yup
-    .string()
+    .mixed()
     .required("Mother's date of birth is required"),
 
   age: yup
     .string()
     .required('Age is required')
     .matches(/^\d+$/, 'Age must be a number'),
+
+  // Biological Birthplace
+  // isBiologicalSame: yup
+  //   .string()
+  //   .required('Biological birthplace information is required')
+  //   .oneOf(['yes', 'no'], 'Please select Yes or No'),
+
+  biologicalCountry: yup
+    .string()
+    .when('isBiologicalSame', {
+      is: 'no',
+      then: (schema) => schema.required('Biological country is required when different from birthplace'),
+      otherwise: (schema) => schema.nullable()
+    }),
+
+  biologicalState: yup
+    .string()
+    .when('isBiologicalSame', {
+      is: 'no',
+      then: (schema) => schema.required('Biological state is required when different from birthplace'),
+      otherwise: (schema) => schema.nullable()
+    }),
+
+  biologicalCity: yup
+    .string()
+    .when('isBiologicalSame', {
+      is: 'no',
+      then: (schema) => schema.required('Biological city is required when different from birthplace'),
+      otherwise: (schema) => schema.nullable()
+    }),
+
+  // Guardian Information
+  hasGuardian: yup
+    .string()
+    .required('Guardian information is required')
+    .oneOf(['yes', 'no'], 'Please select Yes or No'),
+
+  guardianFirstName: yup
+    .string()
+    .when('hasGuardian', {
+      is: 'yes',
+      then: (schema) => schema.required('Guardian first name is required'),
+      otherwise: (schema) => schema.nullable()
+    }),
+
+  guardianMiddleName: yup
+    .string()
+    .nullable(),
+
+  guardianLastName: yup
+    .string()
+    .when('hasGuardian', {
+      is: 'yes',
+      then: (schema) => schema.required('Guardian last name is required'),
+      otherwise: (schema) => schema.nullable()
+    }),
+
+  guardianOccupation: yup
+    .string()
+    .when('hasGuardian', {
+      is: 'yes',
+      then: (schema) => schema.required('Guardian occupation is required'),
+      otherwise: (schema) => schema.nullable()
+    }),
+
+  guardianRelationship: yup
+    .string()
+    .when('hasGuardian', {
+      is: 'yes',
+      then: (schema) => schema.required('Guardian relationship is required'),
+      otherwise: (schema) => schema.nullable()
+    }),
+
+  guardianContactNumber: yup
+    .string()
+    .when('hasGuardian', {
+      is: 'yes',
+      then: (schema) => schema
+        .required('Guardian contact number is required')
+        .matches(/^\d{10}$/, 'Guardian contact number must be 10 digits'),
+      otherwise: (schema) => schema.nullable()
+    }),
+
+  guardianEmail: yup
+    .string()
+    .when('hasGuardian', {
+      is: 'yes',
+      then: (schema) => schema
+        .email('Please enter a valid guardian email address')
+        .required('Guardian email is required'),
+      otherwise: (schema) => schema.nullable()
+    }),
 
   // Health & Family History
   gender: yup
@@ -94,7 +188,7 @@ export const schema = yup.object({
   familyType: yup
     .string()
     .required('Family type is required')
-    .oneOf(['nuclear', 'extended','joint','single'], 'Please select a valid family type'),
+    .oneOf(['nuclear', 'extended', 'joint', 'single'], 'Please select a valid family type'),
 
   siblings: yup
     .string()
@@ -130,6 +224,10 @@ export const schema = yup.object({
     .string()
     .required('Sleep duration is required'),
 
+  sleepQuality: yup
+    .string()
+    .nullable(),
+
   screenTime: yup
     .string()
     .required('Screen time is required'),
@@ -154,11 +252,15 @@ export const schema = yup.object({
     .string()
     .required('Food timing information is required'),
 
+  foodFrequency: yup
+    .string()
+    .nullable(),
+
   // Environment & Exposure
   natureAccess: yup
     .string()
     .required('Nature access information is required')
-    .oneOf(['daily', 'weekly', 'occasional', 'virtual', 'rarely'], 'Please select a valid option'),
+    .oneOf(['daily', 'weekly', 'occasional', 'virtual', 'rarely', 'never'], 'Please select a valid option'),
 
   pollutionAir: yup
     .string()

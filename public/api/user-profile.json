@@ -1,0 +1,10 @@
+{
+  "name": "Avantika",
+  "avatarUrl": "/images/avatars/rohit.png",
+  "email": "rohit.sharma@example.com",
+  "role": "Nutrition Specialist",
+  "tenantId": 1,
+  "branch": "My School Italy - Milan",
+  "IconColor": "text-green-500",
+  "initialColor": "secondary"
+}

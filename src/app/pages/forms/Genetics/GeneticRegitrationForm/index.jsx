@@ -16,7 +16,7 @@ import {
   StateSelect,
   CitySelect,
 } from "react-country-state-city";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo, useMemo } from "react";
 import "react-country-state-city/dist/react-country-state-city.css";
 import { toast } from "sonner";
 import axios from "axios";
@@ -29,101 +29,218 @@ import { Page } from "components/shared/Page";
 import { Button, Card, Input } from "components/ui";
 import { HEALTH_REGISTRATION } from "constants/apis";
 
+// Data Imports
+import {
+  getInitialState,
+  getFormSections,
+  getCardStyle
+} from "./data";
+
 // ----------------------------------------------------------------------
-// Initial Values
+// Utility Functions
 // ----------------------------------------------------------------------
+const calculateAge = (birthDate) => {
+  if (!birthDate) return "";
 
-const getInitialState = () => ({
-  // Personal Information
-  studentName: "",
-  studentId: "",
-  className: "",
-  branch: "",
-  fatherName: "",
-  fatherOccupation: "",
-  motherName: "",
-  motherOccupation: "",
-  countryCode: "+91",
-  contactNumber: "",
-  country: "",
-  state: "",
-  city: "",
-  dateOfBirth: "",
-  fatherDateOfBirth: "",
-  motherDateOfBirth: "",
-  age: "",
+  try {
+    const actualDate = Array.isArray(birthDate) ? birthDate[0] : birthDate;
+    const today = new Date();
+    const birth = new Date(actualDate);
 
-  // Health & Family History
-  gender: "",
-  height: "",
-  weight: "",
-  familyType: "",
-  siblings: "",
-  consanguinity: "",
-  vaccination: "",
-  email: "",
+    if (isNaN(birth.getTime())) return "";
 
-  // Diet & Lifestyle
-  dietType: "",
-  activity: "",
-  sleepDuration: "",
-  screenTime: "",
-  fruits: "",
-  vegetables: "",
-  plantBasedProtein: "",
-  animalBasedProtein: "",
-  foodTiming: "",
-  sleepQuality: "",
-  foodFrequency: "",
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
 
-  // Environment & Exposure
-  natureAccess: "",
-  pollutionAir: "",
-  pollutionNoise: "",
-  pollutionWater: "",
-  passiveSmoking: "",
-  travelTime: "",
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+
+    return age > 0 ? age.toString() : "0";
+  } catch {
+    return "";
+  }
+};
+
+// ----------------------------------------------------------------------
+// Custom Location Select Components (FIXED)
+// ----------------------------------------------------------------------
+const CustomCountrySelect = memo(({
+  onChange,
+  value,
+  placeholder,
+  disabled,
+  className
+}) => {
+  const [selectedCountry, setSelectedCountry] = useState(null);
+
+  useEffect(() => {
+    if (value) {
+      setSelectedCountry(typeof value === 'string' ? { name: value } : value);
+    } else {
+      setSelectedCountry(null);
+    }
+  }, [value]);
+
+  const handleChange = (val) => {
+    const countryData = val ? { id: val.id, name: val.name } : null;
+    setSelectedCountry(countryData);
+    onChange(countryData);
+  };
+
+  return (
+    <div>
+      <CountrySelect
+        onChange={handleChange}
+        value={selectedCountry}
+        placeholder={placeholder}
+        disabled={disabled}
+        className={className}
+      />
+      {selectedCountry?.name && (
+        <div className="mt-1 text-xs text-gray-500">
+          Selected: {selectedCountry.name}
+        </div>
+      )}
+    </div>
+  );
 });
 
+CustomCountrySelect.displayName = 'CustomCountrySelect';
+
+const CustomStateSelect = memo(({
+  countryid,
+  onChange,
+  value,
+  placeholder,
+  disabled,
+  className
+}) => {
+  const [selectedState, setSelectedState] = useState(null);
+
+  useEffect(() => {
+    if (value) {
+      setSelectedState(typeof value === 'string' ? { name: value } : value);
+    } else {
+      setSelectedState(null);
+    }
+  }, [value]);
+
+  const handleChange = (val) => {
+    const stateData = val ? { id: val.id, name: val.name } : null;
+    setSelectedState(stateData);
+    onChange(stateData);
+  };
+
+  return (
+    <div>
+      <StateSelect
+        countryid={countryid}
+        onChange={handleChange}
+        value={selectedState}
+        placeholder={placeholder}
+        disabled={disabled || !countryid}
+        className={`${className} ${!countryid ? 'opacity-50' : ''}`}
+      />
+      {selectedState?.name && (
+        <div className="mt-1 text-xs text-gray-500">
+          Selected: {selectedState.name}
+        </div>
+      )}
+      {!countryid && (
+        <div className="mt-1 text-xs text-orange-500">
+          Please select a country first
+        </div>
+      )}
+    </div>
+  );
+});
+
+CustomStateSelect.displayName = 'CustomStateSelect';
+
+const CustomCitySelect = memo(({
+  countryid,
+  stateid,
+  onChange,
+  value,
+  placeholder,
+  disabled,
+  className
+}) => {
+  const [selectedCity, setSelectedCity] = useState(null);
+
+  useEffect(() => {
+    if (value) {
+      setSelectedCity(typeof value === 'string' ? { name: value } : value);
+    } else {
+      setSelectedCity(null);
+    }
+  }, [value]);
+
+  const handleChange = (val) => {
+    const cityData = val ? { id: val.id, name: val.name } : null;
+    setSelectedCity(cityData);
+    onChange(cityData);
+  };
+
+  return (
+    <div>
+      <CitySelect
+        countryid={countryid}
+        stateid={stateid}
+        onChange={handleChange}
+        value={selectedCity}
+        placeholder={placeholder}
+        disabled={disabled || !stateid}
+        className={`${className} ${!stateid ? 'opacity-50' : ''}`}
+      />
+      {selectedCity?.name && (
+        <div className="mt-1 text-xs text-gray-500">
+          Selected: {selectedCity.name}
+        </div>
+      )}
+      {!stateid && (
+        <div className="mt-1 text-xs text-orange-500">
+          Please select a state first
+        </div>
+      )}
+    </div>
+  );
+});
+
+CustomCitySelect.displayName = 'CustomCitySelect';
+
 // ----------------------------------------------------------------------
-// Tooltip Component
+// Tooltip Components (FIXED)
 // ----------------------------------------------------------------------
-const CustomTooltip = ({ content, children }) => {
+const CustomTooltip = memo(({ content, children }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-flex">
       <div
         onMouseEnter={() => setIsVisible(true)}
         onMouseLeave={() => setIsVisible(false)}
-        onFocus={() => setIsVisible(true)}
-        onBlur={() => setIsVisible(false)}
         className="inline-flex cursor-help items-center"
       >
         {children}
       </div>
 
       {isVisible && (
-        <div className="absolute top-full left-1/2 z-50 mt-2 w-72 -translate-x-1/2 transform">
-          <div className="bg-primary-50 border-primary-200 text-primary-900 relative rounded-lg border p-3 shadow-lg">
-            {/* Tooltip arrow */}
-            <div className="bg-primary-50 border-primary-200 absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 transform border-t border-l"></div>
-
-            {/* Tooltip content */}
-            <div className="relative z-10">
-              <p className="text-sm leading-relaxed">{content}</p>
-            </div>
+        <div className="absolute bottom-full left-1/2 z-50 mb-2 w-64 -translate-x-1/2 transform">
+          <div className="bg-gray-900 text-white rounded-lg px-3 py-2 text-sm shadow-lg">
+            <div className="absolute top-full left-1/2 -mt-1 -translate-x-1/2 transform border-4 border-transparent border-t-gray-900"></div>
+            {content}
           </div>
         </div>
       )}
     </div>
   );
-};
+});
 
-// ----------------------------------------------------------------------
-// Enhanced Tooltip Component for Protein Fields
-// ----------------------------------------------------------------------
-const ProteinTooltip = ({ title, content }) => {
+CustomTooltip.displayName = 'CustomTooltip';
+
+const ProteinTooltip = memo(({ title, content }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   return (
@@ -131,25 +248,20 @@ const ProteinTooltip = ({ title, content }) => {
       <div
         onMouseEnter={() => setIsVisible(true)}
         onMouseLeave={() => setIsVisible(false)}
-        onFocus={() => setIsVisible(true)}
-        onBlur={() => setIsVisible(false)}
         className="inline-flex cursor-help items-center"
       >
         <InformationCircleIcon className="text-primary-500 hover:text-primary-600 ml-1 h-4 w-4 transition-colors" />
       </div>
 
       {isVisible && (
-        <div className="absolute top-full left-1/2 z-50 mt-2 w-80 -translate-x-1/2 transform">
-          <div className="bg-primary-50 border-primary-200 text-primary-900 relative rounded-lg border p-4 shadow-xl">
-            {/* Tooltip arrow */}
-            <div className="bg-primary-50 border-primary-200 absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 transform border-t border-l"></div>
-
-            {/* Tooltip content */}
+        <div className="absolute bottom-full left-1/2 z-50 mb-2 w-80 -translate-x-1/2 transform">
+          <div className="bg-gray-900 text-white rounded-lg px-4 py-3 shadow-xl">
+            <div className="absolute top-full left-1/2 -mt-1 -translate-x-1/2 transform border-4 border-transparent border-t-gray-900"></div>
             <div className="relative z-10">
-              <h4 className="text-primary-800 mb-2 text-sm font-semibold">
+              <h4 className="mb-1 text-sm font-semibold text-white">
                 {title}
               </h4>
-              <p className="text-primary-700 text-xs leading-relaxed">
+              <p className="text-xs leading-relaxed text-gray-200">
                 {content}
               </p>
             </div>
@@ -158,69 +270,57 @@ const ProteinTooltip = ({ title, content }) => {
       )}
     </div>
   );
-};
+});
+
+ProteinTooltip.displayName = 'ProteinTooltip';
 
 // ----------------------------------------------------------------------
-// Validation Debug Component
+// Submit Button Component (FIXED ESLINT ERRORS)
 // ----------------------------------------------------------------------
-const ValidationDebug = ({ errors, formValues, session }) => {
-  const [showDebug, setShowDebug] = useState(false);
-
-  return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <button
-        type="button"
-        onClick={() => setShowDebug(!showDebug)}
-        className="bg-red-500 text-white p-2 rounded text-sm"
-      >
-        {Object.keys(errors).length} Errors
-      </button>
-
-      {showDebug && (
-        <div className="bg-white dark:bg-gray-800 p-4 rounded shadow-lg mt-2 max-w-md max-h-96 overflow-auto">
-          <h4 className="font-bold mb-2">Validation Debug:</h4>
-          <div className="text-sm">
-            <p><strong>Total Errors:</strong> {Object.keys(errors).length}</p>
-            <p><strong>Required Fields Filled:</strong> {
-              Object.keys(formValues).filter(key =>
-                formValues[key] && formValues[key].toString().trim() !== ''
-              ).length
-            } / {Object.keys(formValues).length}</p>
-            <p><strong>Session:</strong> {session.userId ? `User: ${session.userId}, Tenant: ${session.tenantId}` : 'Not logged in'}</p>
-
-            {Object.keys(errors).length > 0 && (
-              <div className="mt-2">
-                <strong>Errors:</strong>
-                {Object.entries(errors).map(([key, error]) => (
-                  <div key={key} className="text-red-500">
-                    {key}: {error.message}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ----------------------------------------------------------------------
-// Enhanced Submit Button Component
-// ----------------------------------------------------------------------
-const SubmitButton = ({ isSubmitting, errors, formValues, onClick, isAuthenticated }) => {
+const SubmitButton = memo(({
+  isSubmitting,
+  errors,
+  formValues,
+  onClick,
+  isAuthenticated
+}) => {
   const hasErrors = Object.keys(errors).length > 0;
   const isFormEmpty = Object.values(formValues).every(value =>
     value === "" || value === null || value === undefined
   );
 
-  const getButtonState = () => {
+  const getButtonState = useCallback(() => {
     if (!isAuthenticated) return "not-authenticated";
     if (isSubmitting) return "submitting";
     if (hasErrors) return "has-errors";
     if (isFormEmpty) return "empty";
     return "ready";
-  };
+  }, [isAuthenticated, isSubmitting, hasErrors, isFormEmpty]);
+
+  // FIXED: Removed unused 'key' variable and fixed useEffect dependency
+  useEffect(() => {
+    console.log('🔍 SUBMIT BUTTON DEBUG:');
+    console.log('  - isAuthenticated:', isAuthenticated);
+    console.log('  - isSubmitting:', isSubmitting);
+    console.log('  - hasErrors:', hasErrors, 'Error count:', Object.keys(errors).length);
+    console.log('  - isFormEmpty:', isFormEmpty);
+
+    if (hasErrors) {
+      console.log('  - ERRORS DETAIL:', errors);
+    }
+
+    if (isFormEmpty) {
+      const emptyFields = Object.entries(formValues)
+        .filter(([, value]) => value === "" || value === null || value === undefined)
+        .map(([fieldKey]) => fieldKey);
+      console.log('  - EMPTY FIELDS:', emptyFields);
+    }
+
+    // Log button state
+    const buttonState = getButtonState();
+    console.log('  - BUTTON STATE:', buttonState);
+    console.log('  - BUTTON DISABLED:', !isAuthenticated || isSubmitting || hasErrors || isFormEmpty);
+  }, [isAuthenticated, isSubmitting, hasErrors, isFormEmpty, errors, formValues, getButtonState]);
 
   const buttonState = getButtonState();
 
@@ -264,7 +364,9 @@ const SubmitButton = ({ isSubmitting, errors, formValues, onClick, isAuthenticat
       )}
     </Button>
   );
-};
+});
+
+SubmitButton.displayName = 'SubmitButton';
 
 // ----------------------------------------------------------------------
 // Session Validation Hook
@@ -277,6 +379,13 @@ const useSessionValidation = () => {
     const session = getSessionData();
     const hasValidSession = session.token && session.tenantId && session.userId;
 
+    console.log('🔐 SESSION VALIDATION:', {
+      hasToken: !!session.token,
+      hasTenantId: !!session.tenantId,
+      hasUserId: !!session.userId,
+      isAuthenticated: !!hasValidSession
+    });
+
     setIsAuthenticated(!!hasValidSession);
     setSessionData(session);
   }, []);
@@ -285,585 +394,27 @@ const useSessionValidation = () => {
 };
 
 // ----------------------------------------------------------------------
-// Component
+// Field Renderer Component (FIXED ESLINT ERRORS)
 // ----------------------------------------------------------------------
-const HealthForm = () => {
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-    setValue,
-    watch,
-    trigger,
-  } = useForm({
-    resolver: yupResolver(schema),
-    defaultValues: getInitialState(),
-  });
+const FieldRenderer = ({ fieldConfig, errors, register, control, selectedCountryId, selectedStateId, selectedBiologicalCountryId, selectedBiologicalStateId, handleCountryChange, handleStateChange, handleCityChange, handleBiologicalCountryChange, handleBiologicalStateChange, handleBiologicalCityChange, handleDateChange }) => {
+  const { type, key, label, placeholder, options, inputType, tooltip, disabled, step, min } = fieldConfig;
+  const error = errors[key]?.message;
 
-  const [selectedCountryId, setSelectedCountryId] = useState(null);
-  const [selectedStateId, setSelectedStateId] = useState(null);
-  const [selectedCityId, setSelectedCityId] = useState(null);
-
-  const { isAuthenticated, sessionData } = useSessionValidation();
-
-  // Watch date of birth for age calculation
-  const dateOfBirth = watch("dateOfBirth");
-
-  // Calculate age when date of birth changes
+  // FIXED: Moved useEffect outside of renderField to follow Rules of Hooks
   useEffect(() => {
-    if (dateOfBirth) {
-      const calculatedAge = calculateAge(dateOfBirth);
-      setValue("age", calculatedAge);
-      trigger("age");
-    } else {
-      setValue("age", "");
+    if (error) {
+      console.log(`🚨 FIELD ERROR [${key}]:`, error);
     }
-  }, [dateOfBirth, setValue, trigger]);
+  }, [error, key]);
 
-  const calculateAge = (birthDate) => {
-    if (!birthDate) return "";
-
-    try {
-      const actualDate = Array.isArray(birthDate) ? birthDate[0] : birthDate;
-      const today = new Date();
-      const birth = new Date(actualDate);
-
-      if (isNaN(birth.getTime())) return "";
-
-      let age = today.getFullYear() - birth.getFullYear();
-      const monthDiff = today.getMonth() - birth.getMonth();
-
-      if (
-        monthDiff < 0 ||
-        (monthDiff === 0 && today.getDate() < birth.getDate())
-      ) {
-        age--;
-      }
-
-      return age > 0 ? age.toString() : "0";
-    } catch {
-      return "";
-    }
-  };
-
-  // ----------------------------------------------------------------------
-  // Date Handler Function
-  // ----------------------------------------------------------------------
-  const handleDateChange = (date, fieldName) => {
-    let dateValue = "";
-
-    if (Array.isArray(date) && date.length > 0) {
-      dateValue = date[0];
-    } else if (date) {
-      dateValue = date;
-    }
-
-    setValue(fieldName, dateValue);
-
-    if (fieldName === "dateOfBirth") {
-      const calculatedAge = calculateAge(dateValue);
-      setValue("age", calculatedAge);
-      trigger("age");
-    }
-  };
-
-  // ----------------------------------------------------------------------
-  // Submit Handler with Session Data Integration
-  // ----------------------------------------------------------------------
-  const onSubmit = async (data) => {
-    try {
-      if (!isAuthenticated) {
-        toast.error("Please log in to submit the form");
-        return;
-      }
-
-      const isValid = await trigger();
-
-      if (!isValid) {
-        toast.error("Please fix all form errors before submitting");
-        return;
-      }
-
-      // Get session data for tenantId and createdBy
-      const currentTenantId = sessionData.tenantId ? parseInt(sessionData.tenantId) : 1;
-      const currentUserId = sessionData.userId ? parseInt(sessionData.userId) : 1;
-
-      const parentsOccupation = `${data.fatherOccupation || ''} & ${data.motherOccupation || ''}`.trim();
-
-      const formatDateForAPI = (dateValue) => {
-        if (!dateValue) return null;
-
-        const actualDate = Array.isArray(dateValue) ? dateValue[0] : dateValue;
-
-        if (!actualDate) return null;
-
-        const date = new Date(actualDate);
-        if (isNaN(date.getTime())) return null;
-
-        return date.toISOString();
-      };
-
-      const formData = {
-        // Personal Information
-        userName: data.studentName,
-        userId: data.studentId ? parseInt(data.studentId) : null,
-        className: data.className || null,
-        branch: data.branch || null,
-        fatherName: data.fatherName,
-        fatherOccupation: data.fatherOccupation,
-        motherName: data.motherName,
-        motherOccupation: data.motherOccupation,
-        parentsOccupation: parentsOccupation,
-        countryCode: data.countryCode || "+91",
-        contactNumber: data.contactNumber,
-        email: data.email,
-        country: data.country || "",
-        state: data.state || "",
-        city: data.city || "",
-        dateOfBirth: formatDateForAPI(data.dateOfBirth),
-        fatherDateOfBirth: formatDateForAPI(data.fatherDateOfBirth),
-        motherDateOfBirth: formatDateForAPI(data.motherDateOfBirth),
-        age: data.age ? parseInt(data.age) : calculateAge(data.dateOfBirth) ? parseInt(calculateAge(data.dateOfBirth)) : null,
-
-        // Health Information
-        gender: data.gender,
-        height: data.height ? parseFloat(data.height) : null,
-        weight: data.weight ? parseFloat(data.weight) : null,
-        consanguinity: data.consanguinity,
-
-        // Diet & Lifestyle
-        dietType: data.dietType,
-        activity: data.activity,
-        sleepDuration: data.sleepDuration,
-        sleepQuality: data.sleepQuality || "Good",
-        screenTime: data.screenTime,
-        foodTiming: data.foodTiming,
-        fruits: data.fruits,
-        vegetables: data.vegetables,
-        plantBasedProtein: data.plantBasedProtein,
-        animalBasedProtein: data.animalBasedProtein,
-        foodFrequency: data.foodFrequency || "3 meals per day",
-
-        // Family & Environment
-        familyType: data.familyType,
-        siblings: data.siblings ? parseInt(data.siblings) : null,
-        vaccination: data.vaccination,
-        natureAccess: data.natureAccess,
-        pollutionAir: data.pollutionAir,
-        pollutionNoise: data.pollutionNoise,
-        pollutionWater: data.pollutionWater,
-        passiveSmoking: data.passiveSmoking,
-        travelTime: data.travelTime,
-
-        // Session Data (automatically included, not visible in frontend)
-        tenantId: currentTenantId,
-        createdBy: currentUserId,
-        updatedBy: null,
-        isDeleted: false
-      };
-
-      // Log for debugging (remove in production)
-      console.log('Submitting form data with session:', {
-        tenantId: currentTenantId,
-        createdBy: currentUserId,
-        formData: formData
-      });
-
-      await axios.post(HEALTH_REGISTRATION, formData, {
-        timeout: 10000,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      toast.success("Genetic registration submitted successfully!");
-      resetForm();
-    } catch (error) {
-      console.error('Form submission error:', error);
-
-      if (error.code === 'ECONNABORTED') {
-        toast.error("Request timeout. Please try again.");
-      } else if (error.response) {
-        const errorMessage = error.response?.data?.message ||
-                            error.response?.data?.error ||
-                            `Server error: ${error.response.status}`;
-        toast.error(errorMessage);
-      } else if (error.request) {
-        toast.error("No response from server. Please check your connection.");
-      } else {
-        toast.error("Failed to submit form. Please try again.");
-      }
-    }
-  };
-
-  // Handle button click
-  const handleSubmitClick = () => {
-    // Button click handler
-  };
-
-  // Reset form handler
-  const resetForm = () => {
-    reset(getInitialState());
-    setSelectedCountryId(null);
-    setSelectedStateId(null);
-    setSelectedCityId(null);
-  };
-
-  // Handle country selection
-  const handleCountryChange = (val) => {
-    setSelectedCountryId(val?.id || null);
-    setSelectedStateId(null);
-    setSelectedCityId(null);
-    setValue("country", val?.name || "");
-    setValue("state", "");
-    setValue("city", "");
-  };
-
-  // Handle state selection
-  const handleStateChange = (val) => {
-    setSelectedStateId(val?.id || null);
-    setSelectedCityId(null);
-    setValue("state", val?.name || "");
-    setValue("city", "");
-  };
-
-  // Handle city selection
-  const handleCityChange = (val) => {
-    setSelectedCityId(val?.id || null);
-    setValue("city", val?.name || "");
-  };
-
-  // ----------------------------------------------------------------------
-  // Form Sections Configuration (Updated with missing fields)
-  // ----------------------------------------------------------------------
-  const formSections = [
-    {
-      title: "Personal Information",
-      icon: UserCircleIcon,
-      fields: [
-        // Country, State, City
-        { type: "country", key: "country", label: "Country Of Birth" },
-        { type: "state", key: "state", label: "State of Birth" },
-        { type: "city", key: "city", label: "Place Of Birth" },
-
-        // Student Information
-        {
-          type: "input",
-          key: "studentName",
-          label: "User Name",
-          placeholder: "Enter User Name, Middle Name, Last name",
-        },
-        {
-          type: "date",
-          key: "dateOfBirth",
-          label: "User's Date of Birth",
-        },
-        {
-          type: "input",
-          key: "age",
-          label: "Age (Auto-calculated)",
-          inputType: "number",
-          placeholder: "Auto-calculated from date of birth",
-          disabled: true,
-        },
-        {
-          type: "input",
-          key: "studentId",
-          label: "User ID",
-          placeholder: "Enter User ID",
-        },
-
-        // Father's Information
-        {
-          type: "input",
-          key: "fatherName",
-          label: "Father's Name",
-          placeholder: "Enter Father's Name, Middle Name, Last name",
-        },
-        {
-          type: "input",
-          key: "fatherOccupation",
-          label: "Father's Occupation",
-          placeholder: "e.g., Engineer",
-        },
-        {
-          type: "date",
-          key: "fatherDateOfBirth",
-          label: "Father's Date of Birth",
-        },
-
-        // Mother's Information
-        {
-          type: "input",
-          key: "motherName",
-          label: "Mother's Name",
-          placeholder: "Enter Mother's Name, Middle Name, Last name",
-        },
-        {
-          type: "input",
-          key: "motherOccupation",
-          label: "Mother's Occupation",
-          placeholder: "e.g., Teacher",
-        },
-        {
-          type: "date",
-          key: "motherDateOfBirth",
-          label: "Mother's Date of Birth",
-        },
-      ],
-    },
-    {
-      title: "Health & Family History",
-      icon: UsersIcon,
-      fields: [
-        // Gender Radio
-        {
-          type: "radio",
-          key: "gender",
-          label: "Gender",
-          options: ["male", "female"],
-        },
-
-        // Physical Attributes
-        {
-          type: "input",
-          key: "height",
-          label: "Height (cm)",
-          inputType: "number",
-          placeholder: "Enter height in cm",
-          step: "0.1",
-        },
-        {
-          type: "input",
-          key: "weight",
-          label: "Weight (Kg)",
-          inputType: "number",
-          placeholder: "Enter weight in kg",
-          step: "0.1",
-        },
-
-        // Family Information
-        {
-          type: "select",
-          key: "familyType",
-          label: "Type of Family",
-          options: [
-            { value: "", label: "Select..." },
-            { value: "nuclear", label: "Nuclear" },
-            { value: "extended", label: "Extended" },
-            { value: "joint", label: "Joint Family" },
-            { value: "single", label: "Single Parent" },
-          ],
-        },
-        {
-          type: "input",
-          key: "siblings",
-          label: "Number of Siblings",
-          inputType: "number",
-          placeholder: "Enter number",
-          min: "0",
-        },
-
-        // Medical History
-        {
-          type: "radio",
-          key: "consanguinity",
-          label: "Consanguinity",
-          options: ["Y", "N"],
-          tooltip:
-            "Refers to marriage or relation between individuals closely related by blood (e.g., cousins).",
-        },
-        {
-          type: "radio",
-          key: "vaccination",
-          label: "Vaccination",
-          options: ["yes", "no"],
-        },
-
-        // Contact Information
-        {
-          type: "phone",
-          key: "contactNumber",
-          label: "Parent's Contact Number",
-        },
-        {
-          type: "input",
-          key: "email",
-          label: "Email Address",
-          inputType: "email",
-          placeholder: "Enter email address",
-        },
-      ],
-    },
-    {
-      title: "Diet & Lifestyle",
-      icon: HeartIcon,
-      fields: [
-        {
-          type: "input",
-          key: "activity",
-          label: "Extracurricular Activity",
-          placeholder: "Enter activities (e.g., Football, Swimming)",
-        },
-        {
-          type: "input",
-          key: "sleepDuration",
-          label: "Sleep Duration",
-          placeholder: "e.g., 8 hours",
-        },
-        {
-          type: "select",
-          key: "sleepQuality",
-          label: "Sleep Quality",
-          options: [
-            { value: "", label: "Select..." },
-            { value: "poor", label: "Poor" },
-            { value: "fair", label: "Fair" },
-            { value: "good", label: "Good" },
-            { value: "excellent", label: "Excellent" },
-          ],
-        },
-        {
-          type: "input",
-          key: "screenTime",
-          label: "Screen Time",
-          placeholder: "e.g., 2 hours",
-        },
-        {
-          type: "select",
-          key: "dietType",
-          label: "Diet Type",
-          options: [
-            { value: "", label: "Select..." },
-            { value: "vegetarian", label: "Vegetarian" },
-            { value: "vegan", label: "Vegan" },
-            { value: "non-vegetarian", label: "Non-Vegetarian" },
-            { value: "pescatarian", label: "Pescatarian" },
-            { value: "eggetarian", label: "Eggetarian" },
-          ],
-        },
-        {
-          type: "select",
-          key: "foodFrequency",
-          label: "Food Frequency",
-          options: [
-            { value: "", label: "Select..." },
-            { value: "1-2 meals", label: "1-2 meals per day" },
-            { value: "3 meals", label: "3 meals per day" },
-            { value: "3 meals + snacks", label: "3 meals + snacks" },
-            { value: "irregular", label: "Irregular timing" },
-            { value: "frequent", label: "Frequent small meals" },
-          ],
-        },
-        {
-          type: "input",
-          key: "fruits",
-          label: "Fruits Intake",
-          placeholder: "e.g., Daily, Weekly, Types of fruits",
-        },
-        {
-          type: "input",
-          key: "vegetables",
-          label: "Vegetables Intake",
-          placeholder: "e.g., Daily, Weekly, Types of vegetables",
-        },
-        {
-          type: "input",
-          key: "plantBasedProtein",
-          label: "Plant Based Protein Intake",
-          placeholder: "e.g., Daily, Weekly, Types",
-          tooltip: {
-            title: "Plant-Based Protein Sources",
-            content:
-              "Includes: Beans, lentils, chickpeas, peas, tofu, tempeh, edamame, quinoa, nuts, seeds, and other plant-derived protein sources.",
-          },
-        },
-        {
-          type: "input",
-          key: "animalBasedProtein",
-          label: "Animal Based Protein Intake",
-          placeholder: "e.g., Daily, Weekly, Types",
-          tooltip: {
-            title: "Animal-Based Protein Sources",
-            content:
-              "Includes: Meat, chicken, fish, eggs, dairy products (milk, cheese, yogurt), and other animal-derived protein sources.",
-          },
-        },
-        {
-          type: "input",
-          key: "foodTiming",
-          label: "Interval Between Meals",
-          placeholder: "e.g., 4 hours",
-        },
-      ],
-    },
-    {
-      title: "Environment & Exposure",
-      icon: GlobeAltIcon,
-      fields: [
-        {
-          type: "select",
-          key: "natureAccess",
-          label: "Access to Nature",
-          options: [
-            { value: "", label: "Select..." },
-            { value: "daily", label: "Daily" },
-            { value: "weekly", label: "Weekly" },
-            { value: "occasional", label: "Occasional" },
-            { value: "virtual", label: "Virtual Only" },
-            { value: "rarely", label: "Rarely" },
-            { value: "never", label: "Never" },
-          ],
-        },
-        ...[
-          "pollutionAir",
-          "pollutionNoise",
-          "pollutionWater",
-          "passiveSmoking",
-        ].map((field) => ({
-          type: "radio",
-          key: field,
-          label: getPollutionLabel(field),
-          options: ["yes", "no"],
-        })),
-        {
-          type: "input",
-          key: "travelTime",
-          label: "Travel Time (to school/activities)",
-          placeholder: "e.g., 30 minutes",
-        },
-      ],
-    },
-  ];
-
-  // Helper function for pollution labels
-  function getPollutionLabel(field) {
-    const labels = {
-      pollutionAir: "Pollution (Air)",
-      pollutionNoise: "Pollution (Noise)",
-      pollutionWater: "Pollution (Water)",
-      passiveSmoking: "Passive Smoking Exposure",
-    };
-    return labels[field] || field;
-  }
-
-  // ----------------------------------------------------------------------
-  // Render Field Component (Updated for disabled age field and fixed date handling)
-  // ----------------------------------------------------------------------
-  const renderField = (fieldConfig) => {
-    const { type, key, label, placeholder, options, inputType, tooltip, disabled } =
-      fieldConfig;
-    const error = errors[key]?.message;
-
+  const renderField = () => {
     switch (type) {
       case "input":
         return (
-          <div key={key} className="relative">
+          <div className="relative">
             <label className="text-primary-950 dark:text-dark-100 mb-1 block text-sm font-bold">
               {label}
-              {tooltip && (
+              {tooltip && typeof tooltip === 'object' && (
                 <ProteinTooltip
                   title={tooltip.title}
                   content={tooltip.content}
@@ -878,21 +429,29 @@ const HealthForm = () => {
               className="font-normal italic placeholder:text-primary-950 dark:placeholder:text-primary-50"
               error={error}
               disabled={disabled}
+              step={step}
+              min={min}
             />
           </div>
         );
 
       case "select":
         return (
-          <div key={key}>
+          <div>
             <label className="text-primary-950 dark:text-dark-100 mb-1 block text-sm font-bold">
               {label}
+              {tooltip && typeof tooltip === 'string' && (
+                <CustomTooltip content={tooltip}>
+                  <InformationCircleIcon className="text-primary-400 hover:text-primary-600 ml-1 h-4 w-4 cursor-help transition-colors" />
+                </CustomTooltip>
+              )}
             </label>
             <select
               {...register(key)}
-              className="focus:ring-primary-600 focus:border-primary-600 dark:bg-dark-600 dark:border-dark-500 dark:text-dark-100 mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 font-normal italic placeholder:text-primary-950 dark:placeholder:text-primary-50 shadow-sm focus:outline-none"
+              className="focus:ring-primary-600 focus:border-primary-600 dark:bg-dark-600 dark:border-dark-500 dark:text-dark-100 mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:outline-none"
+              disabled={disabled}
             >
-              {options.map((option) => (
+              {options?.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -902,19 +461,45 @@ const HealthForm = () => {
           </div>
         );
 
+      case "radio-small":
+        return (
+          <div>
+            <label className="text-primary-950 dark:text-dark-100 mb-1 block text-sm font-bold">
+              {label}
+            </label>
+            <div className="mt-1 flex gap-4">
+              {options?.map((val) => (
+                <label
+                  key={val}
+                  className="text-primary-950 dark:text-dark-100 flex items-center gap-2 text-sm"
+                >
+                  <input
+                    type="radio"
+                    value={val}
+                    {...register(key)}
+                    className="text-primary-600 focus:ring-primary-600 h-3 w-3 border-gray-300"
+                  />
+                  {val.charAt(0).toUpperCase() + val.slice(1)}
+                </label>
+              ))}
+            </div>
+            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+          </div>
+        );
+
       case "radio":
         return (
-          <div key={key}>
+          <div>
             <label className="text-primary-950 dark:text-dark-100 mb-1 block flex items-center gap-1 text-sm font-bold">
               {label}
-              {tooltip && (
+              {tooltip && typeof tooltip === 'string' && (
                 <CustomTooltip content={tooltip}>
                   <InformationCircleIcon className="text-primary-400 hover:text-primary-600 h-4 w-4 cursor-help transition-colors" />
                 </CustomTooltip>
               )}
             </label>
             <div className="mt-1 flex gap-4">
-              {options.map((val) => (
+              {options?.map((val) => (
                 <label
                   key={val}
                   className="text-primary-950 dark:text-dark-100 flex items-center gap-2 text-sm"
@@ -939,7 +524,7 @@ const HealthForm = () => {
 
       case "date":
         return (
-          <div key={key} className="w-full">
+          <div className="w-full">
             <label className="text-primary-950 dark:text-dark-100 mb-1 block text-sm font-bold">
               {label}
             </label>
@@ -973,15 +558,21 @@ const HealthForm = () => {
 
       case "country":
         return (
-          <div key={key}>
+          <div>
             <label className="text-primary-950 dark:text-dark-100 mb-1 block text-sm font-bold">
               {label}
             </label>
-            <CountrySelect
-              onChange={handleCountryChange}
-              value={selectedCountryId}
-              className="focus:ring-primary-600 focus:border-primary-600 dark:bg-dark-600 dark:border-dark-500 dark:text-dark-100 w-full rounded-md border border-gray-300 bg-white font-normal italic placeholder:text-primary-950 dark:placeholder:text-primary-50 shadow-sm"
-              placeholder="Select country"
+            <Controller
+              name={key}
+              control={control}
+              render={({ field }) => (
+                <CustomCountrySelect
+                  onChange={handleCountryChange}
+                  value={field.value}
+                  placeholder="Select country"
+                  className="focus:ring-primary-600 focus:border-primary-600 dark:bg-dark-600 dark:border-dark-500 dark:text-dark-100 w-full rounded-md border border-gray-300 bg-white font-normal italic placeholder:text-primary-950 dark:placeholder:text-primary-50 shadow-sm"
+                />
+              )}
             />
             {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>
@@ -989,16 +580,22 @@ const HealthForm = () => {
 
       case "state":
         return (
-          <div key={key}>
+          <div>
             <label className="text-primary-950 dark:text-dark-100 mb-1 block text-sm font-bold">
               {label}
             </label>
-            <StateSelect
-              countryid={selectedCountryId}
-              onChange={handleStateChange}
-              value={selectedStateId}
-              className="focus:ring-primary-600 focus:border-primary-600 dark:bg-dark-600 dark:border-dark-500 dark:text-dark-100 w-full rounded-md border border-gray-300 bg-white font-normal italic placeholder:text-primary-950 dark:placeholder:text-primary-50 shadow-sm"
-              placeholder="Select state"
+            <Controller
+              name={key}
+              control={control}
+              render={({ field }) => (
+                <CustomStateSelect
+                  countryid={selectedCountryId}
+                  onChange={handleStateChange}
+                  value={field.value}
+                  placeholder="Select state"
+                  className="focus:ring-primary-600 focus:border-primary-600 dark:bg-dark-600 dark:border-dark-500 dark:text-dark-100 w-full rounded-md border border-gray-300 bg-white font-normal italic placeholder:text-primary-950 dark:placeholder:text-primary-50 shadow-sm"
+                />
+              )}
             />
             {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>
@@ -1006,17 +603,95 @@ const HealthForm = () => {
 
       case "city":
         return (
-          <div key={key}>
+          <div>
             <label className="text-primary-950 dark:text-dark-100 mb-1 block text-sm font-bold">
               {label}
             </label>
-            <CitySelect
-              countryid={selectedCountryId}
-              stateid={selectedStateId}
-              onChange={handleCityChange}
-              value={selectedCityId}
-              className="focus:ring-primary-600 focus:border-primary-600 dark:bg-dark-600 dark:border-dark-500 dark:text-dark-100 w-full rounded-md border border-gray-300 bg-white font-normal italic placeholder:text-primary-950 dark:placeholder:text-primary-50 shadow-sm"
-              placeholder="Select city"
+            <Controller
+              name={key}
+              control={control}
+              render={({ field }) => (
+                <CustomCitySelect
+                  countryid={selectedCountryId}
+                  stateid={selectedStateId}
+                  onChange={handleCityChange}
+                  value={field.value}
+                  placeholder="Select city"
+                  className="focus:ring-primary-600 focus:border-primary-600 dark:bg-dark-600 dark:border-dark-500 dark:text-dark-100 w-full rounded-md border border-gray-300 bg-white font-normal italic placeholder:text-primary-950 dark:placeholder:text-primary-50 shadow-sm"
+                />
+              )}
+            />
+            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+          </div>
+        );
+
+      case "biological-country":
+        return (
+          <div>
+            <label className="text-primary-950 dark:text-dark-100 mb-1 block text-sm font-bold">
+              {label}
+            </label>
+            <Controller
+              name={key}
+              control={control}
+              render={({ field }) => (
+                <CustomCountrySelect
+                  onChange={handleBiologicalCountryChange}
+                  value={field.value}
+                  placeholder="Select biological country"
+                  disabled={disabled}
+                  className="focus:ring-primary-600 focus:border-primary-600 dark:bg-dark-600 dark:border-dark-500 dark:text-dark-100 w-full rounded-md border border-gray-300 bg-white font-normal italic placeholder:text-primary-950 dark:placeholder:text-primary-50 shadow-sm"
+                />
+              )}
+            />
+            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+          </div>
+        );
+
+      case "biological-state":
+        return (
+          <div>
+            <label className="text-primary-950 dark:text-dark-100 mb-1 block text-sm font-bold">
+              {label}
+            </label>
+            <Controller
+              name={key}
+              control={control}
+              render={({ field }) => (
+                <CustomStateSelect
+                  countryid={selectedBiologicalCountryId}
+                  onChange={handleBiologicalStateChange}
+                  value={field.value}
+                  placeholder="Select biological state"
+                  disabled={disabled}
+                  className="focus:ring-primary-600 focus:border-primary-600 dark:bg-dark-600 dark:border-dark-500 dark:text-dark-100 w-full rounded-md border border-gray-300 bg-white font-normal italic placeholder:text-primary-950 dark:placeholder:text-primary-50 shadow-sm"
+                />
+              )}
+            />
+            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+          </div>
+        );
+
+      case "biological-city":
+        return (
+          <div>
+            <label className="text-primary-950 dark:text-dark-100 mb-1 block text-sm font-bold">
+              {label}
+            </label>
+            <Controller
+              name={key}
+              control={control}
+              render={({ field }) => (
+                <CustomCitySelect
+                  countryid={selectedBiologicalCountryId}
+                  stateid={selectedBiologicalStateId}
+                  onChange={handleBiologicalCityChange}
+                  value={field.value}
+                  placeholder="Select biological city"
+                  disabled={disabled}
+                  className="focus:ring-primary-600 focus:border-primary-600 dark:bg-dark-600 dark:border-dark-500 dark:text-dark-100 w-full rounded-md border border-gray-300 bg-white font-normal italic placeholder:text-primary-950 dark:placeholder:text-primary-50 shadow-sm"
+                />
+              )}
             />
             {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>
@@ -1024,7 +699,7 @@ const HealthForm = () => {
 
       case "phone":
         return (
-          <div key={key}>
+          <div>
             <label className="text-primary-950 dark:text-dark-100 mb-1 block text-sm font-bold">
               {label}
             </label>
@@ -1045,6 +720,7 @@ const HealthForm = () => {
                 {...register(key)}
                 placeholder="9876543210"
                 className="focus:ring-primary-600 focus:border-primary-600 dark:bg-dark-600 dark:border-dark-500 dark:text-dark-100 flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 font-normal italic placeholder:text-primary-950 dark:placeholder:text-primary-50 shadow-sm focus:outline-none"
+                disabled={disabled}
               />
             </div>
             {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
@@ -1056,43 +732,440 @@ const HealthForm = () => {
     }
   };
 
-  // ----------------------------------------------------------------------
-  // Function to get complete card styling based on section title
-  // ----------------------------------------------------------------------
-  const getCardStyle = (sectionTitle) => {
-    switch (sectionTitle) {
-      case "Personal Information":
-        return {
-          background: "bg-orange-50 dark:bg-[rgba(252,211,77,0.1)]",
-          border: "border border-orange-200 dark:border-[rgba(252,211,77,0.3)]",
-        };
+  return <div key={key}>{renderField()}</div>;
+};
 
-      case "Health & Family History":
-        return {
-          background: "bg-green-50 dark:bg-[rgba(110,231,183,0.1)]",
-          border: "border-green-200 dark:border-[rgba(110,231,183,0.3)]",
-        };
-      case "Diet & Lifestyle":
-        return {
-          background: "bg-pink-50 dark:bg-[rgba(249,168,212,0.1)]",
-          border: "border-pink-200 dark:border-[rgba(249,168,212,0.3)]",
-        };
-      case "Environment & Exposure":
-        return {
-          background: "bg-violet-50 dark:bg-[rgba(196,181,253,0.1)]",
-          border: "border-violet-200 dark:border-[rgba(196,181,253,0.3)]",
-        };
-      default:
-        return {
-          background: "bg-white dark:bg-dark-700",
-          border: "border-gray-200 dark:border-dark-600",
-        };
+// ----------------------------------------------------------------------
+// Main Component
+// ----------------------------------------------------------------------
+const HealthForm = () => {
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValid, isDirty, touchedFields },
+    reset,
+    setValue,
+    watch,
+    trigger,
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: getInitialState(),
+    mode: "onChange",
+  });
+
+  const { isAuthenticated, sessionData } = useSessionValidation();
+
+  // Watch all form values for debugging
+  const formValues = watch();
+
+  // ADDED: Comprehensive form state logging
+  useEffect(() => {
+    console.log('📊 FORM STATE UPDATE:');
+    console.log('  - isValid:', isValid);
+    console.log('  - isDirty:', isDirty);
+    console.log('  - isSubmitting:', isSubmitting);
+    console.log('  - Error count:', Object.keys(errors).length);
+    console.log('  - Touched fields:', Object.keys(touchedFields));
+    console.log('  - Form values count:', Object.keys(formValues).length);
+  }, [isValid, isDirty, isSubmitting, errors, touchedFields, formValues]);
+
+  // ADDED: Log when errors change
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      console.log('❌ FORM ERRORS DETECTED:', errors);
+    } else {
+      console.log('✅ FORM VALID - No errors');
     }
-  };
+  }, [errors]);
+
+  // ADDED: Log initial form state
+  useEffect(() => {
+    console.log('🎯 INITIAL FORM STATE:', getInitialState());
+    console.log('🎯 CURRENT FORM VALUES:', formValues);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Location state management
+  const [selectedCountryId, setSelectedCountryId] = useState(null);
+  const [selectedStateId, setSelectedStateId] = useState(null);
+  const [selectedBiologicalCountryId, setSelectedBiologicalCountryId] = useState(null);
+  const [selectedBiologicalStateId, setSelectedBiologicalStateId] = useState(null);
+
+  // Watch form values for calculations and dependencies
+  const dateOfBirth = watch("dateOfBirth");
+  const hasGuardian = watch("hasGuardian");
+  const isBiologicalSame = watch("isBiologicalSame");
+
+  // ADDED: Debug form values changes
+  useEffect(() => {
+    const subscription = watch((value, { name, type }) => {
+      if (name && type) {
+        console.log(`🔄 FIELD CHANGED: ${name} =`, value[name], `(type: ${type})`);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  // FIXED: Define resetForm BEFORE onSubmit to avoid reference error
+  const resetForm = useCallback(() => {
+    console.log('🔄 RESETTING FORM');
+    reset(getInitialState());
+    setSelectedCountryId(null);
+    setSelectedStateId(null);
+    setSelectedBiologicalCountryId(null);
+    setSelectedBiologicalStateId(null);
+  }, [reset]);
+
+  // Calculate age when date of birth changes
+  useEffect(() => {
+    if (dateOfBirth) {
+      const calculatedAge = calculateAge(dateOfBirth);
+      console.log(`🎂 Age calculated: ${calculatedAge} from DOB: ${dateOfBirth}`);
+      setValue("age", calculatedAge);
+      trigger("age");
+    } else {
+      setValue("age", "");
+    }
+  }, [dateOfBirth, setValue, trigger]);
+
+  // Handle guardian radio button
+  useEffect(() => {
+    if (hasGuardian === "no") {
+      console.log('👤 Guardian disabled, clearing guardian fields');
+      setValue("guardianFirstName", "");
+      setValue("guardianMiddleName", "");
+      setValue("guardianLastName", "");
+      setValue("guardianOccupation", "");
+      setValue("guardianRelationship", "");
+      setValue("guardianContactNumber", "");
+      setValue("guardianEmail", "");
+    } else if (hasGuardian === "yes") {
+      console.log('👤 Guardian enabled');
+    }
+  }, [hasGuardian, setValue]);
+
+  // Handle isBiologicalSame radio button - auto-fill biological fields if "yes"
+  useEffect(() => {
+    if (isBiologicalSame === "yes") {
+      console.log('🧬 Biological same as current, auto-filling biological fields');
+      setValue("biologicalCountry", formValues.country);
+      setValue("biologicalState", formValues.state);
+      setValue("biologicalCity", formValues.city);
+    } else if (isBiologicalSame === "no") {
+      console.log('🧬 Biological different from current, clearing biological fields');
+      setValue("biologicalCountry", "");
+      setValue("biologicalState", "");
+      setValue("biologicalCity", "");
+    }
+  }, [isBiologicalSame, setValue, formValues.country, formValues.state, formValues.city]);
 
   // ----------------------------------------------------------------------
-  // JSX
+  // Location Handlers (FIXED)
   // ----------------------------------------------------------------------
+  const handleCountryChange = useCallback((countryData) => {
+    console.log('🌍 Country changed:', countryData);
+    if (countryData) {
+      setSelectedCountryId(countryData.id || null);
+      setValue("country", countryData.name);
+      setValue("state", "");
+      setValue("city", "");
+      setSelectedStateId(null);
+    } else {
+      setSelectedCountryId(null);
+      setValue("country", "");
+      setValue("state", "");
+      setValue("city", "");
+      setSelectedStateId(null);
+    }
+    trigger(["country", "state", "city"]);
+  }, [setValue, trigger]);
+
+  const handleStateChange = useCallback((stateData) => {
+    console.log('🏞️ State changed:', stateData);
+    if (stateData) {
+      setSelectedStateId(stateData.id || null);
+      setValue("state", stateData.name);
+      setValue("city", "");
+    } else {
+      setSelectedStateId(null);
+      setValue("state", "");
+      setValue("city", "");
+    }
+    trigger(["state", "city"]);
+  }, [setValue, trigger]);
+
+  const handleCityChange = useCallback((cityData) => {
+    console.log('🏙️ City changed:', cityData);
+    if (cityData) {
+      setValue("city", cityData.name);
+    } else {
+      setValue("city", "");
+    }
+    trigger("city");
+  }, [setValue, trigger]);
+
+  const handleBiologicalCountryChange = useCallback((countryData) => {
+    console.log('🧬 Biological country changed:', countryData);
+    if (countryData) {
+      setSelectedBiologicalCountryId(countryData.id || null);
+      setValue("biologicalCountry", countryData.name);
+      setValue("biologicalState", "");
+      setValue("biologicalCity", "");
+      setSelectedBiologicalStateId(null);
+    } else {
+      setSelectedBiologicalCountryId(null);
+      setValue("biologicalCountry", "");
+      setValue("biologicalState", "");
+      setValue("biologicalCity", "");
+      setSelectedBiologicalStateId(null);
+    }
+    trigger(["biologicalCountry", "biologicalState", "biologicalCity"]);
+  }, [setValue, trigger]);
+
+  const handleBiologicalStateChange = useCallback((stateData) => {
+    console.log('🧬 Biological state changed:', stateData);
+    if (stateData) {
+      setSelectedBiologicalStateId(stateData.id || null);
+      setValue("biologicalState", stateData.name);
+      setValue("biologicalCity", "");
+    } else {
+      setSelectedBiologicalStateId(null);
+      setValue("biologicalState", "");
+      setValue("biologicalCity", "");
+    }
+    trigger(["biologicalState", "biologicalCity"]);
+  }, [setValue, trigger]);
+
+  const handleBiologicalCityChange = useCallback((cityData) => {
+    console.log('🧬 Biological city changed:', cityData);
+    if (cityData) {
+      setValue("biologicalCity", cityData.name);
+    } else {
+      setValue("biologicalCity", "");
+    }
+    trigger("biologicalCity");
+  }, [setValue, trigger]);
+
+  // ----------------------------------------------------------------------
+  // Date Handler Function (FIXED)
+  // ----------------------------------------------------------------------
+  const handleDateChange = useCallback((date, fieldName) => {
+    console.log('📅 Date changed:', fieldName, date);
+    let dateValue = "";
+
+    if (Array.isArray(date) && date.length > 0) {
+      dateValue = date[0];
+    } else if (date instanceof Date) {
+      dateValue = date;
+    } else if (date) {
+      dateValue = new Date(date);
+    }
+
+    // Store as ISO string for consistency
+    const dateString = dateValue instanceof Date && !isNaN(dateValue.getTime())
+      ? dateValue.toISOString()
+      : "";
+
+    setValue(fieldName, dateString);
+
+    // Auto-calculate age if date of birth changes
+    if (fieldName === "dateOfBirth") {
+      const calculatedAge = calculateAge(dateValue);
+      setValue("age", calculatedAge);
+      trigger("age");
+    }
+  }, [setValue, trigger]);
+
+  // ----------------------------------------------------------------------
+  // Submit Handler (FIXED - moved after resetForm definition)
+  // ----------------------------------------------------------------------
+  const onSubmit = useCallback(async (data) => {
+    console.log('🚀 SUBMITTING FORM DATA:', data);
+
+    try {
+      if (!isAuthenticated || !sessionData) {
+        console.log('❌ AUTH FAILED: Not authenticated');
+        toast.error("Please log in to submit the form");
+        return;
+      }
+
+      console.log('🔍 VALIDATING FORM...');
+      const isValid = await trigger();
+      console.log('✅ FORM VALIDATION RESULT:', isValid);
+
+      if (!isValid) {
+        const errorCount = Object.keys(errors).length;
+        console.log(`❌ VALIDATION FAILED: ${errorCount} errors`, errors);
+        toast.error(`Please fix ${errorCount} form error${errorCount > 1 ? 's' : ''} before submitting`);
+        return;
+      }
+
+      console.log('✅ FORM VALIDATION PASSED - Proceeding with submission');
+
+      const currentTenantId = parseInt(sessionData.tenantId) || 1;
+      const currentUserId = parseInt(sessionData.userId) || 1;
+
+      // Format dates for API
+      const formatDateForAPI = (dateValue) => {
+        if (!dateValue) return null;
+        try {
+          const date = new Date(dateValue);
+          return isNaN(date.getTime()) ? null : date.toISOString();
+        } catch {
+          return null;
+        }
+      };
+
+      // Calculate BMI if height and weight are provided
+      const calculateBMI = (height, weight) => {
+        if (!height || !weight) return null;
+        const heightInMeters = parseFloat(height) / 100;
+        const weightInKg = parseFloat(weight);
+        return (weightInKg / (heightInMeters * heightInMeters)).toFixed(2);
+      };
+
+      const formData = {
+        // Personal Information (MAPPED CORRECTLY)
+        userName: data.studentName?.trim() || "",
+        userId: data.studentId ? parseInt(data.studentId) : null,
+        className: data.className?.trim() || null,
+        branch: data.branch?.trim() || null,
+
+        // Family Information
+        fatherName: data.fatherName?.trim() || "",
+        fatherOccupation: data.fatherOccupation?.trim() || "",
+        motherName: data.motherName?.trim() || "",
+        motherOccupation: data.motherOccupation?.trim() || "",
+        parentsOccupation: `${data.fatherOccupation || ''} & ${data.motherOccupation || ''}`.trim(),
+
+        // Contact Information
+        countryCode: data.countryCode || "+91",
+        contactNumber: data.contactNumber?.trim() || "",
+        email: data.email?.trim() || "",
+
+        // Location Information
+        country: data.country || "",
+        state: data.state || "",
+        city: data.city || "",
+
+        // Dates
+        dateOfBirth: formatDateForAPI(data.dateOfBirth),
+        fatherDateOfBirth: formatDateForAPI(data.fatherDateOfBirth),
+        motherDateOfBirth: formatDateForAPI(data.motherDateOfBirth),
+        age: data.age ? parseInt(data.age) : null,
+
+        // Biological Birthplace
+        isBiologicalSame: data.isBiologicalSame === "yes",
+        biologicalCountry: data.biologicalCountry || "",
+        biologicalState: data.biologicalState || "",
+        biologicalCity: data.biologicalCity || "",
+
+        // Guardian Information
+        hasGuardian: data.hasGuardian === "yes",
+        guardianFirstName: data.guardianFirstName?.trim() || "",
+        guardianMiddleName: data.guardianMiddleName?.trim() || "",
+        guardianLastName: data.guardianLastName?.trim() || "",
+        guardianOccupation: data.guardianOccupation?.trim() || "",
+        guardianRelationship: data.guardianRelationship || "",
+        guardianContactNumber: data.guardianContactNumber?.trim() || "",
+        guardianEmail: data.guardianEmail?.trim() || "",
+
+        // Health Information
+        gender: data.gender || "",
+        height: data.height ? parseFloat(data.height) : null,
+        weight: data.weight ? parseFloat(data.weight) : null,
+        bmi: calculateBMI(data.height, data.weight),
+        consanguinity: data.consanguinity === "Y",
+
+        // Diet & Lifestyle
+        dietType: data.dietType || "",
+        activity: data.activity?.trim() || "",
+        sleepDuration: data.sleepDuration?.trim() || "",
+        sleepQuality: data.sleepQuality || "Good",
+        screenTime: data.screenTime?.trim() || "",
+        foodTiming: data.foodTiming?.trim() || "",
+        fruits: data.fruits?.trim() || "",
+        vegetables: data.vegetables?.trim() || "",
+        plantBasedProtein: data.plantBasedProtein?.trim() || "",
+        animalBasedProtein: data.animalBasedProtein?.trim() || "",
+        foodFrequency: data.foodFrequency || "3 meals per day",
+
+        // Family & Environment
+        familyType: data.familyType || "",
+        siblings: data.siblings ? parseInt(data.siblings) : null,
+        vaccination: data.vaccination === "yes",
+        natureAccess: data.natureAccess || "",
+        pollutionAir: data.pollutionAir === "yes",
+        pollutionNoise: data.pollutionNoise === "yes",
+        pollutionWater: data.pollutionWater === "yes",
+        passiveSmoking: data.passiveSmoking === "yes",
+        travelTime: data.travelTime?.trim() || "",
+
+        // Session Data
+        tenantId: currentTenantId,
+        createdBy: currentUserId,
+        updatedBy: null,
+        isDeleted: false
+      };
+
+      console.log('📤 Submitting form data to API:', formData);
+
+      await axios.post(HEALTH_REGISTRATION, formData, {
+        timeout: 15000,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionData.token}`
+        }
+      });
+
+      toast.success("Genetic registration submitted successfully!");
+      resetForm();
+
+    } catch (error) {
+      console.error('💥 FORM SUBMISSION ERROR:', error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.code === 'ECONNABORTED') {
+          toast.error("Request timeout. Please try again.");
+        } else if (error.response) {
+          const serverError = error.response.data;
+          const errorMessage = serverError?.message || serverError?.error || `Server error: ${error.response.status}`;
+          toast.error(`Submission failed: ${errorMessage}`);
+        } else if (error.request) {
+          toast.error("No response from server. Please check your connection.");
+        } else {
+          toast.error("Failed to submit form. Please try again.");
+        }
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
+    }
+  }, [isAuthenticated, sessionData, trigger, errors, resetForm]);
+
+  // FIXED: Updated handleSubmitClick with proper dependencies
+  const handleSubmitClick = useCallback(() => {
+    console.log('🖱️ Submit button clicked');
+    handleSubmit(onSubmit)();
+  }, [handleSubmit, onSubmit]);
+
+  // ----------------------------------------------------------------------
+  // Form Sections with Icons
+  // ----------------------------------------------------------------------
+  const formSectionsWithIcons = useMemo(() => {
+    const sections = getFormSections(hasGuardian);
+    const icons = {
+      "Personal Information": UserCircleIcon,
+      "Health & Family History": UsersIcon,
+      "Diet & Lifestyle": HeartIcon,
+      "Environment & Exposure": GlobeAltIcon,
+    };
+
+    return sections.map(section => ({
+      ...section,
+      icon: icons[section.title]
+    }));
+  }, [hasGuardian]);
+
   return (
     <Page
       title="Genetic Registration Form"
@@ -1108,6 +1181,28 @@ const HealthForm = () => {
             </p>
           </div>
         )}
+
+        {/* ADDED: Debug Panel - Remove in production */}
+        <div className="fixed bottom-4 right-4 bg-black bg-opacity-90 text-white p-4 rounded-lg text-xs max-w-md max-h-64 overflow-auto z-50 border border-green-400">
+          <h4 className="font-bold mb-2 text-green-400">🔍 FORM DEBUG PANEL</h4>
+          <div><strong>Authenticated:</strong> {isAuthenticated ? '✅' : '❌'}</div>
+          <div><strong>Submitting:</strong> {isSubmitting ? '⏳' : '✅'}</div>
+          <div><strong>Valid:</strong> {isValid ? '✅' : '❌'}</div>
+          <div><strong>Dirty:</strong> {isDirty ? '✅' : '❌'}</div>
+          <div><strong>Errors:</strong> {Object.keys(errors).length}</div>
+          <div><strong>Button Disabled:</strong> {(!isAuthenticated || isSubmitting || Object.keys(errors).length > 0 || Object.values(formValues).every(v => v === "" || v === null || v === undefined)) ? '✅' : '❌'}</div>
+
+          {Object.keys(errors).length > 0 && (
+            <div className="mt-2 text-red-300">
+              <strong>Error Fields:</strong>
+              <div className="max-h-20 overflow-y-auto">
+                {Object.keys(errors).map(field => (
+                  <div key={field}>• {field}: {errors[field]?.message}</div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Header Bar */}
         <div className="dark:bg-dark-800 flex flex-col items-center justify-between space-y-4 bg-gray-50 py-5 sm:flex-row sm:space-y-0 lg:py-6">
@@ -1137,35 +1232,56 @@ const HealthForm = () => {
           </div>
         </div>
 
-        {/* Form */}
+        {/* Single Card Form */}
         <form
           autoComplete="off"
           onSubmit={handleSubmit(onSubmit)}
           id="health-form"
         >
-          <div className="dark:bg-dark-800 space-y-5 bg-gray-50">
-            {formSections.map((section) => {
-              const cardStyle = getCardStyle(section.title);
-              return (
-                <Card
-                  key={section.title}
-                  className={`w-full border-2 p-4 shadow-none sm:px-5 ${cardStyle.background} ${cardStyle.border}`}
-                >
-                  <h3 className="text-primary-950 dark:text-dark-100 flex items-center gap-2 text-base font-medium">
-                    <section.icon className="text-primary-600 h-5 w-5" />
-                    {section.title}
-                  </h3>
-                  <div className="text-primary-950 dark:text-dark-100 mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {section.fields.map(renderField)}
-                  </div>
-                </Card>
-              );
-            })}
+          <div className="dark:bg-dark-800 space-y-5 bg-gray-50 px-4">
+            <Card className="w-full border-2 p-6 shadow-lg">
+              <div className="space-y-8">
+                {formSectionsWithIcons.map((section) => {
+                  const cardStyle = getCardStyle(section.title);
+                  return (
+                    <div
+                      key={section.title}
+                      className={`rounded-lg p-6 ${cardStyle.background} ${cardStyle.border}`}
+                    >
+                      <h3 className="text-primary-950 dark:text-dark-100 flex items-center gap-2 text-lg font-semibold mb-6">
+                        <section.icon className="text-primary-600 h-6 w-6" />
+                        {section.title}
+                      </h3>
+
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {section.fields.map((fieldConfig) => (
+                          <FieldRenderer
+                            key={fieldConfig.key}
+                            fieldConfig={fieldConfig}
+                            errors={errors}
+                            register={register}
+                            control={control}
+                            selectedCountryId={selectedCountryId}
+                            selectedStateId={selectedStateId}
+                            selectedBiologicalCountryId={selectedBiologicalCountryId}
+                            selectedBiologicalStateId={selectedBiologicalStateId}
+                            handleCountryChange={handleCountryChange}
+                            handleStateChange={handleStateChange}
+                            handleCityChange={handleCityChange}
+                            handleBiologicalCountryChange={handleBiologicalCountryChange}
+                            handleBiologicalStateChange={handleBiologicalStateChange}
+                            handleBiologicalCityChange={handleBiologicalCityChange}
+                            handleDateChange={handleDateChange}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
           </div>
         </form>
-
-        {/* Debug Panel */}
-        <ValidationDebug errors={errors} formValues={watch()} session={sessionData} />
       </div>
     </Page>
   );
