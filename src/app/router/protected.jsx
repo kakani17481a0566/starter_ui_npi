@@ -247,6 +247,13 @@ const protectedRoutes = {
                   .default,
               }),
             },
+             {
+              path: "exercise",
+              lazy: async () => ({
+                Component: (await import("components/exercise"))
+                  .default,
+              }),
+            },
           ]
           },
            {
