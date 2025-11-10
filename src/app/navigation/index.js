@@ -23,7 +23,7 @@ else if(role.toLowerCase() ===TEACHER  || role.toLowerCase() ===ADMIN){
     navigation=[dashboards,ParentDashboards,StudentEnquiry, FrontDesk,apps,Genetics,nutrition]
 }
 else if( role.toLowerCase() ===PARENT){
-    navigation=[ParentDashboards,Genetics   ]
+    navigation=[ParentDashboards]
 }
 
 export {navigation}
