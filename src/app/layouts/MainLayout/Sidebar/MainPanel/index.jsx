@@ -24,15 +24,14 @@ export function MainPanel({ nav, setActiveSegment, activeSegment }) {
       navigate("/genetics/genetics");
     }
     else if (role.toUpperCase() === "TEACHER") {
-      navigate("/dashboards/home"); 
+      navigate("/dashboards/home");
     } else if (role.toUpperCase()=== "NANNY") {
-      navigate("/dashboards/mark-attendance"); 
+      navigate("/dashboards/mark-attendance");
     } else if(role.toUpperCase()==="PARENT"){
       navigate("/parent/ParentStudent")
     }
     close();
   };
-
   return (
     <div className="main-panel">
       <div
