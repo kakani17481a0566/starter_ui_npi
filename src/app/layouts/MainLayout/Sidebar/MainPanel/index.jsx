@@ -23,11 +23,11 @@ export function MainPanel({ nav, setActiveSegment, activeSegment }) {
     if(role==="USER") {
       navigate("/genetics/genetics");
     }
-    else if (role === "Teacher") {
+    else if (role.toUpperCase() === "TEACHER") {
       navigate("/dashboards/home"); 
-    } else if (role === "Nanny") {
+    } else if (role.toUpperCase()=== "NANNY") {
       navigate("/dashboards/mark-attendance"); 
-    } else if(role==="PARENT"){
+    } else if(role.toUpperCase()==="PARENT"){
       navigate("/parent/ParentStudent")
     }
     close();
