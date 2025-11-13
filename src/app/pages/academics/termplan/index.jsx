@@ -7,12 +7,12 @@ export default function TermPlan() {
   const { course: courses,role,selectedCourseId } = getSessionData();
   const storedId = Number(localStorage.getItem("selectedCourseId"));
   let selectedCourse =
-    courses?.find((c) => c.id === storedId) || courses?.[0].id;
+    courses?.find((c) => c.id === storedId).id || courses?.[0].id;
   if(role==="PARENT"){
     selectedCourse=selectedCourseId;
 
   }
- 
+
 
   return (
     <Page title="Academic Term Plan">
