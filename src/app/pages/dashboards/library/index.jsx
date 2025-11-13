@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // ✅ import
+import { BASE_URL } from "constants/apis";
 
 export default function Library() {
   const [selectedCourse, setSelectedCourse] = useState(""); // only for fetching students
@@ -16,7 +17,7 @@ export default function Library() {
     const fetchCourses = async () => {
       try {
         const res = await axios.get(
-          "https://localhost:7202/api/Course/dropdown-options-course/1",
+          `${BASE_URL}/Course/dropdown-options-course/1`,
         );
         // ✅ assuming your courses API: /api/Course/dropdown-options-course/{tenantId}
         setCourses(res.data.data);
@@ -42,7 +43,7 @@ export default function Library() {
 
     try {
       const res = await axios.get(
-        `https://localhost:7202/api/Student/dropdown-options-students?tenantId=1&courseId=${courseId}&branchId=1`,
+        `${BASE_URL}/Student/dropdown-options-students?tenantId=1&courseId=${courseId}&branchId=1`,
       );
       setStudents(res.data.data);
     } catch (err) {

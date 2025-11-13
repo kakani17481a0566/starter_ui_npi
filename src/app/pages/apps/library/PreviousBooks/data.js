@@ -10,7 +10,7 @@ export const books = [
 ];
 export async function fetchPreviousBooks(studentId){
    try {
-    const response = await axios.get(`LIBRARYAPI?studentId=${studentId}`);
+    const response = await axios.get(`${LIBRARYAPI}?studentId=${studentId}`);
     const result = response.data.data;
     return result;
   } catch (error) {

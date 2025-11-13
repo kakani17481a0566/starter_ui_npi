@@ -1,8 +1,9 @@
 import axios from "axios";
 import { normalizeCountry } from "./utils";
 import {base64ToBlob} from "components/shared/base64ConversionToBlob.jsx";
+import { BASE_URL } from "constants/apis";
 
-const API_URL = "https://localhost:7202/api/StudentEnquiry/create";
+const API_URL = `${BASE_URL}/StudentEnquiry/create`;
 
 export async function submitAdmissionEnquiry(data) {
   const asInt = (v) => (v === "" || v == null ? null : Number(v));
