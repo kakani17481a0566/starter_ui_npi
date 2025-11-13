@@ -56,14 +56,22 @@ if (normalizedRole === "nanny") {
       transKey: "nav.FrontDesk.frontdeskmain",
       Icon: HomeIcon,
     },
-    {
-      id: "dashboards.branch",
-      path: path(ROOT_DASHBOARDS, "/Branch"),
-      type: NAV_TYPE_ITEM,
-      title: "Branch",
-      transKey: "nav.FrontDesk.branch",
-      Icon: HomeIcon,
-    },
+     {
+          id: "dashboards.attendence",
+          path: path(ROOT_DASHBOARDS, "/attendance"),
+          type: NAV_TYPE_ITEM,
+          title: "Attendance",
+          transKey: "nav.dashboards.attendance",
+          Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+        },
+    // {
+    //   id: "dashboards.branch",
+    //   path: path(ROOT_DASHBOARDS, "/Branch"),
+    //   type: NAV_TYPE_ITEM,
+    //   title: "Branch",
+    //   transKey: "nav.FrontDesk.branch",
+    //   Icon: HomeIcon,
+    // },
   ];
 }
 

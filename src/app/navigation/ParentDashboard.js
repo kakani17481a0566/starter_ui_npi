@@ -77,14 +77,14 @@ else if(role.toLowerCase()==="admin"){
       transKey: "nav.dashboards.week",
       Icon: HomeIcon,
     },
-    {
-      id: "dashboards.attendence",
-      path: path(ROOT_DASHBOARDS, "/attendance"),
-      type: NAV_TYPE_ITEM,
-      title: "Attendance",
-      transKey: "nav.dashboards.attendance",
-      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
-    },
+    // {
+    //   id: "dashboards.attendence",
+    //   path: path(ROOT_DASHBOARDS, "/attendance"),
+    //   type: NAV_TYPE_ITEM,
+    //   title: "Attendance",
+    //   transKey: "nav.dashboards.attendance",
+    //   Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    // },
     {
       id: "dashboards.Term",
       path: path(ROOT_DASHBOARDS, "/term"),
@@ -93,14 +93,14 @@ else if(role.toLowerCase()==="admin"){
       transKey: "nav.dashboards.term",
       Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
     },
-    {
-      id: "dashboards.mark-attendance",
-      path: "dashboards/mark-attendance",
-      type: NAV_TYPE_ITEM,
-      title: "Mark Attendance",
-      transKey: "nav.dashboards.mark",
-      Icon: ClipboardDocumentCheckIcon,
-    },
+    // {
+    //   id: "dashboards.mark-attendance",
+    //   path: "dashboards/mark-attendance",
+    //   type: NAV_TYPE_ITEM,
+    //   title: "Mark Attendance",
+    //   transKey: "nav.dashboards.mark",
+    //   Icon: ClipboardDocumentCheckIcon,
+    // },
         {
       id: "dashboards.Registration",
       path: path(ROOT_DASHBOARDS, "/registrationForm"),

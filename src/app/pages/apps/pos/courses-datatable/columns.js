@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// Import Dependencies
+// 📦 Import Dependencies
 // ----------------------------------------------------------------------
 import { createElement } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -11,25 +11,25 @@ import {
   ArrowsPointingOutIcon,
   CurrencyRupeeIcon,
   CheckCircleIcon,
-  CubeIcon, // ✅ For Quantity
+  CubeIcon,
 } from "@heroicons/react/24/outline";
 
 // Local Imports
 import { ItemNameCell, PriceCell, StatusCell } from "./rows";
 
 // ----------------------------------------------------------------------
-// Column Helper
+// 🧮 Column Helper
 // ----------------------------------------------------------------------
 const columnHelper = createColumnHelper();
 
 // ----------------------------------------------------------------------
-// Columns Definition
+// 🧱 Columns Definition
 // ----------------------------------------------------------------------
 export const columns = [
   // --------------------------------------------------------------------
-  // 🏷️ Item Name
+  // 🏷️ Item Name (default sorted column)
   // --------------------------------------------------------------------
-  columnHelper.accessor((row) => row.name, {
+  columnHelper.accessor("name", {
     id: "name",
     header: () =>
       createElement(
@@ -40,12 +40,17 @@ export const columns = [
       ),
     label: "Item",
     cell: ItemNameCell,
+    enableSorting: true,
+    sortingFn: (a, b) =>
+      (a.getValue("name") ?? "").localeCompare(b.getValue("name") ?? "", undefined, {
+        sensitivity: "base",
+      }),
   }),
 
   // --------------------------------------------------------------------
   // 📚 Category
   // --------------------------------------------------------------------
-  columnHelper.accessor((row) => row.categoryName, {
+  columnHelper.accessor("categoryName", {
     id: "category",
     header: () =>
       createElement(
@@ -57,12 +62,19 @@ export const columns = [
     label: "Category",
     filter: "searchableSelect",
     filterFn: "arrIncludesSome",
+    enableSorting: true,
+    sortingFn: (a, b) =>
+      (a.getValue("categoryName") ?? "").localeCompare(
+        b.getValue("categoryName") ?? "",
+        undefined,
+        { sensitivity: "base" }
+      ),
   }),
 
   // --------------------------------------------------------------------
   // 📏 Size
   // --------------------------------------------------------------------
-  columnHelper.accessor((row) => row.size, {
+  columnHelper.accessor("size", {
     id: "size",
     header: () =>
       createElement(
@@ -74,12 +86,17 @@ export const columns = [
     label: "Size",
     filter: "searchableSelect",
     filterFn: "arrIncludesSome",
+    enableSorting: true,
+    sortingFn: (a, b) =>
+      (a.getValue("size") ?? "").localeCompare(b.getValue("size") ?? "", undefined, {
+        sensitivity: "base",
+      }),
   }),
 
   // --------------------------------------------------------------------
   // 💰 Price
   // --------------------------------------------------------------------
-  columnHelper.accessor((row) => row.price, {
+  columnHelper.accessor("price", {
     id: "price",
     header: () =>
       createElement(
@@ -92,13 +109,14 @@ export const columns = [
     cell: PriceCell,
     filterFn: "inNumberRange",
     filter: "numberRange",
+    enableSorting: true,
     sortDescFirst: true,
   }),
 
   // --------------------------------------------------------------------
-  // 📦 Quantity (from row.itemQuantity)
+  // 📦 Quantity
   // --------------------------------------------------------------------
-  columnHelper.accessor((row) => row.itemQuantity ?? 0, {
+  columnHelper.accessor("itemQuantity", {
     id: "itemQuantity",
     header: () =>
       createElement(
@@ -126,12 +144,13 @@ export const columns = [
     filterFn: "inNumberRange",
     filter: "numberRange",
     sortUndefined: "last",
+    enableSorting: true,
   }),
 
   // --------------------------------------------------------------------
   // ✅ Status
   // --------------------------------------------------------------------
-  columnHelper.accessor((row) => row.status, {
+  columnHelper.accessor("status", {
     id: "status",
     header: () =>
       createElement(
@@ -144,15 +163,17 @@ export const columns = [
     cell: StatusCell,
     filter: "searchableSelect",
     filterFn: "arrIncludesSome",
+    enableSorting: false, // static labels, no sorting needed
   }),
 
   // --------------------------------------------------------------------
   // 🧮 Hidden Column: Lesson Count (placeholder)
   // --------------------------------------------------------------------
-  columnHelper.accessor((row) => row.lesson_count ?? 0, {
+  columnHelper.accessor("lesson_count", {
     id: "lesson_count",
     isHiddenColumn: true,
     filterFn: "inNumberRange",
     filter: "numberRange",
+    enableSorting: false,
   }),
 ];

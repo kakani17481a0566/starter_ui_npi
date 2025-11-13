@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // ✅ import
 
-
 export default function Library() {
   const [selectedCourse, setSelectedCourse] = useState(""); // only for fetching students
   const [studentId, setStudentId] = useState("");
@@ -12,12 +11,13 @@ export default function Library() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate(); // ✅ hook for navigation
 
-
   // 🔹 Fetch courses on mount
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await axios.get("https://localhost:7202/api/Course/dropdown-options-course/1");
+        const res = await axios.get(
+          "https://localhost:7202/api/Course/dropdown-options-course/1",
+        );
         // ✅ assuming your courses API: /api/Course/dropdown-options-course/{tenantId}
         setCourses(res.data.data);
       } catch (err) {
@@ -42,7 +42,7 @@ export default function Library() {
 
     try {
       const res = await axios.get(
-        `https://localhost:7202/api/Student/dropdown-options-students?tenantId=1&courseId=${courseId}&branchId=1`
+        `https://localhost:7202/api/Student/dropdown-options-students?tenantId=1&courseId=${courseId}&branchId=1`,
       );
       setStudents(res.data.data);
     } catch (err) {
@@ -52,32 +52,32 @@ export default function Library() {
     }
   };
 
-
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <form
-        className="w-full max-w-sm bg-white p-6 md:p-8 rounded-xl shadow-2xl border border-gray-200 space-y-6"
-      >
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
+      <form className="w-full max-w-sm space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-2xl md:p-8">
         {/* Header */}
-        <div className="flex justify-end border-b pb-4 mb-4">
-          <h1 className="text-2xl font-extrabold text-blue-600 tracking-wider">
+        <div className="mb-4 flex justify-end border-b pb-4">
+          <h1 className="text-2xl font-extrabold tracking-wider text-blue-600">
             MySchoolItaly
           </h1>
         </div>
 
         <div className="space-y-4">
           <div className="pt-2">
-            <h3 className="text-sm font-bold text-gray-700 pb-1">Library</h3>
+            <h3 className="pb-1 text-sm font-bold text-gray-700">Library</h3>
           </div>
           <div className="flex flex-col space-y-1">
-            <label htmlFor="course" className="text-sm font-semibold text-gray-700">
+            <label
+              htmlFor="course"
+              className="text-sm font-semibold text-gray-700"
+            >
               Course
             </label>
             <select
               id="course"
               value={selectedCourse}
               onChange={handleCourseChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-blue-500"
             >
               <option value="">Select a course</option>
               {courses.map((c) => (
@@ -89,24 +89,27 @@ export default function Library() {
           </div>
           {selectedCourse && (
             <div className="flex flex-col space-y-1">
-              <label htmlFor="studentId" className="text-sm font-semibold text-gray-700">
+              <label
+                htmlFor="studentId"
+                className="text-sm font-semibold text-gray-700"
+              >
                 Student
               </label>
-             <select
-  id="studentId"
-  value={studentId}
-  onChange={(e) => {
-    const id = e.target.value;
-    setStudentId(id);
-    const student = students.find((s) => String(s.id) === id);
-    if (student) {
-      setStudentName(student.name);
-    } else {
-      setStudentName("");
-    }
-  }}
-  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
->
+              <select
+                id="studentId"
+                value={studentId}
+                onChange={(e) => {
+                  const id = e.target.value;
+                  setStudentId(id);
+                  const student = students.find((s) => String(s.id) === id);
+                  if (student) {
+                    setStudentName(student.name);
+                  } else {
+                    setStudentName("");
+                  }
+                }}
+                className="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-blue-500"
+              >
                 <option value="">Select a student</option>
                 {students.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -121,10 +124,11 @@ export default function Library() {
         {/* Feedback */}
         {message && (
           <div
-            className={`p-3 text-sm rounded-lg ${message.startsWith("✅")
+            className={`rounded-lg p-3 text-sm ${
+              message.startsWith("✅")
                 ? "bg-green-100 text-green-700"
                 : "bg-red-100 text-red-700"
-              }`}
+            }`}
           >
             {message}
           </div>
@@ -141,7 +145,7 @@ export default function Library() {
 
             try {
               navigate("/apps/library", {
-                state: { studentId,studentName }, // ✅ pass studentId in location.state
+                state: { studentId, studentName }, // ✅ pass studentId in location.state
               });
 
               // Reset form
@@ -153,11 +157,11 @@ export default function Library() {
               setMessage("❌ Error: Unable to navigate.");
             }
           }}
-          className="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition duration-200 shadow-md"
+          className="w-full rounded-lg bg-blue-600 py-3 font-bold text-white shadow-md transition duration-200 hover:bg-blue-700"
         >
           Submit
         </button>
       </form>
     </div>
   );
-};
+}

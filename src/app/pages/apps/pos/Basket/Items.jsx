@@ -1,7 +1,8 @@
-// src/app/pages/apps/pos/Items.jsx
+import { useEffect, useState } from "react";
 import { PlusIcon, MinusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Button } from "components/ui";
 
+// ✅ INR formatter
 const formatINR = (val) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -10,8 +11,29 @@ const formatINR = (val) =>
   }).format(Number(val || 0));
 
 export function Items({ items, onIncrease, onDecrease, onRemove }) {
-  if (!items.length) {
-    return <p className="text-sm text-gray-400">No items in basket</p>;
+  // 🔹 Maintain local copy to allow smooth clearing on ghost refresh
+  const [localItems, setLocalItems] = useState(items);
+
+  // 🔄 Sync when parent prop changes (e.g. add/remove/update count)
+  useEffect(() => {
+    setLocalItems(items);
+  }, [items]);
+
+  // 👻 Listen for global ghost refresh event
+  useEffect(() => {
+    const handleRefresh = () => {
+      setLocalItems([]);
+    };
+    window.addEventListener("basket:refresh", handleRefresh);
+    return () => window.removeEventListener("basket:refresh", handleRefresh);
+  }, []);
+
+  if (!localItems.length) {
+    return (
+      <div className="text-center py-6 text-gray-400 dark:text-dark-300">
+        🛒 No items in basket
+      </div>
+    );
   }
 
   return (
@@ -28,22 +50,23 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
               <th className="border px-3 py-2 text-center">Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            {items.map((item) => {
+            {localItems.map((item) => {
               const itemSubtotal = item.count * Number(item.price);
               const itemGst = itemSubtotal * 0.05;
               const itemTotal = itemSubtotal + itemGst;
 
               return (
                 <tr
-                  key={item.id} // ✅ use id, not uid
-                  className="hover:bg-gray-50 dark:hover:bg-dark-700"
+                  key={item.id}
+                  className="hover:bg-gray-50 dark:hover:bg-dark-700 transition-colors duration-150"
                 >
-                  {/* Name + Image */}
+                  {/* Item Info */}
                   <td className="border px-3 py-2">
                     <div className="flex items-center gap-3">
                       <img
-                        src={item.image}
+                        src={item.image || "/images/categories/default.png"}
                         alt={item.name}
                         className="size-12 rounded object-cover border"
                       />
@@ -69,52 +92,51 @@ export function Items({ items, onIncrease, onDecrease, onRemove }) {
                         variant="outline"
                         onClick={() => {
                           if (item.count > 1) {
-                            onDecrease(item.id); // ✅ use id
-                          } else {
-                            if (
-                              window.confirm(`Remove ${item.name} from basket?`)
-                            ) {
-                              onRemove(item.id); // ✅ use id
-                            }
+                            onDecrease(item.id);
+                          } else if (
+                            window.confirm(`Remove ${item.name} from basket?`)
+                          ) {
+                            onRemove(item.id);
                           }
                         }}
                       >
                         <MinusIcon className="size-4" />
                       </Button>
 
-                      <span>{item.count}</span>
+                      <span className="font-medium">{item.count}</span>
 
                       <Button
                         isIcon
                         size="sm"
                         variant="outline"
-                        onClick={() => onIncrease(item.id)} // ✅ use id
+                        onClick={() => onIncrease(item.id)}
                       >
                         <PlusIcon className="size-4" />
                       </Button>
                     </div>
                   </td>
 
-                  {/* Price Columns */}
+                  {/* Pricing Columns */}
                   <td className="border px-3 py-2 text-right">
                     {formatINR(item.price)}
                   </td>
                   <td className="border px-3 py-2 text-right">
                     {formatINR(itemGst)}
                   </td>
-                  <td className="border px-3 py-2 text-right">
+                  <td className="border px-3 py-2 text-right font-medium">
                     {formatINR(itemTotal)}
                   </td>
 
-                  {/* Remove Button */}
+                  {/* Remove */}
                   <td className="border px-3 py-2 text-center">
                     <Button
                       isIcon
                       size="sm"
                       variant="danger"
                       onClick={() => {
-                        if (window.confirm(`Remove ${item.name} from basket?`))
-                          onRemove(item.id); // ✅ use id
+                        if (window.confirm(`Remove ${item.name} from basket?`)) {
+                          onRemove(item.id);
+                        }
                       }}
                     >
                       <TrashIcon className="size-4" />

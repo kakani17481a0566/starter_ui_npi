@@ -1,5 +1,8 @@
-// src/app/pages/apps/pos/index.jsx
-import { useState, Fragment } from "react";
+// ----------------------------------------------------------------------
+// 📦 Import Dependencies
+// ----------------------------------------------------------------------
+import { useState, useEffect, useMemo, Fragment } from "react";
+import ReactDOM from "react-dom";
 import { Page } from "components/shared/Page";
 import { Header } from "app/layouts/MainLayout/Header";
 import { Sidebar } from "./Sidebar";
@@ -14,22 +17,61 @@ import {
   TransitionChild,
 } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-// import { Button } from "components/ui";
 
+// ----------------------------------------------------------------------
+// 🧮 POS Component
+// ----------------------------------------------------------------------
 export default function Pos() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [basketItems, setBasketItems] = useState([]);
-  const [invoiceData, setInvoiceData] = useState(null); // ✅ store invoice data
-  const [showInvoice, setShowInvoice] = useState(false); // ✅ toggle modal
+  const [invoiceData, setInvoiceData] = useState(null);
+  const [showInvoice, setShowInvoice] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0); // ✅ controls CoursesDatatable refresh
 
-  // 🧾 Called when checkout success
+  // ----------------------------------------------------------------------
+  // 🔁 Load basket & invoice from localStorage
+  // ----------------------------------------------------------------------
+  useEffect(() => {
+    try {
+      const savedBasket = localStorage.getItem("basket-items");
+      const savedInvoice = localStorage.getItem("invoice-data");
+
+      if (savedBasket) setBasketItems(JSON.parse(savedBasket));
+      if (savedInvoice) setInvoiceData(JSON.parse(savedInvoice));
+    } catch (err) {
+      console.warn("⚠️ Failed to load saved POS data:", err);
+    }
+  }, []);
+
+  // 🧺 Persist basket changes
+  useEffect(() => {
+    localStorage.setItem("basket-items", JSON.stringify(basketItems));
+  }, [basketItems]);
+
+  // 💾 Persist invoice
+  useEffect(() => {
+    if (invoiceData) {
+      localStorage.setItem("invoice-data", JSON.stringify(invoiceData));
+    }
+  }, [invoiceData]);
+
+  // ----------------------------------------------------------------------
+  // 🧾 Handle Invoice Generation
+  // ----------------------------------------------------------------------
   const handleInvoiceReady = (data) => {
+    if (!data) return;
     setInvoiceData(data);
     setShowInvoice(true);
+
+    // ✅ Refresh CoursesDatatable after invoice is generated
+    setRefreshKey((prev) => prev + 1);
   };
 
-  // 🛒 Add to Basket
+  // ----------------------------------------------------------------------
+  // 🛒 Basket Management
+  // ----------------------------------------------------------------------
   const addToBasket = (item) => {
+    if (!item) return;
     setBasketItems((prev) => {
       const existing = prev.find((i) => i.id === item.id);
       if (existing) {
@@ -41,7 +83,7 @@ export default function Pos() {
         ...prev,
         {
           id: item.id,
-          name: item.name,
+          name: item.name || "Unnamed Item",
           count: 1,
           image: item.image || "/images/800x600.png",
           price: Number(item.price) || 0,
@@ -51,14 +93,12 @@ export default function Pos() {
     });
   };
 
-  // ➕ Increase
   const handleIncrease = (id) => {
     setBasketItems((prev) =>
       prev.map((i) => (i.id === id ? { ...i, count: i.count + 1 } : i))
     );
   };
 
-  // ➖ Decrease
   const handleDecrease = (id) => {
     setBasketItems((prev) =>
       prev
@@ -69,11 +109,26 @@ export default function Pos() {
     );
   };
 
-  // ❌ Remove
   const handleRemove = (id) => {
     setBasketItems((prev) => prev.filter((i) => i.id !== id));
   };
 
+  const clearBasket = () => {
+    setBasketItems([]);
+    localStorage.removeItem("basket-items");
+  };
+
+  // ----------------------------------------------------------------------
+  // 🧠 Memoized Invoice Rendering (prevents ghost refresh)
+  // ----------------------------------------------------------------------
+  const memoizedInvoice = useMemo(() => {
+    if (!invoiceData) return null;
+    return <Invoice1 data={invoiceData} />;
+  }, [invoiceData]);
+
+  // ----------------------------------------------------------------------
+  // 🖥️ Render UI
+  // ----------------------------------------------------------------------
   return (
     <Page title="Point of Sales App">
       <Header />
@@ -85,6 +140,7 @@ export default function Pos() {
           <CoursesDatatable
             categoryId={selectedCategory}
             onRowClick={addToBasket}
+            refreshKey={refreshKey} // ✅ dynamic trigger
           />
         </div>
 
@@ -96,7 +152,8 @@ export default function Pos() {
               onIncrease={handleIncrease}
               onDecrease={handleDecrease}
               onRemove={handleRemove}
-              onInvoiceReady={handleInvoiceReady} // ✅ pass callback
+              onInvoiceReady={handleInvoiceReady}
+              onClearBasket={clearBasket}
             />
           </div>
         </div>
@@ -104,47 +161,64 @@ export default function Pos() {
 
       <Sidebar />
 
-      {/* ✅ INVOICE POPUP */}
+      {/* ✅ Invoice Modal (detached, prevents full rerender) */}
       <Transition appear show={showInvoice} as={Fragment}>
-        <Dialog as="div" className="relative z-[200]" onClose={() => setShowInvoice(false)}>
-          {/* Overlay */}
-          <TransitionChild
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-          </TransitionChild>
+        <Dialog
+          as="div"
+          className="relative z-[200]"
+          onClose={() => {
+            setShowInvoice(false);
+            // ✅ Refresh items again after closing invoice
+            setRefreshKey((prev) => prev + 1);
+          }}
+        >
+          {ReactDOM.createPortal(
+            <>
+              {/* Overlay */}
+              <TransitionChild
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+              </TransitionChild>
 
-          {/* Panel */}
-          <TransitionChild
-            as={Fragment}
-            enter="ease-out duration-300 transform-gpu"
-            enterFrom="scale-90 opacity-0"
-            enterTo="scale-100 opacity-100"
-            leave="ease-in duration-200 transform-gpu"
-            leaveFrom="scale-100 opacity-100"
-            leaveTo="scale-90 opacity-0"
-          >
-            <DialogPanel className="fixed inset-0 flex items-center justify-center p-4">
-              <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl bg-white dark:bg-dark-800 shadow-2xl p-6">
-                {/* Close Button */}
-                <button
-                  onClick={() => setShowInvoice(false)}
-                  className="absolute top-4 right-4 rounded-full bg-gray-200 hover:bg-gray-300 p-2 dark:bg-dark-600 dark:hover:bg-dark-500"
-                >
-                  <XMarkIcon className="w-5 h-5 text-gray-700 dark:text-gray-200" />
-                </button>
+              {/* Panel */}
+              <TransitionChild
+                as={Fragment}
+                enter="ease-out duration-300 transform-gpu"
+                enterFrom="scale-90 opacity-0"
+                enterTo="scale-100 opacity-100"
+                leave="ease-in duration-200 transform-gpu"
+                leaveFrom="scale-100 opacity-100"
+                leaveTo="scale-90 opacity-0"
+              >
+                <DialogPanel className="fixed inset-0 flex items-center justify-center p-4">
+                  <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl bg-white dark:bg-dark-800 shadow-2xl p-6">
+                    {/* Close Button */}
+                    <button
+                      onClick={() => {
+                        setShowInvoice(false);
+                        setRefreshKey((prev) => prev + 1);
+                      }}
+                      className="absolute top-4 right-4 rounded-full bg-gray-200 hover:bg-gray-300 p-2 dark:bg-dark-600 dark:hover:bg-dark-500"
+                      aria-label="Close Invoice"
+                    >
+                      <XMarkIcon className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+                    </button>
 
-                {/* Invoice Content */}
-                <Invoice1 data={invoiceData} />
-              </div>
-            </DialogPanel>
-          </TransitionChild>
+                    {/* Invoice Content (Memoized) */}
+                    {memoizedInvoice}
+                  </div>
+                </DialogPanel>
+              </TransitionChild>
+            </>,
+            document.body
+          )}
         </Dialog>
       </Transition>
     </Page>

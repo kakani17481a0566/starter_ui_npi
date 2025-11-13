@@ -150,6 +150,13 @@ const protectedRoutes = {
                 Component: (await import("app/pages/dashboards/Parent/Fee")).default,
               }),
             },
+            {
+              path: "attendance",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/Attendence"))
+                  .default,
+              }),
+            },
           ],
         },
         {
@@ -229,6 +236,13 @@ const protectedRoutes = {
               path: "branch",
               lazy: async () => ({
                 Component: (await import("app/pages/FrontDesk/Branch")).default,
+              }),
+            },
+             {
+              path: "attendance",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/Attendence"))
+                  .default,
               }),
             },
           ],

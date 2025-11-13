@@ -42,7 +42,7 @@ const Default = () => (
 // ----------------------------------------------------------------------
 // Main Component
 // ----------------------------------------------------------------------
-export default function CoursesDatatable({ categoryId, onRowClick }) {
+export default function CoursesDatatable({ categoryId, onRowClick, refreshKey }) {
   const [allItems, setAllItems] = useState([]);
   const [items, setItems] = useState([]);
   const [dropdowns, setDropdowns] = useState({});
@@ -51,20 +51,23 @@ export default function CoursesDatatable({ categoryId, onRowClick }) {
   // ----------------------------------------------------------------------
   // 1️⃣ Fetch Items + Filters from API
   // ----------------------------------------------------------------------
+  const loadItems = async () => {
+    try {
+      setLoading(true);
+      const { items, dropdowns } = await fetchItemsData();
+      setAllItems(items);
+      setDropdowns(dropdowns);
+    } catch (error) {
+      console.error("❌ Error loading items:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔁 Initial Load + Refresh Trigger
   useEffect(() => {
-    const loadItems = async () => {
-      try {
-        const { items, dropdowns } = await fetchItemsData();
-        setAllItems(items);
-        setDropdowns(dropdowns);
-      } catch (error) {
-        console.error("❌ Error loading items:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     loadItems();
-  }, []);
+  }, [refreshKey]); // ✅ whenever refreshKey changes, table reloads
 
   // ----------------------------------------------------------------------
   // 2️⃣ Filter by Category (if categoryId provided)
@@ -91,7 +94,7 @@ export default function CoursesDatatable({ categoryId, onRowClick }) {
 
   const [toolbarFilters, setToolbarFilters] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
-  const [sorting, setSorting] = useState([]);
+  const [sorting, setSorting] = useState([{ id: "name", desc: false }]);
 
   const [columnVisibility, setColumnVisibility] = useLocalStorage(
     "column-visibility-items",
@@ -146,6 +149,9 @@ export default function CoursesDatatable({ categoryId, onRowClick }) {
     onColumnVisibilityChange: setColumnVisibility,
     onColumnPinningChange: setColumnPinning,
     autoResetPageIndex,
+    initialState: {
+      sorting: [{ id: "name", desc: false }],
+    },
   });
 
   // ----------------------------------------------------------------------
@@ -310,4 +316,5 @@ export default function CoursesDatatable({ categoryId, onRowClick }) {
 CoursesDatatable.propTypes = {
   categoryId: PropTypes.number,
   onRowClick: PropTypes.func,
+  refreshKey: PropTypes.number, // ✅ added prop
 };
