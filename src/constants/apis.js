@@ -27,6 +27,7 @@ export const StudentAPI = {
 
 
 
+
 import { getSessionData } from "utils/sessionStorage";
 const {tenantId,branch,course,week}=getSessionData();
 
@@ -71,6 +72,8 @@ export const POS_ITEMS=`${BASE_URL}/Items/GetByTenant/${tenantId}`;
 export const LIBRARY_CATEGORIES=`${BASE_URL}/Genres/${tenantId}`;
 export const LIBRARY_BOOKS=`${BASE_URL}/ItemHeader/${tenantId}`;
 export const HEALTH_REGISTRATION=`${Local_url}/Genetic`;
+export const POSAPI=`${BASE_URL}/PosTransactionMaster/CreatePostTransaction`;
+export const LIBRARYAPI=`${BASE_URL}/LibraryTransaction`;
 
 
 

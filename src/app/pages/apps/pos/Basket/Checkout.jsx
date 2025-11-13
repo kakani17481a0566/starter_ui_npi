@@ -7,6 +7,7 @@ import {
 import { Button, Input } from "components/ui";
 import axios from "axios";
 import { toast } from "sonner";
+import { POSAPI } from "constants/apis";
 
 // ✅ INR formatter
 const formatINR = (val) =>
@@ -54,7 +55,7 @@ export function Checkout({
 
     try {
       const res = await axios.post(
-        "https://localhost:7202/api/PosTransactionMaster/CreatePostTransaction",
+        POSAPI,
         payload
       );
 

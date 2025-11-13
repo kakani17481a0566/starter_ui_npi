@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { Button } from "components/ui";
 import { toast } from "sonner";
 import axios from "axios";
+import { LIBRARYAPI } from "constants/apis";
 
 export function AssignSection({
   items = [],
@@ -21,15 +22,15 @@ export function AssignSection({
       return;
     }
     const payload = {
-      studentId: selectedStudent,     
-      checkInBy: 1,                    
+      studentId: selectedStudent,
+      checkInBy: 1,
       bookIds: items.map((b) => b.book_id),
     };
 
     console.log("📦 Final Payload →", payload);
 
     try {
-      const res = await axios.post("https://localhost:7202/api/LibraryTransaction", payload);
+      const res = await axios.post(LIBRARYAPI, payload);
       // console.log(res);
       if(res.data.data==="assigned"){
       toast.success("✅ Books assigned successfully");

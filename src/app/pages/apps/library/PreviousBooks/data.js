@@ -1,5 +1,6 @@
 // data.js
 import axios from "axios";
+import { LIBRARYAPI } from "constants/apis";
 export const books = [
   { name: "John Doe", title: "Learning React", author: "Alex Smith", status: "Available" },
   { name: "Jane Smith", title: "Mastering JavaScript", author: "Chris Brown", status: "Issued" },
@@ -9,12 +10,12 @@ export const books = [
 ];
 export async function fetchPreviousBooks(studentId){
    try {
-    const response = await axios.get(`https://localhost:7202/api/LibraryTransaction?studentId=${studentId}`);
+    const response = await axios.get(`LIBRARYAPI?studentId=${studentId}`);
     const result = response.data.data;
     return result;
   } catch (error) {
     console.error("Error fetching courses:", error);
-    throw error; 
+    throw error;
   }
 }
 export function checkoutBook({studentId,bookIds}){
@@ -22,7 +23,7 @@ export function checkoutBook({studentId,bookIds}){
     studentId,
     bookIds
   };
-  const response=axios.put("https://localhost:7202/api/LibraryTransaction",payLoad);
+  const response=axios.put(LIBRARYAPI,payLoad);
   console.log("response is",response.data);
 
 

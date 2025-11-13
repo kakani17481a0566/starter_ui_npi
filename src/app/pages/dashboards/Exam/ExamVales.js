@@ -1,10 +1,11 @@
 // src/app/pages/dashboards/Exam/ExamVales.js
 import axios from "utils/axios"; // ✅ your axios wrapper
+import { BASE_URL } from "constants/apis";
 
 // 🔹 Fetch questions from API
 export async function fetchQuestions(testId) {
   try {
-    const res = await axios.get(`https://localhost:7202/api/CountingTestContent/test/${testId}`);
+    const res = await axios.get(`${BASE_URL}/CountingTestContent/test/${testId}`);
     // ✅ Transform API data into same structure as before
     return res.data.data.map((item) => ({
       id: item.id,

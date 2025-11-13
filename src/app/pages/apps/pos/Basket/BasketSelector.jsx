@@ -28,7 +28,7 @@ export function BasketSelector({ onSelectStudent }) {
 
     const fetchStudents = async () => {
       try {
-        const res = await axios.get(`https://localhost:7202/search/${query}`);
+        const res = await axios.get(`https://neuropi-fhafe3gchabde0gb.canadacentral-01.azurewebsites.net/search/${query}`);
         setStudents(res.data.data || []);
         setShowDropdown(true);
       } catch (err) {
