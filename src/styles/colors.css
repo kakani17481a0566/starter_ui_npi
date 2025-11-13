@@ -208,13 +208,29 @@
   --color-primary-200: #83E6F7;
   --color-primary-300: #4ADBF3;
   /* --color-primary-350: #2BBBAD; */
-
   --color-primary-400: #00C9EA;
   --color-primary-500: #00B3D1;
   --color-primary-600: #5bc6e6;
   --color-primary-700: #00829A;
   --color-primary-800: #006D84;
   --color-primary-900: #00596E;
-    --color-primary-950: #1A4255; 
-
+    --color-primary-950: #1A4255;
 }
+
+
+
+
+[data-theme-primary="Nutrition"] {
+  --color-primary-50:  #EFFCEB;
+  --color-primary-100: #EFFCEC;
+  --color-primary-200: #BBFFCC;
+  --color-primary-300: #8EB197;
+  --color-primary-400: #548C62;
+  --color-primary-500: #4A7D58;
+  --color-primary-600: #3F6D4E;
+  --color-primary-700: #335D43;
+  --color-primary-800: #274C38;
+  --color-primary-900: #1B3A2D;
+  --color-primary-950: #0F291F;
+}
+

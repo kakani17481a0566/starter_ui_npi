@@ -7,10 +7,10 @@ import {
   Transition,
 } from "@headlessui/react";
 import {
-  ChevronUpIcon,
+  // ChevronUpIcon,
   EllipsisHorizontalIcon,
   PresentationChartLineIcon,
-  
+
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import {  useState } from "react";
@@ -78,12 +78,12 @@ export function RowActions({ row }) {
             variant="flat"
             onClick={row.getToggleExpandedHandler()}
           >
-            <ChevronUpIcon
+            {/* <ChevronUpIcon
               className={clsx(
                 "size-4.5 transition-transform",
                 row.getIsExpanded() && "rotate-180",
               )}
-            />
+            /> */}
           </Button>
         ) : null}
         <Menu as="div" className="relative inline-block text-left">
