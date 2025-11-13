@@ -124,6 +124,14 @@ else if(role.toLowerCase()==="parent"){
       Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
     },
     {
+      id: "dashboards.Registration",
+      path: path(ROOT_DASHBOARDS, "/Exam"),
+      type: NAV_TYPE_ITEM,
+      title: "Exam",
+      transKey: "nav.parent.Exam",
+      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    },
+    {
       id: "dashboards.home",
       path: path(ROOT_DASHBOARDS, "/week"),
       type: NAV_TYPE_ITEM,

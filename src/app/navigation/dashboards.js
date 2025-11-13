@@ -32,14 +32,7 @@ else if(role ==='TEACHER'){
       transKey: "nav.dashboards.week",
       Icon: HomeIcon,
     },
-    {
-      id: "dashboards.attendence",
-      path: path(ROOT_DASHBOARDS, "/attendance"),
-      type: NAV_TYPE_ITEM,
-      title: "Attendance",
-      transKey: "nav.dashboards.attendance",
-      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
-    },
+
     {
       id: "dashboards.Term",
       path: path(ROOT_DASHBOARDS, "/term"),
@@ -48,14 +41,14 @@ else if(role ==='TEACHER'){
       transKey: "nav.dashboards.term",
       Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
     },
-     {
-      id: "dashboards.AI",
-      path: path(ROOT_DASHBOARDS, "/test"),
-      type: NAV_TYPE_ITEM,
-      title: "Ai",
-      transKey: "nav.parent.ai",
-      Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
-    },
+    //  {
+    //   id: "dashboards.AI",
+    //   path: path(ROOT_DASHBOARDS, "/test"),
+    //   type: NAV_TYPE_ITEM,
+    //   title: "Ai",
+    //   transKey: "nav.parent.ai",
+    //   Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
+    // },
     {
       id: "dashboards.mark-attendance",
       path: "dashboards/mark-attendance",
@@ -80,7 +73,7 @@ else if(role ==='TEACHER'){
       id: "dashboards.attendence",
       path: path(ROOT_DASHBOARDS, "/attendance"),
       type: NAV_TYPE_ITEM,
-      title: "Attendance",
+      title: "AttendanceDashboard",
       transKey: "nav.dashboards.attendance",
       Icon: ClipboardDocumentCheckIcon, // e.g., Heroicons outline icon
     },

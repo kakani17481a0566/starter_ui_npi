@@ -4,7 +4,7 @@ import {ParentDashboards} from "./ParentDashboard";
 import {StudentEnquiry} from "./student";
 import { FrontDesk } from "./FrontDesk"
 import { apps } from "./apps";
-import {Genetics} from "./genetics";
+// import {Genetics} from "./genetics";
 import {nutrition} from "./nutrition";
 
 
@@ -19,8 +19,13 @@ let navigation=[];
 if(role.toLowerCase()===NANNY){
 navigation=[dashboards];
 }
-else if(role.toLowerCase() ===TEACHER  || role.toLowerCase() ===ADMIN){
-    navigation=[dashboards,ParentDashboards,StudentEnquiry, FrontDesk,apps,Genetics,nutrition]
+else if(role.toLowerCase() ===TEACHER  ){
+    // navigation=[dashboards,ParentDashboards,StudentEnquiry, FrontDesk,apps,Genetics,nutrition]
+    navigation=[dashboards,nutrition]
+
+}
+else if( role.toLowerCase() ===ADMIN){
+    navigation=[ParentDashboards,StudentEnquiry,FrontDesk,apps]
 }
 else if( role.toLowerCase() ===PARENT){
     navigation=[ParentDashboards]
