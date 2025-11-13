@@ -24,7 +24,7 @@ export default function ParentTeacherDashbord() {
     try {
       const response = await fetchPerformanceSummary({
         tenantId: 1,
-        courseId: 4,
+        courseId: 1,
         branchId: 1,
         weekId: 0,
       });
