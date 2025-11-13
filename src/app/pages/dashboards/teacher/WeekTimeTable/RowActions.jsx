@@ -46,6 +46,7 @@ export function RowActions({ row }) {
   const { role } = getSessionData(); // e.g., "Parent", "Teacher"
   const isParent = role === "PARENT";
   const isTeacher = role === "TEACHER";
+  const isAdmin=role.toUpperCase()==="ADMIN";
 
   const { course } = getSessionData();
 
@@ -184,7 +185,7 @@ export function RowActions({ row }) {
             leaveTo="opacity-0 translate-y-2"
             className="dark:border-dark-500 dark:bg-dark-100 border-primary-400 absolute z-100 mt-1.5 min-w-[10rem] rounded-lg border bg-white py-1 shadow-lg ltr:right-0 rtl:left-0"
           >
-            {isTeacher && (
+            {isTeacher || isAdmin && (
               <MenuItem>
                 {({ active }) => (
                   <button
@@ -201,7 +202,7 @@ export function RowActions({ row }) {
               </MenuItem>
             )}
 
-            {(isParent || isTeacher) && (
+            {(isParent || isTeacher || isAdmin) && (
               <MenuItem>
                 {({ active }) => (
                   <button
@@ -218,7 +219,7 @@ export function RowActions({ row }) {
               </MenuItem>
             )}
 
-            {(isParent || isTeacher) && (
+            {(isParent || isTeacher || isAdmin) && (
               <MenuItem>
                 {({ active }) => (
                   <button
@@ -235,7 +236,7 @@ export function RowActions({ row }) {
               </MenuItem>
             )}
 
-            {isTeacher && (
+            {isTeacher || isAdmin && (
               <MenuItem>
                 {({ active }) => (
                   <button
@@ -252,7 +253,7 @@ export function RowActions({ row }) {
               </MenuItem>
             )}
 
-            {isTeacher && (
+            {isTeacher || isAdmin && (
               <MenuItem>
                 {({ active }) => (
                   <button
