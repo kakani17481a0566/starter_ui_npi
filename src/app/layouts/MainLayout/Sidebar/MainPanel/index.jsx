@@ -29,6 +29,8 @@ export function MainPanel({ nav, setActiveSegment, activeSegment }) {
       navigate("/dashboards/mark-attendance");
     } else if(role.toUpperCase()==="PARENT"){
       navigate("/parent/ParentStudent")
+    }else if(role.toUpperCase()==="ADMIN"){
+      navigate("/FrontDesk/attendance")
     }
     close();
   };
