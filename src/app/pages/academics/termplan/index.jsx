@@ -10,7 +10,6 @@ export default function TermPlan() {
     courses?.find((c) => c.id === storedId).id || courses?.[0].id;
   if(role==="PARENT"){
     selectedCourse=selectedCourseId;
-
   }
 
 
