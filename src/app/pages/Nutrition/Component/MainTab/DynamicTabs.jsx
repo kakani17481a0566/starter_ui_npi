@@ -1,36 +1,36 @@
 import * as React from "react";
 import { Tabs, Tab, Box } from "@mui/material";
-import {
-  CalendarMonth,
-  Today,
-  ArchiveOutlined,
-} from "@mui/icons-material";
-
-// Import your tab components
-import WeeklyPlan from "./WeeklyPlan";
-import DailyMealPlanner from "./DailyMealPlanner";
-import ArchiveTab from "./Archive"; // renamed to avoid icon conflict
 
 // ----------------------------------------------------------------------
+// Import Tab Components
+// ----------------------------------------------------------------------
+import WeeklyPlan from "./WeeklyPlan";
+import DailyMealPlanner from "./DailyMealPlanner";
+import ArchiveTab from "./Archive";
 
+// ----------------------------------------------------------------------
+// Tab Configuration
+// ----------------------------------------------------------------------
 const tabData = [
-  { key: "weeklyplan", label: "Weekly Plan", icon: <CalendarMonth fontSize="small" /> },
-  { key: "DailyMealPlanner", label: "Daily Plan", icon: <Today fontSize="small" /> },
-  { key: "archive", label: "Archive", icon: <ArchiveOutlined fontSize="small" /> },
+  { key: "weeklyplan", label: "Weekly Plan" },
+  { key: "dailymealplanner", label: "Daily Plan" },
+  { key: "archive", label: "Archive" },
 ];
 
 // ----------------------------------------------------------------------
-
+// Component Definition
+// ----------------------------------------------------------------------
 export default function DynamicTabs() {
   const [value, setValue] = React.useState(tabData[0].key);
 
   const handleChange = (event, newValue) => setValue(newValue);
 
+  // Render tab-specific content
   const renderContent = () => {
     switch (value) {
       case "weeklyplan":
         return <WeeklyPlan />;
-      case "DailyMealPlanner":
+      case "dailymealplanner":
         return <DailyMealPlanner />;
       case "archive":
         return <ArchiveTab />;
@@ -43,9 +43,8 @@ export default function DynamicTabs() {
     <Box
       sx={{
         width: "100%",
-        bgcolor: "transparent", // ✅ full transparency
+        bgcolor: "transparent",
         borderRadius: 2,
-        boxShadow: "none",
         p: { xs: 1.5, sm: 2.5 },
       }}
     >
@@ -55,39 +54,47 @@ export default function DynamicTabs() {
         onChange={handleChange}
         variant="scrollable"
         scrollButtons="auto"
-        textColor="secondary"
-        indicatorColor="secondary"
+        textColor="inherit"
         allowScrollButtonsMobile
         sx={{
+          "& .MuiTabs-indicator": {
+            height: "3px",
+            borderRadius: "3px",
+            backgroundColor: "#1A4255", // Active underline color
+            transition: "background-color 0.3s ease",
+          },
           "& .MuiTab-root": {
             textTransform: "none",
             fontWeight: 600,
             fontSize: "0.95rem",
+            color: "#1A4255", // ✅ Always dark blue text
             minHeight: 48,
-            minWidth: { xs: 100, sm: 140 },
-          },
-          "& .MuiTabs-indicator": {
-            height: "3px",
-            background: "linear-gradient(90deg, #33cdcd, #7b2ff7)",
-            borderRadius: "3px",
+            minWidth: { xs: 110, sm: 140 },
+            borderBottom: "3px solid transparent", // baseline border
+            transition: "all 0.3s ease-in-out",
+            marginX: 1.5, // ✅ gap between tabs
+
+            // 🔸 Unselected state
+            "&:not(.Mui-selected)": {
+              borderBottom: "3px solid #EB5633", // orange underline
+            },
+
+            // 🔹 Selected state
+            "&.Mui-selected": {
+              color: "#1A4255", // stays the same dark blue
+              borderBottom: "3px solid #1A4255", // dark blue underline
+              backgroundColor: "transparent",
+            },
+
+            "&:hover": {
+              color: "#1A4255", // stays same
+              opacity: 0.9,
+            },
           },
         }}
       >
         {tabData.map((tab) => (
-          <Tab
-            key={tab.key}
-            value={tab.key}
-            icon={tab.icon}
-            iconPosition="start"
-            label={tab.label}
-            sx={{
-              color: "text.primary",
-              "&.Mui-selected": {
-                color: "#33cdcd", // optional: highlight color
-                backgroundColor: "transparent", // ✅ no white bg
-              },
-            }}
-          />
+          <Tab key={tab.key} value={tab.key} label={tab.label} />
         ))}
       </Tabs>
 
@@ -97,9 +104,9 @@ export default function DynamicTabs() {
           mt: 3,
           p: 2,
           borderRadius: 2,
-          bgcolor: "transparent", // ✅ transparent background
-          border: "none",         // ✅ remove border
-          boxShadow: "none",      // ✅ no shadow
+          bgcolor: "transparent",
+          border: "none",
+          boxShadow: "none",
           minHeight: 120,
         }}
       >

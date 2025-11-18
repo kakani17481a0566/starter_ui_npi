@@ -1,0 +1,372 @@
+{
+  "allItems": [
+    {
+      "id": 1,
+      "name": "Salmon",
+      "kcal": 230,
+      "protein": 25,
+      "type": 3,
+      "mealTypeIds": [
+        1,
+        2,
+        3
+      ],
+      "focusIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "vitaminIds": [
+        4
+      ],
+      "fav": true
+    },
+    {
+      "id": 2,
+      "name": "Spinach",
+      "kcal": 40,
+      "protein": 4,
+      "type": 2,
+      "mealTypeIds": [
+        4
+      ],
+      "focusIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "vitaminIds": [
+        3
+      ],
+      "fav": true
+    },
+    {
+      "id": 3,
+      "name": "Oats",
+      "kcal": 150,
+      "protein": 6,
+      "type": 4,
+      "mealTypeIds": [
+        1
+      ],
+      "focusIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "vitaminIds": [
+        2
+      ],
+      "fav": false
+    },
+    {
+      "id": 4,
+      "name": "Avocado",
+      "kcal": 180,
+      "protein": 2,
+      "type": 5,
+      "mealTypeIds": [
+        3
+      ],
+      "focusIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "vitaminIds": [
+        1
+      ],
+      "fav": false
+    },
+    {
+      "id": 5,
+      "name": "Yogurt",
+      "kcal": 120,
+      "protein": 8,
+      "type": 1,
+      "mealTypeIds": [
+        5
+      ],
+      "focusIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "vitaminIds": [
+        4
+      ],
+      "fav": false
+    },
+    {
+      "id": 6,
+      "name": "Tofu",
+      "kcal": 90,
+      "protein": 10,
+      "type": 3,
+      "mealTypeIds": null,
+      "focusIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "vitaminIds": [
+        5
+      ],
+      "fav": false
+    }
+  ],
+  "mealPlans": [
+    {
+      "mealTypeId": 1,
+      "date": "2025-11-11",
+      "items": [
+        {
+          "id": 3,
+          "qty": 1,
+          "kcal": 150,
+          "protein": 6,
+          "type": 4,
+          "mealTypeIds": [
+            1
+          ],
+          "focusIds": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "vitaminIds": [
+            2
+          ],
+          "fav": false
+        }
+      ]
+    },
+    {
+      "mealTypeId": 2,
+      "date": "2025-11-11",
+      "items": [
+        {
+          "id": 1,
+          "qty": 1,
+          "kcal": 230,
+          "protein": 25,
+          "type": 3,
+          "mealTypeIds": [
+            1,
+            2,
+            3
+          ],
+          "focusIds": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "vitaminIds": [
+            4
+          ],
+          "fav": true
+        }
+      ]
+    },
+    {
+      "mealTypeId": 3,
+      "date": "2025-11-11",
+      "items": [
+        {
+          "id": 4,
+          "qty": 1,
+          "kcal": 180,
+          "protein": 2,
+          "type": 5,
+          "mealTypeIds": [
+            3
+          ],
+          "focusIds": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "vitaminIds": [
+            1
+          ],
+          "fav": false
+        }
+      ]
+    },
+    {
+      "mealTypeId": 4,
+      "date": "2025-11-11",
+      "items": [
+        {
+          "id": 2,
+          "qty": 1,
+          "kcal": 40,
+          "protein": 4,
+          "type": 2,
+          "mealTypeIds": [
+            4
+          ],
+          "focusIds": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "vitaminIds": [
+            3
+          ],
+          "fav": true
+        }
+      ]
+    },
+    {
+      "mealTypeId": 5,
+      "date": "2025-11-11",
+      "items": [
+        {
+          "id": 5,
+          "qty": 1,
+          "kcal": 120,
+          "protein": 8,
+          "type": 1,
+          "mealTypeIds": [
+            5
+          ],
+          "focusIds": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "vitaminIds": [
+            4
+          ],
+          "fav": false
+        }
+      ]
+    }
+  ],
+  "mealTypes": {
+    "1": {
+      "id": 1,
+      "name": "Breakfast"
+    },
+    "2": {
+      "id": 2,
+      "name": "Lunch"
+    },
+    "3": {
+      "id": 3,
+      "name": "Dinner"
+    },
+    "4": {
+      "id": 4,
+      "name": "Snack"
+    },
+    "5": {
+      "id": 5,
+      "name": "Post-Workout"
+    }
+  },
+  "itemTypes": {
+    "1": {
+      "id": 1,
+      "name": "Fruit"
+    },
+    "2": {
+      "id": 2,
+      "name": "Vegetable"
+    },
+    "3": {
+      "id": 3,
+      "name": "Protein"
+    },
+    "4": {
+      "id": 4,
+      "name": "Carbohydrate"
+    },
+    "5": {
+      "id": 5,
+      "name": "Fat Source"
+    }
+  },
+  "focusTags": {
+    "1": {
+      "id": 1,
+      "name": "Weight Loss"
+    },
+    "2": {
+      "id": 2,
+      "name": "Muscle Gain"
+    },
+    "3": {
+      "id": 3,
+      "name": "Heart Health"
+    },
+    "4": {
+      "id": 4,
+      "name": "Brain Health"
+    },
+    "5": {
+      "id": 5,
+      "name": "Diabetes Control"
+    },
+    "6": {
+      "id": 6,
+      "name": "Bone Health"
+    }
+  },
+  "vitamins": {
+    "1": {
+      "id": 1,
+      "name": "Vitamin A"
+    },
+    "2": {
+      "id": 2,
+      "name": "Vitamin B12"
+    },
+    "3": {
+      "id": 3,
+      "name": "Vitamin C"
+    },
+    "4": {
+      "id": 4,
+      "name": "Vitamin D"
+    },
+    "5": {
+      "id": 5,
+      "name": "Vitamin K"
+    }
+  }
+}
