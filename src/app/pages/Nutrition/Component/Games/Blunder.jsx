@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import IngredientListSVG from "./IngredientList.jsx";
-import InstructionBoard from "./InstructionBoard.jsx";   // ✅ ADDED IMPORT
-import BlenderSVG from "./BlenderSVG.jsx";  // ✅ ADD THIS
+import InstructionBoard from "./InstructionBoard.jsx";
+import BlenderSVG from "./BlenderSVG.jsx";
 
-
-
+// ---------------------------------------------------------
+// Ingredient List
+// ---------------------------------------------------------
 const ingredientsData = [
   { name: "Beetroot", image: "https://images.unsplash.com/vector-1763542801962-915d223dbefa?q=80&w=744", required: true },
   { name: "Ginger", image: "https://images.unsplash.com/vector-1763542801792-e25e50f23a61?q=80&w=938", required: true },
@@ -17,27 +18,54 @@ const ingredientsData = [
 const requiredIngredients = ["Beetroot", "Ginger", "Carrot", "Lime", "Banana"];
 const totalRequired = requiredIngredients.length;
 
-
-const IngredientShelfItem = ({ name, image, onDragStart }) => (
+// ---------------------------------------------------------
+// Ingredient Shelf Item — Supports Touch + Mouse + Pen
+// ---------------------------------------------------------
+const IngredientShelfItem = ({ name, image, onPointerDown }) => (
   <div
-    className="mx-[1%] flex h-[80%] w-[12%] cursor-grab items-center justify-center overflow-hidden rounded-lg border bg-white shadow-md hover:scale-105"
-    draggable
-    onDragStart={(e) => onDragStart(e, name)}
+    className="
+      mx-[1%] flex
+      cursor-grab items-center justify-center
+      overflow-hidden rounded-lg border bg-white shadow-md
+      hover:scale-105 touch-none
+      h-[80%] w-[12%]
+      sm:w-[16%]
+      xs:w-[22%]
+    "
+    onPointerDown={(e) => onPointerDown(e, name)}
   >
-    <img src={image} alt={name} className="h-full w-full object-contain p-2" />
+    <img
+      src={image}
+      alt={name}
+      className="h-full w-full object-contain p-2 pointer-events-none"
+    />
   </div>
 );
 
-
+// ---------------------------------------------------------
+// MAIN GAME COMPONENT
+// ---------------------------------------------------------
 export default function Blunder() {
   const [blenderContents, setBlenderContents] = useState([]);
   const [message, setMessage] = useState("");
   const [isComplete, setIsComplete] = useState(false);
   const containerRef = useRef(null);
 
-  /* ---------------------------------------------------------
-        RESPONSIVE SCALING
-  --------------------------------------------------------- */
+  const dragItemRef = useRef(null);
+  const pointerOffset = useRef({ x: 0, y: 0 });
+
+  // ---------------------------------------------------------
+  // PREVENT TOUCH SCROLL DURING DRAGGING
+  // ---------------------------------------------------------
+  useEffect(() => {
+    const preventScroll = (e) => e.preventDefault();
+    document.addEventListener("touchmove", preventScroll, { passive: false });
+    return () => document.removeEventListener("touchmove", preventScroll);
+  }, []);
+
+  // ---------------------------------------------------------
+  // RESPONSIVE SCALING
+  // ---------------------------------------------------------
   useEffect(() => {
     const container = containerRef.current;
 
@@ -56,42 +84,105 @@ export default function Blunder() {
     return () => window.removeEventListener("resize", resizeGame);
   }, []);
 
-  /* ---------------------------------------------------------
-        DRAG START
-  --------------------------------------------------------- */
-  const handleDragStart = (e, name) => {
-    e.dataTransfer.setData("ingredientName", name);
+  // ---------------------------------------------------------
+  // SAFE POINTER POSITION (Fix for mobile where clientX=0)
+  // ---------------------------------------------------------
+  const getPointerPos = (e) => ({
+    x: e.clientX || e.touches?.[0]?.clientX || 0,
+    y: e.clientY || e.touches?.[0]?.clientY || 0,
+  });
+
+  // ---------------------------------------------------------
+  // START DRAG
+  // ---------------------------------------------------------
+  const handlePointerDown = (e, name) => {
+    e.preventDefault();
+
+    const img = e.currentTarget.cloneNode(true);
+    img.style.position = "fixed";
+    img.style.width = "120px";
+    img.style.height = "120px";
+    img.style.zIndex = "99999";
+    img.style.pointerEvents = "none";
+
+    document.body.appendChild(img);
+    dragItemRef.current = { element: img, name };
+
+    pointerOffset.current = {
+      x: img.offsetWidth / 2,
+      y: img.offsetHeight / 2,
+    };
+
+    moveDragImage(e);
+    window.addEventListener("pointermove", moveDragImage);
+    window.addEventListener("pointerup", handlePointerUp);
   };
 
-  /* ---------------------------------------------------------
-        DROP INTO BLENDER
-  --------------------------------------------------------- */
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const name = e.dataTransfer.getData("ingredientName");
+  // ---------------------------------------------------------
+  // MOVE DRAG SHADOW
+  // ---------------------------------------------------------
+  const moveDragImage = (e) => {
+    const drag = dragItemRef.current?.element;
+    if (!drag) return;
+
+    const pos = getPointerPos(e);
+    drag.style.left = `${pos.x - pointerOffset.current.x}px`;
+    drag.style.top = `${pos.y - pointerOffset.current.y}px`;
+  };
+
+  // ---------------------------------------------------------
+  // DROP HANDLING
+  // ---------------------------------------------------------
+  const handlePointerUp = (e) => {
+    const drag = dragItemRef.current;
+    if (!drag) return;
+
+    const dropZone = document.getElementById("blender-drop-zone");
+    const rect = dropZone.getBoundingClientRect();
+    const pos = getPointerPos(e);
+
+    const inside =
+      pos.x >= rect.left &&
+      pos.x <= rect.right &&
+      pos.y >= rect.top &&
+      pos.y <= rect.bottom;
+
+    if (inside) handleDrop(drag.name);
+
+    drag.element.remove();
+    dragItemRef.current = null;
+
+    window.removeEventListener("pointermove", moveDragImage);
+    window.removeEventListener("pointerup", handlePointerUp);
+  };
+
+  // ---------------------------------------------------------
+  // GAME DROP LOGIC
+  // ---------------------------------------------------------
+  const handleDrop = (name) => {
     const item = ingredientsData.find((i) => i.name === name);
 
     if (!item) return;
-    if (blenderContents.includes(name)) return setMessage(`${name} already added.`);
-    if (!item.required) return setMessage(`${name} is NOT required!`);
+    if (blenderContents.includes(name))
+      return setMessage(`${name} already added.`);
+    if (!item.required)
+      return setMessage(`${name} is NOT required!`);
 
     setBlenderContents((prev) => {
       const updated = [...prev, name];
-
       if (updated.length === totalRequired) {
         setIsComplete(true);
         setMessage("SUCCESS! Energetic Smoothie Ready!");
       } else {
         setMessage(`Added ${name}! ${totalRequired - updated.length} more to go.`);
       }
-
       return updated;
     });
   };
 
-  /* ---------------------------------------------------------
-        RESET GAME
-  --------------------------------------------------------- */
+  // ---------------------------------------------------------
+  // RESET
+  // ---------------------------------------------------------
   const handleReset = () => {
     setBlenderContents([]);
     setMessage("");
@@ -100,10 +191,9 @@ export default function Blunder() {
 
   const fillLevel = Math.min(80, (blenderContents.length / totalRequired) * 80);
 
-
-  /* ---------------------------------------------------------
-        MAIN RENDER
-  --------------------------------------------------------- */
+  // ---------------------------------------------------------
+  // UI
+  // ---------------------------------------------------------
   return (
     <div className="relative flex h-screen w-full justify-center items-center overflow-hidden">
       <div
@@ -117,57 +207,38 @@ export default function Blunder() {
           transformOrigin: "top left",
         }}
       >
+        {/* BLENDER DROP ZONE */}
+        <div
+          id="blender-drop-zone"
+          className="absolute flex flex-col items-center"
+          style={{
+            top: window.innerWidth < 768 ? "12%" : "22%",
+            left: "50%",
+            transform: "translateX(-50%)",
+          }}
+        >
+          <BlenderSVG fillLevel={fillLevel} />
 
-        {/* ---------------------------------------------------------
-              BLENDER
-        --------------------------------------------------------- */}
-       {/* ---------------------------------------------------------
-      BLENDER (SVG VERSION)
---------------------------------------------------------- */}
-<div
-  className="absolute flex flex-col items-center"
-  style={{ top: "22%", left: "50%", transform: "translateX(-50%)" }}
-  onDragOver={(e) => e.preventDefault()}
-  onDrop={handleDrop}
->
-  <BlenderSVG fillLevel={fillLevel} />
+          {isComplete && (
+            <p className="mt-3 text-[#4f0c00] font-extrabold text-[1.2vw] animate-pulse">
+              READY!
+            </p>
+          )}
+        </div>
 
-  {isComplete && (
-    <p className="mt-3 text-[#4f0c00] font-extrabold text-[1.2vw] animate-pulse">
-      READY!
-    </p>
-  )}
-</div>
-
-
-        {/* ---------------------------------------------------------
-              INSTRUCTION BOARD (LEFT SIDE)
-        --------------------------------------------------------- */}
+        {/* INSTRUCTIONS */}
         <div
           className="absolute"
-          style={{
-            left: "5%",
-            top: "10%",
-            width: "480px",
-            height: "500px",
-          }}
+          style={{ left: "5%", top: "10%", width: "480px", height: "500px" }}
         >
           <InstructionBoard
             text={
               "Read the ingredients from the list given next to the image.\nDrag and drop the ingredients into the blender to make an energetic smoothie."
             }
-            style={{
-              width: "100%",
-              height: "100%",
-              position: "absolute",
-            }}
           />
         </div>
 
-
-        {/* ---------------------------------------------------------
-              INGREDIENT LIST (RIGHT SIDE)
-        --------------------------------------------------------- */}
+        {/* INGREDIENT LIST */}
         <div
           className="absolute"
           style={{ right: "5%", top: "10%", width: "480px", height: "500px" }}
@@ -175,18 +246,10 @@ export default function Blunder() {
           <IngredientListSVG
             requiredIngredients={requiredIngredients}
             blenderContents={blenderContents}
-            style={{
-              width: "100%",
-              height: "100%",
-              position: "absolute",
-            }}
           />
         </div>
 
-
-        {/* ---------------------------------------------------------
-              SHELF ITEMS
-        --------------------------------------------------------- */}
+        {/* SHELF ITEMS */}
         <div
           className="absolute flex justify-around items-center"
           style={{
@@ -202,15 +265,12 @@ export default function Blunder() {
               key={item.name}
               name={item.name}
               image={item.image}
-              onDragStart={handleDragStart}
+              onPointerDown={handlePointerDown}
             />
           ))}
         </div>
 
-
-        {/* ---------------------------------------------------------
-              RESET BUTTON
-        --------------------------------------------------------- */}
+        {/* RESET BUTTON */}
         <button
           onClick={handleReset}
           className="absolute right-[3%] bottom-[4%] px-4 py-2 text-white bg-red-600 font-bold rounded-xl hover:bg-red-700"
@@ -218,9 +278,7 @@ export default function Blunder() {
           Reset Game
         </button>
 
-        {/* ---------------------------------------------------------
-              MESSAGE POPUP
-        --------------------------------------------------------- */}
+        {/* MESSAGE */}
         {message && (
           <div
             className="absolute p-4 rounded-lg font-semibold shadow-lg text-center"
@@ -236,7 +294,6 @@ export default function Blunder() {
             {message}
           </div>
         )}
-
       </div>
     </div>
   );
