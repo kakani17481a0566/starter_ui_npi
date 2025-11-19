@@ -5,14 +5,11 @@ import clsx from "clsx"; // Utility for conditional className combinations
 import { useEffect, useState } from "react";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react"; // HeadlessUI Tabs
 
-import PuzzleGame from '../../Component/Games/PuzzleGame';
+import PuzzleGame from "../../Component/Games/PuzzleGame";
 
-import FollowTheLineGame from '../../Component/Games/FollowTheLineGame';
-import FollowTheLineGame2 from '../../Component/Games/FollowTheLineGame2';
-import Blunder from '../../Component/Games/Blunder';
-
-
-
+import FollowTheLineGame from "../../Component/Games/FollowTheLineGame";
+import FollowTheLineGame2 from "../../Component/Games/FollowTheLineGame2";
+import Blunder from "../../Component/Games/Blunder";
 
 // ----------------------------------------------------------------------
 // 📁 Local Imports
@@ -42,7 +39,7 @@ export default function WithIcon() {
         // If no quote found, use fallback quote
         setQuote(
           data.quote ||
-            "You don't have to eat less, you just have to eat right."
+            "You don't have to eat less, you just have to eat right.",
         );
       } catch (error) {
         // Handle network or API errors gracefully
@@ -58,9 +55,7 @@ export default function WithIcon() {
   // 💚 Reusable Button Style
   // --------------------------------------------------------------------
   const ActionButton = ({ children }) => (
-    <button
-      className="rounded-lg bg-[#8EB197] px-5 py-2 font-semibold text-[#1A4255] shadow-sm transition-all duration-200 hover:bg-[#7AA587]"
-    >
+    <button className="rounded-lg bg-[#8EB197] px-5 py-2 font-semibold text-[#1A4255] shadow-sm transition-all duration-200 hover:bg-[#7AA587]">
       {children}
     </button>
   );
@@ -78,15 +73,12 @@ export default function WithIcon() {
       content: (
         <div className="w-full space-y-6 text-left">
           {/* Quote Section */}
-        <h1 className="text-2xl leading-relaxed font-semibold text-[#1A4255] italic sm:text-3xl">
-  { `“${quote}”` }
-</h1>
-
+          <h1 className="text-2xl leading-relaxed font-semibold text-[#1A4255] italic sm:text-3xl">
+            {`“${quote}”`}
+          </h1>
 
           {/* Dynamic Tab Section */}
           <DynamicTabs />
-
-
         </div>
       ),
     },
@@ -111,9 +103,6 @@ export default function WithIcon() {
           <FollowTheLineGame2 />
 
           <Blunder />
-
-
-
 
           {/* Game Tags */}
           <div className="space-x-2 pt-3">
@@ -231,12 +220,12 @@ export default function WithIcon() {
                         // Selected tab → white rounded background (top corners only)
                         selected
                           ? "rounded-t-xl rounded-b-none bg-white px-5 py-3 shadow-md"
-                          : "bg-transparent"
+                          : "bg-transparent",
                       )}
                     >
                       {/* ✅ Green Button Element */}
                       {/* Reduced height for cleaner look (was py-2 → now py-1.5) */}
-                      <span className="rounded-md bg-[#83B197] px-5  text-sm font-semibold text-[#1A4255] transition-all duration-300">
+                      <span className="rounded-md bg-[#83B197] px-5 text-sm font-semibold text-[#1A4255] transition-all duration-300">
                         {tab.title}
                       </span>
                     </div>
