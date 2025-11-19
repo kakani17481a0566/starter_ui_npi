@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import turtleImage from "./crocodile.webp";
+import puzzleImage from "./crocodile.webp";
 
 /* ==========================================================
    ⚙️ CONFIGURATION
@@ -11,12 +11,16 @@ const TOTAL = GRID * GRID;
 const BOARD = GRID * PIECE;
 
 /* ==========================================================
-   🔊 Native Audio (No Libraries)
+   🔊 Native Audio (Fixed Robustness)
    ========================================================== */
 const playBeep = (freq = 440, duration = 0.15) => {
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return;
+
+  const ctx = new AudioContext();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
+
   osc.type = "square";
   osc.frequency.value = freq;
   gain.gain.value = 0.08;
@@ -38,9 +42,11 @@ const playWin = () => {
    ========================================================== */
 const createPieces = (img) => {
   const spacing = PIECE + SPACING;
-  const trayPositions = Array.from({ length: TOTAL }, (_, i) => ({
-    x: (i % GRID) * spacing + 20 + Math.random() * 30,
-    y: Math.floor(i / GRID) * (spacing + 10) + 20 + Math.random() * 10,
+
+  // 1. Create unique tray positions (horizontal line)
+  const uniqueTrayPositions = Array.from({ length: TOTAL }, (_, i) => ({
+    x: i * spacing + 20,
+    y: 20,
   })).sort(() => Math.random() - 0.5);
 
   return Array.from({ length: TOTAL }, (_, i) => {
@@ -53,14 +59,19 @@ const createPieces = (img) => {
       correctY: r,
       gridX: null,
       gridY: null,
-      trayX: trayPositions[i].x,
-      trayY: trayPositions[i].y,
+      trayX: uniqueTrayPositions[i].x,
+      trayY: uniqueTrayPositions[i].y,
       bg: `-${c * PIECE}px -${r * PIECE}px`,
       placed: false,
-      snapping: false,
     };
   });
 };
+
+// --- Helper to calculate pixel position for rendering ---
+const getPos = (p) =>
+  p.placed
+    ? { left: p.gridX * PIECE, top: p.gridY * PIECE }
+    : { left: p.trayX, top: p.trayY };
 
 /* ==========================================================
    🎮 MAIN COMPONENT
@@ -71,7 +82,7 @@ export default function PuzzleGame() {
   const [solved, setSolved] = useState(false);
 
   useEffect(() => {
-    setPieces(createPieces(turtleImage));
+    setPieces(createPieces(puzzleImage));
   }, []);
 
   useEffect(() => {
@@ -82,13 +93,13 @@ export default function PuzzleGame() {
     if (allCorrect && !solved) {
       setSolved(true);
       playWin();
-    } else {
-      setSolved(allCorrect);
+    } else if (solved && !allCorrect) {
+      setSolved(false);
     }
-  }, [pieces]);
+  }, [pieces, solved]);
 
   const reset = () => {
-    setPieces(createPieces(turtleImage));
+    setPieces(createPieces(puzzleImage));
     setSolved(false);
   };
 
@@ -101,56 +112,60 @@ export default function PuzzleGame() {
   const onDrop = (x, y) => {
     if (!dragging) return;
     const piece = pieces.find((p) => p.id === dragging);
+    if (!piece) return;
+
+    // Check if the current drop target (x, y) is already occupied (and not dropping on the same piece)
+    const isTargetOccupied = pieces.some(p => p.placed && p.gridX === x && p.gridY === y && p.id !== piece.id);
+    if (isTargetOccupied) {
+      playWrong();
+      setDragging(null);
+      return;
+    }
+
+    // Check if drop is outside a valid target area (x=-1, y=-1 is signal for drop outside any target)
+    if (x === -1) {
+      playWrong();
+      // Reset to tray
+      setPieces((prev) =>
+        prev.map((p) =>
+          p.id === dragging ? { ...p, gridX: null, gridY: null, placed: false } : p
+        )
+      );
+      setDragging(null);
+      return;
+    }
+
 
     if (piece.correctX === x && piece.correctY === y) {
       playCorrect();
       setPieces((prev) =>
         prev.map((p) =>
           p.id === dragging
-            ? { ...p, snapping: true, gridX: x, gridY: y, placed: true }
+            ? { ...p, gridX: x, gridY: y, placed: true } // Snap to correct grid position
             : p
         )
       );
-      setTimeout(() => {
-        setPieces((prev) =>
-          prev.map((p) =>
-            p.id === dragging ? { ...p, snapping: false } : p
-          )
-        );
-      }, 250);
     } else {
       playWrong();
-      // Smooth revert animation
+      // CRITICAL FIX: Reset placement status and grid position instantly. 
       setPieces((prev) =>
         prev.map((p) =>
           p.id === dragging
-            ? { ...p, snapping: true, gridX: null, gridY: null, placed: false }
+            ? { ...p, gridX: null, gridY: null, placed: false }
             : p
         )
       );
-      setTimeout(() => {
-        setPieces((prev) =>
-          prev.map((p) =>
-            p.id === dragging ? { ...p, snapping: false } : p
-          )
-        );
-      }, 300);
     }
     setDragging(null);
   };
-
-  const getPos = (p) =>
-    p.placed
-      ? { left: p.gridX * PIECE, top: p.gridY * PIECE }
-      : { left: p.trayX, top: p.trayY };
 
   /* ==========================================================
      🎨 UI
      ========================================================== */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-green-100 flex flex-col items-center py-10 select-none overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-green-100 flex flex-col items-center py-10 select-none">
       <h1 className="text-4xl font-bold mb-6 text-emerald-800">
-        🧩 Turtle Puzzle
+        🧩 Drag-and-Drop Puzzle
       </h1>
 
       {solved && (
@@ -173,10 +188,12 @@ export default function PuzzleGame() {
         <div
           className="relative bg-white rounded-lg shadow-lg border-2 border-emerald-600 overflow-hidden"
           style={{ width: BOARD, height: BOARD }}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={() => onDrop(-1, -1)} // Trap drops outside targets
         >
-          {/* Faint reference image underneath */}
+          {/* Faint reference image underneath (Ghost Image) */}
           <img
-            src={turtleImage}
+            src={puzzleImage}
             alt="reference faint"
             className="absolute inset-0 opacity-20 pointer-events-none select-none"
             draggable="false"
@@ -188,8 +205,8 @@ export default function PuzzleGame() {
             Array.from({ length: GRID }).map((_, c) => (
               <div
                 key={`target-${r}-${c}`}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => onDrop(c, r)}
+                onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onDrop={(e) => { e.stopPropagation(); onDrop(c, r); }}
                 className="absolute border border-dashed border-emerald-200 rounded-md hover:bg-emerald-50 transition"
                 style={{
                   left: c * PIECE,
@@ -210,8 +227,7 @@ export default function PuzzleGame() {
                 draggable
                 onDragStart={() => onDragStart(p.id)}
                 onDragEnd={onDragEnd}
-                className={`absolute rounded-md border border-gray-300 cursor-grab bg-cover transition-all duration-300
-                            ${p.snapping ? "scale-105 shadow-lg" : "active:scale-95"}`}
+                className={`absolute rounded-md border border-gray-300 cursor-grab bg-cover transition-all duration-300 active:scale-95`}
                 style={{
                   backgroundImage: `url(${p.img})`,
                   backgroundPosition: p.bg,
@@ -231,7 +247,7 @@ export default function PuzzleGame() {
           </h3>
           <div className="relative">
             <img
-              src={turtleImage}
+              src={puzzleImage}
               alt="Reference"
               className="w-40 h-40 rounded-lg shadow-lg object-cover border border-emerald-300"
             />
@@ -243,8 +259,13 @@ export default function PuzzleGame() {
       <div
         className="relative w-full flex justify-center mt-10 bg-white shadow-inner border-t border-emerald-200 py-6 overflow-x-auto"
         onDragOver={(e) => e.preventDefault()}
+        onDrop={onDrop}
       >
-        <div className="relative min-h-[180px] flex justify-center flex-wrap gap-4">
+        <h3 className="absolute top-0 left-1/2 -translate-x-1/2 text-lg font-semibold text-gray-600 pt-2">
+          Drag pieces from here:
+        </h3>
+        {/* Inner container for absolute positioning */}
+        <div className="relative" style={{ minWidth: `${TOTAL * (PIECE + SPACING) + 40}px`, height: '150px' }}>
           {pieces
             .filter((p) => !p.placed)
             .map((p) => (
@@ -253,10 +274,7 @@ export default function PuzzleGame() {
                 draggable
                 onDragStart={() => onDragStart(p.id)}
                 onDragEnd={onDragEnd}
-                className={`absolute bg-cover rounded-md cursor-grab border border-gray-300
-                            shadow-md hover:shadow-lg transition-all duration-300 ${
-                              p.snapping ? "scale-105" : "active:scale-95"
-                            }`}
+                className={`absolute rounded-md border border-gray-300 cursor-grab bg-cover transition-all duration-300 active:scale-95`}
                 style={{
                   backgroundImage: `url(${p.img})`,
                   backgroundPosition: p.bg,
