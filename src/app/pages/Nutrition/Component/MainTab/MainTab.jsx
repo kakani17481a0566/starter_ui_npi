@@ -7,6 +7,9 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 
 import PuzzleGame from '../../Component/Games/PuzzleGame';
 
+import FollowTheLineGame from '../../Component/Games/FollowTheLineGame';
+
+
 // ----------------------------------------------------------------------
 // 📁 Local Imports
 // ----------------------------------------------------------------------
@@ -71,9 +74,10 @@ export default function WithIcon() {
       content: (
         <div className="w-full space-y-6 text-left">
           {/* Quote Section */}
-          <h1 className="text-2xl leading-relaxed font-semibold text-[#1A4255] italic sm:text-3xl">
-            {quote}
-          </h1>
+        <h1 className="text-2xl leading-relaxed font-semibold text-[#1A4255] italic sm:text-3xl">
+  { `“${quote}”` }
+</h1>
+
 
           {/* Dynamic Tab Section */}
           <DynamicTabs />
@@ -97,6 +101,9 @@ export default function WithIcon() {
           </p>
 
           <PuzzleGame />
+
+          <FollowTheLineGame />
+
 
           {/* Game Tags */}
           <div className="space-x-2 pt-3">
