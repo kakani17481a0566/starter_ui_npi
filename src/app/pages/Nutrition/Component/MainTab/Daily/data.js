@@ -24,12 +24,12 @@ export const DIET_TAGS = [
 ];
 
 // -------------------------------------------------------------
-// 🗓️ DAILY_PLAN_DATE FROM API
+// 🗓️ DATE STRING FROM API (YYYY-MM-DD)
 // -------------------------------------------------------------
 export let DAILY_PLAN_DATE = null;
 
 // -------------------------------------------------------------
-// ⭐ Convert Unsplash page → direct image (kept as you said it works)
+// ⭐ Fix Unsplash → direct link
 // -------------------------------------------------------------
 function fixUnsplash(url) {
   if (!url) return url;
@@ -40,7 +40,7 @@ function fixUnsplash(url) {
 }
 
 // -------------------------------------------------------------
-// 🔄 Mapping: API → Foods
+// 🔄 API → Foods
 // -------------------------------------------------------------
 export function mapApiToFoods(root) {
   const list = root?.data?.allItems || [];
@@ -59,16 +59,18 @@ export function mapApiToFoods(root) {
     vitaminIds: item.vitaminIds || [],
 
     type:
-      item.dietTypeId === 3 ? "Egg" :
-      item.dietTypeId === 4 ? "Non-Veg" : "Veg",
+      item.dietTypeId === 3
+        ? "Egg"
+        : item.dietTypeId === 4
+        ? "Non-Veg"
+        : "Veg",
 
     isFavorite: item.userFavourite,
   }));
 }
 
 // -------------------------------------------------------------
-// 🔄 Mapping: API → selectedFoods (PER-MEAL KEYS)
-// selectedFoods: { "mealTypeId-foodId": qty }
+// 🔄 API → selectedFoods { "mealTypeId-foodId": qty }
 // -------------------------------------------------------------
 export function mapApiMealPlans(root) {
   const mealPlans = root?.data?.mealPlans || [];
@@ -77,8 +79,7 @@ export function mapApiMealPlans(root) {
   mealPlans.forEach((mp) => {
     const mealId = mp.mealTypeId;
     mp.items.forEach((item) => {
-      const key = `${mealId}-${item.id}`;
-      selected[key] = item.quantity;
+      selected[`${mealId}-${item.id}`] = item.quantity;
     });
   });
 
@@ -86,16 +87,15 @@ export function mapApiMealPlans(root) {
 }
 
 // -------------------------------------------------------------
-// 🚀 MAIN LOADER FUNCTION
+// 🚀 LOAD NUTRITION DATA
 // -------------------------------------------------------------
 export async function loadNutritionData() {
   const res = await axios.get("https://localhost:7098/nutrition/vm/test");
   const root = res.data;
 
-  const apiDate = root?.data?.mealPlansDate;
-  DAILY_PLAN_DATE = apiDate
-    ? new Date(`${apiDate}T00:00:00Z`).toISOString()
-    : null;
+  // ⭐ FIXED — NO TIMESTAMP
+  const apiDate = root?.data?.mealPlansDate; // already YYYY-MM-DD
+  DAILY_PLAN_DATE = apiDate || null;
 
   const apiMealTypes = root?.data?.mealTypes || [];
 
@@ -120,8 +120,7 @@ export async function loadNutritionData() {
 }
 
 // -------------------------------------------------------------
-// 🟢 SAVE MEAL PLAN API (PER-MEAL KEYS)
-// selectedFoods: { "mealTypeId-foodId": qty }
+// 🟢 SAVE MEAL PLAN (Frontend → Backend)
 // -------------------------------------------------------------
 export async function saveMealPlan(selectedFoods) {
   const userId = 1;
@@ -131,15 +130,11 @@ export async function saveMealPlan(selectedFoods) {
 
   Object.entries(selectedFoods || {}).forEach(([key, qty]) => {
     if (qty <= 0) return;
+
     const [mealTypeIdStr, foodIdStr] = key.split("-");
-    const mealTypeId = Number(mealTypeIdStr);
-    const nutritionalItemId = Number(foodIdStr);
-
-    if (!mealTypeId || !nutritionalItemId) return;
-
     items.push({
-      mealTypeId,
-      nutritionalItemId,
+      mealTypeId: Number(mealTypeIdStr),
+      nutritionalItemId: Number(foodIdStr),
       qty,
     });
   });
@@ -147,12 +142,43 @@ export async function saveMealPlan(selectedFoods) {
   const payload = {
     userId,
     tenantId,
-    date: DAILY_PLAN_DATE?.split("T")[0] || null,
+    date: DAILY_PLAN_DATE, // ⭐ FIXED
     items,
   };
 
   return axios.post(
     "https://localhost:7098/api/NutritionalItem/save-meal-plan",
+    payload
+  );
+}
+
+// -------------------------------------------------------------
+// ✏️ EDIT MEAL PLAN API
+// -------------------------------------------------------------
+export async function editMealPlan(selectedFoods) {
+  const userId = 1;
+  const tenantId = 1;
+
+  const items = [];
+
+  Object.entries(selectedFoods || {}).forEach(([key, qty]) => {
+    const [mealTypeIdStr, foodIdStr] = key.split("-");
+    items.push({
+      mealTypeId: Number(mealTypeIdStr),
+      nutritionalItemId: Number(foodIdStr),
+      qty: Math.max(qty, 0),
+    });
+  });
+
+  const payload = {
+    userId,
+    tenantId,
+    date: DAILY_PLAN_DATE, // ⭐ FIXED
+    items,
+  };
+
+  return axios.post(
+    "https://localhost:7098/api/NutritionalItem/edit-meal-plan",
     payload
   );
 }

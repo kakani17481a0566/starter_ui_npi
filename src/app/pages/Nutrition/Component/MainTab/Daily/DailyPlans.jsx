@@ -31,7 +31,7 @@ function FoodTypeIcon({ type }) {
 ------------------------------------------------------------- */
 function FoodCard({ food, qty, onInc, onDec, onToggleFavorite }) {
   return (
-    <div className="relative w-[140px] sm:w-[160px] md:w-[170px] flex-none overflow-hidden rounded-xl bg-white shadow-md transition hover:-translate-y-1 hover:shadow-lg">
+    <div className="relative w-[140px] flex-none overflow-hidden rounded-xl bg-white shadow-md transition hover:-translate-y-1 hover:shadow-lg sm:w-[160px] md:w-[170px]">
       <div className="relative h-24 w-full sm:h-28">
         <img
           src={food.itemImage}
@@ -42,7 +42,7 @@ function FoodCard({ food, qty, onInc, onDec, onToggleFavorite }) {
         {/* Fav button */}
         <button
           onClick={() => onToggleFavorite(food.id)}
-          className="absolute top-1.5 left-1.5 flex h-6 w-6 items-center justify-center rounded-md hover:scale-110 transition"
+          className="absolute top-1.5 left-1.5 flex h-6 w-6 items-center justify-center rounded-md transition hover:scale-110"
         >
           <svg
             width="18"
@@ -60,13 +60,13 @@ function FoodCard({ food, qty, onInc, onDec, onToggleFavorite }) {
         </button>
 
         {/* Qty */}
-        <div className="absolute top-1.5 right-1.5 flex items-center rounded-md border bg-white shadow-sm overflow-hidden text-xs">
+        <div className="absolute top-1.5 right-1.5 flex items-center overflow-hidden rounded-md border bg-white text-xs shadow-sm">
           <button
             onClick={onDec}
             disabled={qty === 0}
-            className={`h-6 w-6 flex items-center justify-center font-bold ${
+            className={`flex h-6 w-6 items-center justify-center font-bold ${
               qty === 0
-                ? "text-gray-400 cursor-not-allowed"
+                ? "cursor-not-allowed text-gray-400"
                 : "text-gray-700 hover:text-[#1A4255]"
             }`}
           >
@@ -77,7 +77,7 @@ function FoodCard({ food, qty, onInc, onDec, onToggleFavorite }) {
 
           <button
             onClick={onInc}
-            className="h-6 w-6 flex items-center justify-center font-bold text-gray-700 hover:text-[#1A4255]"
+            className="flex h-6 w-6 items-center justify-center font-bold text-gray-700 hover:text-[#1A4255]"
           >
             +
           </button>
@@ -128,7 +128,7 @@ export default function DailyPlans({
         weekday: "long",
         day: "numeric",
         month: "long",
-      })
+      }),
     );
   }, []);
 
@@ -142,9 +142,7 @@ export default function DailyPlans({
   /* Toggle favorite */
   const toggleFavorite = (id) =>
     setLocalFoods((prev) =>
-      prev.map((f) =>
-        f.id === id ? { ...f, isFavorite: !f.isFavorite } : f
-      )
+      prev.map((f) => (f.id === id ? { ...f, isFavorite: !f.isFavorite } : f)),
     );
 
   /* Determine correct mealId for qty */
@@ -208,7 +206,7 @@ export default function DailyPlans({
     <div className="w-full font-[Inter]">
       {/* HEADER */}
       <header className="mb-4 px-2">
-        <h2 className="rounded-md px-3 py-1.5 text-base sm:text-xl font-semibold text-[#1A4255]">
+        <h2 className="rounded-md px-3 py-1.5 text-base font-semibold text-[#1A4255] sm:text-xl">
           {displayDate}
         </h2>
       </header>
@@ -225,7 +223,7 @@ export default function DailyPlans({
                   setDietSel((prev) =>
                     active
                       ? prev.filter((x) => x !== tag.id.toLowerCase())
-                      : [...prev, tag.id.toLowerCase()]
+                      : [...prev, tag.id.toLowerCase()],
                   )
                 }
                 className={`flex items-center gap-2 rounded-md border-2 ${
@@ -247,7 +245,7 @@ export default function DailyPlans({
                   />
                 </span>
 
-                <span className="text-[11px] sm:text-[13px] text-[#1A4255] font-medium">
+                <span className="text-[11px] font-medium text-[#1A4255] sm:text-[13px]">
                   {tag.label}
                 </span>
               </button>
@@ -259,19 +257,20 @@ export default function DailyPlans({
       {/* SHOW MESSAGE ONLY WHEN NO FILTERS */}
       {dietSel.length === 0 && mealSel.length === 0 && (
         <div className="mt-3 px-2">
-          <div className="rounded-md bg-[#BBFFCC] px-4 py-3 text-sm font-semibold text-[#1A4255] shadow-sm">
-            Choose your preferences from filters.
-          </div>
+          <div className="mt-3 px-2">
+  <span className="inline-block rounded-md bg-[#BBFFCC] px-4 py-2 text-sm font-semibold text-[#1A4255] shadow-sm">
+    Choose your preferences from filters.
+  </span>
+</div>
+
         </div>
       )}
-
       {/* FOCUS GROUPS */}
       <div className="divide-y divide-gray-200">
-
         {/* IF filters applied but no foods found */}
         {filteredFoods.length === 0 &&
           (dietSel.length > 0 || mealSel.length > 0) && (
-            <p className="text-center py-6 text-gray-400 text-sm italic">
+            <p className="py-6 text-center text-sm text-gray-400 italic">
               No foods match your selected filters.
             </p>
           )}
@@ -279,20 +278,20 @@ export default function DailyPlans({
         {foodsByFocus.map(
           (focus) =>
             focus.foods.length > 0 && (
-              <section key={focus.id} className="py-4 px-1">
-                <h3 className="text-[18px] sm:text-[20px] font-bold text-[#1A4255] mb-1">
+              <section key={focus.id} className="px-1 py-4">
+                <h3 className="mb-1 text-[18px] font-bold text-[#1A4255] sm:text-[20px]">
                   Nutritional Focus:
                 </h3>
 
-                <span className="inline-block bg-[#BBFFCC] text-[#1A4255] px-3 py-1 rounded-md text-[13px] font-semibold">
+                <span className="inline-block rounded-md bg-[#BBFFCC] px-3 py-1 text-[13px] font-semibold text-[#1A4255]">
                   {focus.label}
                 </span>
 
-                <h4 className="mt-3 mb-2 text-[14px] sm:text-[16px] font-bold text-[#1A4255]">
+                <h4 className="mt-3 mb-2 text-[14px] font-bold text-[#1A4255] sm:text-[16px]">
                   Key Foods
                 </h4>
 
-                <div className="flex gap-3 overflow-x-auto sm:gap-4 pb-3 lg:flex-wrap">
+                <div className="flex gap-3 overflow-x-auto pb-3 sm:gap-4 lg:flex-wrap">
                   {focus.foods.map((food) => {
                     const mealId = getActiveMealId(food);
                     const key = `${mealId}-${food.id}`;
@@ -311,7 +310,7 @@ export default function DailyPlans({
                   })}
                 </div>
               </section>
-            )
+            ),
         )}
       </div>
     </div>

@@ -7,14 +7,14 @@ import {
 } from "components/ui";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { saveMealPlan } from "../Daily/data";
+import { saveMealPlan, editMealPlan, loadNutritionData } from "../Daily/data";
 
 export default function DailyMealPlanCart({
   foods,
   mealWindows,
   selectedFoods, // { "mealId-foodId": qty }
   onSelectionChange,
-  onMealSelect, // sends selectedMealType to DailyPlans
+  onMealSelect,
   focusTags,
 }) {
   const [saving, setSaving] = useState(false);
@@ -22,7 +22,26 @@ export default function DailyMealPlanCart({
   const [isChecked, setIsChecked] = useState(false);
 
   /* ------------------------------------------------------------
-     🔹 1️⃣ Build selected list with meal + food context
+     🔍 Detect if user ALREADY has a saved meal plan
+  ------------------------------------------------------------ */
+  const hasExistingPlan = useMemo(() => {
+    return Object.values(selectedFoods || {}).some((qty) => qty > 0);
+  }, [selectedFoods]);
+
+  /* ------------------------------------------------------------
+     🔄 Refresh Meal Plan After Save/Edit
+  ------------------------------------------------------------ */
+  const refreshPlan = async () => {
+    try {
+      const updated = await loadNutritionData();
+      onSelectionChange(updated.selectedFoods);
+    } catch (err) {
+      console.error("Failed to reload plan", err);
+    }
+  };
+
+  /* ------------------------------------------------------------
+     1️⃣ Build selected list
   ------------------------------------------------------------ */
   const selectedList = useMemo(() => {
     const list = [];
@@ -53,7 +72,7 @@ export default function DailyMealPlanCart({
   }, [selectedFoods, foods, mealWindows]);
 
   /* ------------------------------------------------------------
-     🔹 2️⃣ Group by section (Breakfast / Lunch)
+     2️⃣ Group By Section
   ------------------------------------------------------------ */
   const groupedBySection = useMemo(() => {
     return mealWindows?.map((section) => {
@@ -69,7 +88,7 @@ export default function DailyMealPlanCart({
   }, [selectedList, mealWindows]);
 
   /* ------------------------------------------------------------
-     🔹 3️⃣ Total kcal
+     3️⃣ Total kcal
   ------------------------------------------------------------ */
   const totalKcal = groupedBySection.reduce(
     (sum, sec) => sum + sec.sectionKcal,
@@ -79,18 +98,17 @@ export default function DailyMealPlanCart({
   const kcalGoal = 1200;
 
   /* ------------------------------------------------------------
-     🔹 4️⃣ Achieved focuses
+     4️⃣ Achieved focuses
   ------------------------------------------------------------ */
   const achievedFocuses = useMemo(() => {
     const achievedIds = [
       ...new Set(selectedList.flatMap((f) => f.focus || [])),
     ];
-
     return focusTags?.filter((f) => achievedIds.includes(f.id)) || [];
   }, [selectedList, focusTags]);
 
   /* ------------------------------------------------------------
-     🔹 5️⃣ Update qty
+     5️⃣ Qty Update Handler
   ------------------------------------------------------------ */
   const updateQty = (mealId, foodId, delta) => {
     onSelectionChange((prev) => {
@@ -102,7 +120,7 @@ export default function DailyMealPlanCart({
   };
 
   /* ------------------------------------------------------------
-     🔹 6️⃣ Save handler (with mandatory checkbox)
+     6️⃣ Save Handler
   ------------------------------------------------------------ */
   const handleSave = async () => {
     if (!isChecked) {
@@ -121,6 +139,7 @@ export default function DailyMealPlanCart({
 
       if (res.data?.statusCode === 200 || res.data?.statusCode === 201) {
         setMessage({ type: "success", text: "Meal plan saved successfully!" });
+        await refreshPlan();
       } else {
         setMessage({
           type: "error",
@@ -128,8 +147,7 @@ export default function DailyMealPlanCart({
         });
       }
     } catch (err) {
-        console.error(err);
-
+      console.error(err);
       setMessage({
         type: "error",
         text: "Failed to save meal plan. Please try again.",
@@ -140,7 +158,48 @@ export default function DailyMealPlanCart({
   };
 
   /* ------------------------------------------------------------
-     🔹 7️⃣ UI Color Helpers
+     7️⃣ Edit Handler
+  ------------------------------------------------------------ */
+  const handleEdit = async () => {
+    if (!isChecked) {
+      setMessage({
+        type: "error",
+        text: "Please read and accept the mandatory instructions before editing.",
+      });
+      return;
+    }
+
+    setSaving(true);
+    setMessage(null);
+
+    try {
+      const res = await editMealPlan(selectedFoods);
+
+      if (res.data?.statusCode === 200) {
+        setMessage({
+          type: "success",
+          text: "Meal plan updated successfully!",
+        });
+        await refreshPlan();
+      } else {
+        setMessage({
+          type: "error",
+          text: res.data?.message || "Failed to update meal plan!",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage({
+        type: "error",
+        text: "Error updating meal plan. Try again.",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /* ------------------------------------------------------------
+     UI Colors
   ------------------------------------------------------------ */
   const kcalColor =
     totalKcal === 0
@@ -161,10 +220,11 @@ export default function DailyMealPlanCart({
       : "bg-red-500";
 
   /* ------------------------------------------------------------
-     🔹 RETURN UI
+     RETURN UI
   ------------------------------------------------------------ */
   return (
     <div className="flex w-full max-w-md flex-col rounded-tr-2xl rounded-bl-2xl border border-gray-200 bg-white shadow-md font-[Inter]">
+
       {/* HEADER */}
       <div
         className="text-xl rounded-tr-2xl rounded-bl-2xl px-4 py-3 text-center font-semibold shadow-sm"
@@ -174,6 +234,7 @@ export default function DailyMealPlanCart({
       </div>
 
       <div className="space-y-4 px-4 py-4">
+
         {/* MESSAGE */}
         {message && (
           <div
@@ -197,7 +258,7 @@ export default function DailyMealPlanCart({
           {groupedBySection.map((section) => (
             <AccordionItem key={section.id} value={section.id.toString()}>
               <AccordionButton
-                onClick={() => onMealSelect?.(section.id)} // 🔥 IMPORTANT FIX
+                onClick={() => onMealSelect?.(section.id)}
                 className="flex w-full items-center justify-between py-3 text-sm font-medium text-[#1A4255]"
               >
                 {({ open }) => (
@@ -206,7 +267,6 @@ export default function DailyMealPlanCart({
                       <span className="font-semibold text-[#1A4255]">
                         {section.title}
                       </span>
-
                       {section.time && (
                         <span className="text-[11px] text-[#8EB297]">
                           {section.time}
@@ -218,7 +278,6 @@ export default function DailyMealPlanCart({
                       <span className="text-sm font-semibold text-[#7985F2]">
                         {section.sectionKcal} kcal
                       </span>
-
                       <ChevronDownIcon
                         className={clsx(
                           "size-5 text-gray-400 transition-transform duration-300",
@@ -253,7 +312,6 @@ export default function DailyMealPlanCart({
                           </div>
                         </div>
 
-                        {/* Qty buttons */}
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => updateQty(section.id, f.id, -1)}
@@ -288,7 +346,7 @@ export default function DailyMealPlanCart({
           All nutritional values are referred by ICMR
         </div>
 
-        {/* MANDATORY CHECKBOX */}
+        {/* MANDATORY CHECK */}
         <label className="flex items-center gap-2 text-xs text-gray-600">
           <input
             type="checkbox"
@@ -310,7 +368,6 @@ export default function DailyMealPlanCart({
           {totalKcal} kcal
         </div>
 
-        {/* PROGRESS BAR */}
         <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-100">
           <div
             className={clsx("h-2 rounded-full transition-all", barColor)}
@@ -320,7 +377,7 @@ export default function DailyMealPlanCart({
           />
         </div>
 
-        {/* ACHIEVED focuses */}
+        {/* FOCUS LIST */}
         {totalKcal > 0 && (
           <div className="mt-4 text-sm text-green-700">
             The food selection was a great choice.
@@ -346,25 +403,39 @@ export default function DailyMealPlanCart({
           </div>
         )}
 
-        {/* BUTTONS */}
-        <div className="flex gap-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
-          <button
-            onClick={handleSave}
-            disabled={saving || !isChecked}
-            className={clsx(
-              "flex-1 rounded-sm py-2 font-medium text-[#1A4255]",
-              saving || !isChecked
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-[#BBFFCC] hover:bg-[#8EB297]"
-            )}
-          >
-            {saving ? "Saving..." : "Save plan"}
-          </button>
+      {/* BUTTONS */}
+<div className="flex gap-3 pt-2">
 
-          <button className="flex-1 rounded-sm bg-[#BBFFCC] py-2 font-medium text-[#1A4255] hover:bg-[#8EB297]">
-            Edit plan
-          </button>
-        </div>
+  {/* SAVE BUTTON */}
+  <button
+    onClick={handleSave}
+    disabled={saving || !isChecked || hasExistingPlan}  // 🔥 disable if already saved once
+    className={clsx(
+      "flex-1 rounded-sm py-2 font-medium text-[#1A4255]",
+      saving || !isChecked || hasExistingPlan
+        ? "bg-gray-300 cursor-not-allowed"
+        : "bg-[#BBFFCC] hover:bg-[#8EB297]"
+    )}
+  >
+    {saving ? "Saving..." : "Save plan"}
+  </button>
+
+  {/* EDIT BUTTON */}
+  <button
+    onClick={handleEdit}
+    disabled={saving || !isChecked || !hasExistingPlan} // 🔥 disable if NOT saved yet
+    className={clsx(
+      "flex-1 rounded-sm py-2 font-medium text-[#1A4255]",
+      saving || !isChecked || !hasExistingPlan
+        ? "bg-gray-300 cursor-not-allowed"
+        : "bg-[#BBFFCC] hover:bg-[#8EB297]"
+    )}
+  >
+    {saving ? "Updating..." : "Edit plan"}
+  </button>
+
+</div>
+
       </div>
     </div>
   );

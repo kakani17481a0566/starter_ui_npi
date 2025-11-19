@@ -8,6 +8,10 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import PuzzleGame from '../../Component/Games/PuzzleGame';
 
 import FollowTheLineGame from '../../Component/Games/FollowTheLineGame';
+import FollowTheLineGame2 from '../../Component/Games/FollowTheLineGame2';
+import Blunder from '../../Component/Games/Blunder';
+
+
 
 
 // ----------------------------------------------------------------------
@@ -103,6 +107,12 @@ export default function WithIcon() {
           <PuzzleGame />
 
           <FollowTheLineGame />
+
+          <FollowTheLineGame2 />
+
+          <Blunder />
+
+
 
 
           {/* Game Tags */}
