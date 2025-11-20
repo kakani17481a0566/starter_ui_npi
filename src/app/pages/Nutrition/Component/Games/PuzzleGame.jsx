@@ -5,22 +5,19 @@ import puzzleImage from "./crocodile.webp";
    ⚙️ CONFIGURATION
    ========================================================== */
 const GRID = 3;
-const PIECE = 100;
-const SPACING = 5;
+const PIECE = 100; // Size in pixels
 const TOTAL = GRID * GRID;
 const BOARD = GRID * PIECE;
 
 /* ==========================================================
-   🔊 Native Audio (Fixed Robustness)
+   🔊 Native Audio
    ========================================================== */
 const playBeep = (freq = 440, duration = 0.15) => {
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   if (!AudioContext) return;
-
   const ctx = new AudioContext();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
-
   osc.type = "square";
   osc.frequency.value = freq;
   gain.gain.value = 0.08;
@@ -30,6 +27,7 @@ const playBeep = (freq = 440, duration = 0.15) => {
   gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
   osc.stop(ctx.currentTime + duration);
 };
+
 const playCorrect = () => playBeep(880, 0.2);
 const playWrong = () => playBeep(220, 0.25);
 const playWin = () => {
@@ -38,18 +36,21 @@ const playWin = () => {
 };
 
 /* ==========================================================
-   🧩 Generate Puzzle Pieces
+   🧩 Data Logic
    ========================================================== */
+// Robust Fisher-Yates Shuffle
+const shuffleArray = (array) => {
+  const newArr = [...array];
+  for (let i = newArr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+  }
+  return newArr;
+};
+
 const createPieces = (img) => {
-  const spacing = PIECE + SPACING;
-
-  // 1. Create unique tray positions (horizontal line)
-  const uniqueTrayPositions = Array.from({ length: TOTAL }, (_, i) => ({
-    x: i * spacing + 20,
-    y: 20,
-  })).sort(() => Math.random() - 0.5);
-
-  return Array.from({ length: TOTAL }, (_, i) => {
+  // 1. Generate the pieces in order first
+  const pieces = Array.from({ length: TOTAL }, (_, i) => {
     const r = Math.floor(i / GRID);
     const c = i % GRID;
     return {
@@ -57,21 +58,16 @@ const createPieces = (img) => {
       img,
       correctX: c,
       correctY: r,
-      gridX: null,
-      gridY: null,
-      trayX: uniqueTrayPositions[i].x,
-      trayY: uniqueTrayPositions[i].y,
+      gridX: null, // Only used when placed on board
+      gridY: null, // Only used when placed on board
       bg: `-${c * PIECE}px -${r * PIECE}px`,
       placed: false,
     };
   });
-};
 
-// --- Helper to calculate pixel position for rendering ---
-const getPos = (p) =>
-  p.placed
-    ? { left: p.gridX * PIECE, top: p.gridY * PIECE }
-    : { left: p.trayX, top: p.trayY };
+  // 2. Shuffle them so they appear randomly in the tray
+  return shuffleArray(pieces);
+};
 
 /* ==========================================================
    🎮 MAIN COMPONENT
@@ -93,8 +89,6 @@ export default function PuzzleGame() {
     if (allCorrect && !solved) {
       setSolved(true);
       playWin();
-    } else if (solved && !allCorrect) {
-      setSolved(false);
     }
   }, [pieces, solved]);
 
@@ -103,64 +97,55 @@ export default function PuzzleGame() {
     setSolved(false);
   };
 
-  /* ---------------------------------------------
-     🧠 Drag & Drop Logic
-     --------------------------------------------- */
   const onDragStart = (id) => setDragging(id);
   const onDragEnd = () => setDragging(null);
 
-  const onDrop = (x, y) => {
+  const onDrop = (targetX, targetY) => {
     if (!dragging) return;
-    const piece = pieces.find((p) => p.id === dragging);
-    if (!piece) return;
+    
+    // Find the piece being dragged
+    const currentPiece = pieces.find(p => p.id === dragging);
+    if (!currentPiece) return;
 
-    // Check if the current drop target (x, y) is already occupied
-    const isTargetOccupied = pieces.some(p => p.placed && p.gridX === x && p.gridY === y && p.id !== piece.id);
-    if (isTargetOccupied) {
+    // 1. If dropped outside (targetX = -1), reset to tray
+    if (targetX === -1) {
       playWrong();
+      setPieces(prev => prev.map(p => 
+        p.id === dragging ? { ...p, placed: false, gridX: null, gridY: null } : p
+      ));
       setDragging(null);
       return;
     }
 
-    // Check if drop is outside a valid target area (x=-1, y=-1 is signal for drop outside any target)
-    if (x === -1) {
+    // 2. Check if the target spot is already taken by ANOTHER piece
+    const isOccupied = pieces.some(p => p.placed && p.gridX === targetX && p.gridY === targetY && p.id !== dragging);
+    
+    if (isOccupied) {
       playWrong();
-      setPieces((prev) =>
-        prev.map((p) =>
-          p.id === dragging ? { ...p, gridX: null, gridY: null, placed: false } : p
-        )
-      );
+      // Return to tray if spot is taken
+      setPieces(prev => prev.map(p => 
+        p.id === dragging ? { ...p, placed: false, gridX: null, gridY: null } : p
+      ));
       setDragging(null);
       return;
     }
 
-
-    if (piece.correctX === x && piece.correctY === y) {
+    // 3. Check if it's the CORRECT spot
+    if (currentPiece.correctX === targetX && currentPiece.correctY === targetY) {
       playCorrect();
-      setPieces((prev) =>
-        prev.map((p) =>
-          p.id === dragging
-            ? { ...p, gridX: x, gridY: y, placed: true } // Snap to correct grid position
-            : p
-        )
-      );
+      setPieces(prev => prev.map(p => 
+        p.id === dragging ? { ...p, placed: true, gridX: targetX, gridY: targetY } : p
+      ));
     } else {
       playWrong();
-      // CRITICAL FIX: Reset placement status and grid position instantly. 
-      setPieces((prev) =>
-        prev.map((p) =>
-          p.id === dragging
-            ? { ...p, gridX: null, gridY: null, placed: false }
-            : p
-        )
-      );
+      // Incorrect spot -> Send back to tray
+      setPieces(prev => prev.map(p => 
+        p.id === dragging ? { ...p, placed: false, gridX: null, gridY: null } : p
+      ));
     }
     setDragging(null);
   };
 
-  /* ==========================================================
-     🎨 UI
-     ========================================================== */
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-green-100 flex flex-col items-center py-10 select-none">
       <h1 className="text-4xl font-bold mb-6 text-emerald-800">
@@ -168,7 +153,7 @@ export default function PuzzleGame() {
       </h1>
 
       {solved && (
-        <div className="bg-white rounded-xl shadow-lg px-8 py-6 text-center animate-pulse">
+        <div className="bg-white rounded-xl shadow-lg px-8 py-6 text-center animate-pulse mb-6">
           <h2 className="text-2xl font-semibold text-green-700 mb-2">
             🎉 Perfect! You Won! 🎉
           </h2>
@@ -181,112 +166,111 @@ export default function PuzzleGame() {
         </div>
       )}
 
-      {/* Game Board and Reference Container (Responsive Flex Container) */}
-      <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-10 mt-10 w-full max-w-5xl">
-
-        {/* Board */}
+      <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-10 w-full max-w-5xl px-4">
+        
+        {/* --- PUZZLE BOARD --- */}
         <div
-          className="relative bg-white rounded-lg shadow-lg border-2 border-emerald-600 overflow-hidden"
+          className="relative bg-white rounded-lg shadow-lg border-2 border-emerald-600 overflow-hidden shrink-0"
           style={{ width: BOARD, height: BOARD }}
           onDragOver={(e) => e.preventDefault()}
-          onDrop={() => onDrop(-1, -1)}
+          onDrop={() => onDrop(-1, -1)} // Catch drops that miss a target
         >
-          {/* Faint reference image underneath (Ghost Image) */}
+          {/* Ghost Image */}
           <img
             src={puzzleImage}
-            alt="reference faint"
-            className="absolute inset-0 opacity-20 pointer-events-none select-none"
-            draggable="false"
-            style={{ width: BOARD, height: BOARD, objectFit: "cover" }}
+            alt="ghost"
+            className="absolute inset-0 opacity-20 pointer-events-none"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
 
-          {/* Target grid */}
+          {/* Grid Targets */}
           {Array.from({ length: GRID }).map((_, r) =>
             Array.from({ length: GRID }).map((_, c) => (
               <div
                 key={`target-${r}-${c}`}
                 onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 onDrop={(e) => { e.stopPropagation(); onDrop(c, r); }}
-                className="absolute border border-dashed border-emerald-200 rounded-md hover:bg-emerald-50 transition"
+                className="absolute border border-dashed border-emerald-200 z-0"
                 style={{
                   left: c * PIECE,
                   top: r * PIECE,
                   width: PIECE,
                   height: PIECE,
                 }}
-              ></div>
+              />
             ))
           )}
 
-          {/* Placed pieces */}
-          {pieces
-            .filter((p) => p.placed)
-            .map((p) => (
-              <div
-                key={p.id}
-                draggable
-                onDragStart={() => onDragStart(p.id)}
-                onDragEnd={onDragEnd}
-                className={`absolute rounded-md border border-gray-300 cursor-grab bg-cover transition-all duration-300 active:scale-95`}
-                style={{
-                  backgroundImage: `url(${p.img})`,
-                  backgroundPosition: p.bg,
-                  backgroundSize: `${GRID * 100}% ${GRID * 100}%`,
-                  width: PIECE,
-                  height: PIECE,
-                  ...getPos(p),
-                }}
-              ></div>
-            ))}
+          {/* PLACED PIECES (Absolute Positioning) */}
+          {pieces.filter(p => p.placed).map((p) => (
+            <div
+              key={p.id}
+              draggable
+              onDragStart={() => onDragStart(p.id)}
+              onDragEnd={onDragEnd}
+              className="absolute border border-gray-300 cursor-grab shadow-md z-10"
+              style={{
+                backgroundImage: `url(${p.img})`,
+                backgroundPosition: p.bg,
+                backgroundSize: `${GRID * 100}% ${GRID * 100}%`,
+                width: PIECE,
+                height: PIECE,
+                left: p.gridX * PIECE,
+                top: p.gridY * PIECE,
+              }}
+            />
+          ))}
         </div>
 
-        {/* Reference (full) - Hidden on mobile, shown on tablet/desktop */}
+        {/* --- REFERENCE IMAGE (Hidden on mobile) --- */}
         <div className="hidden md:flex flex-col items-center">
-          <h3 className="text-lg font-semibold text-emerald-700 mb-3">
-            Reference
-          </h3>
-          <div className="relative">
-            <img
-              src={puzzleImage}
-              alt="Reference"
-              className="w-40 h-40 rounded-lg shadow-lg object-cover border border-emerald-300"
-            />
-          </div>
+          <h3 className="text-lg font-semibold text-emerald-700 mb-3">Reference</h3>
+          <img
+            src={puzzleImage}
+            alt="Reference"
+            className="w-40 h-40 rounded-lg shadow-lg object-cover border border-emerald-300"
+          />
         </div>
       </div>
 
-      {/* Tray Section */}
-      <div
-        className="relative w-full flex justify-center mt-10 bg-white shadow-inner border-t border-emerald-200 py-6 overflow-x-auto"
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={onDrop}
+      {/* --- TRAY SECTION (Flexbox Layout - No Absolute) --- */}
+      <div 
+        className="w-full max-w-3xl mt-10 px-4"
+        onDragOver={(e) => e.preventDefault()} 
+        onDrop={() => onDrop(-1, -1)} // Catch drops into tray
       >
-        <h3 className="absolute top-0 left-1/2 -translate-x-1/2 text-lg font-semibold text-gray-600 pt-2">
-          Drag pieces from here:
-        </h3>
-        {/* CRITICAL FIX: Inner container for horizontal flow */}
-        <div className="flex items-start pt-8 pb-2" style={{ minWidth: `${TOTAL * (PIECE + SPACING) + 40}px` }}>
-          {pieces
-            .filter((p) => !p.placed)
-            .map((p) => (
+        <div className="bg-white shadow-inner border-t border-emerald-200 rounded-xl p-4 min-h-[160px] flex flex-col items-center">
+          <h3 className="text-lg font-semibold text-gray-600 mb-4">Drag pieces from here:</h3>
+          
+          {/* HORIZONTAL SCROLL CONTAINER 
+             We use standard flexbox here. No absolute positioning.
+             This guarantees perfect spacing and mobile scrolling.
+          */}
+          <div className="flex gap-3 overflow-x-auto w-full pb-4 px-2 justify-start md:justify-center">
+            {pieces.filter(p => !p.placed).map((p) => (
               <div
                 key={p.id}
                 draggable
                 onDragStart={() => onDragStart(p.id)}
                 onDragEnd={onDragEnd}
-                // Removed 'absolute' class
-                className={`bg-cover rounded-md cursor-grab border border-gray-300 shadow-md hover:shadow-lg transition-all duration-300 active:scale-95`}
+                className="shrink-0 rounded-md border border-gray-300 cursor-grab shadow-md hover:shadow-lg hover:scale-105 transition-transform"
                 style={{
                   backgroundImage: `url(${p.img})`,
                   backgroundPosition: p.bg,
                   backgroundSize: `${GRID * 100}% ${GRID * 100}%`,
                   width: PIECE,
                   height: PIECE,
-                  // Use margin for spacing instead of absolute left/top
-                  marginRight: `${SPACING}px`,
                 }}
-              ></div>
+              />
             ))}
+            
+            {/* Spacer if tray is empty to keep height */}
+            {pieces.every(p => p.placed) && (
+              <div className="text-gray-400 italic h-[100px] flex items-center">
+                All pieces placed!
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
