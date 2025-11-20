@@ -115,7 +115,7 @@ export default function PuzzleGame() {
     if (!piece) return;
 
     // Check if the current drop target (x, y) is already occupied
-    const isTargetOccupied = pieces.some(p => p.placed && p.gridX === x && p.gridY === y);
+    const isTargetOccupied = pieces.some(p => p.placed && p.gridX === x && p.gridY === y && p.id !== piece.id);
     if (isTargetOccupied) {
       playWrong();
       setDragging(null);
@@ -240,8 +240,8 @@ export default function PuzzleGame() {
             ))}
         </div>
 
-        {/* Reference (full) */}
-        <div className="flex flex-col items-center">
+        {/* Reference (full) - Hidden on mobile, shown on tablet/desktop */}
+        <div className="hidden md:flex flex-col items-center">
           <h3 className="text-lg font-semibold text-emerald-700 mb-3">
             Reference
           </h3>
@@ -264,8 +264,8 @@ export default function PuzzleGame() {
         <h3 className="absolute top-0 left-1/2 -translate-x-1/2 text-lg font-semibold text-gray-600 pt-2">
           Drag pieces from here:
         </h3>
-        {/* CRITICAL FIX: The pieces are rendered as non-absolute flex items here */}
-        <div className="flex items-start pt-8 pb-2" style={{ minWidth: `${TOTAL * (PIECE + SPACING)}px` }}>
+        {/* CRITICAL FIX: Inner container for horizontal flow */}
+        <div className="flex items-start pt-8 pb-2" style={{ minWidth: `${TOTAL * (PIECE + SPACING) + 40}px` }}>
           {pieces
             .filter((p) => !p.placed)
             .map((p) => (
@@ -274,7 +274,7 @@ export default function PuzzleGame() {
                 draggable
                 onDragStart={() => onDragStart(p.id)}
                 onDragEnd={onDragEnd}
-                // Remove 'absolute' class
+                // Removed 'absolute' class
                 className={`bg-cover rounded-md cursor-grab border border-gray-300 shadow-md hover:shadow-lg transition-all duration-300 active:scale-95`}
                 style={{
                   backgroundImage: `url(${p.img})`,
