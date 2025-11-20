@@ -1,10 +1,15 @@
 // -------------------------------------------------------------
-// 📦 Axios API
+// 🌐 AXIOS INSTANCE
 // -------------------------------------------------------------
 import axios from "axios";
 
+const api = axios.create({
+  baseURL: "https://localhost:7098",
+  timeout: 15000,
+});
+
 // -------------------------------------------------------------
-// 🕒 Meal Time Map
+// 🕒 MEAL TIME MAP
 // -------------------------------------------------------------
 export const MEAL_TIME_MAP = {
   1: "07:00 - 09:00",
@@ -15,7 +20,7 @@ export const MEAL_TIME_MAP = {
 };
 
 // -------------------------------------------------------------
-// 🥗 Diet Tags
+// 🥗 DIET TAGS
 // -------------------------------------------------------------
 export const DIET_TAGS = [
   { id: "veg", label: "Vegetarian", color: "#00FF00", border: "#707070" },
@@ -24,62 +29,52 @@ export const DIET_TAGS = [
 ];
 
 // -------------------------------------------------------------
-// 🗓️ DATE STRING FROM API (YYYY-MM-DD)
+// 📅 GLOBAL DATE USED FOR SAVE/EDIT
 // -------------------------------------------------------------
 export let DAILY_PLAN_DATE = null;
 
 // -------------------------------------------------------------
-// ⭐ Fix Unsplash → direct link
+// ⭐ FIX UNSPLASH IMAGES
 // -------------------------------------------------------------
 function fixUnsplash(url) {
-  if (!url) return url;
-  if (!url.includes("unsplash.com/photos/")) return url;
-
+  if (!url || !url.includes("unsplash.com/photos/")) return url;
   const id = url.split("/photos/")[1];
   return `https://images.unsplash.com/photo-${id}?auto=format&w=800`;
 }
 
 // -------------------------------------------------------------
-// 🔄 API → Foods
+// 🔄 MAP FOODS
 // -------------------------------------------------------------
-export function mapApiToFoods(root) {
-  const list = root?.data?.allItems || [];
-
-  return list.map((item) => ({
+function mapApiToFoods(root) {
+  return (root?.data?.allItems || []).map((item) => ({
     id: item.id,
     title: item.name,
     kcal: item.caloriesQuantity,
     protein: item.proteinQuantity,
     unit: "100g",
-
     itemImage: fixUnsplash(item.itemImage),
-
     bestFor: item.mealTypeIds || [],
     focus: item.focusIds || [],
     vitaminIds: item.vitaminIds || [],
-
     type:
       item.dietTypeId === 3
         ? "Egg"
         : item.dietTypeId === 4
         ? "Non-Veg"
         : "Veg",
-
     isFavorite: item.userFavourite,
   }));
 }
 
 // -------------------------------------------------------------
-// 🔄 API → selectedFoods { "mealTypeId-foodId": qty }
+// 🔄 MAP MEAL PLANS
 // -------------------------------------------------------------
-export function mapApiMealPlans(root) {
-  const mealPlans = root?.data?.mealPlans || [];
+function mapApiMealPlans(root) {
   const selected = {};
 
-  mealPlans.forEach((mp) => {
-    const mealId = mp.mealTypeId;
-    mp.items.forEach((item) => {
-      selected[`${mealId}-${item.id}`] = item.quantity;
+  root?.data?.mealPlans?.forEach((mp) => {
+    mp.items?.forEach((item) => {
+      selected[`${mp.mealTypeId}-${item.id}`] = item.quantity;
     });
   });
 
@@ -87,134 +82,89 @@ export function mapApiMealPlans(root) {
 }
 
 // -------------------------------------------------------------
+// ⚙️ ENSURE DATE
+// -------------------------------------------------------------
+function ensureDate(date) {
+  return date || new Date().toISOString().split("T")[0];
+}
+
+// -------------------------------------------------------------
 // 🚀 LOAD NUTRITION DATA
 // -------------------------------------------------------------
-export async function loadNutritionData() {
-  const res = await axios.get("https://localhost:7098/nutrition/vm/test");
-  const root = res.data;
+export async function loadNutritionData(userId = 1, date = null) {
+  try {
+    const finalDate = ensureDate(date);  // selected or today's date
 
-  // ⭐ FIXED — NO TIMESTAMP
-  const apiDate = root?.data?.mealPlansDate; // already YYYY-MM-DD
-  DAILY_PLAN_DATE = apiDate || null;
-
-  const apiMealTypes = root?.data?.mealTypes || [];
-
-  const mealWindows = apiMealTypes.map((mt) => ({
-    id: mt.id,
-    title: mt.name,
-    time: MEAL_TIME_MAP[mt.id] || "00:00 - 00:00",
-  }));
-
-  const focusTags = (root?.data?.focusTags || []).map((f) => ({
-    id: f.id,
-    label: f.name,
-  }));
-
-  return {
-    foods: mapApiToFoods(root),
-    selectedFoods: mapApiMealPlans(root),
-    mealWindows,
-    focusTags,
-    dailyPlanDate: DAILY_PLAN_DATE,
-  };
-}
-
-// -------------------------------------------------------------
-// 🟢 SAVE MEAL PLAN (Frontend → Backend)
-// -------------------------------------------------------------
-export async function saveMealPlan(selectedFoods) {
-  const userId = 1;
-  const tenantId = 1;
-
-  const items = [];
-
-  Object.entries(selectedFoods || {}).forEach(([key, qty]) => {
-    if (qty <= 0) return;
-
-    const [mealTypeIdStr, foodIdStr] = key.split("-");
-    items.push({
-      mealTypeId: Number(mealTypeIdStr),
-      nutritionalItemId: Number(foodIdStr),
-      qty,
+    const res = await api.get("/nutrition/vm/test", {
+      params: { userId, date: finalDate },
     });
-  });
 
-  const payload = {
-    userId,
-    tenantId,
-    date: DAILY_PLAN_DATE, // ⭐ FIXED
-    items,
-  };
+    const root = res.data;
 
-  return axios.post(
-    "https://localhost:7098/api/NutritionalItem/save-meal-plan",
-    payload
-  );
+    DAILY_PLAN_DATE = finalDate;  // ⭐ always correct
+
+    const mealWindows = (root?.data?.mealTypes || []).map((mt) => ({
+      id: mt.id,
+      title: mt.name,
+      time: MEAL_TIME_MAP[mt.id] || "00:00 - 00:00",
+    }));
+
+    const focusTags = (root?.data?.focusTags || []).map((f) => ({
+      id: f.id,
+      label: f.name,
+    }));
+
+    return {
+      foods: mapApiToFoods(root),
+      selectedFoods: mapApiMealPlans(root),
+      mealWindows,
+      focusTags,
+      dailyPlanDate: finalDate,  // ⭐ returned properly
+    };
+  } catch (err) {
+    console.error("❌ loadNutritionData Error:", err);
+    throw err;
+  }
 }
 
-// -------------------------------------------------------------
-// ✏️ EDIT MEAL PLAN API
-// -------------------------------------------------------------
-export async function editMealPlan(selectedFoods) {
-  const userId = 1;
-  const tenantId = 1;
 
+// -------------------------------------------------------------
+// 🧩 SHARED SAVE/EDIT PAYLOAD
+// -------------------------------------------------------------
+function buildMealPlanPayload(selectedFoods, userId, tenantId) {
   const items = [];
 
   Object.entries(selectedFoods || {}).forEach(([key, qty]) => {
-    const [mealTypeIdStr, foodIdStr] = key.split("-");
+    const [mealId, foodId] = key.split("-");
+    if (!mealId || !foodId) return;
+
     items.push({
-      mealTypeId: Number(mealTypeIdStr),
-      nutritionalItemId: Number(foodIdStr),
+      mealTypeId: Number(mealId),
+      nutritionalItemId: Number(foodId),
       qty: Math.max(qty, 0),
     });
   });
 
-  const payload = {
+  return {
     userId,
     tenantId,
-    date: DAILY_PLAN_DATE, // ⭐ FIXED
+    date: ensureDate(DAILY_PLAN_DATE), // ⭐ always correct
     items,
   };
-
-  return axios.post(
-    "https://localhost:7098/api/NutritionalItem/edit-meal-plan",
-    payload
-  );
 }
 
 // -------------------------------------------------------------
-// 📊 Nutrition Summary Helper
+// 💾 SAVE
 // -------------------------------------------------------------
-export const calculateMealNutrition = (mealItems) => {
-  return mealItems.reduce(
-    (total, item) => ({
-      kcal: total.kcal + (item.kcalPerUnit || item.kcal || 0),
-      protein: total.protein + (item.protein || 0),
-      carbs: total.carbs + (item.carbs || 0),
-      fat: total.fat + (item.fat || 0),
-    }),
-    { kcal: 0, protein: 0, carbs: 0, fat: 0 }
-  );
-};
+export async function saveMealPlan(selectedFoods, userId = 1, tenantId = 1) {
+  const payload = buildMealPlanPayload(selectedFoods, userId, tenantId);
+  return await api.post("/api/NutritionalItem/save-meal-plan", payload);
+}
 
 // -------------------------------------------------------------
-// 🔍 Search + Filter Helper
+// ✏️ EDIT
 // -------------------------------------------------------------
-export const filterFoods = (foods, searchTerm, dietFilter, focusFilter) => {
-  return foods.filter((food) => {
-    const matchesSearch = food.title
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-
-    const matchesDiet =
-      dietFilter.length === 0 ||
-      dietFilter.some((tag) => food.type.toLowerCase().includes(tag));
-
-    const matchesFocus =
-      focusFilter.length === 0 ||
-      focusFilter.some((fc) => food.focus.includes(fc.id));
-
-    return matchesSearch && matchesDiet && matchesFocus;
-  });
-};
+export async function editMealPlan(selectedFoods, userId = 1, tenantId = 1) {
+  const payload = buildMealPlanPayload(selectedFoods, userId, tenantId);
+  return await api.post("/api/NutritionalItem/edit-meal-plan", payload);
+}

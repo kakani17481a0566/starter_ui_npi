@@ -9,7 +9,7 @@ import DailyMealPlanner from "./DailyMealPlanner";
 import ArchiveTab from "./Archive";
 
 // ----------------------------------------------------------------------
-// Tab Configuration
+// Tab Definitions
 // ----------------------------------------------------------------------
 const tabData = [
   { key: "weeklyplan", label: "Weekly Plan" },
@@ -18,27 +18,48 @@ const tabData = [
 ];
 
 // ----------------------------------------------------------------------
-// Component Definition
+// Component
 // ----------------------------------------------------------------------
 export default function DynamicTabs() {
-  const [value, setValue] = React.useState(tabData[0].key);
+  const [value, setValue] = React.useState("weeklyplan");
+  const [selectedDate, setSelectedDate] = React.useState(null); // Format: yyyy-MM-dd
 
+  // 🔹 Switch between tabs
   const handleChange = (event, newValue) => setValue(newValue);
 
-  // Render tab-specific content
+  // 🔹 When WeeklyCard → Create/Edit is clicked
+  const handleWeeklyCreateClick = (dateString) => {
+    setSelectedDate(dateString);           // store selected date globally
+    setValue("dailymealplanner");          // switch to daily plan
+  };
+
+  // ----------------------------------------------------------------------
+  // Render selected tab screen
+  // ----------------------------------------------------------------------
   const renderContent = () => {
     switch (value) {
       case "weeklyplan":
-        return <WeeklyPlan />;
+        return (
+          <WeeklyPlan
+            onCreateClick={handleWeeklyCreateClick}
+            selectedDate={selectedDate}   // highlight card in weekly
+          />
+        );
+
       case "dailymealplanner":
-        return <DailyMealPlanner />;
+        return <DailyMealPlanner selectedDate={selectedDate} />;
+
       case "archive":
         return <ArchiveTab />;
+
       default:
         return null;
     }
   };
 
+  // ----------------------------------------------------------------------
+  // UI Layout
+  // ----------------------------------------------------------------------
   return (
     <Box
       sx={{
@@ -48,47 +69,42 @@ export default function DynamicTabs() {
         p: { xs: 1.5, sm: 2.5 },
       }}
     >
-      {/* Tabs Header */}
+      {/* ---------------- HEADER ---------------- */}
       <Tabs
         value={value}
         onChange={handleChange}
         variant="scrollable"
         scrollButtons="auto"
-        textColor="inherit"
         allowScrollButtonsMobile
+        textColor="inherit"
         sx={{
           "& .MuiTabs-indicator": {
             height: "3px",
+            backgroundColor: "#1A4255",
             borderRadius: "3px",
-            backgroundColor: "#1A4255", // Active underline color
-            transition: "background-color 0.3s ease",
           },
+
           "& .MuiTab-root": {
             textTransform: "none",
             fontWeight: 600,
             fontSize: "0.95rem",
-            color: "#1A4255", // ✅ Always dark blue text
+            color: "#1A4255",
             minHeight: 48,
-            minWidth: { xs: 110, sm: 140 },
-            borderBottom: "3px solid transparent", // baseline border
-            transition: "all 0.3s ease-in-out",
-            marginX: 1.5, // ✅ gap between tabs
+            minWidth: { xs: 100, sm: 140 },
+            marginX: 1.5,
+            transition: "all 0.25s ease-in-out",
+            borderBottom: "3px solid transparent",
 
-            // 🔸 Unselected state
             "&:not(.Mui-selected)": {
-              borderBottom: "3px solid #EB5633", // orange underline
+              borderBottomColor: "#EB5633",
             },
 
-            // 🔹 Selected state
             "&.Mui-selected": {
-              color: "#1A4255", // stays the same dark blue
-              borderBottom: "3px solid #1A4255", // dark blue underline
-              backgroundColor: "transparent",
+              borderBottomColor: "#1A4255",
             },
 
             "&:hover": {
-              color: "#1A4255", // stays same
-              opacity: 0.9,
+              opacity: 0.85,
             },
           },
         }}
@@ -98,7 +114,7 @@ export default function DynamicTabs() {
         ))}
       </Tabs>
 
-      {/* Tab Content */}
+      {/* ---------------- CONTENT ---------------- */}
       <Box
         sx={{
           mt: 3,

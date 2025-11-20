@@ -1,12 +1,14 @@
-import { useState, useEffect, Fragment, useCallback } from "react";
+// DailyMealPlanner.jsx
+import { useState, useEffect, useCallback, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
+import { ShoppingBagIcon, XMarkIcon } from "@heroicons/react/24/outline";
+
 import DailyPlans from "./Daily/DailyPlans";
 import DailyMealPlanCart from "./Daily/DailyMealPlanCart";
-import { ShoppingBagIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { loadNutritionData } from "./Daily/data";
 import { Spinner } from "components/ui";
 
-export default function DailyMealPlanner() {
+export default function DailyMealPlanner({ selectedDate }) {
   const [foods, setFoods] = useState([]);
   const [mealWindows, setMealWindows] = useState([]);
   const [selectedFoods, setSelectedFoods] = useState({});
@@ -17,14 +19,17 @@ export default function DailyMealPlanner() {
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   /* -------------------------------------------------------------
-     ⭐ Load Nutrition Data ONCE
+     ⭐ Load Nutrition Data whenever selectedDate changes
   ------------------------------------------------------------- */
   useEffect(() => {
     let mounted = true;
 
+    setLoading(true);
+
     (async () => {
       try {
-        const res = await loadNutritionData();
+        const res = await loadNutritionData(1, selectedDate); // ⬅ date-aware
+
         if (!mounted) return;
 
         setFoods(res.foods || []);
@@ -34,31 +39,35 @@ export default function DailyMealPlanner() {
       } catch (err) {
         console.error("❌ Failed loading nutrition data:", err);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     })();
 
-    return () => (mounted = false);
-  }, []);
+    return () => {
+      mounted = false;
+    };
+  }, [selectedDate]);
 
   /* -------------------------------------------------------------
-     ⭐ Total qty for badge
+     ⭐ Total qty for cart badge
   ------------------------------------------------------------- */
-  const totalItems = Object.values(selectedFoods).reduce(
+  const totalItems = Object.values(selectedFoods || {}).reduce(
     (sum, v) => sum + v,
     0
   );
 
   /* -------------------------------------------------------------
-     ⭐ Prevent body scroll on mobile drawer
+     ⭐ Prevent body scroll when mobile cart is open
   ------------------------------------------------------------- */
   useEffect(() => {
     document.body.style.overflow = isCartOpen ? "hidden" : "unset";
-    return () => (document.body.style.overflow = "unset");
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [isCartOpen]);
 
   /* -------------------------------------------------------------
-     ⭐ ESC key closes drawer
+     ⭐ ESC key closes drawer on mobile
   ------------------------------------------------------------- */
   useEffect(() => {
     const onEsc = (e) => e.key === "Escape" && setIsCartOpen(false);
@@ -67,14 +76,15 @@ export default function DailyMealPlanner() {
   }, []);
 
   /* -------------------------------------------------------------
-     ⭐ Callback: selecting meal in Cart highlights in DailyPlans
+     ⭐ Callback: when meal section selected in cart
+        → highlight that meal in DailyPlans
   ------------------------------------------------------------- */
   const handleMealSelect = useCallback((mealId) => {
     setSelectedMealType(mealId);
   }, []);
 
   /* -------------------------------------------------------------
-     ⭐ Callback: update qty
+     ⭐ Callback: update selectedFoods
   ------------------------------------------------------------- */
   const handleSelectionChange = useCallback((updateFn) => {
     setSelectedFoods((prev) =>
@@ -87,41 +97,45 @@ export default function DailyMealPlanner() {
   ------------------------------------------------------------- */
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[60vh] w-full">
+      <div className="flex h-[60vh] w-full items-center justify-center">
         <Spinner color="primary" size="lg" />
       </div>
     );
   }
 
   /* -------------------------------------------------------------
-     🎨 LAYOUT UI
+     🎨 MAIN LAYOUT
   ------------------------------------------------------------- */
   return (
     <div
       className="
-        relative w-full flex flex-col
-        lg:grid lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_440px]
-        gap-6 px-3 sm:px-4 lg:px-6 items-start
+        relative flex w-full flex-col items-start gap-6 px-3
+        sm:px-4
+        lg:grid lg:grid-cols-[1fr_400px] lg:px-6
+        xl:grid-cols-[1fr_440px]
       "
     >
-      {/* LEFT SIDE — FOOD LIST / FOCUS LIST */}
-      <div className="flex-1 min-w-0 w-full">
+      {/* LEFT SIDE — Daily Plans / Food List */}
+      <div className="min-w-0 w-full flex-1">
         <DailyPlans
           foods={foods}
           mealWindows={mealWindows}
-          selectedFoods={selectedFoods}       // ⭐ FIXED
+          selectedFoods={selectedFoods}
           onSelectionChange={handleSelectionChange}
           selectedMealType={selectedMealType}
           focusTags={focusTags}
+          selectedDate={selectedDate}
         />
       </div>
 
       {/* RIGHT SIDE — CART (Desktop) */}
-      <aside className="
-        hidden lg:flex flex-col w-full sticky top-4
-        bg-white border border-gray-200 rounded-2xl
-        shadow-[0_2px_8px_rgba(0,0,0,0.1)] overflow-visible
-      ">
+      <aside
+        className="
+          hidden w-full flex-col rounded-2xl border border-gray-200
+          bg-white shadow-[0_2px_8px_rgba(0,0,0,0.1)] overflow-visible
+          lg:sticky lg:top-4 lg:flex
+        "
+      >
         <DailyMealPlanCart
           foods={foods}
           mealWindows={mealWindows}
@@ -132,31 +146,29 @@ export default function DailyMealPlanner() {
         />
       </aside>
 
-      {/* ---------------------------------------------------------
-         🛒 MOBILE FLOAT BUTTON
-      ---------------------------------------------------------- */}
+      {/* 🛒 FLOATING CART BUTTON (Mobile) */}
       <button
         onClick={() => setIsCartOpen(true)}
         aria-label="Open Meal Plan Cart"
         className="
-          lg:hidden fixed top-1/2 right-4 -translate-y-1/2 z-40
-          flex items-center gap-2
-          bg-gradient-to-r from-[#FFA94D] to-[#EB5633]
-          text-white font-semibold px-5 py-3 rounded-full
-          shadow-[0_4px_15px_rgba(235,86,51,0.5)]
-          hover:scale-105 active:scale-95
+          fixed right-4 top-1/2 z-40 flex -translate-y-1/2 items-center gap-2
+          rounded-full bg-gradient-to-r from-[#FFA94D] to-[#EB5633]
+          px-5 py-3 text-white
+          font-semibold shadow-[0_4px_15px_rgba(235,86,51,0.5)]
           transition-transform duration-300
+          hover:scale-105 active:scale-95
+          lg:hidden
         "
       >
-        <ShoppingBagIcon className="w-5 h-5" />
+        <ShoppingBagIcon className="h-5 w-5" />
         {totalItems > 0 ? `Cart (${totalItems})` : "Cart"}
       </button>
 
-      {/* ---------------------------------------------------------
-         🍔 MOBILE CART DRAWER (SLIDE-UP)
-      ---------------------------------------------------------- */}
+      {/* 🍔 MOBILE CART DRAWER */}
       <Transition show={isCartOpen} as={Fragment}>
-        <Dialog as="div" className="fixed inset-0 z-50 flex flex-col justify-end"
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-50 flex flex-col justify-end"
           onClose={() => setIsCartOpen(false)}
         >
           {/* OVERLAY */}
@@ -182,29 +194,29 @@ export default function DailyMealPlanner() {
             leaveFrom="translate-y-0 scale-100 opacity-100"
             leaveTo="translate-y-full scale-95 opacity-0"
           >
-            <Dialog.Panel className="
-              relative w-full max-w-md mx-auto
-              bg-white rounded-t-3xl
-              shadow-[0_-4px_30px_rgba(0,0,0,0.25)]
-              flex flex-col overflow-hidden
-              border-t-4 border-[#EB5633]
-            ">
+            <Dialog.Panel
+              className="
+                relative mx-auto flex w-full max-w-md flex-col overflow-hidden
+                rounded-t-3xl border-t-4 border-[#EB5633]
+                bg-white shadow-[0_-4px_30px_rgba(0,0,0,0.25)]
+              "
+            >
               {/* HEADER */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
+              <div className="sticky top-0 flex items-center justify-between border-b border-gray-100 bg-white px-6 py-4">
                 <Dialog.Title className="text-lg font-bold text-[#1A4255]">
                   Your Meal Plan {totalItems > 0 && `(${totalItems})`}
                 </Dialog.Title>
 
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  className="rounded-full p-2 hover:bg-gray-100 transition-colors"
                 >
-                  <XMarkIcon className="w-5 h-5 text-gray-600" />
+                  <XMarkIcon className="h-5 w-5 text-gray-600" />
                 </button>
               </div>
 
               {/* CONTENT */}
-              <div className="px-6 py-4 overflow-y-auto max-h-[70vh]">
+              <div className="max-h-[70vh] overflow-y-auto px-6 py-4">
                 <DailyMealPlanCart
                   foods={foods}
                   mealWindows={mealWindows}
@@ -212,7 +224,7 @@ export default function DailyMealPlanner() {
                   onSelectionChange={handleSelectionChange}
                   onMealSelect={(id) => {
                     handleMealSelect(id);
-                    setIsCartOpen(false); // auto-close drawer
+                    setIsCartOpen(false); // auto-close drawer on select
                   }}
                   focusTags={focusTags}
                 />

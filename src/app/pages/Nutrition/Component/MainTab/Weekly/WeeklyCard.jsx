@@ -1,7 +1,6 @@
 // WeeklyCard.jsx
 import CalanderIcon from "./CalanderIcon.jsx";
 
-
 export const customColors = {
   cardBackground: "#fff",
   headerGreen: "#8eb197",
@@ -10,20 +9,26 @@ export const customColors = {
   createBtn: "#bfc",
   editBtn: "#8eb297",
   darkText: "#1a4255",
-  calendarPaper: "#f4f4f4",
-  binderGrey: "#6d6d6d",
-  holeRed: "#ed4f4f",
 };
 
-
-const ActionButton = ({ label, bg }) => (
+// -------------------------------------------------------------
+// ⭐ Reusable Action Button
+// -------------------------------------------------------------
+const ActionButton = ({ label, bg, onClick, disabled }) => (
   <button
-    className="w-[135px] py-[6px] rounded-md text-[15px] font-bold"
+    onClick={(e) => {
+      e.stopPropagation();
+      if (!disabled && onClick) onClick();
+    }}
+    disabled={disabled}
+    className={`w-[135px] py-[6px] rounded-md text-[15px] font-bold transition
+      ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
+    `}
     style={{
       backgroundColor: bg,
       color: customColors.darkText,
       height: 34,
-      boxShadow: "3px 3px 6px rgba(0,0,0,0.25)",
+      boxShadow: disabled ? "none" : "3px 3px 6px rgba(0,0,0,0.25)",
       fontFamily: "Segoe UI Bold",
     }}
   >
@@ -31,15 +36,29 @@ const ActionButton = ({ label, bg }) => (
   </button>
 );
 
+// -------------------------------------------------------------
+// ⭐ WEEKLY CARD COMPONENT
+// -------------------------------------------------------------
 export default function WeeklyCard({
   month,
   date,
   weekday,
   calories,
   statusText,
-  onSelect,
   selected,
+  onSelect,
+  onCreate,
+  onEdit,
+  actionType,        // "past" | "today" | "futureThisWeek" | "futureOutside"
 }) {
+
+  // FINAL RULES
+  const disableCreate =
+    actionType === "past" || actionType === "futureOutside";
+
+  const disableEdit =
+    actionType === "past" || actionType === "futureOutside";
+
   return (
     <div
       onClick={onSelect}
@@ -49,47 +68,51 @@ export default function WeeklyCard({
           : "bg-white border-slate-200 hover:shadow-md"
       }`}
     >
-      <div className="flex items-stretch p-4 gap-6">
+      <div className="flex items-stretch gap-6 p-4">
 
-        {/* LEFT — Calendar with Text */}
+        {/* Calendar */}
         <div className="w-[165px] flex-shrink-0">
-          <CalanderIcon
-            className="w-full h-auto"
-            month={month}
-            date={date}
-            weekday={weekday}
-          />
+          <CalanderIcon month={month} date={date} weekday={weekday} />
         </div>
 
-        {/* MIDDLE */}
-        <div className="flex-1 flex flex-col justify-center">
+        {/* Calories & Review */}
+        <div className="flex flex-1 flex-col justify-center">
           <p className="text-[15px]" style={{ color: customColors.darkText }}>
             Total calories achieved
           </p>
 
-          <p
-            className="text-[24px] font-extrabold"
-            style={{ color: customColors.kcalBlue, fontFamily: "Segoe UI Bold" }}
-          >
+          <p className="text-[24px] font-extrabold"
+            style={{ color: customColors.kcalBlue }}>
             {calories} Kcal
           </p>
 
-          <p className="text-[15px] mt-2" style={{ color: customColors.darkText }}>
+          <p className="mt-2 text-[15px]" style={{ color: customColors.darkText }}>
             Review
           </p>
 
-          <p
-            className="text-[17px] font-semibold"
-            style={{ color: customColors.reviewGold }}
-          >
+          <p className="text-[17px] font-semibold"
+            style={{ color: customColors.reviewGold }}>
             {statusText}
           </p>
         </div>
 
-        {/* RIGHT — Buttons */}
+        {/* Buttons */}
         <div className="flex flex-col justify-center gap-3">
-          <ActionButton label="Create" bg={customColors.createBtn} />
-          <ActionButton label="Edit" bg={customColors.editBtn} />
+
+          <ActionButton
+            label="Create"
+            bg={customColors.createBtn}
+            onClick={onCreate}
+            disabled={disableCreate}
+          />
+
+          <ActionButton
+            label="Edit"
+            bg={customColors.editBtn}
+            onClick={onEdit}
+            disabled={disableEdit}
+          />
+
         </div>
 
       </div>
