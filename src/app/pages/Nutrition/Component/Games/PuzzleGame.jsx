@@ -114,8 +114,8 @@ export default function PuzzleGame() {
     const piece = pieces.find((p) => p.id === dragging);
     if (!piece) return;
 
-    // Check if the current drop target (x, y) is already occupied (and not dropping on the same piece)
-    const isTargetOccupied = pieces.some(p => p.placed && p.gridX === x && p.gridY === y && p.id !== piece.id);
+    // Check if the current drop target (x, y) is already occupied
+    const isTargetOccupied = pieces.some(p => p.placed && p.gridX === x && p.gridY === y);
     if (isTargetOccupied) {
       playWrong();
       setDragging(null);
@@ -125,7 +125,6 @@ export default function PuzzleGame() {
     // Check if drop is outside a valid target area (x=-1, y=-1 is signal for drop outside any target)
     if (x === -1) {
       playWrong();
-      // Reset to tray
       setPieces((prev) =>
         prev.map((p) =>
           p.id === dragging ? { ...p, gridX: null, gridY: null, placed: false } : p
@@ -182,14 +181,15 @@ export default function PuzzleGame() {
         </div>
       )}
 
-      {/* Game Board */}
-      <div className="flex flex-wrap items-start justify-center gap-10 mt-10">
+      {/* Game Board and Reference Container (Responsive Flex Container) */}
+      <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-10 mt-10 w-full max-w-5xl">
+
         {/* Board */}
         <div
           className="relative bg-white rounded-lg shadow-lg border-2 border-emerald-600 overflow-hidden"
           style={{ width: BOARD, height: BOARD }}
           onDragOver={(e) => e.preventDefault()}
-          onDrop={() => onDrop(-1, -1)} // Trap drops outside targets
+          onDrop={() => onDrop(-1, -1)}
         >
           {/* Faint reference image underneath (Ghost Image) */}
           <img
@@ -264,8 +264,8 @@ export default function PuzzleGame() {
         <h3 className="absolute top-0 left-1/2 -translate-x-1/2 text-lg font-semibold text-gray-600 pt-2">
           Drag pieces from here:
         </h3>
-        {/* Inner container for absolute positioning */}
-        <div className="relative" style={{ minWidth: `${TOTAL * (PIECE + SPACING) + 40}px`, height: '150px' }}>
+        {/* CRITICAL FIX: The pieces are rendered as non-absolute flex items here */}
+        <div className="flex items-start pt-8 pb-2" style={{ minWidth: `${TOTAL * (PIECE + SPACING)}px` }}>
           {pieces
             .filter((p) => !p.placed)
             .map((p) => (
@@ -274,14 +274,16 @@ export default function PuzzleGame() {
                 draggable
                 onDragStart={() => onDragStart(p.id)}
                 onDragEnd={onDragEnd}
-                className={`absolute rounded-md border border-gray-300 cursor-grab bg-cover transition-all duration-300 active:scale-95`}
+                // Remove 'absolute' class
+                className={`bg-cover rounded-md cursor-grab border border-gray-300 shadow-md hover:shadow-lg transition-all duration-300 active:scale-95`}
                 style={{
                   backgroundImage: `url(${p.img})`,
                   backgroundPosition: p.bg,
                   backgroundSize: `${GRID * 100}% ${GRID * 100}%`,
                   width: PIECE,
                   height: PIECE,
-                  ...getPos(p),
+                  // Use margin for spacing instead of absolute left/top
+                  marginRight: `${SPACING}px`,
                 }}
               ></div>
             ))}
