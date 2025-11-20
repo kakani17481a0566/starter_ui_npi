@@ -58,19 +58,41 @@ export function WeekTimeTable({ courseId }) {
     fetchWeekTimeTableData(courseId)
       .then((data) => {
         // 🔹 Dynamically map row columns based on headers length
-        const trimmed = data.timeTableData.map((row) => {
-          const mapped = {};
-          data.headers.forEach((_, idx) => {
-            mapped[`column${idx + 1}`] = row[`column${idx + 1}`];
-          });
-          mapped.timeTableId = row.timeTableId;
-          mapped.courseId = courseId;
-          return mapped;
-        });
+        // console.log("data in week time table is",data.timeTableData);
+       const trimmed = data.timeTableData.map(row => {
+  const mapped = {};
+
+  // copy all columnN keys present in the row (column1, column2, ..., column12, etc.)
+  Object.keys(row)
+    .filter(k => /^column\d+$/.test(k))
+    .sort((a, b) => {
+      const na = parseInt(a.slice(6), 10);
+      const nb = parseInt(b.slice(6), 10);
+      return na - nb;
+    })
+    .forEach(k => {
+      mapped[k] = row[k];
+    });
+
+  // preserve other useful fields
+  if (row.timeTableId !== undefined) mapped.timeTableId = row.timeTableId;
+  if (row.assessmentStausCodeId !== undefined) mapped.assessmentStausCodeId = row.assessmentStausCodeId; // note: key name preserved as you provided it
+  mapped.courseId = courseId;
+
+  // optional: if column9 is newline-separated URLs, convert to array
+  if (mapped.column9 && typeof mapped.column9 === 'string' && mapped.column9.includes('\n')) {
+    mapped.column9 = mapped.column9
+      .split('\n')
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+
+  return mapped;
+});
 
         setMedia(trimmed);
         setHeaders(data.headers);
-        console.log("📦 Auto headers:", data.headers);
+        // console.log("📦 Auto headers:", data.headers);
       })
       .finally(() => setLoading(false));
   }, [courseId]);
@@ -92,7 +114,7 @@ export function WeekTimeTable({ courseId }) {
     autoResetPageIndex,
     initialState: { pagination: { pageSize: 5 } },
   });
-
+  console.log("data in week is ",media);
   useDidUpdate(() => table.resetRowSelection(), [media.length]);
 
   return (

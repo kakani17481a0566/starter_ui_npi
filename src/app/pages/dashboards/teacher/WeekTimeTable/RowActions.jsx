@@ -122,7 +122,7 @@ export function RowActions({ row }) {
     }
 
     const parsedAssignments = row.original.column9
-      .split("\n")
+      // .split("\n")
       .map((link, index) => {
         const cleanLink = link.trim();
         return cleanLink && /^https?:\/\//i.test(cleanLink)
