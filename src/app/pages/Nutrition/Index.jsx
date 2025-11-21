@@ -1,6 +1,3 @@
-// ----------------------------------------------------------------------
-// Imports
-// ----------------------------------------------------------------------
 import { useEffect, useState, useMemo, useRef } from "react";
 import invariant from "tiny-invariant";
 import { register } from "swiper/element/bundle";
@@ -14,11 +11,10 @@ import MoodCard from "./Component/FeedBack/MoodCard";
 import MealPlanMonitoringCards from "./Component/FeedBack/MealPlanMonitoringCards";
 import { fetchMealMonitoring } from "./Component/FeedBack/data";
 
-// register Swiper web components
-register();
+register(); // Register Swiper
 
 // ----------------------------------------------------------------------
-// Build pending-day meal sections correctly
+// Build pending-day sections for card
 // ----------------------------------------------------------------------
 function buildSectionsFromHistoryDay(day, allFoods = []) {
   return day.sections.map((sec) => {
@@ -29,7 +25,7 @@ function buildSectionsFromHistoryDay(day, allFoods = []) {
         itemId: it.itemId,
         title: it.title,
         unit: it.unit ?? "",
-        itemImage: meta?.image || "",
+        itemImage: meta?.image || it.itemImage || "",
         kcal: it.kcal,
         plannedQty: it.plannedQty ?? it.qty ?? 1,
         consumedQty: 0,
@@ -47,13 +43,15 @@ function buildSectionsFromHistoryDay(day, allFoods = []) {
 }
 
 // ----------------------------------------------------------------------
-// Layout (unchanged)
+// Layout
 // ----------------------------------------------------------------------
 function ManiKLayout({ children }) {
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-br from-[#F5FFF5] via-[#E7FCEB] to-[#D9F8E0] bg-fixed">
-      <div className="absolute inset-0 bg-[url('/images/nutration/ManiKLayoutBackground.svg')] bg-[length:900px_900px] bg-center bg-repeat opacity-100 mix-blend-multiply"></div>
-      <div className="absolute inset-0 bg-white/40 pointer-events-none"></div>
+      {/* Pattern background */}
+      <div className="absolute inset-0 bg-[url('/images/nutration/ManiKLayoutBackground.svg')] bg-[length:900px_900px] bg-center bg-repeat opacity-100 mix-blend-multiply" />
+      {/* Soft overlay */}
+      <div className="absolute inset-0 bg-white/40 pointer-events-none" />
 
       <div className="relative z-10 flex flex-1 flex-col justify-start items-stretch px-4 py-6 sm:px-8 sm:py-8">
         {children}
@@ -63,7 +61,7 @@ function ManiKLayout({ children }) {
 }
 
 // ----------------------------------------------------------------------
-// MAIN PAGE — FINAL VERSION
+// MAIN PAGE
 // ----------------------------------------------------------------------
 export default function Nutrition() {
   const userId = 1;
@@ -72,9 +70,13 @@ export default function Nutrition() {
   const [loading, setLoading] = useState(true);
   const [monitor, setMonitor] = useState(null);
 
+  // Map of consumed quantities for editable cards
+  // Keys are built inside card: "<date>-<mealTypeId>-<itemId>"
+  const [selectedFoods, setSelectedFoods] = useState({});
+
   const carouselRef = useRef(null);
 
-  // Fetch API
+  // Fetch monitoring data
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -85,29 +87,32 @@ export default function Nutrition() {
     load();
   }, []);
 
-  // Pending days (memoized BEFORE early returns)
-  const pendingDays = useMemo(() => {
-    return monitor?.missedDays?.history ?? [];
-  }, [monitor]);
+  // Pending days list
+  const pendingDays = useMemo(
+    () => monitor?.missedDays?.history ?? [],
+    [monitor]
+  );
 
-  // Build all cards for carousel (today + pending)
+  // Today + pending cards
   const allCards = useMemo(() => {
     if (!monitor) return [];
 
     const result = [];
 
-    // Today card
+    // TODAY card (read-only monitoring)
     result.push({
       date: monitor.date,
       sections: monitor.sections,
+      achievedFocus: monitor.achievedFocus ?? [],
       isPending: false,
     });
 
-    // Pending cards
+    // PENDING cards (template, editable)
     pendingDays.forEach((day) => {
       result.push({
         date: day.date,
         sections: buildSectionsFromHistoryDay(day, monitor.allFoods),
+        achievedFocus: [], // no achieved focus for pending
         isPending: true,
       });
     });
@@ -115,7 +120,7 @@ export default function Nutrition() {
     return result;
   }, [monitor, pendingDays]);
 
-  // Initialize Swiper after cards load
+  // Initialize Swiper when cards ready
   useEffect(() => {
     if (!carouselRef.current) return;
 
@@ -123,9 +128,7 @@ export default function Nutrition() {
 
     const params = {
       navigation: true,
-      pagination: {
-        clickable: true,
-      },
+      pagination: { clickable: true },
       spaceBetween: 16,
       slidesPerView: 1,
     };
@@ -133,29 +136,35 @@ export default function Nutrition() {
     Object.assign(carouselRef.current, params);
 
     setTimeout(() => {
-      carouselRef.current.initialize();
-    });
+      if (carouselRef.current && !carouselRef.current.initialized) {
+        carouselRef.current.initialize();
+      }
+    }, 0);
   }, [allCards]);
 
-  // Loading state
   if (loading) {
     return (
-      <Page>
-        <div>Loading...</div>
+      <Page title="Nutrition Dashboard">
+        <div className="flex items-center justify-center py-10 text-sm text-gray-600">
+          Loading...
+        </div>
       </Page>
     );
   }
 
-  // No data
   if (!monitor) {
     return (
-      <Page>
-        <div>No data found</div>
+      <Page title="Nutrition Dashboard">
+        <div className="flex items-center justify-center py-10 text-sm text-gray-600">
+          No data found
+        </div>
       </Page>
     );
   }
 
-  // UI -------------------------------------------------------------
+  // --------------------------------------------------------------------
+  // UI
+  // --------------------------------------------------------------------
   return (
     <Page title="Nutrition Dashboard">
       <ManiKLayout>
@@ -177,14 +186,14 @@ export default function Nutrition() {
 
               <img
                 src="/images/nutration/Arrow_pointingDow_curvy.svg"
-                alt="Decorative Arrow"
+                alt="Curved arrow pointing towards your nutrition cards"
                 className="w-15 h-auto ml-2 sm:ml-3 absolute right-[-3rem] top-[-1.8rem] sm:right-[-1.5rem] sm:top-[-3rem] pointer-events-none"
               />
             </div>
           </div>
         </div>
 
-        {/* MAIN SECTIONS */}
+        {/* MAIN CONTENT */}
         <div className="mt-2 space-y-6">
           <WithIcon />
           <QuickChecklistCard />
@@ -205,7 +214,7 @@ export default function Nutrition() {
             textColor="#1A4255"
           />
 
-          {/* FINAL SWIPER CAROUSEL */}
+          {/* FINAL CAROUSEL */}
           <div className="max-w-md mx-auto">
             <swiper-container
               ref={carouselRef}
@@ -221,9 +230,12 @@ export default function Nutrition() {
                   <MealPlanMonitoringCards
                     sections={card.sections}
                     cardDate={card.date}
-                    selectedFoods={{}}
-                    onSelectionChange={() => { }}
+                    achievedFocus={card.achievedFocus}
+                    selectedFoods={selectedFoods}
+                    onSelectionChange={setSelectedFoods}
                     isPending={card.isPending}
+                    allFocusItems={monitor.allFocusItems}
+                    allFocus={monitor.allFocus}
                   />
                 </swiper-slide>
               ))}
