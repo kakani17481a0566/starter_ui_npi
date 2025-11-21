@@ -1,9 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import IngredientListSVG from "./IngredientList.jsx";
-import InstructionBoard from "./InstructionBoard.jsx";   // ✅ ADDED IMPORT
-import BlenderSVG from "./BlenderSVG.jsx";  // ✅ ADD THIS
-
-
+import InstructionBoard from "./InstructionBoard.jsx";
+import BlenderSVG from "./BlenderSVG.jsx";
 
 const ingredientsData = [
   { name: "Beetroot", image: "https://images.unsplash.com/vector-1763542801962-915d223dbefa?q=80&w=744", required: true },
@@ -17,17 +15,25 @@ const ingredientsData = [
 const requiredIngredients = ["Beetroot", "Ginger", "Carrot", "Lime", "Banana"];
 const totalRequired = requiredIngredients.length;
 
-
+// ✅ FIX 1: PREVENT IMAGE FROM HIJACKING DRAG
 const IngredientShelfItem = ({ name, image, onDragStart }) => (
   <div
-    className="mx-[1%] flex h-[80%] w-[12%] cursor-grab items-center justify-center overflow-hidden rounded-lg border bg-white shadow-md hover:scale-105"
-    draggable
-    onDragStart={(e) => onDragStart(e, name)}
+    className="mx-[1%] flex h-[80%] w-[12%] cursor-grab active:cursor-grabbing items-center justify-center overflow-hidden rounded-lg border bg-white shadow-md hover:scale-105 transition-transform"
+    draggable={true}
+    onDragStart={(e) => {
+      e.dataTransfer.effectAllowed = "move";
+      onDragStart(e, name);
+    }}
   >
-    <img src={image} alt={name} className="h-full w-full object-contain p-2" />
+    {/* Added pointer-events-none and draggable=false to the image */}
+    <img 
+      src={image} 
+      alt={name} 
+      draggable={false}
+      className="h-full w-full object-contain p-2 pointer-events-none select-none" 
+    />
   </div>
 );
-
 
 export default function Blunder() {
   const [blenderContents, setBlenderContents] = useState([]);
@@ -69,6 +75,10 @@ export default function Blunder() {
   const handleDrop = (e) => {
     e.preventDefault();
     const name = e.dataTransfer.getData("ingredientName");
+    
+    // Guard clause if something invalid was dropped
+    if (!name) return;
+
     const item = ingredientsData.find((i) => i.name === name);
 
     if (!item) return;
@@ -89,6 +99,12 @@ export default function Blunder() {
     });
   };
 
+  const handleDragOver = (e) => {
+    // ✅ FIX 2: Explicitly allow drop and set visual feedback
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
   /* ---------------------------------------------------------
         RESET GAME
   --------------------------------------------------------- */
@@ -100,12 +116,11 @@ export default function Blunder() {
 
   const fillLevel = Math.min(80, (blenderContents.length / totalRequired) * 80);
 
-
   /* ---------------------------------------------------------
         MAIN RENDER
   --------------------------------------------------------- */
   return (
-    <div className="relative flex h-screen w-full justify-center items-center overflow-hidden">
+    <div className="relative flex h-screen w-full justify-center items-center overflow-hidden bg-gray-900">
       <div
         ref={containerRef}
         className="relative bg-cover bg-center shadow-2xl"
@@ -119,29 +134,31 @@ export default function Blunder() {
       >
 
         {/* ---------------------------------------------------------
-              BLENDER
+               BLENDER (DROP ZONE)
         --------------------------------------------------------- */}
-       {/* ---------------------------------------------------------
-      BLENDER (SVG VERSION)
---------------------------------------------------------- */}
-<div
-  className="absolute flex flex-col items-center"
-  style={{ top: "22%", left: "50%", transform: "translateX(-50%)" }}
-  onDragOver={(e) => e.preventDefault()}
-  onDrop={handleDrop}
->
-  <BlenderSVG fillLevel={fillLevel} />
+        <div
+          className="absolute flex flex-col items-center z-50" // Added z-50 to ensure it's on top
+          style={{ 
+            top: "22%", 
+            left: "50%", 
+            transform: "translateX(-50%)",
+            minWidth: "300px", // Ensure hit area exists
+            minHeight: "400px" 
+          }}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
+          <BlenderSVG fillLevel={fillLevel} />
 
-  {isComplete && (
-    <p className="mt-3 text-[#4f0c00] font-extrabold text-[1.2vw] animate-pulse">
-      READY!
-    </p>
-  )}
-</div>
-
+          {isComplete && (
+            <p className="mt-3 text-[#4f0c00] font-extrabold text-[1.2vw] animate-pulse bg-white/80 px-4 py-1 rounded-full">
+              READY!
+            </p>
+          )}
+        </div>
 
         {/* ---------------------------------------------------------
-              INSTRUCTION BOARD (LEFT SIDE)
+               INSTRUCTION BOARD (LEFT SIDE)
         --------------------------------------------------------- */}
         <div
           className="absolute"
@@ -164,9 +181,8 @@ export default function Blunder() {
           />
         </div>
 
-
         {/* ---------------------------------------------------------
-              INGREDIENT LIST (RIGHT SIDE)
+               INGREDIENT LIST (RIGHT SIDE)
         --------------------------------------------------------- */}
         <div
           className="absolute"
@@ -183,12 +199,11 @@ export default function Blunder() {
           />
         </div>
 
-
         {/* ---------------------------------------------------------
-              SHELF ITEMS
+               SHELF ITEMS
         --------------------------------------------------------- */}
         <div
-          className="absolute flex justify-around items-center"
+          className="absolute flex justify-around items-center z-40"
           style={{
             bottom: "5%",
             left: "50%",
@@ -207,23 +222,22 @@ export default function Blunder() {
           ))}
         </div>
 
-
         {/* ---------------------------------------------------------
-              RESET BUTTON
+               RESET BUTTON
         --------------------------------------------------------- */}
         <button
           onClick={handleReset}
-          className="absolute right-[3%] bottom-[4%] px-4 py-2 text-white bg-red-600 font-bold rounded-xl hover:bg-red-700"
+          className="absolute right-[3%] bottom-[4%] px-4 py-2 text-white bg-red-600 font-bold rounded-xl hover:bg-red-700 z-50"
         >
           Reset Game
         </button>
 
         {/* ---------------------------------------------------------
-              MESSAGE POPUP
+               MESSAGE POPUP
         --------------------------------------------------------- */}
         {message && (
           <div
-            className="absolute p-4 rounded-lg font-semibold shadow-lg text-center"
+            className="absolute p-4 rounded-lg font-semibold shadow-lg text-center z-50"
             style={{
               top: "55%",
               left: "50%",
@@ -236,7 +250,6 @@ export default function Blunder() {
             {message}
           </div>
         )}
-
       </div>
     </div>
   );
