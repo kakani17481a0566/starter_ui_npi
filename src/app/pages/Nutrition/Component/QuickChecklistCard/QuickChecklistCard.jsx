@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { QUICK_CHECKLIST_SLIDES } from "./data"; // ✅ Use your JS data file
+import { QUICK_CHECKLIST_SLIDES } from "./data";
 
-export default function QuickChecklistCard() {
+// ⬅️ Accept onFinish from parent
+export default function QuickChecklistCard({ onFinish }) {
   const [activeIndex, setActiveIndex] = useState(1);
   const [checkedItems, setCheckedItems] = useState([]);
 
@@ -17,6 +18,13 @@ export default function QuickChecklistCard() {
   const SLIDE_COUNT = QUICK_CHECKLIST_SLIDES.length;
 
   const handleNext = () => {
+    // ⭐ LAST SLIDE → trigger finish callback
+    if (activeIndex === SLIDE_COUNT) {
+      if (onFinish) onFinish();
+      return;
+    }
+
+    // Otherwise go to next slide
     setActiveIndex((prev) => (prev === SLIDE_COUNT ? 1 : prev + 1));
     setCheckedItems([]);
   };
@@ -39,7 +47,7 @@ export default function QuickChecklistCard() {
     "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1600&q=80";
 
   // ----------------------------------------------------------------------
-  // 🧠 UI
+  // UI
   // ----------------------------------------------------------------------
   return (
     <div
@@ -132,7 +140,9 @@ export default function QuickChecklistCard() {
                     />
                   )}
                   <div>
-                    <span style={{ color: "#345CA8", fontWeight: 600 }}>{item.heading}</span>
+                    <span style={{ color: "#345CA8", fontWeight: 600 }}>
+                      {item.heading}
+                    </span>
                     {item.text && (
                       <p
                         style={{

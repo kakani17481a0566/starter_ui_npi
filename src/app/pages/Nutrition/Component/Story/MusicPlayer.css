@@ -1,0 +1,388 @@
+/* MusicPlayer.css */
+
+/* --- IMPORTS --- */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+/* --- VARIABLES --- */
+:root {
+  --bg-yellow: #fef5ad;
+  --card-bg: #eafaf1;
+  --text-color: #1a1a1a;
+  --green-btn: #90b8a6;
+  --green-dark: #5f7d70;
+  --highlight-color: #27ae60;
+  --icon-dark: #2c3e50;
+}
+
+/* --- GLOBAL RESETS --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100vh;
+  font-family: 'Nunito', sans-serif;
+  background-color: #ffffff; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- MAIN CONTAINER --- */
+.main-container {
+  background-color: var(--bg-yellow);
+  border-radius: 35px;
+  
+  /* Fixed Size */
+  width: 95vw; 
+  height: 90vh; 
+  max-width: 1649px; 
+  max-height: 948px;
+  
+  overflow: hidden; 
+  
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  gap: 0;
+  position: relative;
+  padding: 2rem 5%;
+}
+
+/* =========================================
+   LEFT SIDE: LYRICS
+   ========================================= */
+.lyrics-section {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; 
+  padding-top: 0; 
+  padding-left: 2rem;
+  color: var(--text-color);
+  position: relative;
+  height: 100%;
+}
+
+.song-info-header {
+  flex-shrink: 0;
+  text-align: left;
+  margin-bottom: 1rem; 
+}
+
+.song-info-header h1 {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin: 0 0 0.2rem 0;
+  color: #1a1a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-info-header h3 {
+  display: none; 
+}
+
+/* --- LYRICS BOX --- */
+.lyrics-content {
+  height: 280px; 
+  width: 100%;
+  overflow-y: hidden; 
+  position: relative;
+  scroll-behavior: smooth;
+  padding-top: 0; 
+  padding-bottom: 100px;
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+.lyric-line {
+  font-size: 1.4rem;
+  line-height: 2.2rem; 
+  margin-bottom: 0.5rem; 
+  font-weight: 600;
+  transition: all 0.4s ease;
+  transform-origin: left center;
+  opacity: 1;
+  color: #333;
+  cursor: pointer;
+}
+
+.word {
+  display: inline-block;
+  margin-right: 0.3rem;
+  transition: color 0.1s ease;
+}
+.word.active-word {
+  color: var(--highlight-color); 
+  font-weight: 800;
+  transform: scale(1.05); 
+}
+
+
+/* =========================================
+   RIGHT SIDE: PLAYER CARD
+   ========================================= */
+.player-section {
+  grid-column: 2;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; 
+  padding-top: 3rem;
+}
+
+.player-card {
+  background-color: var(--card-bg);
+  
+  /* FIXED DIMENSIONS */
+  width: 360px; 
+  height: 490px; 
+  min-width: 360px;
+  min-height: 490px;
+  max-width: 360px;
+  max-height: 490px;
+  
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  border: 1px solid #d1e8de;
+  text-align: center;
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; 
+  position: relative;
+  z-index: 2;
+}
+
+.album-cover {
+  width: 100%;
+  height: 220px;
+  flex-shrink: 0; 
+  border-radius: 15px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  background-color: #ffcc5c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.album-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+.progress-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.5rem 0;
+  font-size: 0.7rem;
+  color: #2c3e50;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.progress-bar-bg {
+  flex-grow: 1;
+  height: 5px;
+  background: #5f7d70;
+  border-radius: 10px;
+  margin: 0 10px;
+  cursor: pointer;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #5f7d70;
+  border-radius: 10px;
+  position: relative;
+  width: 0%;
+}
+
+.progress-knob {
+  width: 16px;
+  height: 16px;
+  background: white;
+  border: 3px solid #5f7d70;
+  border-radius: 50%;
+  position: absolute;
+  right: -7px;
+  top: -5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
+}
+
+.progress-bar-bg:hover .progress-knob { transform: scale(1.2); }
+
+.song-title-sm {
+  font-weight: 800;
+  color: #1a4540;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  height: 1.5em; 
+  line-height: 1.5em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #1a4540;
+  padding: 0 1rem;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.control-icon {
+  cursor: pointer;
+  font-size: 1.1rem;
+  opacity: 0.8;
+  font-weight: bold;
+}
+
+.play-btn {
+  font-size: 1.3rem;
+  width: 60px;
+  height: 60px;
+  border: 1px solid #7aa890;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1a4540;
+  cursor: pointer;
+  background-color: transparent;
+}
+.play-btn:hover { background-color: rgba(143, 188, 176, 0.2); transform: scale(1.05); }
+.play-btn:active { transform: scale(0.95); }
+
+
+/* =========================================
+   BOTTOM UI (Footer)
+   ========================================= */
+.bottom-ui {
+  position: absolute;
+  bottom: 3rem; 
+  left: 0;
+  width: 100%;
+  
+  /* Padding matches the general layout padding */
+  padding: 0 5%; 
+  
+  /* Flexbox aligns Items: Nav on Left, Next on Right */
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  
+  pointer-events: none; /* Allow clicks to pass through empty space */
+  z-index: 10;
+}
+
+/* --- NAV BAR (Left) --- */
+.nav-bar {
+  pointer-events: auto;
+  background-color: var(--card-bg);
+  border: 1px solid #9ec5b3;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  width: 450px;
+  height: 60px;
+  
+  /* Removed absolute positioning */
+  margin-left: 2rem; 
+}
+
+.nav-item {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: #34495e;
+  border-right: 1px solid #9ec5b3;
+  cursor: pointer;
+}
+.nav-item:last-child { border-right: none; }
+.nav-item:hover, .nav-item.active { color: #1a4540; }
+
+/* --- NEXT BUTTON (Right - Opposite of Nav Bar) --- */
+.next-btn {
+  pointer-events: auto;
+  background-color: var(--green-btn);
+  color: #1a4540;
+  font-weight: 800;
+  border: none;
+  padding: 0;
+  width: 180px;
+  height: 50px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.1s;
+  
+  /* Removed absolute positioning logic */
+  margin-right: 2rem; /* Aligns visually with the column */
+  
+  /* Reset specific transforms */
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+}
+
+.next-btn:active { transform: scale(0.98); }
+
+
+/* =========================================
+   RESPONSIVE DESIGN (Mobile)
+   ========================================= */
+@media (max-width: 900px) {
+  body { height: auto; overflow-y: auto; }
+  
+  .main-container {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    padding-bottom: 50px;
+    max-width: none;
+    max-height: none;
+  }
+  
+  .lyrics-section { 
+    padding: 1rem; 
+    text-align: center; 
+    height: auto;
+  }
+  
+  .player-section { 
+    padding-top: 0;
+    margin-bottom: 8rem; 
+  }
+  
+  .bottom-ui {
+    position: fixed;
+    bottom: 0;
+    background: var(--bg-yellow);
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    border-top: 1px solid rgba(0,0,0,0.05);
+  }
+  
+  .nav-bar { width: 100%; margin-left: 0; }
+  .next-btn { width: 100%; margin-right: 0; }
+}

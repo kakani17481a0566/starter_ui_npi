@@ -19,3 +19,11 @@ export const saveMood = async (text) => {
     }, 1000);
   });
 };
+
+
+export async function saveMealsTracking(userId, tenantId, payload) {
+  const url = `${BASE_URL}/api/MealPlanMonitoring/track/user/${userId}/tenant/${tenantId}`;
+
+  const res = await axios.post(url, payload);
+  return res.data?.data;
+}
