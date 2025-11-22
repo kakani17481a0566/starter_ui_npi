@@ -31,12 +31,17 @@ const isSafari = getUserAgentBrowser() === "Safari";
 
 // 🎨 Subject background colors
 const subjectColors = {
-  CLL: "rgba(147,197,253,0.5)", // Blue 300 @70% opacity
-  PSRN: "rgba(252,165,165,0.5)", // Red 300 @70%
-  KUW: "rgba(252,211,77,0.5)", // Amber 300 @70%
-  PD: "rgba(110,231,183,0.5)", // Emerald 300 @70%
-  EAD: "rgba(196,181,253,0.5)", // Violet 300 @70%
-  PSED: "rgba(249,168,212,0.5)", // Pink 300 @70%
+  // CLL: "rgba(147,197,253,0.5)", // Blue 300 @70% opacity
+  // PSRN: "rgba(252,165,165,0.5)", // Red 300 @70%
+  // KUW: "rgba(252,211,77,0.5)", // Amber 300 @70%
+
+  //  new color codes
+  PSRN: "rgba(255,231,246,0.5)", // Red 300 @70%
+  CLL: "rgba(249,168,212,0.5)", // Blue 300 @70% opacity
+  PD: "rgba(247,233,159,0.5)", // Amber 300 @70%
+  KUW: "rgba(210,165,194,0.5)", // Emerald 300 @70%
+  EAD: "rgba(211,202,238,0.5)", // Violet 300 @70%
+  PSED: "rgba(207,244,255,0.5)", // Pink 300 @70%
 };
 
 export function WeekTimeTable({ courseId }) {
@@ -59,36 +64,42 @@ export function WeekTimeTable({ courseId }) {
       .then((data) => {
         // 🔹 Dynamically map row columns based on headers length
         // console.log("data in week time table is",data.timeTableData);
-       const trimmed = data.timeTableData.map(row => {
-  const mapped = {};
+        const trimmed = data.timeTableData.map((row) => {
+          const mapped = {};
 
-  // copy all columnN keys present in the row (column1, column2, ..., column12, etc.)
-  Object.keys(row)
-    .filter(k => /^column\d+$/.test(k))
-    .sort((a, b) => {
-      const na = parseInt(a.slice(6), 10);
-      const nb = parseInt(b.slice(6), 10);
-      return na - nb;
-    })
-    .forEach(k => {
-      mapped[k] = row[k];
-    });
+          // copy all columnN keys present in the row (column1, column2, ..., column12, etc.)
+          Object.keys(row)
+            .filter((k) => /^column\d+$/.test(k))
+            .sort((a, b) => {
+              const na = parseInt(a.slice(6), 10);
+              const nb = parseInt(b.slice(6), 10);
+              return na - nb;
+            })
+            .forEach((k) => {
+              mapped[k] = row[k];
+            });
 
-  // preserve other useful fields
-  if (row.timeTableId !== undefined) mapped.timeTableId = row.timeTableId;
-  if (row.assessmentStausCodeId !== undefined) mapped.assessmentStausCodeId = row.assessmentStausCodeId; // note: key name preserved as you provided it
-  mapped.courseId = courseId;
+          // preserve other useful fields
+          if (row.timeTableId !== undefined)
+            mapped.timeTableId = row.timeTableId;
+          if (row.assessmentStausCodeId !== undefined)
+            mapped.assessmentStausCodeId = row.assessmentStausCodeId; // note: key name preserved as you provided it
+          mapped.courseId = courseId;
 
-  // optional: if column9 is newline-separated URLs, convert to array
-  if (mapped.column9 && typeof mapped.column9 === 'string' && mapped.column9.includes('\n')) {
-    mapped.column9 = mapped.column9
-      .split('\n')
-      .map(s => s.trim())
-      .filter(Boolean);
-  }
+          // optional: if column9 is newline-separated URLs, convert to array
+          if (
+            mapped.column9 &&
+            typeof mapped.column9 === "string" &&
+            mapped.column9.includes("\n")
+          ) {
+            mapped.column9 = mapped.column9
+              .split("\n")
+              .map((s) => s.trim())
+              .filter(Boolean);
+          }
 
-  return mapped;
-});
+          return mapped;
+        });
 
         setMedia(trimmed);
         setHeaders(data.headers);
@@ -114,7 +125,7 @@ export function WeekTimeTable({ courseId }) {
     autoResetPageIndex,
     initialState: { pagination: { pageSize: 5 } },
   });
-  console.log("data in week is ",media);
+  console.log("data in week is ", media);
   useDidUpdate(() => table.resetRowSelection(), [media.length]);
 
   return (
@@ -231,8 +242,8 @@ export function WeekTimeTable({ courseId }) {
                     className={clsx(
                       "dark:border-b-dark-500 relative border-y border-transparent border-b-gray-200",
                       row.getIsSelected() &&
-                      !isSafari &&
-                      "row-selected after:bg-primary-500/10 ltr:after:border-l-primary-500 rtl:after:border-r-primary-500 after:pointer-events-none after:absolute after:inset-0 after:z-2 after:h-full after:w-full after:border-3 after:border-transparent",
+                        !isSafari &&
+                        "row-selected after:bg-primary-500/10 ltr:after:border-l-primary-500 rtl:after:border-r-primary-500 after:pointer-events-none after:absolute after:inset-0 after:z-2 after:h-full after:w-full after:border-3 after:border-transparent",
                     )}
                   >
                     {row.getVisibleCells().map((cell) => {
