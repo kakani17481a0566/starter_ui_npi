@@ -7,7 +7,13 @@ import QuickChecklistCard from "./Component/QuickChecklistCard";
 import MoodCard from "./Component/FeedBack/MoodCard";
 import MealPlanMonitoringCards from "./Component/FeedBack/MealPlanMonitoringCards";
 import WithIcon from "./Component/MainTab/MainTab";
-import { fetchMealMonitoring } from "./Component/FeedBack/data";
+
+import {
+  fetchMealMonitoring,
+  fetchFeedbackQuestions,
+  saveMood,
+} from "./Component/FeedBack/data";
+
 import { Spinner } from "components/ui";
 
 register();
@@ -28,7 +34,7 @@ function ManiKLayout({ children }) {
 }
 
 /* -------------------------------------------------------------
-   Build sections for history days
+   Build sections for pending days
 ------------------------------------------------------------- */
 function buildSectionsFromHistoryDay(day, foodMap = {}) {
   return day.sections.map((sec) => ({
@@ -59,6 +65,12 @@ export default function Nutrition() {
   const tenantId = 1;
 
   const [step, setStep] = useState("checklist");
+
+  // Mood feedback questions
+  const [questions, setQuestions] = useState([]);
+  const [questionIndex, setQuestionIndex] = useState(0);
+
+  // Monitoring
   const [monitor, setMonitor] = useState(null);
   const [monitorStatus, setMonitorStatus] = useState("idle");
   const [monitorError, setMonitorError] = useState(null);
@@ -67,25 +79,39 @@ export default function Nutrition() {
   const carouselRef = useRef(null);
 
   /* -------------------------------------------------------------
-     Preload monitoring data
-  ------------------------------------------------------------- */
+     Load Feedback Questions
+------------------------------------------------------------- */
+  useEffect(() => {
+    async function loadQuestions() {
+      try {
+        const qs = await fetchFeedbackQuestions(userId, tenantId); // <-- FIXED
+        setQuestions(qs || []);
+      } catch (err) {
+        console.error("Failed to fetch questions", err);
+      }
+    }
+    loadQuestions();
+  }, [userId, tenantId]);
+
+  /* -------------------------------------------------------------
+     Load Monitoring Data
+------------------------------------------------------------- */
   useEffect(() => {
     let isCancelled = false;
 
     async function loadMonitoring() {
       try {
-        setMonitorStatus((prev) => (prev === "success" ? prev : "loading"));
-        setMonitorError(null);
-
+        setMonitorStatus("loading");
         const data = await fetchMealMonitoring(userId, tenantId);
-        if (isCancelled) return;
-
-        setMonitor(data);
-        setMonitorStatus("success");
+        if (!isCancelled) {
+          setMonitor(data);
+          setMonitorStatus("success");
+        }
       } catch {
-        if (isCancelled) return;
-        setMonitorStatus("error");
-        setMonitorError("Something went wrong while loading your plan.");
+        if (!isCancelled) {
+          setMonitorStatus("error");
+          setMonitorError("Something went wrong while loading your plan.");
+        }
       }
     }
 
@@ -94,8 +120,8 @@ export default function Nutrition() {
   }, [userId, tenantId]);
 
   /* -------------------------------------------------------------
-     Food lookup map
-  ------------------------------------------------------------- */
+     Build Maps
+------------------------------------------------------------- */
   const foodMap = useMemo(() => {
     const map = {};
     monitor?.allFoods?.forEach((f) => {
@@ -104,31 +130,23 @@ export default function Nutrition() {
     return map;
   }, [monitor?.allFoods]);
 
-  /* -------------------------------------------------------------
-     Pending days
-  ------------------------------------------------------------- */
   const pendingDays = useMemo(
     () => monitor?.missedDays?.history ?? [],
-    [monitor]
+    [monitor],
   );
 
-  /* -------------------------------------------------------------
-     Build cards (today + pending)
-  ------------------------------------------------------------- */
   const allCards = useMemo(() => {
     if (!monitor) return [];
 
-    const arr = [];
+    const arr = [
+      {
+        date: monitor.date,
+        sections: monitor.sections,
+        achievedFocus: monitor.achievedFocus || [],
+        isPending: false,
+      },
+    ];
 
-    // TODAY
-    arr.push({
-      date: monitor.date,
-      sections: monitor.sections,
-      achievedFocus: monitor.achievedFocus || [],
-      isPending: false,
-    });
-
-    // PENDING
     pendingDays.forEach((day) => {
       arr.push({
         date: day.date,
@@ -142,50 +160,59 @@ export default function Nutrition() {
   }, [monitor, pendingDays, foodMap]);
 
   /* -------------------------------------------------------------
-     Swiper Setup
-  ------------------------------------------------------------- */
+     Swiper Init
+------------------------------------------------------------- */
   useEffect(() => {
     if (!carouselRef.current || !allCards.length) return;
 
-    const swiper = carouselRef.current;
-
-    Object.assign(swiper, {
+    Object.assign(carouselRef.current, {
       navigation: true,
       pagination: { clickable: true },
       spaceBetween: 16,
       slidesPerView: 1,
     });
 
-    if (!swiper.initialized) swiper.initialize?.();
+    if (!carouselRef.current.initialized) {
+      carouselRef.current.initialize?.();
+    }
   }, [allCards.length]);
 
   /* -------------------------------------------------------------
-     Step Events
-  ------------------------------------------------------------- */
-  const handleChecklistFinish = () => setStep("mood1");
-  const handleMood1Done = () => setStep("mood2");
-  const handleMood2Done = () => setStep("monitor");
+     Flow Handlers
+------------------------------------------------------------- */
+  const handleChecklistFinish = () => {
+    if (questions.length === 0) return setStep("monitor");
+
+    setQuestionIndex(0);
+    setStep("mood");
+  };
+
+  const handleMoodDone = () => {
+    if (questionIndex < questions.length - 1) {
+      return setQuestionIndex(questionIndex + 1);
+    }
+    setStep("monitor");
+  };
 
   const handleRetryMonitoring = async () => {
     try {
       setMonitorStatus("loading");
-      setMonitorError(null);
       const data = await fetchMealMonitoring(userId, tenantId);
       setMonitor(data);
       setMonitorStatus("success");
     } catch {
       setMonitorStatus("error");
-      setMonitorError("Still unable to load your plan. Please try again.");
+      setMonitorError("Still unable to load your plan.");
     }
   };
 
   /* -------------------------------------------------------------
-     Render
-  ------------------------------------------------------------- */
+     RENDER
+------------------------------------------------------------- */
   return (
     <Page title="Nutrition Dashboard">
       <ManiKLayout>
-        {/* Header */}
+        {/* HEADER */}
         <div className="mb-6 space-y-3 text-center sm:text-left">
           <BasicInitial />
 
@@ -198,37 +225,30 @@ export default function Nutrition() {
           </p>
         </div>
 
-        {/* STEP 1 */}
+        {/* STEP 1 — CHECKLIST */}
         {step === "checklist" && (
           <QuickChecklistCard onFinish={handleChecklistFinish} />
         )}
 
-        {/* STEP 2 */}
-        {step === "mood1" && (
+        {/* STEP 2 — DYNAMIC MOOD QUESTIONS */}
+        {step === "mood" && questions.length > 0 && (
           <MoodCard
-            themeColor="#548C62"
-            buttonColor="#8EB297"
-            textColor="#1A4255"
-            onDone={handleMood1Done}
+            question={questions[questionIndex].name}
+            questionId={questions[questionIndex].id}
+            targetDate={questions[questionIndex].targetDate} // <-- FIXED
+            save={({ questionId, text, date }) =>
+              saveMood({ userId, tenantId, questionId, text, date })
+            }
+            onDone={handleMoodDone}
           />
         )}
 
-        {/* STEP 3 */}
-        {step === "mood2" && (
-          <MoodCard
-            themeColor="#548C62"
-            buttonColor="#8EB297"
-            textColor="#1A4255"
-            onDone={handleMood2Done}
-          />
-        )}
-
-        {/* STEP 4: Monitoring */}
+        {/* STEP 3 — MONITORING */}
         {step === "monitor" && (
-          <div className="">
+          <div>
             {/* LOADING */}
             {monitorStatus === "loading" && (
-              <div className="flex flex-col items-center justify-center py-10 text-center">
+              <div className="flex flex-col items-center justify-center py-10">
                 <Spinner color="primary" />
                 <div className="mt-3 text-sm">
                   Loading your personalized plan...
@@ -241,9 +261,8 @@ export default function Nutrition() {
               <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center text-sm text-red-800">
                 <p>{monitorError}</p>
                 <button
-                  type="button"
                   onClick={handleRetryMonitoring}
-                  className="mt-3 inline-flex items-center rounded-lg bg-[#548C62] px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-[#436F4D]"
+                  className="mt-3 inline-flex items-center rounded-lg bg-[#548C62] px-3 py-1.5 text-xs text-white shadow-sm"
                 >
                   Retry
                 </button>
@@ -253,14 +272,8 @@ export default function Nutrition() {
             {/* SUCCESS */}
             {monitorStatus === "success" && monitor && (
               <>
-                {/* CASE 1 → Only ONE card → SHOW ONLY WITHICON */}
-                {allCards.length === 1 && (
-                  <div >
-                    <WithIcon />
-                  </div>
-                )}
+                {allCards.length === 1 && <WithIcon />}
 
-                {/* CASE 2 → MULTIPLE CARDS → Show Swiper + Cards + WithIcon */}
                 {allCards.length > 1 && (
                   <>
                     <swiper-container
@@ -287,9 +300,7 @@ export default function Nutrition() {
                       ))}
                     </swiper-container>
 
-                    <div >
-                      <WithIcon />
-                    </div>
+                    <WithIcon />
                   </>
                 )}
               </>

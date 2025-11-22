@@ -11,32 +11,20 @@ export default function WeeklyCalanders({ onCreateClick, selectedDate }) {
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
 
-  // Week range (Mon–Sun)
-  const weekStart = new Date(today);
-  weekStart.setDate(today.getDate() - today.getDay() + 1);
-
-  const weekEnd = new Date(today);
-  weekEnd.setDate(today.getDate() - today.getDay() + 7);
-
-  const startStr = weekStart.toISOString().split("T")[0];
-  const endStr = weekEnd.toISOString().split("T")[0];
-
-  // Parse unlockNote → convert textBottom to fullDate + components
+  // Convert unlockNote → structured form
   const parseUnlockNote = (textBottom) => {
     if (!textBottom) return null;
 
-    // "20 Thursday, November"
-    const parts = textBottom.split(" ");
-
+    const parts = textBottom.split(" "); // "24 Monday, November"
     const date = parts[0];
     const weekday = parts[1].replace(",", "");
     const month = parts[2];
 
-    // Convert month name → MM
-    const monthIndex = new Date(`${month} 1, 2024`).getMonth() + 1;
+    const yyyy = today.getFullYear();
+    const monthIndex = new Date(`${month} 1, ${yyyy}`).getMonth() + 1;
+
     const mm = String(monthIndex).padStart(2, "0");
     const dd = String(date).padStart(2, "0");
-    const yyyy = new Date().getFullYear();
 
     return {
       date,
@@ -46,52 +34,39 @@ export default function WeeklyCalanders({ onCreateClick, selectedDate }) {
     };
   };
 
-  // Highlight selected card when returning from daily
+  // Highlight selected card when returning from Daily Plan
   useEffect(() => {
     if (!selectedDate) return;
 
     const d = new Date(selectedDate);
     const month = d.toLocaleString("en-US", { month: "long" }).toUpperCase();
-    const day = d.getDate();
+    const dayNumber = d.getDate();
 
-    setSelectedKey(`${month}-${day}`);
+    setSelectedKey(`${month}-${dayNumber}`);
   }, [selectedDate]);
 
-  // Load weekly data
+  // Load Weekly Data
   useEffect(() => {
     async function load() {
       const { days, unlockNote } = await fetchWeeklyPlan(1, 1);
 
-      // Keep only this week's days
-      const thisWeek = days.filter(
-        (d) => d.fullDate >= startStr && d.fullDate <= endStr
-      );
-
-      setDays(thisWeek);
+      // 👉 DO NOT FILTER — BACKEND ALREADY RETURNS EXACT 7 DAYS
+      setDays(days);
 
       if (unlockNote?.enabled) {
         const parsed = parseUnlockNote(unlockNote.textBottom);
-
-        // Show unlock note only if unlock date is next week
-        if (parsed.fullDate > endStr) {
-          setUnlockNote({ ...unlockNote, ...parsed });
-        } else {
-          setUnlockNote(null);
-        }
+        setUnlockNote({ ...unlockNote, ...parsed });
       } else {
         setUnlockNote(null);
       }
     }
-
     load();
   }, []);
 
   const getActionType = (card) => {
     if (card.fullDate < todayStr) return "past";
     if (card.fullDate === todayStr) return "today";
-    if (card.fullDate > todayStr && card.fullDate <= endStr)
-      return "futureThisWeek";
-    return "futureOutside";
+    return "future";
   };
 
   const leftCol = days.filter((_, i) => i % 2 === 0);
@@ -142,11 +117,9 @@ export default function WeeklyCalanders({ onCreateClick, selectedDate }) {
               );
             })}
 
-            {/* ⭐ UNLOCK NOTE CARD — NOW FIXED WITH SAME LAYOUT AS WEEKLYCARD */}
+            {/* UNLOCK NOTE */}
             {unlockNote && (
-              <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4 flex gap-6">
-
-                {/* SAME WIDTH AS WEEKLY CARD CALENDAR ICON */}
+              <div className="rounded-xl border p-4 flex gap-6 shadow-sm bg-white">
                 <div className="w-[165px] flex-shrink-0">
                   <CalanderIcon
                     month={unlockNote.month}
@@ -172,7 +145,6 @@ export default function WeeklyCalanders({ onCreateClick, selectedDate }) {
             )}
 
           </div>
-
         </div>
       </div>
     </div>
