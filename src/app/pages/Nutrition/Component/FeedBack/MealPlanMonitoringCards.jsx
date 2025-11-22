@@ -5,7 +5,6 @@ import React, {
   Children,
   isValidElement,
   cloneElement,
-  // useEffect,
 } from "react";
 
 import {
@@ -88,12 +87,14 @@ export default function MealPlanMonitoringCards({
   isPending = false,
   allFocusItems = [],
   allFocus = [],
+  onReload = () => {}, // ⭐ NEW: parent reload callback
 }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
 
   const [notFollowed, setNotFollowed] = useState(false);
-  const [notFollowedReason, setNotFollowedReason] = useState("All of the above");
+  const [notFollowedReason, setNotFollowedReason] =
+    useState("All of the above");
 
   const datePrefix = cardDate || "day";
 
@@ -118,35 +119,28 @@ export default function MealPlanMonitoringCards({
         };
       });
 
-      const sectionPlannedKcal = items.reduce(
-        (sum, f) => sum + (f.kcal || 0) * (f.plannedQty || 0),
-        0
-      );
-
-      const sectionConsumedKcal = items.reduce(
-        (sum, f) => sum + (f.kcal || 0) * (f.consumedQty || 0),
-        0
-      );
-
       return {
         ...sec,
         items,
-        sectionPlannedKcal,
-        sectionConsumedKcal,
+        sectionPlannedKcal: items.reduce(
+          (sum, f) => sum + (f.kcal || 0) * (f.plannedQty || 0),
+          0
+        ),
+        sectionConsumedKcal: items.reduce(
+          (sum, f) => sum + (f.kcal || 0) * (f.consumedQty || 0),
+          0
+        ),
       };
     });
   }, [sections, selectedFoods, isPending, datePrefix]);
 
-  /* --- Total Calories --- */
   const totalPlannedKcal = useMemo(
-    () =>
-      processedSections.reduce((sum, s) => sum + s.sectionPlannedKcal, 0),
+    () => processedSections.reduce((sum, s) => sum + s.sectionPlannedKcal, 0),
     [processedSections]
   );
 
   const totalConsumedKcal = useMemo(
-    () =>
-      processedSections.reduce((sum, s) => sum + s.sectionConsumedKcal, 0),
+    () => processedSections.reduce((sum, s) => sum + s.sectionConsumedKcal, 0),
     [processedSections]
   );
 
@@ -195,7 +189,7 @@ export default function MealPlanMonitoringCards({
   };
 
   /* ======================================================================
-      SAVE MEALS TRACKING
+      SAVE — includes FULL SCREEN SPINNER + reload parent
   ====================================================================== */
   const handleSave = async () => {
     try {
@@ -207,7 +201,6 @@ export default function MealPlanMonitoringCards({
       processedSections.forEach((sec) => {
         sec.items.forEach((item) => {
           const key = `${datePrefix}-${sec.mealTypeId}-${item.itemId}`;
-
           const consumedQty = selectedFoods[key] ?? item.plannedQty;
 
           payload.push({
@@ -222,17 +215,18 @@ export default function MealPlanMonitoringCards({
         });
       });
 
-      console.log("TRACKING PAYLOAD:", payload);
-
       await saveMealsTracking(1, 1, payload);
 
       setMessage({ type: "success", text: "Meal tracking saved" });
+
+      // ⭐ SUPER IMPORTANT — tell parent to reload!
+      onReload();
+
     } catch (err) {
-      console.error(err);
+      console.error("Failed to save meal tracking", err);
       setMessage({ type: "error", text: "Failed to save tracking" });
     } finally {
       setSaving(false);
-      setTimeout(() => setMessage(null), 2000);
     }
   };
 
@@ -240,10 +234,20 @@ export default function MealPlanMonitoringCards({
       UI
   ====================================================================== */
   return (
-    <div className="flex items-center justify-center min-h-[620px] w-full relative overflow-hidden font-sans bg-[#EFFCEC]">
-      <div className="absolute inset-0 bg-white/40 pointer-events-none"></div>
+    <div className="flex items-center justify-center min-h-[620px] w-full relative bg-[#EFFCEC]">
 
-      <div className="relative z-10 w-full max-w-md flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+      {/* ⭐ FULL-SCREEN LOADING SPINNER OVERLAY */}
+      {saving && (
+        <div className="
+          absolute inset-0 bg-black/30 backdrop-blur-sm
+          flex items-center justify-center z-50
+        ">
+          <div className="animate-spin h-16 w-16 rounded-full border-4 border-white border-t-transparent"></div>
+        </div>
+      )}
+
+      <div className="relative z-10 w-full max-w-md flex flex-col rounded-xl border bg-white shadow-lg overflow-hidden">
+
         <div className="bg-[#558365] px-4 py-3 text-center text-white font-bold text-lg">
           {cardDate} — {isPending ? "Pending feedback" : "Today's meal feedback"}
         </div>
@@ -263,10 +267,12 @@ export default function MealPlanMonitoringCards({
             </div>
           )}
 
-          {/* ACCORDION */}
+          {/* 📌 ACCORDION */}
           <Accordion
             type="multiple"
-            defaultValue={sections?.length > 0 ? [String(sections[0].mealTypeId)] : []}
+            defaultValue={
+              sections?.length > 0 ? [String(sections[0].mealTypeId)] : []
+            }
             className="space-y-4"
           >
             {processedSections.map((section) => (
@@ -279,8 +285,12 @@ export default function MealPlanMonitoringCards({
                   {({ open }) => (
                     <>
                       <div>
-                        <div className="text-[#1A4255] font-bold text-base">{section.mealTypeName}</div>
-                        <div className="text-xs text-gray-500">{section.time}</div>
+                        <div className="text-[#1A4255] font-bold text-base">
+                          {section.mealTypeName}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {section.time}
+                        </div>
                       </div>
 
                       <div className="flex flex-col items-end text-xs">
@@ -313,7 +323,6 @@ export default function MealPlanMonitoringCards({
                       </div>
                     )}
 
-                    {/* ITEMS */}
                     {section.items.map((item) => (
                       <div
                         key={item.itemId}
@@ -326,7 +335,9 @@ export default function MealPlanMonitoringCards({
                         />
 
                         <div>
-                          <span className="font-bold text-[#1A4255] text-sm">{item.title}</span>
+                          <span className="font-bold text-[#1A4255] text-sm">
+                            {item.title}
+                          </span>
                           <span className="text-[11px] text-gray-500 block">
                             {item.kcal} kcal • {item.unit}
                           </span>
@@ -340,7 +351,9 @@ export default function MealPlanMonitoringCards({
                           <div className="flex items-center gap-2">
                             <button
                               type="button"
-                              onClick={() => updateQty(section.mealTypeId, item.itemId, -1)}
+                              onClick={() =>
+                                updateQty(section.mealTypeId, item.itemId, -1)
+                              }
                               className="h-6 w-6 flex items-center justify-center rounded border border-gray-300 text-gray-500"
                             >
                               <MinusIcon className="h-3 w-3" />
@@ -352,7 +365,9 @@ export default function MealPlanMonitoringCards({
 
                             <button
                               type="button"
-                              onClick={() => updateQty(section.mealTypeId, item.itemId, 1)}
+                              onClick={() =>
+                                updateQty(section.mealTypeId, item.itemId, 1)
+                              }
                               className="h-6 w-6 flex items-center justify-center rounded border border-gray-300 text-[#1A4255]"
                             >
                               <PlusIcon className="h-3 w-3" />
@@ -366,7 +381,7 @@ export default function MealPlanMonitoringCards({
                       </div>
                     ))}
 
-                    {/* Extra Dish Placeholder */}
+                    {/* ⭐ Extra Dish Button (placeholder) */}
                     <button
                       type="button"
                       className="w-full flex items-center gap-3 rounded-xl border-2 border-dashed border-gray-200 p-3 hover:bg-gray-50"
@@ -390,7 +405,7 @@ export default function MealPlanMonitoringCards({
 
           <hr className="border-gray-200" />
 
-          {/* Not Followed */}
+          {/* NOT FOLLOWED CHECKBOX */}
           <div className="space-y-2">
             <label className="flex items-start gap-3 cursor-pointer">
               <input
@@ -426,7 +441,7 @@ export default function MealPlanMonitoringCards({
             All nutritional values are referred by ICMR.
           </div>
 
-          {/* Calories Summary */}
+          {/* CALORIES SUMMARY */}
           <div>
             <h3 className="text-[#1A4255] font-bold text-sm mb-3">
               Total achieved meal goal for the day
@@ -453,9 +468,11 @@ export default function MealPlanMonitoringCards({
             </div>
           </div>
 
-          {/* Focus */}
+          {/* FOCUS */}
           <div className="space-y-2">
-            <p className="text-sm font-bold text-[#4D32FF]">Focus tags for this meal plan:</p>
+            <p className="text-sm font-bold text-[#4D32FF]">
+              Focus tags for this meal plan:
+            </p>
 
             <div className="flex flex-wrap gap-2">
               {focusSuggestions.length > 0 ? (
@@ -473,7 +490,7 @@ export default function MealPlanMonitoringCards({
             </div>
           </div>
 
-          {/* Achieved Focus */}
+          {/* ACHIEVED FOCUS (only non-pending) */}
           {!isPending && (
             <div className="space-y-2">
               <p className="text-sm font-medium text-green-600">
@@ -489,16 +506,17 @@ export default function MealPlanMonitoringCards({
               </ul>
             </div>
           )}
+
         </div>
 
-        {/* Save Buttons */}
+        {/* SAVE BUTTONS */}
         {isPending && (
           <div className="p-4 pt-2 flex gap-3 bg-white border-t">
             <button
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 rounded bg-[#8FB494] text-white font-semibold py-3 text-sm hover:bg-[#7da382] disabled:opacity-70"
+              className="flex-1 rounded bg-[#8FB494] text-white font-semibold py-3 text-sm disabled:opacity-70"
             >
               {saving ? "Saving..." : "Save new plan"}
             </button>
@@ -507,12 +525,13 @@ export default function MealPlanMonitoringCards({
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 rounded bg-[#BBFFCC] text-[#1A4255] font-semibold py-3 text-sm hover:bg-[#a8eeb9] disabled:opacity-70"
+              className="flex-1 rounded bg-[#BBFFCC] text-[#1A4255] font-semibold py-3 text-sm disabled:opacity-70"
             >
               No changes in plan
             </button>
           </div>
         )}
+
       </div>
     </div>
   );

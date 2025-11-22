@@ -6,11 +6,13 @@ import QuickChecklistCard from "./Component/QuickChecklistCard";
 import MoodCard from "./Component/FeedBack/MoodCard";
 import MealPlanMonitoringCards from "./Component/FeedBack/MealPlanMonitoringCards";
 import WithIcon from "./Component/MainTab/MainTab";
+
 import {
   fetchMealMonitoring,
   fetchFeedbackQuestions,
   saveMood,
 } from "./Component/FeedBack/data";
+
 import { Spinner } from "components/ui";
 
 register();
@@ -63,11 +65,9 @@ export default function Nutrition() {
 
   const [step, setStep] = useState("checklist");
 
-  // Mood feedback questions
   const [questions, setQuestions] = useState([]);
   const [questionIndex, setQuestionIndex] = useState(0);
 
-  // Monitoring
   const [monitor, setMonitor] = useState(null);
   const [monitorStatus, setMonitorStatus] = useState("idle");
   const [monitorError, setMonitorError] = useState(null);
@@ -84,7 +84,7 @@ export default function Nutrition() {
         const q = await fetchFeedbackQuestions(userId, tenantId);
         setQuestions(q || []);
       } catch {
-        // ignore errors
+        // Ignore errors here
       }
     }
     load();
@@ -129,7 +129,7 @@ export default function Nutrition() {
 
   const pendingDays = useMemo(
     () => monitor?.missedDays?.history ?? [],
-    [monitor]
+    [monitor],
   );
 
   const allCards = useMemo(() => {
@@ -150,7 +150,7 @@ export default function Nutrition() {
         sections: buildSectionsFromHistoryDay(d, foodMap),
         achievedFocus: [],
         isPending: true,
-      })
+      }),
     );
 
     return arr;
@@ -206,16 +206,16 @@ export default function Nutrition() {
 ------------------------------------------------------------- */
   return (
     <Page title="Nutrition Dashboard">
-      {/* 1️⃣ QuickChecklistCard → No background */}
+      {/* 1️⃣ Checklist Mode */}
       {step === "checklist" && (
-        <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="flex min-h-screen items-center justify-center px-4">
           <QuickChecklistCard onFinish={handleChecklistFinish} />
         </div>
       )}
 
-      {/* 2️⃣ MoodCard → No background */}
+      {/* 2️⃣ Mood Mode */}
       {step === "mood" && questions.length > 0 && (
-        <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="flex min-h-screen items-center justify-center px-4">
           <MoodCard
             question={questions[questionIndex].name}
             questionId={questions[questionIndex].id}
@@ -233,15 +233,17 @@ export default function Nutrition() {
         <>
           {/* LOADING */}
           {monitorStatus === "loading" && (
-            <div className="min-h-screen flex flex-col items-center justify-center">
+            <div className="flex min-h-screen flex-col items-center justify-center">
               <Spinner color="primary" />
-              <div className="mt-3 text-sm">Loading your personalized plan...</div>
+              <div className="mt-3 text-sm">
+                Loading your personalized plan...
+              </div>
             </div>
           )}
 
           {/* ERROR */}
           {monitorStatus === "error" && (
-            <div className="min-h-screen flex items-center justify-center px-4">
+            <div className="flex min-h-screen items-center justify-center px-4">
               <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center text-sm text-red-800">
                 <p>{monitorError}</p>
                 <button
@@ -257,25 +259,14 @@ export default function Nutrition() {
           {/* SUCCESS */}
           {monitorStatus === "success" && monitor && (
             <>
-              {/* 3A️⃣ Single day → show ONLY the component, no background */}
+              {/* ⭐ SINGLE DAY → ONLY SHOW ICON */}
               {allCards.length === 1 && (
-                <div className="min-h-screen flex items-center justify-center px-4">
-                  <MealPlanMonitoringCards
-                    sections={allCards[0].sections}
-                    cardDate={allCards[0].date}
-                    achievedFocus={allCards[0].achievedFocus}
-                    selectedFoods={selectedFoods}
-                    onSelectionChange={setSelectedFoods}
-                    isPending={allCards[0].isPending}
-                    allFocusItems={monitor.allFocusItems}
-                    allFocus={monitor.allFocus}
-                  />
+                <div className="flex min-h-screen items-center justify-center px-4">
+                  <WithIcon />
                 </div>
               )}
 
-              {/* 3B️⃣ MULTI DAY → SHOW FULL BACKGROUND */}
-
-                 {allCards.length === 1 && <WithIcon />}
+              {/* ⭐ MULTI-DAY → SHOW CARDS IN SWIPER */}
               {allCards.length > 1 && (
                 <ManiKLayout>
                   <swiper-container
@@ -297,12 +288,11 @@ export default function Nutrition() {
                           isPending={card.isPending}
                           allFocusItems={monitor.allFocusItems}
                           allFocus={monitor.allFocus}
+                          onReload={() => handleRetryMonitoring()}
                         />
                       </swiper-slide>
                     ))}
                   </swiper-container>
-
-
                 </ManiKLayout>
               )}
             </>
