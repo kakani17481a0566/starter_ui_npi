@@ -13,6 +13,8 @@ import FollowTheLineGame from "../../Component/Games/FollowTheLineGame";
 import FollowTheLineGame2 from "../../Component/Games/FollowTheLineGame2";
 import Blunder from "../../Component/Games/Blunder";
 
+import MusicPlayer from "../../Component/Story/MusicPlayer";
+
 // ----------------------------------------------------------------------
 // 📁 Local Components
 // ----------------------------------------------------------------------
@@ -122,19 +124,8 @@ export default function WithIcon() {
       title: "Story",
       content: (
         <div>
-          <p className="text-[#1A4255]">
-            Enjoy stories that spark imagination and teach valuable lessons.
-          </p>
+           <MusicPlayer />
 
-          <div className="space-x-2 pt-3">
-            <Tag>Fairy Tales</Tag>
-            <Tag>Adventure</Tag>
-          </div>
-
-          <div className="space-x-2 pt-4">
-            <ActionButton>Read with NeuroPi</ActionButton>
-            <ActionButton>More Stories</ActionButton>
-          </div>
         </div>
       ),
     },
