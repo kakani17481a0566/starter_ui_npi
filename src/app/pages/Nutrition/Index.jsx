@@ -2,24 +2,21 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { register } from "swiper/element/bundle";
 
 import { Page } from "components/shared/Page";
-import { BasicInitial } from "./Component/NameCard/BasicInitial.jsx";
 import QuickChecklistCard from "./Component/QuickChecklistCard";
 import MoodCard from "./Component/FeedBack/MoodCard";
 import MealPlanMonitoringCards from "./Component/FeedBack/MealPlanMonitoringCards";
 import WithIcon from "./Component/MainTab/MainTab";
-
 import {
   fetchMealMonitoring,
   fetchFeedbackQuestions,
   saveMood,
 } from "./Component/FeedBack/data";
-
 import { Spinner } from "components/ui";
 
 register();
 
 /* -------------------------------------------------------------
-   Layout Wrapper
+   Background Layout ONLY for SWIPER
 ------------------------------------------------------------- */
 function ManiKLayout({ children }) {
   return (
@@ -79,60 +76,60 @@ export default function Nutrition() {
   const carouselRef = useRef(null);
 
   /* -------------------------------------------------------------
-     Load Feedback Questions
+     Load Questions
 ------------------------------------------------------------- */
   useEffect(() => {
-    async function loadQuestions() {
+    async function load() {
       try {
-        const qs = await fetchFeedbackQuestions(userId, tenantId); // <-- FIXED
-        setQuestions(qs || []);
-      } catch (err) {
-        console.error("Failed to fetch questions", err);
+        const q = await fetchFeedbackQuestions(userId, tenantId);
+        setQuestions(q || []);
+      } catch {
+        // ignore errors
       }
     }
-    loadQuestions();
+    load();
   }, [userId, tenantId]);
 
   /* -------------------------------------------------------------
-     Load Monitoring Data
+     Load Monitoring
 ------------------------------------------------------------- */
   useEffect(() => {
-    let isCancelled = false;
+    let cancel = false;
 
-    async function loadMonitoring() {
+    async function load() {
       try {
         setMonitorStatus("loading");
         const data = await fetchMealMonitoring(userId, tenantId);
-        if (!isCancelled) {
+        if (!cancel) {
           setMonitor(data);
           setMonitorStatus("success");
         }
       } catch {
-        if (!isCancelled) {
+        if (!cancel) {
           setMonitorStatus("error");
           setMonitorError("Something went wrong while loading your plan.");
         }
       }
     }
 
-    loadMonitoring();
-    return () => (isCancelled = true);
+    load();
+    return () => (cancel = true);
   }, [userId, tenantId]);
 
   /* -------------------------------------------------------------
-     Build Maps
+     Process Data
 ------------------------------------------------------------- */
   const foodMap = useMemo(() => {
-    const map = {};
+    const m = {};
     monitor?.allFoods?.forEach((f) => {
-      if (f?.id != null) map[f.id] = f;
+      if (f.id != null) m[f.id] = f;
     });
-    return map;
+    return m;
   }, [monitor?.allFoods]);
 
   const pendingDays = useMemo(
     () => monitor?.missedDays?.history ?? [],
-    [monitor],
+    [monitor]
   );
 
   const allCards = useMemo(() => {
@@ -147,14 +144,14 @@ export default function Nutrition() {
       },
     ];
 
-    pendingDays.forEach((day) => {
+    pendingDays.forEach((d) =>
       arr.push({
-        date: day.date,
-        sections: buildSectionsFromHistoryDay(day, foodMap),
+        date: d.date,
+        sections: buildSectionsFromHistoryDay(d, foodMap),
         achievedFocus: [],
         isPending: true,
-      });
-    });
+      })
+    );
 
     return arr;
   }, [monitor, pendingDays, foodMap]);
@@ -172,13 +169,11 @@ export default function Nutrition() {
       slidesPerView: 1,
     });
 
-    if (!carouselRef.current.initialized) {
-      carouselRef.current.initialize?.();
-    }
+    carouselRef.current.initialize?.();
   }, [allCards.length]);
 
   /* -------------------------------------------------------------
-     Flow Handlers
+     Handlers
 ------------------------------------------------------------- */
   const handleChecklistFinish = () => {
     if (questions.length === 0) return setStep("monitor");
@@ -188,9 +183,9 @@ export default function Nutrition() {
   };
 
   const handleMoodDone = () => {
-    if (questionIndex < questions.length - 1) {
+    if (questionIndex < questions.length - 1)
       return setQuestionIndex(questionIndex + 1);
-    }
+
     setStep("monitor");
   };
 
@@ -211,53 +206,42 @@ export default function Nutrition() {
 ------------------------------------------------------------- */
   return (
     <Page title="Nutrition Dashboard">
-      <ManiKLayout>
-        {/* HEADER */}
-        <div className="mb-6 space-y-3 text-center sm:text-left">
-          <BasicInitial />
-
-          <h2 className="text-primary-950 text-sm tracking-tight sm:text-2xl">
-            Nutrition
-          </h2>
-
-          <p className="text-primary-950 mt-0.5 text-sm">
-            Find the right nutrition plan curated just for you here
-          </p>
-        </div>
-
-        {/* STEP 1 — CHECKLIST */}
-        {step === "checklist" && (
+      {/* 1️⃣ QuickChecklistCard → No background */}
+      {step === "checklist" && (
+        <div className="min-h-screen flex items-center justify-center px-4">
           <QuickChecklistCard onFinish={handleChecklistFinish} />
-        )}
+        </div>
+      )}
 
-        {/* STEP 2 — DYNAMIC MOOD QUESTIONS */}
-        {step === "mood" && questions.length > 0 && (
+      {/* 2️⃣ MoodCard → No background */}
+      {step === "mood" && questions.length > 0 && (
+        <div className="min-h-screen flex items-center justify-center px-4">
           <MoodCard
             question={questions[questionIndex].name}
             questionId={questions[questionIndex].id}
-            targetDate={questions[questionIndex].targetDate} // <-- FIXED
+            targetDate={questions[questionIndex].targetDate}
             save={({ questionId, text, date }) =>
               saveMood({ userId, tenantId, questionId, text, date })
             }
             onDone={handleMoodDone}
           />
-        )}
+        </div>
+      )}
 
-        {/* STEP 3 — MONITORING */}
-        {step === "monitor" && (
-          <div>
-            {/* LOADING */}
-            {monitorStatus === "loading" && (
-              <div className="flex flex-col items-center justify-center py-10">
-                <Spinner color="primary" />
-                <div className="mt-3 text-sm">
-                  Loading your personalized plan...
-                </div>
-              </div>
-            )}
+      {/* 3️⃣ Monitoring Mode */}
+      {step === "monitor" && (
+        <>
+          {/* LOADING */}
+          {monitorStatus === "loading" && (
+            <div className="min-h-screen flex flex-col items-center justify-center">
+              <Spinner color="primary" />
+              <div className="mt-3 text-sm">Loading your personalized plan...</div>
+            </div>
+          )}
 
-            {/* ERROR */}
-            {monitorStatus === "error" && (
+          {/* ERROR */}
+          {monitorStatus === "error" && (
+            <div className="min-h-screen flex items-center justify-center px-4">
               <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center text-sm text-red-800">
                 <p>{monitorError}</p>
                 <button
@@ -267,47 +251,64 @@ export default function Nutrition() {
                   Retry
                 </button>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* SUCCESS */}
-            {monitorStatus === "success" && monitor && (
-              <>
-                {allCards.length === 1 && <WithIcon />}
+          {/* SUCCESS */}
+          {monitorStatus === "success" && monitor && (
+            <>
+              {/* 3A️⃣ Single day → show ONLY the component, no background */}
+              {allCards.length === 1 && (
+                <div className="min-h-screen flex items-center justify-center px-4">
+                  <MealPlanMonitoringCards
+                    sections={allCards[0].sections}
+                    cardDate={allCards[0].date}
+                    achievedFocus={allCards[0].achievedFocus}
+                    selectedFoods={selectedFoods}
+                    onSelectionChange={setSelectedFoods}
+                    isPending={allCards[0].isPending}
+                    allFocusItems={monitor.allFocusItems}
+                    allFocus={monitor.allFocus}
+                  />
+                </div>
+              )}
 
-                {allCards.length > 1 && (
-                  <>
-                    <swiper-container
-                      ref={carouselRef}
-                      style={{
-                        "--swiper-navigation-size": "32px",
-                        "--swiper-theme-color": "#548C62",
-                        "--swiper-pagination-color": "#8EB297",
-                      }}
-                    >
-                      {allCards.map((card, idx) => (
-                        <swiper-slide key={idx}>
-                          <MealPlanMonitoringCards
-                            sections={card.sections}
-                            cardDate={card.date}
-                            achievedFocus={card.achievedFocus}
-                            selectedFoods={selectedFoods}
-                            onSelectionChange={setSelectedFoods}
-                            isPending={card.isPending}
-                            allFocusItems={monitor.allFocusItems}
-                            allFocus={monitor.allFocus}
-                          />
-                        </swiper-slide>
-                      ))}
-                    </swiper-container>
+              {/* 3B️⃣ MULTI DAY → SHOW FULL BACKGROUND */}
 
-                    <WithIcon />
-                  </>
-                )}
-              </>
-            )}
-          </div>
-        )}
-      </ManiKLayout>
+                 {allCards.length === 1 && <WithIcon />}
+              {allCards.length > 1 && (
+                <ManiKLayout>
+                  <swiper-container
+                    ref={carouselRef}
+                    style={{
+                      "--swiper-navigation-size": "32px",
+                      "--swiper-theme-color": "#548C62",
+                      "--swiper-pagination-color": "#8EB297",
+                    }}
+                  >
+                    {allCards.map((card, idx) => (
+                      <swiper-slide key={idx}>
+                        <MealPlanMonitoringCards
+                          sections={card.sections}
+                          cardDate={card.date}
+                          achievedFocus={card.achievedFocus}
+                          selectedFoods={selectedFoods}
+                          onSelectionChange={setSelectedFoods}
+                          isPending={card.isPending}
+                          allFocusItems={monitor.allFocusItems}
+                          allFocus={monitor.allFocus}
+                        />
+                      </swiper-slide>
+                    ))}
+                  </swiper-container>
+
+
+                </ManiKLayout>
+              )}
+            </>
+          )}
+        </>
+      )}
     </Page>
   );
 }
